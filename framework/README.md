@@ -1,4 +1,4 @@
-# Allegory.Standard.Filter
+# Allegory.Axiom.Filter
 
 The filter package is designed to enable the creation of flexible and customizable queries in applications that require dynamic filtering of data. This package allows users to define complex filtering conditions on-the-fly, based on user input or other programmatic criteria, without the need for extensive coding or SQL knowledge.
 
