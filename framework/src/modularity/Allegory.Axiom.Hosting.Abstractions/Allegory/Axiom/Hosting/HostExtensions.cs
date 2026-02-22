@@ -12,47 +12,21 @@ public static class HostExtensions
 {
     extension(IHostApplicationBuilder builder)
     {
-        public async ValueTask ConfigureApplicationAsync(
-            Action<AxiomHostApplicationOptions>? optionsAction = null)
+        public async ValueTask ConfigureApplicationAsync(Action<AxiomHostApplicationOptions>? optionsAction = null)
         {
             var options = new AxiomHostApplicationOptions();
             optionsAction?.Invoke(options);
 
             options.StartupAssembly ??= Assembly.GetEntryAssembly();
             ArgumentNullException.ThrowIfNull(options.StartupAssembly);
+
             options.ApplicationBuilder ??= new AxiomHostApplicationBuilder();
-            options.DependencyRegistrar ??= new AssemblyDependencyRegistrar(builder.Services);
-
-            var application = await options.ApplicationBuilder.BuildAsync(builder, options.StartupAssembly);
-            builder.Services.AddSingleton(application);
-
-            foreach (var assembly in application.Assemblies)
-            {
-                options.DependencyRegistrar.Register(assembly);
-
-                var configureMethod = assembly.GetTypes().SingleOrDefault(
-                        t => typeof(IConfigureApplication).IsAssignableFrom(t) &&
-                             t is {IsClass: true, IsAbstract: false})?
-                    .GetMethod(nameof(IConfigureApplication.ConfigureAsync));
-
-                if (configureMethod != null)
-                {
-                    await (ValueTask) configureMethod.Invoke(null, [builder])!;
-                }
-            }
-
-            foreach (var assembly in application.Assemblies)
-            {
-                var configureMethod = assembly.GetTypes().SingleOrDefault(
-                        t => typeof(IPostConfigureApplication).IsAssignableFrom(t) &&
-                             t is {IsClass: true, IsAbstract: false})?
-                    .GetMethod(nameof(IPostConfigureApplication.PostConfigureAsync));
-
-                if (configureMethod != null)
-                {
-                    await (ValueTask) configureMethod.Invoke(null, [builder])!;
-                }
-            }
+            await options.ApplicationBuilder.BuildAsync(
+                new AxiomHostApplicationBuilderContext(
+                    builder,
+                    options.StartupAssembly,
+                    options.DependencyRegistrar ??= new AssemblyDependencyRegistrar(builder.Services),
+                    options.Plugins));
         }
     }
 

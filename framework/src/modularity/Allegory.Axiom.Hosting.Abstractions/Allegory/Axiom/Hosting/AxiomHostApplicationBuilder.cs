@@ -4,44 +4,51 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
-using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Hosting;
 
 public class AxiomHostApplicationBuilder
 {
-    public virtual ValueTask<AxiomHostApplication> BuildAsync(
-        IHostApplicationBuilder builder,
-        Assembly startupAssembly)
-    {
-        var dependencyContext = DependencyContext.Load(startupAssembly);
-        var packages = dependencyContext == null ? GetPackages(startupAssembly) : GetPackages(dependencyContext);
-        var application = new AxiomHostApplication(Guid.NewGuid(), startupAssembly, packages);
+    protected AxiomHostApplicationBuilderContext Context { get; set; } = null!;
 
-        return ValueTask.FromResult(application);
+    public virtual async ValueTask BuildAsync(AxiomHostApplicationBuilderContext context)
+    {
+        Context = context;
+
+        var assemblies = GetDependencies().ToList();
+        assemblies.AddRange(GetPlugins());
+
+        await ConfigureApplicationAsync(assemblies);
+        await PostConfigureApplicationAsync(assemblies);
+
+        var application = new AxiomHostApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
+        Context.Builder.Services.AddSingleton(application);
     }
 
-    protected virtual List<Assembly> GetPackages(Assembly startupAssembly)
+    protected virtual IEnumerable<Assembly> GetDependencies()
     {
-        var packages = new List<Assembly>();
+        var dependencyContext = DependencyContext.Load(Context.StartupAssembly);
+        if (dependencyContext != null)
+        {
+            return GetDependencies(dependencyContext);
+        }
 
-        foreach (var assembly in startupAssembly.GetReferencedAssemblies())
+        var packages = new List<Assembly>();
+        foreach (var assembly in Context.StartupAssembly.GetReferencedAssemblies())
         {
             packages.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(assembly));
         }
-
-        packages.Add(startupAssembly);
-
+        packages.Add(Context.StartupAssembly);
         return packages;
     }
 
-    protected virtual List<Assembly> GetPackages(DependencyContext context)
+    protected virtual IEnumerable<Assembly> GetDependencies(DependencyContext context)
     {
         const string dependencyInjectionAssemblyName = "Allegory.Axiom.DependencyInjection.Abstractions";
 
         var checkedLibraries = new Dictionary<string, bool>();
-        var packages = new List<Assembly>();
 
         foreach (var library in context.RuntimeLibraries)
         {
@@ -52,11 +59,9 @@ public class AxiomHostApplicationBuilder
 
             foreach (var assemblyName in library.GetDefaultAssemblyNames(context))
             {
-                packages.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName));
+                yield return AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
             }
         }
-
-        return packages;
     }
 
     private bool HasTransitiveDependency(
@@ -87,5 +92,49 @@ public class AxiomHostApplicationBuilder
         }
 
         return checkedLibraries[library.Name] = false;
+    }
+
+    protected virtual IEnumerable<Assembly> GetPlugins()
+    {
+        var plugins = new List<Assembly>();
+        foreach (var plugin in Context.Plugins)
+        {
+            plugins.AddRange(plugin.GetAssemblies());
+        }
+        return plugins;
+    }
+
+    protected virtual async ValueTask ConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
+    {
+        foreach (var assembly in assemblies)
+        {
+            Context.DependencyRegistrar.Register(assembly);
+
+            var configureMethod = assembly.GetTypes().SingleOrDefault(
+                    t => typeof(IConfigureApplication).IsAssignableFrom(t) &&
+                         t is {IsClass: true, IsAbstract: false})?
+                .GetMethod(nameof(IConfigureApplication.ConfigureAsync));
+
+            if (configureMethod != null)
+            {
+                await (ValueTask) configureMethod.Invoke(null, [Context.Builder])!;
+            }
+        }
+    }
+
+    protected virtual async ValueTask PostConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
+    {
+        foreach (var assembly in assemblies)
+        {
+            var configureMethod = assembly.GetTypes().SingleOrDefault(
+                    t => typeof(IPostConfigureApplication).IsAssignableFrom(t) &&
+                         t is {IsClass: true, IsAbstract: false})?
+                .GetMethod(nameof(IPostConfigureApplication.PostConfigureAsync));
+
+            if (configureMethod != null)
+            {
+                await (ValueTask) configureMethod.Invoke(null, [Context.Builder])!;
+            }
+        }
     }
 }
