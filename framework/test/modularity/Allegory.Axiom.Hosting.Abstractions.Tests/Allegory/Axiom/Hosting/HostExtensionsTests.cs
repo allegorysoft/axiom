@@ -64,6 +64,8 @@ public class HostExtensionsTests
 
         application.StartupAssembly.ShouldBe(typeof(Assembly2.Assembly2Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
+        AxiomHostingAbstractionsTestsPackage.ConfigureApplication.ShouldBeFalse();
+        AxiomHostingAbstractionsTestsPackage.PostConfigureApplication.ShouldBeFalse();
     }
 
     [Fact]
