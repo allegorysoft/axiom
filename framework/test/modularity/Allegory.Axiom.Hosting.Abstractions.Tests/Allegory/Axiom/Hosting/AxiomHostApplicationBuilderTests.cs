@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
@@ -14,7 +15,12 @@ public class AxiomHostApplicationBuilderTests
         var builder = Host.CreateApplicationBuilder();
         var applicationBuilder = new AxiomHostApplicationBuilder();
 
-        var application = await applicationBuilder.BuildAsync(builder, assembly);
+        var application = await applicationBuilder.BuildAsync(
+            new AxiomHostApplicationBuilderContext(
+                builder,
+                assembly,
+                new AssemblyDependencyRegistrar(builder.Services),
+                []));
 
         application.StartupAssembly.ShouldBe(assembly);
         application.Assemblies.ShouldContain(assembly);

@@ -13,10 +13,17 @@ public class AxiomHostApplicationBuilder
 {
     protected AxiomHostApplicationBuilderContext Context { get; set; } = null!;
 
-    public virtual async ValueTask BuildAsync(AxiomHostApplicationBuilderContext context)
+    public virtual async ValueTask<AxiomHostApplication> BuildAsync(
+        AxiomHostApplicationBuilderContext context)
     {
         Context = context;
+        var application = await BuildAsync();
+        Context.Builder.Services.AddSingleton(application);
+        return application;
+    }
 
+    protected virtual async ValueTask<AxiomHostApplication> BuildAsync()
+    {
         var assemblies = GetDependencies().ToList();
         assemblies.AddRange(GetPlugins());
 
@@ -24,7 +31,7 @@ public class AxiomHostApplicationBuilder
         await PostConfigureApplicationAsync(assemblies);
 
         var application = new AxiomHostApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
-        Context.Builder.Services.AddSingleton(application);
+        return application;
     }
 
     protected virtual IEnumerable<Assembly> GetDependencies()

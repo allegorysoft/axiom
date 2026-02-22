@@ -112,10 +112,8 @@ file class TestService : ITransientService
 
 file class CustomApplicationBuilder : AxiomHostApplicationBuilder
 {
-    public override ValueTask<AxiomHostApplication> BuildAsync(
-        IHostApplicationBuilder builder,
-        Assembly startupAssembly)
+    protected override ValueTask<AxiomHostApplication> BuildAsync()
     {
-        return ValueTask.FromResult(new AxiomHostApplication(Guid.Empty, startupAssembly, []));
+        return ValueTask.FromResult(new AxiomHostApplication(Guid.Empty, Context.StartupAssembly, []));
     }
 }
