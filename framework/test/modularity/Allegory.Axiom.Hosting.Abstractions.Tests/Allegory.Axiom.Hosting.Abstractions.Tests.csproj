@@ -11,6 +11,7 @@
         
         <ProjectReference Include="..\..\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
         <ProjectReference Include="..\..\..\src\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\playground\Allegory.Axiom.Assembly3\Allegory.Axiom.Assembly3.csproj" />
     </ItemGroup>
 
 </Project>

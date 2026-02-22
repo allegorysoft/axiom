@@ -3,12 +3,13 @@ using Allegory.Axiom.DependencyInjection;
 
 namespace Allegory.Axiom.Hosting;
 
-public class HostApplicationOptions
+public class AxiomHostApplicationOptions
 {
-    //Local plugin, Remote plugin
-
     public Assembly? StartupAssembly { get; set; }
+    public AxiomHostApplicationBuilder? ApplicationBuilder { get; set; }
     public AssemblyDependencyRegistrar? DependencyRegistrar { get; set; }
 
-    internal HostApplicationOptions() {}
+    //Local plugin, Remote plugin
+
+    internal AxiomHostApplicationOptions() {}
 }
