@@ -7,6 +7,7 @@ namespace Allegory.Axiom.Hosting.Plugins;
 public class AxiomApplicationFilePlugin(string path) : IAxiomApplicationPlugin
 {
     public Assembly Assembly { get; } = AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+
     public IEnumerable<Assembly> GetAssemblies()
     {
         yield return Assembly;

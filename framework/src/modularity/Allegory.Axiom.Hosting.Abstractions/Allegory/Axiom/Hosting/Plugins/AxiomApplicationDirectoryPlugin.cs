@@ -8,14 +8,14 @@ namespace Allegory.Axiom.Hosting.Plugins;
 
 public class AxiomApplicationDirectoryPlugin : IAxiomApplicationPlugin
 {
+    protected static readonly string[] Patterns = ["*.dll", "*.exe"];
     public IEnumerable<Assembly> Assemblies { get; }
 
     public AxiomApplicationDirectoryPlugin(string directory, bool recursive = true)
     {
-        var patterns = new[] {"*.dll", "*.exe"};
         var searchOption = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
 
-        Assemblies = patterns
+        Assemblies = Patterns
             .SelectMany(pattern => Directory.EnumerateFiles(directory, pattern, searchOption))
             .Distinct()
             .Select(p => AssemblyLoadContext.Default.LoadFromAssemblyPath(p))

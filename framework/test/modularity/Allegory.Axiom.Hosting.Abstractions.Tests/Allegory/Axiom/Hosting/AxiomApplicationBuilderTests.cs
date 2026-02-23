@@ -8,17 +8,17 @@ using Xunit;
 
 namespace Allegory.Axiom.Hosting;
 
-public class AxiomHostApplicationBuilderTests
+public class AxiomApplicationBuilderTests
 {
     [Fact]
     public async ValueTask ShouldBuildApplication()
     {
-        var assembly = typeof(AxiomHostApplicationBuilderTests).Assembly;
+        var assembly = typeof(AxiomApplicationBuilderTests).Assembly;
         var builder = Host.CreateApplicationBuilder();
-        var applicationBuilder = new AxiomHostApplicationBuilder();
+        var applicationBuilder = new AxiomApplicationBuilder();
 
         var application = await applicationBuilder.BuildAsync(
-            new AxiomHostApplicationBuilderContext(
+            new AxiomApplicationBuilderContext(
                 builder,
                 assembly,
                 new AssemblyDependencyRegistrar(builder.Services),
@@ -26,7 +26,7 @@ public class AxiomHostApplicationBuilderTests
 
         application.Id.ShouldNotBe(Guid.Empty);
         application.StartupAssembly.ShouldBe(assembly);
-        builder.Services.ShouldContain(s => s.ServiceType == typeof(AxiomHostApplication));
+        builder.Services.ShouldContain(s => s.ServiceType == typeof(AxiomApplication));
 
         application.Assemblies.ShouldContain(assembly);
         application.Assemblies.ShouldContain(typeof(Assembly1.Assembly1Package).Assembly);
@@ -39,10 +39,10 @@ public class AxiomHostApplicationBuilderTests
     {
         var assembly = typeof(Assembly1.Assembly1Package).Assembly;
         var builder = Host.CreateApplicationBuilder();
-        var applicationBuilder = new AxiomHostApplicationBuilder();
+        var applicationBuilder = new AxiomApplicationBuilder();
 
         var application = await applicationBuilder.BuildAsync(
-            new AxiomHostApplicationBuilderContext(
+            new AxiomApplicationBuilderContext(
                 builder,
                 assembly,
                 new AssemblyDependencyRegistrar(builder.Services),

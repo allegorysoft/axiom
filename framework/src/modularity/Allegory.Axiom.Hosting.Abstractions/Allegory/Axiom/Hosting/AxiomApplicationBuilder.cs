@@ -9,12 +9,12 @@ using Microsoft.Extensions.DependencyModel;
 
 namespace Allegory.Axiom.Hosting;
 
-public class AxiomHostApplicationBuilder
+public class AxiomApplicationBuilder
 {
-    protected AxiomHostApplicationBuilderContext Context { get; set; } = null!;
+    protected AxiomApplicationBuilderContext Context { get; set; } = null!;
 
-    public virtual async ValueTask<AxiomHostApplication> BuildAsync(
-        AxiomHostApplicationBuilderContext context)
+    public virtual async ValueTask<AxiomApplication> BuildAsync(
+        AxiomApplicationBuilderContext context)
     {
         Context = context;
         var application = await BuildAsync();
@@ -22,7 +22,7 @@ public class AxiomHostApplicationBuilder
         return application;
     }
 
-    protected virtual async ValueTask<AxiomHostApplication> BuildAsync()
+    protected virtual async ValueTask<AxiomApplication> BuildAsync()
     {
         var assemblies = GetDependencies().ToList();
         assemblies.AddRange(GetPlugins());
@@ -30,7 +30,7 @@ public class AxiomHostApplicationBuilder
         await ConfigureApplicationAsync(assemblies);
         await PostConfigureApplicationAsync(assemblies);
 
-        var application = new AxiomHostApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
+        var application = new AxiomApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
         return application;
     }
 

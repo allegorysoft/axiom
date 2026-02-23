@@ -44,7 +44,7 @@ public class HostExtensionsTests
         var host = builder.Build();
         await host.InitializeApplicationAsync();
 
-        var application = ServiceProviderExtensions.GetRequiredService<AxiomHostApplication>(host.Services);
+        var application = ServiceProviderExtensions.GetRequiredService<AxiomApplication>(host.Services);
         application.Assemblies.ShouldContain(typeof(HostExtensionsTests).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly1.Assembly1Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
@@ -61,7 +61,7 @@ public class HostExtensionsTests
         var builder = Host.CreateApplicationBuilder();
         await builder.ConfigureApplicationAsync(o => o.StartupAssembly = typeof(Assembly2.Assembly2Package).Assembly);
         var host = builder.Build();
-        var application = ServiceProviderExtensions.GetRequiredService<AxiomHostApplication>(host.Services);
+        var application = ServiceProviderExtensions.GetRequiredService<AxiomApplication>(host.Services);
 
         application.StartupAssembly.ShouldBe(typeof(Assembly2.Assembly2Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
@@ -84,7 +84,7 @@ public class HostExtensionsTests
         var builder = Host.CreateApplicationBuilder();
         await builder.ConfigureApplicationAsync(o => o.ApplicationBuilder = new CustomApplicationBuilder());
         var host = builder.Build();
-        var application = ServiceProviderExtensions.GetRequiredService<AxiomHostApplication>(host.Services);
+        var application = ServiceProviderExtensions.GetRequiredService<AxiomApplication>(host.Services);
 
         application.Id.ShouldBe(Guid.Empty);
         application.Assemblies.Count.ShouldBe(0);
@@ -101,7 +101,7 @@ public class HostExtensionsTests
             o.Plugins.Add(new AxiomApplicationAssemblyPlugin(typeof(Assembly2.Assembly2Package).Assembly));
         });
         var host = builder.Build();
-        var application = ServiceProviderExtensions.GetRequiredService<AxiomHostApplication>(host.Services);
+        var application = ServiceProviderExtensions.GetRequiredService<AxiomApplication>(host.Services);
 
         application.StartupAssembly.ShouldBe(assembly);
         application.Assemblies.ShouldContain(assembly);
@@ -131,10 +131,10 @@ file class CustomDependencyRegistrar(IServiceCollection serviceCollection) :
 
 internal class SomeClassRegisterMe {}
 
-file class CustomApplicationBuilder : AxiomHostApplicationBuilder
+file class CustomApplicationBuilder : AxiomApplicationBuilder
 {
-    protected override ValueTask<AxiomHostApplication> BuildAsync()
+    protected override ValueTask<AxiomApplication> BuildAsync()
     {
-        return ValueTask.FromResult(new AxiomHostApplication(Guid.Empty, Context.StartupAssembly, []));
+        return ValueTask.FromResult(new AxiomApplication(Guid.Empty, Context.StartupAssembly, []));
     }
 }

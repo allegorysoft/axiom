@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace Allegory.Axiom.Hosting;
 
-public sealed class AxiomHostApplication(
+public sealed class AxiomApplication(
     Guid id,
     Assembly startupAssembly,
     IReadOnlyCollection<Assembly> assemblies)

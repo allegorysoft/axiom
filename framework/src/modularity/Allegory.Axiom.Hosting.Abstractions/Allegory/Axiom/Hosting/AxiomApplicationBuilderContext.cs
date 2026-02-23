@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Hosting;
 
-public record AxiomHostApplicationBuilderContext(
+public record AxiomApplicationBuilderContext(
     IHostApplicationBuilder Builder,
     Assembly StartupAssembly,
     AssemblyDependencyRegistrar DependencyRegistrar,
