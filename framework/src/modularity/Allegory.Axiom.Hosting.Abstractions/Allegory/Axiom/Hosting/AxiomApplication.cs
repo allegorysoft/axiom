@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Allegory.Axiom.Hosting;
 
-public sealed class AxiomHostApplication(
+public sealed class AxiomApplication(
     Guid id,
     Assembly startupAssembly,
     IReadOnlyCollection<Assembly> assemblies)
