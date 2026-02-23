@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.Hosting.Plugins;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Testing.Platform.Services;
@@ -64,6 +65,7 @@ public class HostExtensionsTests
 
         application.StartupAssembly.ShouldBe(typeof(Assembly2.Assembly2Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
+        application.Assemblies.ShouldNotContain(typeof(Assembly3.Assembly3Package).Assembly);
     }
 
     [Fact]
@@ -87,6 +89,30 @@ public class HostExtensionsTests
         application.Id.ShouldBe(Guid.Empty);
         application.Assemblies.Count.ShouldBe(0);
     }
+
+    [Fact]
+    public async ValueTask ShouldLoadPlugins()
+    {
+        var assembly = typeof(Assembly1.Assembly1Package).Assembly;
+        var builder = Host.CreateApplicationBuilder();
+        await builder.ConfigureApplicationAsync(o =>
+        {
+            o.StartupAssembly = assembly;
+            o.Plugins.Add(new AxiomApplicationAssemblyPlugin(typeof(Assembly2.Assembly2Package).Assembly));
+        });
+        var host = builder.Build();
+        var application = ServiceProviderExtensions.GetRequiredService<AxiomHostApplication>(host.Services);
+
+        application.StartupAssembly.ShouldBe(assembly);
+        application.Assemblies.ShouldContain(assembly);
+        application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
+        application.Assemblies.ShouldNotContain(typeof(Assembly3.Assembly3Package).Assembly);
+    }
+}
+
+file class TestService : ITransientService
+{
+    public int GetNumber() => 1;
 }
 
 file class CustomDependencyRegistrar(IServiceCollection serviceCollection) :
@@ -104,11 +130,6 @@ file class CustomDependencyRegistrar(IServiceCollection serviceCollection) :
 }
 
 internal class SomeClassRegisterMe {}
-
-file class TestService : ITransientService
-{
-    public int GetNumber() => 1;
-}
 
 file class CustomApplicationBuilder : AxiomHostApplicationBuilder
 {
