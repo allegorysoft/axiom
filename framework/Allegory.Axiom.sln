@@ -37,6 +37,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Assembly1", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Assembly3", "test\playground\Allegory.Axiom.Assembly3\Allegory.Axiom.Assembly3.csproj", "{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Castle.Core", "src\core\Allegory.Axiom.Castle.Core\Allegory.Axiom.Castle.Core.csproj", "{3D5C62A7-7493-483A-BFDA-335D772AEFAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Castle.Core.Tests", "test\core\Allegory.Axiom.Castle.Core.Tests\Allegory.Axiom.Castle.Core.Tests.csproj", "{D68602BA-282A-4F9A-A8F1-46FDECE62CDF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +87,14 @@ Global
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3D5C62A7-7493-483A-BFDA-335D772AEFAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D5C62A7-7493-483A-BFDA-335D772AEFAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D5C62A7-7493-483A-BFDA-335D772AEFAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D5C62A7-7493-483A-BFDA-335D772AEFAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D68602BA-282A-4F9A-A8F1-46FDECE62CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D68602BA-282A-4F9A-A8F1-46FDECE62CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D68602BA-282A-4F9A-A8F1-46FDECE62CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D68602BA-282A-4F9A-A8F1-46FDECE62CDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +115,8 @@ Global
 		{FBA959F6-6C95-406F-9DDE-2AC78E695127} = {80FF4C63-4C20-46B7-BAA7-C61F6B3F69FC}
 		{F63D8358-7697-433E-9618-FB319D608F94} = {80FF4C63-4C20-46B7-BAA7-C61F6B3F69FC}
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA} = {80FF4C63-4C20-46B7-BAA7-C61F6B3F69FC}
+		{3D5C62A7-7493-483A-BFDA-335D772AEFAF} = {E3B2E7DF-A723-49D5-8996-627E89F0DEF1}
+		{D68602BA-282A-4F9A-A8F1-46FDECE62CDF} = {2384B395-384A-4ED5-B8CD-3A207E703E4C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0D71235-D5C8-45BB-A444-834373A8E049}

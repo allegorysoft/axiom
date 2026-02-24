@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Castle.Core"/>
+        <PackageReference Include="Castle.Core.AsyncInterceptor"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\modularity\Allegory.Axiom.DependencyInjection.Abstractions\Allegory.Axiom.DependencyInjection.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
