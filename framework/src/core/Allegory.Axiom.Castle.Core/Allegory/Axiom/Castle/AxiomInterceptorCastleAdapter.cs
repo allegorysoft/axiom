@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.DependencyInjection.Proxy;
 using Castle.DynamicProxy;
 
 namespace Allegory.Axiom.Castle;
 
 public class AxiomInterceptorCastleAdapter<T>(T interceptor) :
-    AsyncInterceptorBase 
-    where T : IAxiomInterceptor
+    AsyncInterceptorBase, ISingletonService 
+    where T : IAxiomInterceptor 
 {
     protected T Interceptor { get; } = interceptor;
 
@@ -17,7 +18,6 @@ public class AxiomInterceptorCastleAdapter<T>(T interceptor) :
         Func<IInvocation, IInvocationProceedInfo, Task> proceed)
     {
         var adapter = new AxiomInterceptorContextCastleAdapter(invocation, proceedInfo, proceed);
-
         return Interceptor.InterceptAsync(adapter);
     }
 

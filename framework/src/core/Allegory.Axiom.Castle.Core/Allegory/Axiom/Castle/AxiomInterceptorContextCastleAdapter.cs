@@ -14,19 +14,15 @@ public sealed class AxiomInterceptorContextCastleAdapter(
 {
     public IInvocation Invocation { get; } = invocation;
     public IInvocationProceedInfo ProceedInfo { get; } = proceedInfo;
-    private Func<IInvocation, IInvocationProceedInfo, Task> Proceed { get; } = proceed;
-
+    public Func<IInvocation, IInvocationProceedInfo, Task> Proceed { get; } = proceed;
     public MethodInfo Method => Invocation.Method;
-
+    public object? Target => Invocation.InvocationTarget;
     public object?[] Arguments => Invocation.Arguments;
-
     public object? ReturnValue
     {
         get => throw new NotSupportedException();
         set => throw new NotSupportedException();
     }
-
-    public object? Target => Invocation.InvocationTarget;
 
     public Task ProceedAsync() => Proceed(Invocation, ProceedInfo);
 }
@@ -39,15 +35,11 @@ public sealed class AxiomInterceptorContextCastleAdapter<TResult>(
 {
     public IInvocation Invocation { get; } = invocation;
     public IInvocationProceedInfo ProceedInfo { get; } = proceedInfo;
-    private Func<IInvocation, IInvocationProceedInfo, Task<TResult>> Proceed { get; } = proceed;
-
+    public Func<IInvocation, IInvocationProceedInfo, Task<TResult>> Proceed { get; } = proceed;
     public MethodInfo Method => Invocation.Method;
-
-    public object?[] Arguments => Invocation.Arguments;
-
-    public object? ReturnValue { get; set; }
-
     public object? Target => Invocation.InvocationTarget;
+    public object?[] Arguments => Invocation.Arguments;
+    public object? ReturnValue { get; set; }
 
     public async Task ProceedAsync()
     {

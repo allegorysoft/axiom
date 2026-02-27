@@ -2,7 +2,7 @@
 
 namespace Allegory.Axiom.DependencyInjection.Proxy;
 
-public interface IAxiomInterceptor
+public interface IAxiomInterceptor : ISingletonService
 {
     Task InterceptAsync(IAxiomInterceptorContext context);
 }
