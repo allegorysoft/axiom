@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 
@@ -142,6 +143,11 @@ public class AxiomApplicationBuilder
             {
                 await (ValueTask) configureMethod.Invoke(null, [Context.Builder])!;
             }
+        }
+
+        foreach (var action in Context.Builder.Services.PostConfigureActions)
+        {
+            action(Context.Builder.Services);
         }
     }
 }

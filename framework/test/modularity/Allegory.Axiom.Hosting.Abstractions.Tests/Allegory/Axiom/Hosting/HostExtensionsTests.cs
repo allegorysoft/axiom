@@ -19,10 +19,14 @@ public class HostExtensionsTests
     public async ValueTask ShouldConfigureApplication()
     {
         var builder = Host.CreateApplicationBuilder();
+        var postConfigureAction = false;
+        builder.Services.AddPostConfigureAction(_ => postConfigureAction = true);
+
         await builder.ConfigureApplicationAsync();
 
         AxiomHostingAbstractionsTestsPackage.ConfigureApplication.ShouldBeTrue();
         AxiomHostingAbstractionsTestsPackage.PostConfigureApplication.ShouldBeTrue();
+        postConfigureAction.ShouldBeTrue();
     }
 
     [Fact]
