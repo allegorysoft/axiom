@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection.Proxy;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
@@ -9,67 +10,61 @@ namespace Allegory.Axiom.DependencyInjection;
 public class ServiceCollectionExtensionsTests
 {
     [Fact]
-    public void ShouldReturnEmptyListWhenNoActionsAdded()
+    public void ShouldInvokePostConfigureAction()
     {
         var services = new ServiceCollection();
+        var wasCalled = false;
 
-        services.PostConfigureActions.ShouldBeEmpty();
+        services.AddPostConfigureAction(_ => wasCalled = true);
+        services.ExecutePostConfigureActions();
+
+        wasCalled.ShouldBeTrue();
     }
 
     [Fact]
-    public void ShouldAddPostConfigureAction()
+    public void ShouldInvokePostConfigureActionsInOrder()
     {
         var services = new ServiceCollection();
-        Action<IServiceCollection> action = s => s.AddSingleton<IDisposable>();
+        var callOrder = new List<int>();
 
-        services.AddPostConfigureAction(action);
+        services.AddPostConfigureAction(_ => callOrder.Add(1));
+        services.AddPostConfigureAction(_ => callOrder.Add(2));
+        services.AddPostConfigureAction(_ => callOrder.Add(3));
+        services.ExecutePostConfigureActions();
 
-        services.PostConfigureActions.ShouldContain(action);
+        callOrder.ShouldBe([1, 2, 3]);
     }
 
     [Fact]
-    public void ShouldAddMultiplePostConfigureActions()
-    {
-        var services = new ServiceCollection();
-        Action<IServiceCollection> action1 = s => s.AddSingleton<IDisposable>();
-        Action<IServiceCollection> action2 = s => s.AddScoped<IDisposable>();
-
-        services.AddPostConfigureAction(action1);
-        services.AddPostConfigureAction(action2);
-
-        services.PostConfigureActions.Count.ShouldBe(2);
-        services.PostConfigureActions.ShouldBe([action1, action2]);
-    }
-
-    [Fact]
-    public void ShouldIsolateActionsBetweenDifferentCollections()
+    public void ShouldNotShareStateBetweenServiceCollections()
     {
         var services1 = new ServiceCollection();
         var services2 = new ServiceCollection();
 
-        services1.AddPostConfigureAction(s => s.AddSingleton<IDisposable>());
+        services1.AddPostConfigureAction(_ => {});
+        services2.ExecutePostConfigureActions();
 
-        services1.PostConfigureActions.Count.ShouldBe(1);
-        services2.PostConfigureActions.ShouldBeEmpty();
+        ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services1).PostConfigureActions.Count.ShouldBe(1);
+        ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services2).PostConfigureActions.Count.ShouldBe(0);
+
     }
 
     [Fact]
-    public void ShouldReturnReadOnlyList()
+    public void ShouldAddInterceptor()
     {
         var services = new ServiceCollection();
 
-        services.PostConfigureActions.ShouldBeAssignableTo<IReadOnlyList<Action<IServiceCollection>>>();
+        services.AddInterceptor<Interceptor1>(_ => true);
+        services.AddInterceptor(typeof(Interceptor1), _ => true);
+
+        ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services).Interceptors.Count.ShouldBe(2);
     }
+}
 
-    [Fact]
-    public void ShouldExecuteAddedActionsWhenInvoked()
+class Interceptor1 : IAxiomInterceptor
+{
+    public Task InterceptAsync(IAxiomInterceptorContext context)
     {
-        var services = new ServiceCollection();
-        var executed = false;
-
-        services.AddPostConfigureAction(_ => executed = true);
-        services.PostConfigureActions[0](services);
-
-        executed.ShouldBeTrue();
+        return context.ProceedAsync();
     }
 }

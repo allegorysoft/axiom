@@ -2,7 +2,7 @@
 
 namespace Allegory.Axiom.DependencyInjection.Proxy;
 
-public readonly struct InterceptorDescriptor
+internal readonly struct InterceptorDescriptor
 {
     public Func<Type, bool> Predicate { get; }
     public Type Interceptor { get; }

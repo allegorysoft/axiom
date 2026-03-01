@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.DependencyInjection.Proxy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 
@@ -30,7 +31,7 @@ public class AxiomApplicationBuilder
 
         await ConfigureApplicationAsync(assemblies);
         await PostConfigureApplicationAsync(assemblies);
-        Context.Builder.Services.ApplyInterceptors();
+        Context.Builder.Services.ExecutePostConfigureActions();
 
         var application = new AxiomApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
         return application;
@@ -144,11 +145,6 @@ public class AxiomApplicationBuilder
             {
                 await (ValueTask) configureMethod.Invoke(null, [Context.Builder])!;
             }
-        }
-
-        foreach (var action in Context.Builder.Services.PostConfigureActions)
-        {
-            action(Context.Builder.Services);
         }
     }
 }
