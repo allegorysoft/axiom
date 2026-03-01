@@ -30,6 +30,7 @@ public class AxiomApplicationBuilder
 
         await ConfigureApplicationAsync(assemblies);
         await PostConfigureApplicationAsync(assemblies);
+        Context.Builder.Services.ApplyInterceptors();
 
         var application = new AxiomApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
         return application;
