@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using Allegory.Axiom.DependencyInjection.Proxy;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,12 +22,14 @@ public static class ServiceCollectionExtensions
 
         public void ExecutePostConfigureActions()
         {
-            foreach (var action in ExtraProperties.GetOrCreateValue(collection).PostConfigureActions)
+            var extraProperties = ExtraProperties.GetOrCreateValue(collection);
+
+            foreach (var action in extraProperties.PostConfigureActions)
             {
                 action(collection);
             }
 
-            //Register interceptors
+            ServiceCollectionInterceptorRegistrar.Apply(collection, extraProperties.Interceptors);
         }
 
         public void AddInterceptor<T>(Func<Type, bool> predicate) where T : IAxiomInterceptor, new()

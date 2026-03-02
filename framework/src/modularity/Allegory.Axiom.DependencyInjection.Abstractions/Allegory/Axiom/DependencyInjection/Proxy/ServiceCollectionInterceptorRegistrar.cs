@@ -5,20 +5,26 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Allegory.Axiom.DependencyInjection.Proxy;
 
-internal class ServiceCollectionInterceptorRegistrar(
-    IServiceCollection collection,
-    List<InterceptorDescriptor> interceptors)
+internal sealed class ServiceCollectionInterceptorRegistrar
 {
-    public IServiceCollection Collection { get; } = collection;
-    public List<InterceptorDescriptor> Interceptors { get; } = interceptors;
+    public IServiceCollection Collection { get; }
+    public List<InterceptorDescriptor> Interceptors { get; }
+
+    public static void Apply(IServiceCollection collection, List<InterceptorDescriptor> interceptors)
+        => new ServiceCollectionInterceptorRegistrar(collection, interceptors).ApplyInterceptors();
+
+    private ServiceCollectionInterceptorRegistrar(
+        IServiceCollection collection,
+        List<InterceptorDescriptor> interceptors)
+    {
+        Collection = collection;
+        Interceptors = interceptors;
+    }
 
     public void ApplyInterceptors()
     {
-        var serviceInterceptors = GetServiceInterceptors();
-
         foreach (var serviceInterceptor in GetServiceInterceptors())
         {
-            Collection.Remove(serviceInterceptor.Key);
             RegisterService(serviceInterceptor.Key, serviceInterceptor.Value);
         }
     }
@@ -31,6 +37,7 @@ internal class ServiceCollectionInterceptorRegistrar(
         {
             var services = Collection.Where(t =>
                 {
+                    //Currently `ImplementationInstance`, `ImplementationFactory` not supported.
                     var implementationType = t.IsKeyedService ? t.KeyedImplementationType : t.ImplementationType;
                     return implementationType != null && interceptor.Predicate(implementationType);
                 }
@@ -51,17 +58,37 @@ internal class ServiceCollectionInterceptorRegistrar(
         var newService = service.IsKeyedService ?
             GetKeyedService(service, interceptors) :
             GetService(service, interceptors);
+
+        Collection.Remove(service);
         Collection.Add(newService);
     }
 
-    private ServiceDescriptor GetService(ServiceDescriptor service, List<Type> interceptors)
+    private static ServiceDescriptor GetService(ServiceDescriptor service, List<Type> interceptors)
     {
-        return null;
+        return ServiceDescriptor.Describe(
+            service.ServiceType,
+            provider =>
+            {
+                var implementation = ActivatorUtilities.CreateInstance(provider, service.ImplementationType!);
+                var proxy = provider.GetRequiredService<IProxyGenerator>();
+                return proxy.Create(implementation, service.ServiceType, interceptors, provider);
+            },
+            service.Lifetime
+        );
     }
 
-    private ServiceDescriptor GetKeyedService(ServiceDescriptor service, List<Type> interceptors)
+    private static ServiceDescriptor GetKeyedService(ServiceDescriptor service, List<Type> interceptors)
     {
-        //Collection. service.KeyedImplementationType!
-        return null;
+        return ServiceDescriptor.DescribeKeyed(
+            service.ServiceType,
+            service.ServiceKey,
+            (provider, _) =>
+            {
+                var implementation = ActivatorUtilities.CreateInstance(provider, service.KeyedImplementationType!);
+                var proxy = provider.GetRequiredService<IProxyGenerator>();
+                return proxy.Create(implementation, service.ServiceType, interceptors, provider);
+            },
+            service.Lifetime
+        );
     }
 }
