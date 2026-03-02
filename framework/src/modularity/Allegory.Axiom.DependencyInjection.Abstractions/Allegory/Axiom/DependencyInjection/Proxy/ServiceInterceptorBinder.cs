@@ -5,15 +5,15 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Allegory.Axiom.DependencyInjection.Proxy;
 
-internal sealed class ServiceCollectionInterceptorRegistrar
+internal sealed class ServiceInterceptorBinder
 {
     public IServiceCollection Collection { get; }
     public List<InterceptorDescriptor> Interceptors { get; }
 
     public static void Apply(IServiceCollection collection, List<InterceptorDescriptor> interceptors)
-        => new ServiceCollectionInterceptorRegistrar(collection, interceptors).ApplyInterceptors();
+        => new ServiceInterceptorBinder(collection, interceptors).ApplyInterceptors();
 
-    private ServiceCollectionInterceptorRegistrar(
+    private ServiceInterceptorBinder(
         IServiceCollection collection,
         List<InterceptorDescriptor> interceptors)
     {

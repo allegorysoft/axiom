@@ -29,7 +29,7 @@ public static class ServiceCollectionExtensions
                 action(collection);
             }
 
-            ServiceCollectionInterceptorRegistrar.Apply(collection, extraProperties.Interceptors);
+            ServiceInterceptorBinder.Apply(collection, extraProperties.Interceptors);
         }
 
         public void AddInterceptor<T>(Func<Type, bool> predicate) where T : IAxiomInterceptor, new()
