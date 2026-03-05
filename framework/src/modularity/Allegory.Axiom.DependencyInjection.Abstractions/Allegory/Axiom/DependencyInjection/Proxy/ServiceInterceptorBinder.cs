@@ -45,8 +45,12 @@ internal sealed class ServiceInterceptorBinder
 
             foreach (var service in services)
             {
-                serviceInterceptors.TryAdd(service, []);
-                serviceInterceptors[service].Add(interceptor.Interceptor);
+                if (!serviceInterceptors.TryGetValue(service, out var list))
+                {
+                    serviceInterceptors[service] = list = [];
+                }
+
+                list.Add(interceptor.Interceptor);
             }
         }
 
