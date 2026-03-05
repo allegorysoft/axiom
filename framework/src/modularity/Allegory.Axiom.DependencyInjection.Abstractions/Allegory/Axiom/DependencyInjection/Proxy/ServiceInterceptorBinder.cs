@@ -21,7 +21,7 @@ internal sealed class ServiceInterceptorBinder
         Interceptors = interceptors;
     }
 
-    public void ApplyInterceptors()
+    private void ApplyInterceptors()
     {
         foreach (var serviceInterceptor in GetServiceInterceptors())
         {
@@ -55,12 +55,12 @@ internal sealed class ServiceInterceptorBinder
 
     private void RegisterService(ServiceDescriptor service, List<Type> interceptors)
     {
-        var newService = service.IsKeyedService ?
+        var proxyService = service.IsKeyedService ?
             GetKeyedService(service, interceptors) :
             GetService(service, interceptors);
 
         Collection.Remove(service);
-        Collection.Add(newService);
+        Collection.Add(proxyService);
     }
 
     private static ServiceDescriptor GetService(ServiceDescriptor service, List<Type> interceptors)
@@ -71,7 +71,7 @@ internal sealed class ServiceInterceptorBinder
             {
                 var implementation = ActivatorUtilities.CreateInstance(provider, service.ImplementationType!);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
-                return proxy.Create(implementation, service.ServiceType, interceptors, provider);
+                return proxy.Create(implementation, service.ServiceType, interceptors);
             },
             service.Lifetime
         );
@@ -86,7 +86,7 @@ internal sealed class ServiceInterceptorBinder
             {
                 var implementation = ActivatorUtilities.CreateInstance(provider, service.KeyedImplementationType!);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
-                return proxy.Create(implementation, service.ServiceType, interceptors, provider);
+                return proxy.Create(implementation, service.ServiceType, interceptors);
             },
             service.Lifetime
         );

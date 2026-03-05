@@ -10,29 +10,40 @@ using IProxyGenerator=Allegory.Axiom.DependencyInjection.Proxy.IProxyGenerator;
 namespace Allegory.Axiom.Castle;
 
 [Dependency<IProxyGenerator>]
-public class ProxyGeneratorCastleAdapter : IProxyGenerator
+public class ProxyGeneratorCastleAdapter(IServiceProvider serviceProvider) : IProxyGenerator
 {
-    private readonly ConcurrentDictionary<Type, IInterceptor> _interceptorCache = new();
+    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
+    protected ProxyGenerator Generator { get; } = new();
+    protected ConcurrentDictionary<Type, IInterceptor[]> ServiceInterceptorCache { get; } = new();
+    protected ConcurrentDictionary<Type, IInterceptor> InterceptorCache { get; } = new();
 
-    public ProxyGenerator Generator { get; } = new();
-
-    public virtual object Create(object target, Type serviceType, IEnumerable<Type> interceptorTypes, IServiceProvider provider)
+    public virtual object Create(
+        object target,
+        Type serviceType,
+        IEnumerable<Type> interceptorTypes)
     {
-        var interceptors = interceptorTypes
-            .Select(type => ResolveInterceptor(type, provider))
-            .ToArray();
+        var interceptors = GetServiceInterceptors(serviceType, interceptorTypes);
 
         return serviceType.IsInterface
             ? Generator.CreateInterfaceProxyWithTarget(serviceType, target, interceptors)
-            : Generator.CreateClassProxyWithTarget(target, interceptors);
+            : Generator.CreateClassProxyWithTarget(serviceType, target, interceptors);
     }
 
-    protected virtual IInterceptor ResolveInterceptor(Type interceptorType, IServiceProvider provider)
+    protected virtual IInterceptor[] GetServiceInterceptors(Type serviceType, IEnumerable<Type> interceptors)
     {
-        return _interceptorCache.GetOrAdd(interceptorType, type =>
+        return ServiceInterceptorCache.GetOrAdd(
+            serviceType,
+            t => interceptors
+                .Select(ResolveInterceptor)
+                .ToArray());
+    }
+
+    protected virtual IInterceptor ResolveInterceptor(Type interceptorType)
+    {
+        return InterceptorCache.GetOrAdd(interceptorType, type =>
         {
             var adapterType = typeof(AxiomInterceptorCastleDeterminationAdapter<>).MakeGenericType(type);
-            return (IInterceptor) provider.GetRequiredService(adapterType);
+            return (IInterceptor) ServiceProvider.GetRequiredService(adapterType);
         });
     }
 }

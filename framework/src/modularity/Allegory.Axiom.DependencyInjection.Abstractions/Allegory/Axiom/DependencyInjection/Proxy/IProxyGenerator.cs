@@ -5,5 +5,5 @@ namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 public interface IProxyGenerator : ISingletonService
 {
-    object Create(object target, Type serviceType, IEnumerable<Type> interceptors, IServiceProvider serviceProvider);
+    object Create(object target, Type serviceType, IEnumerable<Type> interceptors);
 }
