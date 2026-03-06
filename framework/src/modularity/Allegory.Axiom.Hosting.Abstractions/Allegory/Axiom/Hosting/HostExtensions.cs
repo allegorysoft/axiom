@@ -12,7 +12,8 @@ public static class HostExtensions
 {
     extension(IHostApplicationBuilder builder)
     {
-        public async ValueTask ConfigureApplicationAsync(Action<AxiomApplicationOptions>? optionsAction = null)
+        public ValueTask<AxiomApplication> ConfigureApplicationAsync(
+            Action<AxiomApplicationOptions>? optionsAction = null)
         {
             var options = new AxiomApplicationOptions();
             optionsAction?.Invoke(options);
@@ -21,7 +22,8 @@ public static class HostExtensions
             ArgumentNullException.ThrowIfNull(options.StartupAssembly);
 
             options.ApplicationBuilder ??= new AxiomApplicationBuilder();
-            await options.ApplicationBuilder.BuildAsync(
+
+            return options.ApplicationBuilder.BuildAsync(
                 new AxiomApplicationBuilderContext(
                     builder,
                     options.StartupAssembly,
