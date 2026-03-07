@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
             ServiceInterceptorBinder.Apply(collection, extraProperties.Interceptors);
         }
 
-        public void AddInterceptor<T>(Func<Type, bool> predicate) where T : IAxiomInterceptor, new()
+        public void AddInterceptor<T>(Func<Type, bool> predicate) where T : class, IAxiomInterceptor
         {
             ExtraProperties.GetOrCreateValue(collection)
                 .Interceptors
