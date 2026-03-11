@@ -58,7 +58,7 @@ public class AxiomApplicationBuilderTests
                 new AssemblyDependencyRegistrar(Builder.Services),
                 []));
 
-        application.Assemblies.ShouldContain(typeof(HostExtensionsTests).Assembly);
+        application.Assemblies.ShouldContain(typeof(AxiomApplicationBuilderTests).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly1.Assembly1Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly3.Assembly3Package).Assembly);

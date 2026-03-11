@@ -46,7 +46,6 @@ public class ServiceCollectionExtensionsTests
 
         ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services1).PostConfigureActions.Count.ShouldBe(1);
         ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services2).PostConfigureActions.Count.ShouldBe(0);
-
     }
 
     [Fact]
