@@ -11,8 +11,12 @@ namespace Allegory.Axiom.Castle;
 [Dependency<IProxyGenerator>]
 public class ProxyGeneratorCastleAdapter : IProxyGenerator
 {
+    //CreateClassProxy, CreateClassProxy<>, CreateClassProxyWithTarget
+    //CreateInterfaceProxyWithTarget, CreateInterfaceProxyWithTargetInterface
+    //CreateInterfaceProxyWithoutTarget, CreateInterfaceProxyWithoutTarget<> 
+    //AsyncInterceptorBase, AsyncDeterminationInterceptor : IInterceptor
     protected ProxyGenerator Generator { get; } = new();
-    protected ConcurrentDictionary<Type, Type> InterceptorMapCache { get; } = new();
+    protected internal ConcurrentDictionary<Type, Type> InterceptorMapCache { get; } = new();
 
     public virtual object Create(
         IServiceProvider serviceProvider,
