@@ -37,7 +37,6 @@ internal sealed class ServiceInterceptorBinder
         {
             var services = Collection.Where(t =>
                 {
-                    //Currently `ImplementationInstance`, `ImplementationFactory` not supported.
                     var implementationType = t.IsKeyedService ? t.KeyedImplementationType : t.ImplementationType;
                     return implementationType != null && interceptor.Predicate(implementationType);
                 }

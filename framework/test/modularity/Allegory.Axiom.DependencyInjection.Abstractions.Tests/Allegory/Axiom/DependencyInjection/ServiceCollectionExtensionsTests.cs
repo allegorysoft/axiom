@@ -60,10 +60,7 @@ public class ServiceCollectionExtensionsTests
     }
 }
 
-class Interceptor1 : IAxiomInterceptor
+file class Interceptor1 : IAxiomInterceptor
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context)
-    {
-        return context.ProceedAsync();
-    }
+    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
 }

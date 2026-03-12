@@ -20,7 +20,8 @@ internal class AxiomCastleCorePackage : IConfigureApplication
     {
         var interceptors = serviceCollection.Where(
             x => typeof(IAxiomInterceptor).IsAssignableFrom(x.ServiceType) &&
-                 x.Lifetime > ServiceLifetime.Singleton);
+                 x.Lifetime > ServiceLifetime.Singleton)
+            .ToList();
 
         foreach (var interceptor in interceptors)
         {

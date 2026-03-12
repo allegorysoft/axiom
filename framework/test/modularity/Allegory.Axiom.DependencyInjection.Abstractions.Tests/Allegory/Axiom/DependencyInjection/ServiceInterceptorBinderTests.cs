@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection.Proxy;
@@ -96,7 +95,7 @@ public class ServiceInterceptorBinderTests
     }
 
     [Fact]
-    public void ShouldNotModifyServicesWithNullImplementationType()
+    public void ShouldNotModifyServicesWithoutImplementationType()
     {
         var collection = new ServiceCollection();
 
@@ -160,48 +159,6 @@ public class ServiceInterceptorBinderTests
 
         collection.Count(c => c.ServiceType == typeof(Implementation1)).ShouldBe(1);
     }
-
-    // [Fact]
-    // public async Task ShouldSetCurrentServiceProviderForEachScope()
-    // {
-    //     // Arrange
-    //     var collection = new ServiceCollection();
-    //     collection.AddScoped<Implementation1>();
-    //     collection.AddScoped<Implementation2>();
-    //     collection.AddSingleton<IProxyGenerator, NullProxyGenerator>();
-    //
-    //     var descriptor = new InterceptorDescriptor(
-    //         typeof(Interceptor2), t => typeof(IImplementation).IsAssignableFrom(t));
-    //
-    //     ServiceInterceptorBinder.Apply(collection, [descriptor]);
-    //
-    //     var rootProvider = collection.BuildServiceProvider();
-    //
-    //     Implementation1? scope1Implementation1, scope2Implementation1;
-    //     IServiceProvider? scope1ServiceProvider, scope2ServiceProvider;
-    //
-    //     // Act & Assert
-    //     using (var scope1 = rootProvider.CreateScope())
-    //     {
-    //         scope1Implementation1 = scope1.ServiceProvider.GetRequiredService<Implementation1>();
-    //         scope1ServiceProvider = AxiomInterceptor.CurrentServiceProvider.Value;
-    //         
-    //         //Last getting service is win for the scope this is serious problem
-    //         //Also if scoped/transient service has singleton dependency it overrides with root provider
-    //         var x = scope1.ServiceProvider.GetRequiredService<Implementation2>();
-    //         var y = AxiomInterceptor.CurrentServiceProvider.Value;
-    //     }
-    //
-    //     using (var scope2 = rootProvider.CreateScope())
-    //     {
-    //         scope2Implementation1 = scope2.ServiceProvider.GetRequiredService<Implementation1>();
-    //         scope2ServiceProvider = AxiomInterceptor.CurrentServiceProvider.Value;
-    //     }
-    //
-    //     scope1Implementation1.ShouldNotBe(scope2Implementation1);
-    //     scope1ServiceProvider.ShouldNotBe(scope2ServiceProvider);
-    //     scope1Implementation1.ShouldBe(scope1ServiceProvider!.GetRequiredService<Implementation1>());
-    // }
 }
 
 file interface IImplementation {}
@@ -220,9 +177,4 @@ file class Interceptor1 : IAxiomInterceptor
 file class Interceptor2 : IAxiomInterceptor
 {
     public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
-}
-
-file class NullProxyGenerator : IProxyGenerator
-{
-    public object Create(object target, Type serviceType, IEnumerable<Type> interceptors) => target;
 }
