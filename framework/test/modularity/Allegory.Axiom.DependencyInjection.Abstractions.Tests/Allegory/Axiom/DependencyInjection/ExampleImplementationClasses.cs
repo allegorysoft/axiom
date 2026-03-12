@@ -66,7 +66,7 @@ internal class ExtendedNameAttributedSingletonOrderManager : IAttributedSingleto
 internal interface IAttributedOrderManager {}
 
 [Dependency(ServiceLifetime.Transient)]
-internal class AttributedOrderNameNotMatchedManager : IOrderManager {}
+internal class AttributedOrderNameNotMatchedManager : IAttributedOrderManager {}
 
 internal interface IAttributedOrderRepository<T> {}
 
