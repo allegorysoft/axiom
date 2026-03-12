@@ -99,23 +99,23 @@ public class ServiceInterceptorBinderTests
     public void ShouldNotModifyServicesWithNullImplementationType()
     {
         var collection = new ServiceCollection();
-    
+
         Func<IServiceProvider, Implementation1> factory = _ => new Implementation1();
         collection.AddTransient(factory);
-    
+
         var instance = new Implementation2();
         collection.AddSingleton(instance);
-    
+
         var descriptor = new InterceptorDescriptor(
             typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-    
+
         ServiceInterceptorBinder.Apply(collection, [descriptor]);
-    
+
         var implementation1 = collection.Single(c => c.ServiceType == typeof(Implementation1));
         implementation1.ImplementationType.ShouldBeNull();
         implementation1.ImplementationFactory.ShouldBe(factory);
         implementation1.ImplementationInstance.ShouldBeNull();
-    
+
         var implementation2 = collection.Single(c => c.ServiceType == typeof(Implementation2));
         implementation2.ImplementationType.ShouldBeNull();
         implementation2.ImplementationFactory.ShouldBeNull();
@@ -160,27 +160,69 @@ public class ServiceInterceptorBinderTests
 
         collection.Count(c => c.ServiceType == typeof(Implementation1)).ShouldBe(1);
     }
+
+    // [Fact]
+    // public async Task ShouldSetCurrentServiceProviderForEachScope()
+    // {
+    //     // Arrange
+    //     var collection = new ServiceCollection();
+    //     collection.AddScoped<Implementation1>();
+    //     collection.AddScoped<Implementation2>();
+    //     collection.AddSingleton<IProxyGenerator, NullProxyGenerator>();
+    //
+    //     var descriptor = new InterceptorDescriptor(
+    //         typeof(Interceptor2), t => typeof(IImplementation).IsAssignableFrom(t));
+    //
+    //     ServiceInterceptorBinder.Apply(collection, [descriptor]);
+    //
+    //     var rootProvider = collection.BuildServiceProvider();
+    //
+    //     Implementation1? scope1Implementation1, scope2Implementation1;
+    //     IServiceProvider? scope1ServiceProvider, scope2ServiceProvider;
+    //
+    //     // Act & Assert
+    //     using (var scope1 = rootProvider.CreateScope())
+    //     {
+    //         scope1Implementation1 = scope1.ServiceProvider.GetRequiredService<Implementation1>();
+    //         scope1ServiceProvider = AxiomInterceptor.CurrentServiceProvider.Value;
+    //         
+    //         //Last getting service is win for the scope this is serious problem
+    //         //Also if scoped/transient service has singleton dependency it overrides with root provider
+    //         var x = scope1.ServiceProvider.GetRequiredService<Implementation2>();
+    //         var y = AxiomInterceptor.CurrentServiceProvider.Value;
+    //     }
+    //
+    //     using (var scope2 = rootProvider.CreateScope())
+    //     {
+    //         scope2Implementation1 = scope2.ServiceProvider.GetRequiredService<Implementation1>();
+    //         scope2ServiceProvider = AxiomInterceptor.CurrentServiceProvider.Value;
+    //     }
+    //
+    //     scope1Implementation1.ShouldNotBe(scope2Implementation1);
+    //     scope1ServiceProvider.ShouldNotBe(scope2ServiceProvider);
+    //     scope1Implementation1.ShouldBe(scope1ServiceProvider!.GetRequiredService<Implementation1>());
+    // }
 }
 
-internal interface IImplementation {}
+file interface IImplementation {}
 
-internal class Implementation1 : IImplementation {}
+file class Implementation1 : IImplementation {}
 
-internal class Implementation2 : IImplementation {}
+file class Implementation2 : IImplementation {}
 
-internal class Implementation3 {}
+file class Implementation3 {}
 
 file class Interceptor1 : IAxiomInterceptor
 {
     public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
 }
 
-internal class Interceptor2 : AxiomInterceptor
+file class Interceptor2 : IAxiomInterceptor
 {
-    public override Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
 }
 
-internal class NullProxyGenerator : IProxyGenerator
+file class NullProxyGenerator : IProxyGenerator
 {
     public object Create(object target, Type serviceType, IEnumerable<Type> interceptors) => target;
 }
