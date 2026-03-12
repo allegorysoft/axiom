@@ -7,6 +7,7 @@
     <ItemGroup>
         <PackageVersion Include="System.Text.Json" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftPackageVersion)"/>
