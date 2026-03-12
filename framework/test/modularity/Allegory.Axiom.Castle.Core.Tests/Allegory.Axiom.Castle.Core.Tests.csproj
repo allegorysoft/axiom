@@ -7,11 +7,12 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
-        <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.Castle.Core\Allegory.Axiom.Castle.Core.csproj"/>
+      <ProjectReference Include="..\..\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj" />
+      <ProjectReference Include="..\..\..\src\modularity\Allegory.Axiom.Castle.Core\Allegory.Axiom.Castle.Core.csproj" />
     </ItemGroup>
 
 </Project>
