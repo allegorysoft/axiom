@@ -73,6 +73,7 @@ internal sealed class ServiceInterceptorBinder
             service.ServiceType,
             provider =>
             {
+                AxiomInterceptor.CurrentServiceProvider.Value = provider;
                 var implementation = ActivatorUtilities.CreateInstance(provider, service.ImplementationType!);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
                 return proxy.Create(implementation, service.ServiceType, interceptors);
@@ -88,6 +89,7 @@ internal sealed class ServiceInterceptorBinder
             service.ServiceKey,
             (provider, _) =>
             {
+                AxiomInterceptor.CurrentServiceProvider.Value = provider;
                 var implementation = ActivatorUtilities.CreateInstance(provider, service.KeyedImplementationType!);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
                 return proxy.Create(implementation, service.ServiceType, interceptors);

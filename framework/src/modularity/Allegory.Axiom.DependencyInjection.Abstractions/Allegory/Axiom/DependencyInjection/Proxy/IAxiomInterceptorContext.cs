@@ -9,6 +9,5 @@ public interface IAxiomInterceptorContext
     object? Target { get; }
     object?[] Arguments { get; }
     object? ReturnValue { get; set; }
-    //IServiceProvider
     Task ProceedAsync();
 }
