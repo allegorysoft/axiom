@@ -75,7 +75,7 @@ internal sealed class ServiceInterceptorBinder
             {
                 var implementation = ActivatorUtilities.CreateInstance(provider, service.ImplementationType!);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
-                return proxy.Create(implementation, service.ServiceType, interceptors);
+                return proxy.Create(provider, implementation, service.ServiceType, interceptors);
             },
             service.Lifetime
         );
@@ -90,7 +90,7 @@ internal sealed class ServiceInterceptorBinder
             {
                 var implementation = ActivatorUtilities.CreateInstance(provider, service.KeyedImplementationType!);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
-                return proxy.Create(implementation, service.ServiceType, interceptors);
+                return proxy.Create(provider, implementation, service.ServiceType, interceptors);
             },
             service.Lifetime
         );

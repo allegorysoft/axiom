@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using Allegory.Axiom.DependencyInjection;
 using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,40 +9,38 @@ using IProxyGenerator=Allegory.Axiom.DependencyInjection.Proxy.IProxyGenerator;
 namespace Allegory.Axiom.Castle;
 
 [Dependency<IProxyGenerator>]
-public class ProxyGeneratorCastleAdapter(IServiceProvider serviceProvider) : IProxyGenerator
+public class ProxyGeneratorCastleAdapter : IProxyGenerator
 {
-    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
     protected ProxyGenerator Generator { get; } = new();
-    protected ConcurrentDictionary<Type, IInterceptor[]> ServiceInterceptorCache { get; } = new();
-    protected ConcurrentDictionary<Type, IInterceptor> InterceptorCache { get; } = new();
+    protected ConcurrentDictionary<Type, Type> InterceptorMapCache { get; } = new();
 
     public virtual object Create(
+        IServiceProvider serviceProvider,
         object target,
         Type serviceType,
-        IEnumerable<Type> interceptorTypes)
+        IReadOnlyList<Type> interceptorTypes)
     {
-        var interceptors = GetServiceInterceptors(serviceType, interceptorTypes);
+        var interceptors = GetInterceptors(serviceProvider, interceptorTypes);
 
         return serviceType.IsInterface
             ? Generator.CreateInterfaceProxyWithTarget(serviceType, target, interceptors)
             : Generator.CreateClassProxyWithTarget(serviceType, target, interceptors);
     }
 
-    protected virtual IInterceptor[] GetServiceInterceptors(Type serviceType, IEnumerable<Type> interceptors)
+    protected virtual IInterceptor[] GetInterceptors(
+        IServiceProvider serviceProvider,
+        IReadOnlyList<Type> interceptorTypes)
     {
-        return ServiceInterceptorCache.GetOrAdd(
-            serviceType,
-            t => interceptors
-                .Select(ResolveInterceptor)
-                .ToArray());
-    }
+        var interceptors = new IInterceptor[interceptorTypes.Count];
 
-    protected virtual IInterceptor ResolveInterceptor(Type interceptorType)
-    {
-        return InterceptorCache.GetOrAdd(interceptorType, type =>
+        for (var i = 0; i < interceptors.Length; i++)
         {
-            var adapterType = typeof(AxiomInterceptorCastleDeterminationAdapter<>).MakeGenericType(type);
-            return (IInterceptor) ServiceProvider.GetRequiredService(adapterType);
-        });
+            var interceptorType = InterceptorMapCache.GetOrAdd(
+                interceptorTypes[i],
+                type => typeof(AxiomInterceptorCastleDeterminationAdapter<>).MakeGenericType(type));
+            interceptors[i] = (IInterceptor) serviceProvider.GetRequiredService(interceptorType);
+        }
+
+        return interceptors;
     }
 }
