@@ -1,8 +1,6 @@
-﻿using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.DependencyInjection.Proxy;
-using Castle.DynamicProxy;
+﻿using Castle.DynamicProxy;
 
-namespace Allegory.Axiom.Castle;
+namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 public class AxiomInterceptorCastleDeterminationAdapter<T>(
     AxiomInterceptorCastleAdapter<T> interceptor) :

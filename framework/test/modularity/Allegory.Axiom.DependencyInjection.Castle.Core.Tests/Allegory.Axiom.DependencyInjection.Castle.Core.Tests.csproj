@@ -12,7 +12,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\..\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj" />
-      <ProjectReference Include="..\..\..\src\modularity\Allegory.Axiom.Castle.Core\Allegory.Axiom.Castle.Core.csproj" />
+      <ProjectReference Include="..\..\..\src\modularity\Allegory.Axiom.DependencyInjection.Castle.Core\Allegory.Axiom.DependencyInjection.Castle.Core.csproj" />
     </ItemGroup>
 
 </Project>

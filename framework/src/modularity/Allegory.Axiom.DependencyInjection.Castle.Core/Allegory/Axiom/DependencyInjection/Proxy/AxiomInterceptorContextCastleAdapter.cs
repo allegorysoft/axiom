@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection.Proxy;
 using Castle.DynamicProxy;
 
-namespace Allegory.Axiom.Castle;
+namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 public sealed class AxiomInterceptorContextCastleAdapter(
     IInvocation invocation,

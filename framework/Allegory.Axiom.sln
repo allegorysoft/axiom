@@ -37,9 +37,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Assembly1", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Assembly3", "test\playground\Allegory.Axiom.Assembly3\Allegory.Axiom.Assembly3.csproj", "{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Castle.Core.Tests", "test\modularity\Allegory.Axiom.Castle.Core.Tests\Allegory.Axiom.Castle.Core.Tests.csproj", "{82C4B097-E5D0-4CA4-B52E-87A4141F50EC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.DependencyInjection.Castle.Core.Tests", "test\modularity\Allegory.Axiom.DependencyInjection.Castle.Core.Tests\Allegory.Axiom.DependencyInjection.Castle.Core.Tests.csproj", "{82C4B097-E5D0-4CA4-B52E-87A4141F50EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Castle.Core", "src\modularity\Allegory.Axiom.Castle.Core\Allegory.Axiom.Castle.Core.csproj", "{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.DependencyInjection.Castle.Core", "src\modularity\Allegory.Axiom.DependencyInjection.Castle.Core\Allegory.Axiom.DependencyInjection.Castle.Core.csproj", "{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integrations", "integrations", "{1FA75938-858D-45F4-9B95-CC6D206DC8CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -117,6 +119,7 @@ Global
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA} = {80FF4C63-4C20-46B7-BAA7-C61F6B3F69FC}
 		{82C4B097-E5D0-4CA4-B52E-87A4141F50EC} = {BCD17CA2-B3B3-46D6-BF3A-98FE25A3CA68}
 		{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD} = {4B0F0F6C-7449-4DE8-A89E-6C1AC548BC79}
+		{1FA75938-858D-45F4-9B95-CC6D206DC8CF} = {2C72BD73-0F23-4C37-9F00-4465C86C72D5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0D71235-D5C8-45BB-A444-834373A8E049}

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.DependencyInjection.Proxy;
 using Castle.DynamicProxy;
 
-namespace Allegory.Axiom.Castle;
+namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 public class AxiomInterceptorCastleAdapter<T>(T interceptor) :
     AsyncInterceptorBase, ISingletonService 

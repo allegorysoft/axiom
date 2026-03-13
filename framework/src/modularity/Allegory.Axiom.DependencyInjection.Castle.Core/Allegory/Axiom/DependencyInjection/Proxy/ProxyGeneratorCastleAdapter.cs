@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using Allegory.Axiom.DependencyInjection;
 using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
-using IProxyGenerator=Allegory.Axiom.DependencyInjection.Proxy.IProxyGenerator;
 
-namespace Allegory.Axiom.Castle;
+namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 [Dependency<IProxyGenerator>]
 public class ProxyGeneratorCastleAdapter : IProxyGenerator

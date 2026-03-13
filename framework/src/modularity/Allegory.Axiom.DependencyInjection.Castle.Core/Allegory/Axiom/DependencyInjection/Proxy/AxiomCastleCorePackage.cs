@@ -1,12 +1,10 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.DependencyInjection.Proxy;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Allegory.Axiom.Castle;
+namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 internal class AxiomCastleCorePackage : IConfigureApplication
 {

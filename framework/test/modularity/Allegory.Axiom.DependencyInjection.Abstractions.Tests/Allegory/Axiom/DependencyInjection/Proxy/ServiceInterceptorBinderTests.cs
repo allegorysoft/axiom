@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection.Proxy;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.DependencyInjection;
+namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 public class ServiceInterceptorBinderTests
 {

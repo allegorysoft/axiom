@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.DependencyInjection.Proxy;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
-using IProxyGenerator=Allegory.Axiom.DependencyInjection.Proxy.IProxyGenerator;
 
-namespace Allegory.Axiom.Castle;
+namespace Allegory.Axiom.DependencyInjection.Proxy;
 
 public class ProxyGeneratorCastleAdapterTests
 {
