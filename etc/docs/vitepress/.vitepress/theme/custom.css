@@ -1,0 +1,29 @@
+/* ── Hero tweaks ── */
+:root {
+  --vp-home-hero-name-font-size: 48px;
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(120deg, #5c73e7, #a78bfa);
+}
+
+.VPHero .text {
+  font-size: 28px !important;
+  line-height: 1.4 !important;
+  max-width: 560px;
+}
+
+.VPHero .tagline {
+  font-size: 16px !important;
+  max-width: 480px;
+}
+
+/* ── Feature cards ── */
+.VPFeature {
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.VPFeature:hover {
+  border-color: rgba(92, 115, 231, 0.4) !important;
+  transform: translateY(-2px);
+}

@@ -15,6 +15,12 @@ export default defineConfig({
 
     sidebar: [
       {
+        text: 'Getting Started',
+        items: [
+          { text: 'Getting Started', link: '/guide/getting-started' }
+        ]
+      },
+      {
         text: 'Examples',
         items: [
           { text: 'Markdown Examples', link: '/markdown-examples' },
@@ -24,7 +30,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/allegorySoft/axiom-framework' }
     ]
   }
 })
