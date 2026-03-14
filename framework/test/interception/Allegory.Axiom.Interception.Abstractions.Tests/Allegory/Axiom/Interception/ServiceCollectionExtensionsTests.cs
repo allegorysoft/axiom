@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
@@ -16,6 +17,14 @@ public class ServiceCollectionExtensionsTests
         services.AddInterceptor(typeof(Interceptor1), _ => true);
 
         ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services).Interceptors.Count.ShouldBe(2);
+    }
+
+    [Fact]
+    public void ShouldThrowExceptionWhenInterceptorTypeIsNotInheritedFromInterface()
+    {
+        var services = new ServiceCollection();
+
+        Should.Throw<ArgumentException>(() => services.AddInterceptor(typeof(int), _ => true));
     }
 }
 

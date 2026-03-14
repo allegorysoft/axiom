@@ -7,6 +7,4 @@ namespace Allegory.Axiom.DependencyInjection;
 internal class ServiceCollectionExtraProperties
 {
     public List<Action<IServiceCollection>> PostConfigureActions { get; } = [];
-
-    public ServiceCollectionExtraProperties() {}
 }

@@ -125,23 +125,23 @@ public class ProxyGeneratorCastleAdapterTests
         });
 
         var scopeFactory = services.GetRequiredService<IServiceScopeFactory>();
-        ScopedInterceptor scope1ScopedInterceptor, scope2ScopedInterceptor;
-        SingletonInterceptor scope1SingletonInterceptor, scope2SingletonInterceptor;
+        AxiomInterceptorDeterminationCastleAdapter<ScopedInterceptor> scope1ScopedInterceptor, scope2ScopedInterceptor;
+        AxiomInterceptorDeterminationCastleAdapter<SingletonInterceptor> scope1SingletonInterceptor, scope2SingletonInterceptor;
 
         using (var scope = scopeFactory.CreateScope())
         {
-            scope1ScopedInterceptor = scope.ServiceProvider.GetRequiredService<ScopedInterceptor>();
-            scope1SingletonInterceptor = scope.ServiceProvider.GetRequiredService<SingletonInterceptor>();
+            scope1ScopedInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<ScopedInterceptor>>();
+            scope1SingletonInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<SingletonInterceptor>>();
 
-            var transient1 = scope.ServiceProvider.GetRequiredService<TransientInterceptor>();
-            var transient2 = scope.ServiceProvider.GetRequiredService<TransientInterceptor>();
+            var transient1 = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<TransientInterceptor>>();
+            var transient2 = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<TransientInterceptor>>();
             transient1.ShouldNotBe(transient2);
         }
 
         using (var scope = scopeFactory.CreateScope())
         {
-            scope2ScopedInterceptor = scope.ServiceProvider.GetRequiredService<ScopedInterceptor>();
-            scope2SingletonInterceptor = scope.ServiceProvider.GetRequiredService<SingletonInterceptor>();
+            scope2ScopedInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<ScopedInterceptor>>();
+            scope2SingletonInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<SingletonInterceptor>>();
         }
 
         scope1ScopedInterceptor.ShouldNotBe(scope2ScopedInterceptor);

@@ -5,21 +5,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Allegory.Axiom.Interception;
 
-internal sealed class ServiceInterceptorBinder
+internal sealed class ServiceInterceptorBinder(IServiceCollection collection, IReadOnlyList<InterceptorDescriptor> interceptors)
 {
-    public IServiceCollection Collection { get; }
-    public IReadOnlyList<InterceptorDescriptor> Interceptors { get; }
+    public IServiceCollection Collection { get; } = collection;
+    public IReadOnlyList<InterceptorDescriptor> Interceptors { get; } = interceptors;
 
     public static void Apply(IServiceCollection collection, IReadOnlyList<InterceptorDescriptor> interceptors)
         => new ServiceInterceptorBinder(collection, interceptors).ApplyInterceptors();
-
-    private ServiceInterceptorBinder(
-        IServiceCollection collection,
-        IReadOnlyList<InterceptorDescriptor> interceptors)
-    {
-        Collection = collection;
-        Interceptors = interceptors;
-    }
 
     private void ApplyInterceptors()
     {
