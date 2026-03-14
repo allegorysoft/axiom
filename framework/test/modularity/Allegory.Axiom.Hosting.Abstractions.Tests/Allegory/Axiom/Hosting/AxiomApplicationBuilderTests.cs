@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Hosting.Plugins;
@@ -10,42 +11,71 @@ namespace Allegory.Axiom.Hosting;
 
 public class AxiomApplicationBuilderTests
 {
+    public Assembly Assembly { get; } = typeof(AxiomApplicationBuilderTests).Assembly;
+    public IHostApplicationBuilder Builder { get; } = Host.CreateApplicationBuilder();
+    public AxiomApplicationBuilder ApplicationBuilder { get; } = new();
+
     [Fact]
     public async ValueTask ShouldBuildApplication()
     {
-        var assembly = typeof(AxiomApplicationBuilderTests).Assembly;
-        var builder = Host.CreateApplicationBuilder();
-        var applicationBuilder = new AxiomApplicationBuilder();
-
-        var application = await applicationBuilder.BuildAsync(
+        var application = await ApplicationBuilder.BuildAsync(
             new AxiomApplicationBuilderContext(
-                builder,
-                assembly,
-                new AssemblyDependencyRegistrar(builder.Services),
+                Builder,
+                Assembly,
+                new AssemblyDependencyRegistrar(Builder.Services),
                 []));
 
         application.Id.ShouldNotBe(Guid.Empty);
-        application.StartupAssembly.ShouldBe(assembly);
-        builder.Services.ShouldContain(s => s.ServiceType == typeof(AxiomApplication));
+        application.StartupAssembly.ShouldBe(Assembly);
+        Builder.Services.ShouldContain(s => s.ServiceType == typeof(AxiomApplication));
+    }
 
-        application.Assemblies.ShouldContain(assembly);
+    [Fact]
+    public async ValueTask ShouldInvokeConfigureMethods()
+    {
+        var postConfigureAction = false;
+        Builder.Services.AddPostConfigureAction(_ => postConfigureAction = true);
+
+        var application = await ApplicationBuilder.BuildAsync(
+            new AxiomApplicationBuilderContext(
+                Builder,
+                Assembly,
+                new AssemblyDependencyRegistrar(Builder.Services),
+                []));
+
+        AxiomHostingAbstractionsTestsPackage.ConfigureApplication.ShouldBeTrue();
+        AxiomHostingAbstractionsTestsPackage.PostConfigureApplication.ShouldBeTrue();
+        postConfigureAction.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async ValueTask ShouldDiscoverDependenciesAndRegisterServices()
+    {
+        var application = await ApplicationBuilder.BuildAsync(
+            new AxiomApplicationBuilderContext(
+                Builder,
+                Assembly,
+                new AssemblyDependencyRegistrar(Builder.Services),
+                []));
+
+        application.Assemblies.ShouldContain(typeof(AxiomApplicationBuilderTests).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly1.Assembly1Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
         application.Assemblies.ShouldContain(typeof(Assembly3.Assembly3Package).Assembly);
+
+        Builder.Services.ShouldContain(s => s.ServiceType == typeof(TestService));
     }
 
     [Fact]
     public async ValueTask ShouldLoadPlugins()
     {
         var assembly = typeof(Assembly1.Assembly1Package).Assembly;
-        var builder = Host.CreateApplicationBuilder();
-        var applicationBuilder = new AxiomApplicationBuilder();
 
-        var application = await applicationBuilder.BuildAsync(
+        var application = await ApplicationBuilder.BuildAsync(
             new AxiomApplicationBuilderContext(
-                builder,
+                Builder,
                 assembly,
-                new AssemblyDependencyRegistrar(builder.Services),
+                new AssemblyDependencyRegistrar(Builder.Services),
                 [new AxiomApplicationAssemblyPlugin(typeof(Assembly2.Assembly2Package).Assembly)]));
 
         application.StartupAssembly.ShouldBe(assembly);
@@ -54,3 +84,5 @@ public class AxiomApplicationBuilderTests
         application.Assemblies.ShouldNotContain(typeof(Assembly3.Assembly3Package).Assembly);
     }
 }
+
+file class TestService : ITransientService {}
