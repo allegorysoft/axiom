@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 public class ServiceInterceptorBinderTests
 {

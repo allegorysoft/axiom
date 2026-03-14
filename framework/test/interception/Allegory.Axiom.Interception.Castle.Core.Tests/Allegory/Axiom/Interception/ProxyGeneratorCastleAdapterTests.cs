@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 public class ProxyGeneratorCastleAdapterTests
 {
@@ -96,7 +97,7 @@ public class ProxyGeneratorCastleAdapterTests
         services.GetRequiredService<IImplementation>();
 
         generator.InterceptorMapCache.ContainsKey(typeof(Interceptor1)).ShouldBeTrue();
-        generator.InterceptorMapCache[typeof(Interceptor1)].ShouldBe(typeof(AxiomInterceptorCastleDeterminationAdapter<Interceptor1>));
+        generator.InterceptorMapCache[typeof(Interceptor1)].ShouldBe(typeof(AxiomInterceptorDeterminationCastleAdapter<Interceptor1>));
     }
 
     [Fact]
@@ -132,8 +133,8 @@ public class ProxyGeneratorCastleAdapterTests
             scope1ScopedInterceptor = scope.ServiceProvider.GetRequiredService<ScopedInterceptor>();
             scope1SingletonInterceptor = scope.ServiceProvider.GetRequiredService<SingletonInterceptor>();
 
-            var transient1 =  scope.ServiceProvider.GetRequiredService<TransientInterceptor>();
-            var transient2 =  scope.ServiceProvider.GetRequiredService<TransientInterceptor>();
+            var transient1 = scope.ServiceProvider.GetRequiredService<TransientInterceptor>();
+            var transient2 = scope.ServiceProvider.GetRequiredService<TransientInterceptor>();
             transient1.ShouldNotBe(transient2);
         }
 

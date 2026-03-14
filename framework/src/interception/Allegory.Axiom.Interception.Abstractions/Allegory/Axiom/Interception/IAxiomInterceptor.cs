@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 public interface IAxiomInterceptor
 {

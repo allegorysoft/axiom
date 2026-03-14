@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 public sealed class AxiomInterceptorContextCastleAdapter(
     IInvocation invocation,

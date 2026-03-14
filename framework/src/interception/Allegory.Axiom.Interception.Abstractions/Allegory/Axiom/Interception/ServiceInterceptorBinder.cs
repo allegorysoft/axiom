@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 internal sealed class ServiceInterceptorBinder
 {
     public IServiceCollection Collection { get; }
-    public List<InterceptorDescriptor> Interceptors { get; }
+    public IReadOnlyList<InterceptorDescriptor> Interceptors { get; }
 
-    public static void Apply(IServiceCollection collection, List<InterceptorDescriptor> interceptors)
+    public static void Apply(IServiceCollection collection, IReadOnlyList<InterceptorDescriptor> interceptors)
         => new ServiceInterceptorBinder(collection, interceptors).ApplyInterceptors();
 
     private ServiceInterceptorBinder(
         IServiceCollection collection,
-        List<InterceptorDescriptor> interceptors)
+        IReadOnlyList<InterceptorDescriptor> interceptors)
     {
         Collection = collection;
         Interceptors = interceptors;

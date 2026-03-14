@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 internal readonly struct InterceptorDescriptor
 {

@@ -37,11 +37,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Assembly1", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Assembly3", "test\playground\Allegory.Axiom.Assembly3\Allegory.Axiom.Assembly3.csproj", "{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.DependencyInjection.Castle.Core.Tests", "test\modularity\Allegory.Axiom.DependencyInjection.Castle.Core.Tests\Allegory.Axiom.DependencyInjection.Castle.Core.Tests.csproj", "{82C4B097-E5D0-4CA4-B52E-87A4141F50EC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration", "{1FA75938-858D-45F4-9B95-CC6D206DC8CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.DependencyInjection.Castle.Core", "src\modularity\Allegory.Axiom.DependencyInjection.Castle.Core\Allegory.Axiom.DependencyInjection.Castle.Core.csproj", "{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interception", "interception", "{52217F97-E177-4220-972C-ADE1F1CD2644}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integrations", "integrations", "{1FA75938-858D-45F4-9B95-CC6D206DC8CF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Interception.Abstractions", "src\interception\Allegory.Axiom.Interception.Abstractions\Allegory.Axiom.Interception.Abstractions.csproj", "{0C2D7AF6-1DD3-4666-8106-49ABBD3F8104}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interception", "interception", "{1BA76A5B-BD89-4706-84A1-5B987DAE4DAB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Interception.Abstractions.Tests", "test\interception\Allegory.Axiom.Interception.Abstractions.Tests\Allegory.Axiom.Interception.Abstractions.Tests.csproj", "{D7ADB818-6D66-4C5F-A4CF-7873235C09A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Interception.Castle.Core.Tests", "test\interception\Allegory.Axiom.Interception.Castle.Core.Tests\Allegory.Axiom.Interception.Castle.Core.Tests.csproj", "{F2F69034-DBA4-488D-8339-EF4D734442FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Allegory.Axiom.Interception.Castle.Core", "src\interception\Allegory.Axiom.Interception.Castle.Core\Allegory.Axiom.Interception.Castle.Core.csproj", "{F645966C-2E79-4BDB-BF2F-EF3E004E4DB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,14 +97,22 @@ Global
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{82C4B097-E5D0-4CA4-B52E-87A4141F50EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{82C4B097-E5D0-4CA4-B52E-87A4141F50EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{82C4B097-E5D0-4CA4-B52E-87A4141F50EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{82C4B097-E5D0-4CA4-B52E-87A4141F50EC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C2D7AF6-1DD3-4666-8106-49ABBD3F8104}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C2D7AF6-1DD3-4666-8106-49ABBD3F8104}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C2D7AF6-1DD3-4666-8106-49ABBD3F8104}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C2D7AF6-1DD3-4666-8106-49ABBD3F8104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7ADB818-6D66-4C5F-A4CF-7873235C09A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7ADB818-6D66-4C5F-A4CF-7873235C09A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7ADB818-6D66-4C5F-A4CF-7873235C09A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7ADB818-6D66-4C5F-A4CF-7873235C09A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2F69034-DBA4-488D-8339-EF4D734442FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2F69034-DBA4-488D-8339-EF4D734442FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2F69034-DBA4-488D-8339-EF4D734442FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2F69034-DBA4-488D-8339-EF4D734442FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F645966C-2E79-4BDB-BF2F-EF3E004E4DB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F645966C-2E79-4BDB-BF2F-EF3E004E4DB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F645966C-2E79-4BDB-BF2F-EF3E004E4DB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F645966C-2E79-4BDB-BF2F-EF3E004E4DB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,9 +133,13 @@ Global
 		{FBA959F6-6C95-406F-9DDE-2AC78E695127} = {80FF4C63-4C20-46B7-BAA7-C61F6B3F69FC}
 		{F63D8358-7697-433E-9618-FB319D608F94} = {80FF4C63-4C20-46B7-BAA7-C61F6B3F69FC}
 		{9CF9A39D-58C6-4FA2-AB33-7D891FB39CBA} = {80FF4C63-4C20-46B7-BAA7-C61F6B3F69FC}
-		{82C4B097-E5D0-4CA4-B52E-87A4141F50EC} = {BCD17CA2-B3B3-46D6-BF3A-98FE25A3CA68}
-		{2BD88E56-4B39-46DB-B2D6-F9E04EC963FD} = {4B0F0F6C-7449-4DE8-A89E-6C1AC548BC79}
 		{1FA75938-858D-45F4-9B95-CC6D206DC8CF} = {2C72BD73-0F23-4C37-9F00-4465C86C72D5}
+		{52217F97-E177-4220-972C-ADE1F1CD2644} = {2C72BD73-0F23-4C37-9F00-4465C86C72D5}
+		{0C2D7AF6-1DD3-4666-8106-49ABBD3F8104} = {52217F97-E177-4220-972C-ADE1F1CD2644}
+		{1BA76A5B-BD89-4706-84A1-5B987DAE4DAB} = {4C25890E-B62A-4F08-A6DB-7030B20E27DF}
+		{D7ADB818-6D66-4C5F-A4CF-7873235C09A3} = {1BA76A5B-BD89-4706-84A1-5B987DAE4DAB}
+		{F2F69034-DBA4-488D-8339-EF4D734442FB} = {1BA76A5B-BD89-4706-84A1-5B987DAE4DAB}
+		{F645966C-2E79-4BDB-BF2F-EF3E004E4DB6} = {52217F97-E177-4220-972C-ADE1F1CD2644}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C0D71235-D5C8-45BB-A444-834373A8E049}

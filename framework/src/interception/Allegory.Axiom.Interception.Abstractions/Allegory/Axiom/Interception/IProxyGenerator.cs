@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Allegory.Axiom.DependencyInjection;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 public interface IProxyGenerator : ISingletonService
 {

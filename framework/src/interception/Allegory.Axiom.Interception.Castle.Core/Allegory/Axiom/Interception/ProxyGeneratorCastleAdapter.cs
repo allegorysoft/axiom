@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using Allegory.Axiom.DependencyInjection;
 using Castle.DynamicProxy;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
 [Dependency<IProxyGenerator>]
 public class ProxyGeneratorCastleAdapter : IProxyGenerator
@@ -39,7 +40,7 @@ public class ProxyGeneratorCastleAdapter : IProxyGenerator
         {
             var interceptorType = InterceptorMapCache.GetOrAdd(
                 interceptorTypes[i],
-                type => typeof(AxiomInterceptorCastleDeterminationAdapter<>).MakeGenericType(type));
+                type => typeof(AxiomInterceptorDeterminationCastleAdapter<>).MakeGenericType(type));
             interceptors[i] = (IInterceptor) serviceProvider.GetRequiredService(interceptorType);
         }
 

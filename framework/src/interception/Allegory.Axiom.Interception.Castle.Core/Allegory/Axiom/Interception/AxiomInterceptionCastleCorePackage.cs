@@ -1,12 +1,13 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Allegory.Axiom.DependencyInjection.Proxy;
+namespace Allegory.Axiom.Interception;
 
-internal class AxiomCastleCorePackage : IConfigureApplication
+internal class AxiomInterceptionCastleCorePackage : IConfigureApplication
 {
     public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {
@@ -23,7 +24,7 @@ internal class AxiomCastleCorePackage : IConfigureApplication
 
         foreach (var interceptor in interceptors)
         {
-            var castleDeterminationType = typeof(AxiomInterceptorCastleDeterminationAdapter<>)
+            var castleDeterminationType = typeof(AxiomInterceptorDeterminationCastleAdapter<>)
                 .MakeGenericType(interceptor.ServiceType);
             serviceCollection.Add(
                 ServiceDescriptor.Describe(castleDeterminationType, castleDeterminationType, interceptor.Lifetime));
