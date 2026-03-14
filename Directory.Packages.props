@@ -12,6 +12,8 @@
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftPackageVersion)"/>
 
+        <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
+
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
