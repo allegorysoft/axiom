@@ -352,3 +352,7 @@ MigrationBackup/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+# VitePress
+**/.vitepress/cache
+**/.vitepress/dist
