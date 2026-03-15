@@ -2,8 +2,8 @@ import { defineConfig } from 'vitepress'
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  srcDir: "..\\en",
-  
+  srcDir: "../en",
+
   title: "Axiom Framework",
   description: "A modular, extensible .NET application framework",
   themeConfig: {
@@ -30,7 +30,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/allegorySoft/axiom-framework' }
+      { icon: 'github', link: 'https://github.com/allegorysoft/axiom-framework' }
     ]
   }
 })

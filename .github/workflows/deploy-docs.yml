@@ -1,0 +1,56 @@
+name: Deploy Docs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: etc/docs/vitepress/package-lock.json
+
+      - name: Install dependencies
+        working-directory: etc/docs/vitepress
+        run: npm ci
+
+      - name: Link node_modules for srcDir
+        run: ln -s ${{ github.workspace }}/etc/docs/vitepress/node_modules ${{ github.workspace }}/etc/docs/en/node_modules
+
+      - name: Build
+        working-directory: etc/docs/vitepress
+        run: npm run docs:build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: etc/docs/vitepress/.vitepress/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
