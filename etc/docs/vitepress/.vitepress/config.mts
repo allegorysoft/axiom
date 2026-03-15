@@ -30,7 +30,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/allegorysoft/axiom-framework' }
+      { icon: 'github', link: 'https://github.com/allegorysoft/axiom' }
     ]
   }
 })
