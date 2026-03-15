@@ -1,0 +1,20 @@
+<Project>
+
+    <Import
+        Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+    <PropertyGroup>
+        <Description>Allegory Axiom Enterprise</Description>
+        <PackageLicenseExpression></PackageLicenseExpression>
+        <PackageLicenseFile>LICENSE-NOTICE.md</PackageLicenseFile>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)..\etc\licenses\ELv2.md"
+            Pack="true"
+            PackagePath="LICENSE-NOTICE.md"
+            Visible="false" />
+    </ItemGroup>
+
+</Project>

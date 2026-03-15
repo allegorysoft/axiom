@@ -8,11 +8,16 @@
         <Authors>Allegorysoft</Authors>
         <Version>0.1.2</Version>
         <PackageIcon>allegory-icon.png</PackageIcon>
+        <PackageProjectUrl>https://axiomframework.dev</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\allegory-icon.png" Pack="true"
-              Visible="false" PackagePath="\"/>
+        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\allegory-icon.png"
+            Pack="true"
+            Visible="false"
+            PackagePath="\" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -30,7 +35,7 @@
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' == 'false'">
-        <InternalsVisibleTo Include="$(MSBuildProjectName).Tests"/>
+        <InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
     </ItemGroup>
 
 </Project>
