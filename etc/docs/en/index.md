@@ -9,7 +9,7 @@ hero:
   actions:
     - theme: brand
       text: Get Started →
-      link: /guide/getting-started
+      link: /get-started/overview
 
 features:
   - icon: 🔍
@@ -27,5 +27,5 @@ features:
 
 ::: warning 🚧 Work in Progress
 Documentation is actively being written. Some pages may be incomplete or missing.
-Follow us on [GitHub](https://github.com/allegorysoft/axiom-framework) for updates.
+Follow us on [GitHub](https://github.com/allegorysoft/axiom) for updates.
 :::

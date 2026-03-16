@@ -4,33 +4,36 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   srcDir: "../en",
 
-  title: "Axiom Framework",
+  title: "Axiom Documentation",
   description: "A modular, extensible .NET application framework",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: 'Documentation', link: '/get-started/overview' }
     ],
 
     sidebar: [
       {
-        text: 'Getting Started',
+        text: 'Get Started',
         items: [
-          { text: 'Getting Started', link: '/guide/getting-started' }
+          { text: 'Overview', link: '/get-started/overview' },
+          { text: 'Installation', link: '/get-started/installation' },
         ]
       },
       {
-        text: 'Examples',
+        text: 'Fundamentals',
+        collapsed: false,
         items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
+          { text: 'Dependency Injection', link: '/fundamentals/dependency-injection' },
+          { text: 'Modularity', link: '/fundamentals/modularity' },
+          { text: 'Interception', link: '/fundamentals/interception' },
         ]
-      }
+      },
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/allegorysoft/axiom-framework' }
+      { icon: 'github', link: 'https://github.com/allegorysoft/axiom' }
     ]
   }
 })
