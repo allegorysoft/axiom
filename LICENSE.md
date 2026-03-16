@@ -15,4 +15,4 @@ it as part of a commercial product without a commercial license.
 using the enterprise software, a [Commercial License](./etc/licenses/COMMERCIAL_LICENSE.md)
 is available. Commercial licensees receive 1 year of updates with a perpetual
 fallback — the last version received remains licensed forever.
-For inquiries: licensing@allegorysoft.com
+For inquiries: contact@allegorysoft.com

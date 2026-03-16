@@ -87,15 +87,15 @@ permitted by applicable law.
 
 | Tier       | Scope                               | Contact                    |
 |------------|-------------------------------------|----------------------------|
-| Starter    | Solo developer / single product     | licensing@allegorysoft.com |
-| Business   | Up to 10 developers / organization  | licensing@allegorysoft.com |
-| Enterprise | Unlimited developers / OEM use      | licensing@allegorysoft.com |
+| Starter    | Solo developer / single product     | contact@allegorysoft.com |
+| Business   | Up to 10 developers / organization  | contact@allegorysoft.com |
+| Enterprise | Unlimited developers / OEM use      | contact@allegorysoft.com |
 
 Pricing and exact terms for each tier are provided upon request.
 
 ## How to Obtain a Commercial License
 
-Send an email to **licensing@allegorysoft.com** with:
+Send an email to **contact@allegorysoft.com** with:
 
 1. Your name and organization
 2. A brief description of the product you are building
@@ -114,4 +114,4 @@ end users or developers:
 
 ## Questions
 
-For any licensing questions, contact: **licensing@allegorysoft.com**
+For any licensing questions, contact: **contact@allegorysoft.com**

@@ -96,4 +96,4 @@ these terms.
 
 Note: A Commercial License is available for those who wish to use the
 Axiom Enterprise software in their own commercial products or services. See
-COMMERCIAL_LICENSE.md for details or contact licensing@allegorysoft.com.
+COMMERCIAL_LICENSE.md for details or contact contact@allegorysoft.com.
