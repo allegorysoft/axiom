@@ -5,7 +5,7 @@ description: How Axiom discovers assemblies, wires up packages, and manages the 
 
 # Modularity
 
-Axiom modularity is built around two things: automatic assembly discovery and application packages. When you call `ConfigureApplicationAsync`, Axiom walks your dependency graph, scans each discovered assembly for a package class, invokes the appropriate lifecycle hooks, and registers your services. You get a fully wired application without manually enumerating packages.
+Axiom modularity is built around two things: automatic assembly discovery and application packages. When you call `ConfigureApplicationAsync`, Axiom walks your dependency graph, scans each discovered assembly for a package class, invokes the appropriate lifecycle hooks, and registers your services.
 
 Install the hosting package to get started:
 
@@ -48,13 +48,23 @@ Each assembly can contain at most one class implementing a given lifecycle inter
 
 You do not have to implement all three interfaces. Implement only what your assembly needs.
 
+Most of the time, you do not need a package class at all. Axiom automatically scans every discovered assembly with `AssemblyDependencyRegistrar`, so any class marked with a marker interface or a `[Dependency]` attribute is registered without any additional wiring. See [Dependency Injection](/concepts/dependency-injection) for details.
+
+A package class is only needed when you require something beyond automatic registration, such as configuring the options pattern, registering hosted services, or setting up third-party integrations.
+
 ```csharp
-// A library that only needs to register services
+// No package class needed for straightforward service registration
+public class OrderService : IOrderService, ITransientService { }
+
+// A package class is needed for things like options configuration
 internal sealed class MyLibraryPackage : IConfigureApplication
 {
     public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddTransient<IOrderService, OrderService>();
+        builder.Services.Configure<MyLibraryOptions>(
+            builder.Configuration.GetSection("MyLibrary"));
+
+        builder.Services.AddHostedService<MyBackgroundWorker>();
         return ValueTask.CompletedTask;
     }
 }
@@ -70,25 +80,68 @@ internal sealed class MyLibraryPackage : IConfigureApplication
 
 **`IConfigureApplication`** is the right place for DI registration, configuration binding, and anything else that sets up the container.
 
-**`IPostConfigureApplication`** runs after every assembly's `ConfigureAsync` has finished. Use it when your setup depends on other assemblies having already registered their services, such as decorating a service registered elsewhere.
+**`IPostConfigureApplication`** runs after every assembly's `ConfigureAsync` has finished. Because `ConfigureAsync` runs per assembly and the order follows `deps.json` (see [Assembly Discovery](#assembly-discovery)), you cannot guarantee that a specific assembly has already configured its services when your own `ConfigureAsync` runs. If your setup depends on another assembly having already registered its services, such as replacing or decorating a service registered elsewhere, use `IPostConfigureApplication` instead. By the time `PostConfigureAsync` runs, all `ConfigureAsync` calls across all assemblies have completed.
+
+```csharp
+internal sealed class MyAppPackage : IPostConfigureApplication
+{
+    public static ValueTask PostConfigureAsync(IHostApplicationBuilder builder)
+    {
+        // Safe to replace here, all assemblies have already run ConfigureAsync
+        builder.Services.Replace<IOrderService, ReplacedOrderManager>();
+        return ValueTask.CompletedTask;
+    }
+}
+```
 
 **`IInitializeApplication`** receives the built `IHost`. Use it for anything that requires a fully running service provider, such as seeding a database, warming up a cache, or running startup validation.
 
+```csharp
+internal sealed class MyAppPackage : IInitializeApplication
+{
+    public static async ValueTask InitializeAsync(IHost host)
+    {
+        var seeder = host.Services.GetRequiredService<IDatabaseSeeder>();
+        await seeder.SeedAsync();
+    }
+}
+```
+
 ## Assembly Discovery
 
-`ConfigureApplicationAsync` loads the `DependencyContext` of the startup assembly (the `deps.json` produced at publish time) and iterates through `RuntimeLibraries`. Any library that has a transitive dependency on `Allegory.Axiom.DependencyInjection.Abstractions` is included.
+`ConfigureApplicationAsync` loads the [`DependencyContext`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.dependencymodel.dependencycontext) of the startup assembly, which is generated from the `deps.json` file produced at publish time. It iterates through `RuntimeLibraries` and includes any library that has a transitive dependency on `Allegory.Axiom.DependencyInjection.Abstractions`. This means your own libraries are picked up automatically as long as they reference Axiom.
 
-The assembly iteration order follows the order of entries in `deps.json`. Axiom does not impose any additional ordering on top of that. If no `DependencyContext` is available, such as in some single-file or trimmed publish scenarios, Axiom falls back to `Assembly.GetReferencedAssemblies()` on the startup assembly.
+The assembly iteration order follows the order of entries in `deps.json`. Axiom does not impose any additional ordering on top of that.
+
+In a typical host application, you do not need to think about which assemblies get included. Any project in your solution that references Axiom will be discovered transitively through the dependency graph.
+
+```
+HostApp
+  └── OrderModule        (references Axiom → discovered)
+        └── SharedKernel (references Axiom → discovered)
+```
 
 Plugin assemblies are appended after all dependency graph assemblies. See [Plugins](./plugins) for loading assemblies that are not part of the dependency graph.
 
+### Fallback: GetReferencedAssemblies
+
+If no `DependencyContext` is available, such as in some single-file or trimmed publish scenarios, Axiom falls back to [`Assembly.GetReferencedAssemblies()`](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assembly.getreferencedassemblies) on the startup assembly.
+
+::: warning Known limitation
+The .NET compiler omits a referenced assembly from metadata if none of its types are directly used in the referencing project. In that case, `GetReferencedAssemblies()` will not return it, and Axiom will not discover it.
+
+This is a [known issue](https://github.com/allegorysoft/axiom/issues/6). A CLI command is planned that will generate a `ReferenceHolder` class in your startup project, explicitly referencing at least one type from each Axiom-dependent assembly to prevent the compiler from dropping them.
+
+If you run into this today, the workaround is to add a direct type reference from the missing assembly somewhere in your startup project.
+:::
+
 ## Host Extensions
 
-Two extension methods on `IHostApplicationBuilder` and `IHost` drive the full lifecycle.
+Two extension methods drive the full lifecycle.
 
 ### ConfigureApplicationAsync
 
-Call this on your `IHostApplicationBuilder` before building the host. It runs the full configure phase: assembly discovery, DI scanning via `AssemblyDependencyRegistrar`, `ConfigureAsync` and `PostConfigureAsync` on each discovered package, and post-configure actions. It also registers the `AxiomApplication` singleton into the container.
+Call this on `IHostApplicationBuilder` before building the host. It discovers assemblies, runs DI scanning via `AssemblyDependencyRegistrar`, calls `ConfigureAsync` and `PostConfigureAsync` on each discovered package, executes any queued post-configure actions, and registers the `AxiomApplication` singleton into the container.
 
 ```csharp
 var builder = Host.CreateApplicationBuilder(args);
