@@ -14,6 +14,6 @@ Axiom is in early alpha. APIs may change without notice.
 ## What's next
 
 - [Installation](/get-started/installation)
-- [Dependency Injection](/fundamentals/dependency-injection)
-- [Modularity](/fundamentals/modularity)
-- [Interception](/fundamentals/interception)
+- [Dependency Injection](/concepts/dependency-injection)
+- [Modularity](/concepts/modularity/overview)
+- [Interception](/concepts/interception)

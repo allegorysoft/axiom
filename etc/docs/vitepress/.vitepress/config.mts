@@ -22,14 +22,22 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Fundamentals',
+        text: 'Concepts',
         collapsed: false,
         items: [
-          { text: 'Dependency Injection', link: '/fundamentals/dependency-injection' },
-          { text: 'Modularity', link: '/fundamentals/modularity' },
-          { text: 'Interception', link: '/fundamentals/interception' },
+          { text: 'Dependency Injection', link: '/concepts/dependency-injection' },
+          {
+            text: 'Modularity',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/concepts/modularity/overview' },
+              { text: 'Application Options', link: '/concepts/modularity/application-options' },
+              { text: 'Plugins', link: '/concepts/modularity/plugins' },
+            ]
+          },
+          { text: 'Interception', link: '/concepts/interception' },
         ]
-      },
+      }
     ],
 
     socialLinks: [
