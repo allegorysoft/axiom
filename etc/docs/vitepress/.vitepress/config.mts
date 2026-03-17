@@ -41,6 +41,10 @@ export default defineConfig({
       }
     ],
 
+    search: {
+      provider: 'local'
+    },
+
     editLink: {
       pattern: 'https://github.com/allegorysoft/axiom/edit/main/etc/docs/en/:path',
       text: 'Edit this page on GitHub'
