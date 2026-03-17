@@ -5,7 +5,8 @@ description: Convention-based, attribute-driven automatic service registration f
 
 # Dependency Injection
 
-Axiom dependency injection system provides convention-based assembly scanning built on top of `Microsoft.Extensions.DependencyInjection.Abstractions`, automatically registering your services with no manual `services.Add*()` calls needed. You can add it to your project via NuGet:
+Axiom dependency injection system provides convention-based assembly scanning built on top of `Microsoft.Extensions.DependencyInjection.Abstractions`, automatically registering your services with no manual `services.Add*()` calls needed. If you need to register services manually, see the [Configure Application](./modularity/overview#configure-application) section. You can add it to your project via NuGet:
+
 ```bash
 dotnet add package Allegory.Axiom.DependencyInjection.Abstractions
 ```
@@ -189,7 +190,7 @@ public class IntOrderRepository : IOrderRepository<int>, ITransientService { }
 ```
 
 ::: warning
-When registering an open generic service, the generic arguments of the implementation and the service type must match exactly, otherwise an `InvalidOperationException` is thrown at scan time.
+When registering an open generic, the generic arguments of the service type and the implementation must match exactly, otherwise an `InvalidOperationException` is thrown at scan time.
 :::
 
 ## `AssemblyDependencyRegistrar`
