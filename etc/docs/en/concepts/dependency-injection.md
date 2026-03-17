@@ -26,7 +26,7 @@ registrar.Register(typeof(Program).Assembly);
 
 ## Marker Interfaces
 
-The simplest way to declare a service lifetime. No attributes required just implement the interface.
+The simplest way to declare a service lifetime. No attributes required, just implement the interface.
 
 | Interface | Lifetime |
 |---|---|
@@ -67,7 +67,6 @@ Use this attribute when you need explicit control over lifetime, registration st
 | `Lifetime` | `ServiceLifetime?` | `null` | Overrides the lifetime from marker interfaces. Falls back to the marker interface lifetime when `null`. |
 | `Strategy` | `RegistrationStrategy` | `Add` | Controls how the descriptor enters the container. |
 | `ServiceKey` | `object?` | `null` | Registers as a keyed service when set. |
-
 ```csharp
 // Basic lifetime
 [Dependency(ServiceLifetime.Transient)]
@@ -81,14 +80,14 @@ public class ManuallyWiredService : IScopedService { }
 [Dependency(ServiceKey = "primary")]
 public class PrimaryCache : ICache, ITransientService { }
 
-// Override marker interface lifetime — attribute wins
+// Override marker interface lifetime, attribute wins
 [Dependency(ServiceLifetime.Transient)]
 public class OverriddenService : ISingletonService { }
 ```
 
 ## `[Dependency<TService>]` Attribute
 
-A generic, multi-apply variant that explicitly maps an implementation to one or more specific service types. When this attribute is present, **interface-name matching is bypassed entirely** only the listed `TService` types are registered as service types.
+A generic, multi-apply variant that explicitly maps an implementation to one or more specific service types. When this attribute is present, **interface-name matching is bypassed entirely**, only the listed `TService` types are registered as service types.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
@@ -136,7 +135,7 @@ public class CustomerManager : ICustomerManager, ITransientService { }
 [Dependency(Strategy = RegistrationStrategy.Replace)]
 public class ReplacedCustomerManager : ICustomerManager, ITransientService { }
 
-// Ignored — ICustomerManager is already registered
+// Ignored, ICustomerManager is already registered
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class FallbackCustomerManager : ICustomerManager, ITransientService { }
 ```
@@ -145,9 +144,9 @@ public class FallbackCustomerManager : ICustomerManager, ITransientService { }
 
 The lifetime of a registration is resolved in the following order of precedence:
 
-1. `[Dependency<TService>].Lifetime` — if specified on the generic attribute for that service
-2. `[Dependency].Lifetime` — if specified on the default attribute
-3. Marker interface — `ITransientService`, `IScopedService`, or `ISingletonService`
+1. `[Dependency<TService>].Lifetime` if specified on the generic attribute for that service
+2. `[Dependency].Lifetime` if specified on the default attribute
+3. Marker interface: `ITransientService`, `IScopedService`, or `ISingletonService`
 
 The behavior differs depending on whether the lifetime is resolved for an explicit service registration (`[Dependency<TService>]`) or a default self/interface registration:
 
@@ -161,11 +160,11 @@ public class OrderService : IOrderService, ITransientService { }
 [Dependency(ServiceLifetime.Scoped)]
 public class ReportService : IReportService { }
 
-// ⏭️ Silently skipped — no lifetime resolvable, no interfaces to match
+// ⏭️ Silently skipped, no lifetime resolvable, no interfaces to match
 [Dependency]
 public class AmbiguousService { }
 
-// 💥 InvalidOperationException — IAmbiguousService matches name convention but no lifetime resolvable
+// 💥 InvalidOperationException, IAmbiguousService matches name convention but no lifetime resolvable
 [Dependency]
 public class AmbiguousService : IAmbiguousService { }
 
@@ -173,10 +172,25 @@ public class AmbiguousService : IAmbiguousService { }
 [Dependency<IGooManager>(ServiceLifetime.Scoped)]
 public class GooManager : IGooManager { }
 
-// 💥 InvalidOperationException — explicit [Dependency<TService>] with no lifetime
+// 💥 InvalidOperationException, explicit [Dependency<TService>] with no lifetime
 [Dependency<IFooManager>]
 public class BadManager : IFooManager { }
 ```
+
+## Generic Services
+
+Both marker interfaces and attributes work with open and closed generic types.
+```csharp
+// Open generic, registered as IOrderRepository<>
+public class OrderRepository<T> : IOrderRepository<T>, ITransientService { }
+
+// Closed generic, registered as IOrderRepository<int>
+public class IntOrderRepository : IOrderRepository<int>, ITransientService { }
+```
+
+::: warning
+When registering an open generic service, the generic arguments of the implementation and the service type must match exactly, otherwise an `InvalidOperationException` is thrown at scan time.
+:::
 
 ## `AssemblyDependencyRegistrar`
 
@@ -235,30 +249,4 @@ services.AddPostConfigureAction(sc =>
 services.ExecutePostConfigureActions();
 ```
 
-Each `IServiceCollection` instance maintains its own independent action queue state is never shared between collections. Actions are stored in a `ConditionalWeakTable` and do not prevent the collection from being garbage collected.
-
-## Generic Services
-
-Both marker interfaces and attributes work with open and closed generic types.
-```csharp
-// Open generic — registered as IOrderRepository<>
-public class OrderRepository<T> : IOrderRepository<T>, ITransientService { }
-
-// Closed generic — registered as IOrderRepository<int>
-public class IntOrderRepository : IOrderRepository<int>, ITransientService { }
-```
-
-::: warning
-When registering an open generic with `[Dependency<TService>]`, the generic arguments of the implementation and the service type must match exactly, otherwise an `InvalidOperationException` is thrown at scan time.
-:::
-
-## Registration Behavior Reference
-
-| Scenario | Self registered? | Interface registered? |
-|---|---|---|
-| Marker interface only | ✅ Yes | ✅ Yes (if name matches) |
-| `[Dependency]` with lifetime only | ✅ Yes | ✅ Yes (if name matches) |
-| `[Dependency<TService>]` only, no default lifetime | ❌ No | ✅ Yes (explicit only) |
-| `[Dependency]` + `[Dependency<TService>]` | ✅ Yes | ✅ Yes (explicit only, name matching skipped) |
-| `AutoRegister = false` | ❌ No | ❌ No |
-| No lifetime resolvable (default registration) | ⏭️ Silently skipped | ⏭️ Silently skipped |
+Each `IServiceCollection` instance maintains its own independent action queue, state is never shared between collections. Actions are stored in a `ConditionalWeakTable` and do not prevent the collection from being garbage collected.
