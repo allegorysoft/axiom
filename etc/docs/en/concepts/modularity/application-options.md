@@ -53,7 +53,7 @@ await builder.ConfigureApplicationAsync(options =>
 });
 ```
 
-See [Dependency Injection](./concepts/dependency-injection) for the full `AssemblyDependencyRegistrar` API.
+See [Dependency Injection](/concepts/dependency-injection#assemblydependencyregistrar) for the full `AssemblyDependencyRegistrar` API.
 
 ## ApplicationBuilder
 
