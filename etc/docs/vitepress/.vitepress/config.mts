@@ -5,6 +5,9 @@ export default defineConfig({
   srcDir: "../en",
   lastUpdated: true,
   cleanUrls: true,
+  sitemap: {
+    hostname: 'https://axiomframework.dev'
+  },
 
   title: "Axiom Documentation",
   description: "A modular, extensible .NET application framework",
