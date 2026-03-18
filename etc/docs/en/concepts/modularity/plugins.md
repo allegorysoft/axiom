@@ -18,6 +18,76 @@ await builder.ConfigureApplicationAsync(options =>
 
 Axiom includes three built-in plugin types. You can also implement `IAxiomApplicationPlugin` for custom loading scenarios.
 
+## AxiomApplicationFilePlugin
+
+Loads a single assembly from a file path.
+
+```csharp
+options.Plugins.Add(new AxiomApplicationFilePlugin("/plugins/MyPlugin.dll"));
+```
+
+The assembly is loaded immediately when the plugin is constructed using `AssemblyLoadContext.Default`.
+
+## AxiomApplicationDirectoryPlugin
+
+Loads all `.dll` and `.exe` files found in a directory.
+
+```csharp
+options.Plugins.Add(new AxiomApplicationDirectoryPlugin("/plugins"));
+```
+
+By default it scans recursively. Pass `recursive: false` to limit scanning to the top-level directory only.
+
+```csharp
+options.Plugins.Add(new AxiomApplicationDirectoryPlugin("/plugins", recursive: false));
+```
+
+All matching files are loaded at construction time using `AssemblyLoadContext.Default`. Duplicate paths are deduplicated before loading.
+
+## AxiomApplicationAssemblyPlugin
+
+Loads one or more assemblies that are already in memory. Use this when you have a direct reference to the assembly, such as in tests or when the assembly is loaded through other means.
+
+```csharp
+options.Plugins.Add(new AxiomApplicationAssemblyPlugin(
+    typeof(PluginA.PluginAPackage).Assembly,
+    typeof(PluginB.PluginBPackage).Assembly
+));
+```
+
+## Custom Plugins
+
+Implement `IAxiomApplicationPlugin` to load assemblies from any source.
+
+```csharp
+public interface IAxiomApplicationPlugin
+{
+    IEnumerable<Assembly> GetAssemblies();
+}
+```
+
+```csharp
+public class MyCustomPlugin : IAxiomApplicationPlugin
+{
+    public IEnumerable<Assembly> GetAssemblies()
+    {
+        yield return AssemblyLoadContext.Default.LoadFromAssemblyPath(
+            ResolvePluginPath());
+    }
+
+    private string ResolvePluginPath()
+    {
+        // Your custom resolution logic
+    }
+}
+
+options.Plugins.Add(new MyCustomPlugin());
+```
+
+::: warning
+Plugin assemblies are loaded at the time `ConfigureApplicationAsync` is called. If a file does not exist or cannot be loaded, an exception will be thrown during startup.
+:::
+
 ## Example
 
 This example walks through a host application that loads a command plugin at runtime. The plugin is not referenced by the host project, so it would never be discovered through the dependency graph. Plugins are the right tool for exactly this case.
@@ -151,74 +221,4 @@ while (true)
 
 :::
 
-The base application has no knowledge of the plugin. The plugin knows about the base application. The host wires them together at startup by pointing to the plugin binary.
-
-## AxiomApplicationFilePlugin
-
-Loads a single assembly from a file path.
-
-```csharp
-options.Plugins.Add(new AxiomApplicationFilePlugin("/plugins/MyPlugin.dll"));
-```
-
-The assembly is loaded immediately when the plugin is constructed using `AssemblyLoadContext.Default`.
-
-## AxiomApplicationDirectoryPlugin
-
-Loads all `.dll` and `.exe` files found in a directory.
-
-```csharp
-options.Plugins.Add(new AxiomApplicationDirectoryPlugin("/plugins"));
-```
-
-By default it scans recursively. Pass `recursive: false` to limit scanning to the top-level directory only.
-
-```csharp
-options.Plugins.Add(new AxiomApplicationDirectoryPlugin("/plugins", recursive: false));
-```
-
-All matching files are loaded at construction time using `AssemblyLoadContext.Default`. Duplicate paths are deduplicated before loading.
-
-## AxiomApplicationAssemblyPlugin
-
-Loads one or more assemblies that are already in memory. Use this when you have a direct reference to the assembly, such as in tests or when the assembly is loaded through other means.
-
-```csharp
-options.Plugins.Add(new AxiomApplicationAssemblyPlugin(
-    typeof(PluginA.PluginAPackage).Assembly,
-    typeof(PluginB.PluginBPackage).Assembly
-));
-```
-
-## Custom Plugins
-
-Implement `IAxiomApplicationPlugin` to load assemblies from any source.
-
-```csharp
-public interface IAxiomApplicationPlugin
-{
-    IEnumerable<Assembly> GetAssemblies();
-}
-```
-
-```csharp
-public class MyCustomPlugin : IAxiomApplicationPlugin
-{
-    public IEnumerable<Assembly> GetAssemblies()
-    {
-        yield return AssemblyLoadContext.Default.LoadFromAssemblyPath(
-            ResolvePluginPath());
-    }
-
-    private string ResolvePluginPath()
-    {
-        // Your custom resolution logic
-    }
-}
-
-options.Plugins.Add(new MyCustomPlugin());
-```
-
-::: warning
-Plugin assemblies are loaded at the time `ConfigureApplicationAsync` is called. If a file does not exist or cannot be loaded, an exception will be thrown during startup.
-:::
+The base application has no knowledge of the plugin. The plugin knows about the base application. The host wires them together at startup by pointing to the plugins directory.
