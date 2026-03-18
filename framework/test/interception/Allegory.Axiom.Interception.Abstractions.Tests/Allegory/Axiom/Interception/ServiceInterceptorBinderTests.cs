@@ -16,11 +16,9 @@ public class ServiceInterceptorBinderTests
 
         collection.AddTransient<Implementation1>();
         collection.AddScoped<Implementation2>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        var descriptor = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-
-        ServiceInterceptorBinder.Apply(collection, [descriptor]);
+        ServiceInterceptorBinder.Apply(collection);
 
         collection.Single(c => c.ServiceType == typeof(Implementation1)).ImplementationFactory.ShouldNotBeNull();
         collection.Single(c => c.ServiceType == typeof(Implementation2)).ImplementationFactory.ShouldNotBeNull();
@@ -31,11 +29,9 @@ public class ServiceInterceptorBinderTests
     {
         var collection = new ServiceCollection();
         collection.AddTransient<Implementation3>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        var descriptor = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-
-        ServiceInterceptorBinder.Apply(collection, [descriptor]);
+        ServiceInterceptorBinder.Apply(collection);
 
         var service = collection.Single(c => c.ServiceType == typeof(Implementation3));
         service.ImplementationType.ShouldBe(typeof(Implementation3));
@@ -47,13 +43,10 @@ public class ServiceInterceptorBinderTests
     {
         var collection = new ServiceCollection();
         collection.AddTransient<Implementation1>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddInterceptor<Interceptor2>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        var descriptor1 = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-        var descriptor2 = new InterceptorDescriptor(
-            typeof(Interceptor2), t => typeof(IImplementation).IsAssignableFrom(t));
-
-        ServiceInterceptorBinder.Apply(collection, [descriptor1, descriptor2]);
+        ServiceInterceptorBinder.Apply(collection);
 
         collection.Count(c => c.ServiceType == typeof(Implementation1)).ShouldBe(1);
         collection.Single(c => c.ServiceType == typeof(Implementation1)).ImplementationFactory.ShouldNotBeNull();
@@ -65,11 +58,9 @@ public class ServiceInterceptorBinderTests
         var collection = new ServiceCollection();
         collection.AddTransient<Implementation1>();
         collection.AddScoped<Implementation2>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        var descriptor = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-
-        ServiceInterceptorBinder.Apply(collection, [descriptor]);
+        ServiceInterceptorBinder.Apply(collection);
 
         collection.Single(c => c.ServiceType == typeof(Implementation1)).Lifetime.ShouldBe(ServiceLifetime.Transient);
         collection.Single(c => c.ServiceType == typeof(Implementation2)).Lifetime.ShouldBe(ServiceLifetime.Scoped);
@@ -81,11 +72,9 @@ public class ServiceInterceptorBinderTests
         var collection = new ServiceCollection();
         const string key = "my-key";
         collection.AddKeyedScoped<Implementation1>(key);
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        var descriptor = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-
-        ServiceInterceptorBinder.Apply(collection, [descriptor]);
+        ServiceInterceptorBinder.Apply(collection);
 
         var service = collection.Single(c => c.ServiceType == typeof(Implementation1));
         service.IsKeyedService.ShouldBeTrue();
@@ -104,10 +93,9 @@ public class ServiceInterceptorBinderTests
         var instance = new Implementation2();
         collection.AddSingleton(instance);
 
-        var descriptor = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        ServiceInterceptorBinder.Apply(collection, [descriptor]);
+        ServiceInterceptorBinder.Apply(collection);
 
         var implementation1 = collection.Single(c => c.ServiceType == typeof(Implementation1));
         implementation1.ImplementationType.ShouldBeNull();
@@ -126,7 +114,7 @@ public class ServiceInterceptorBinderTests
         var collection = new ServiceCollection();
         collection.AddTransient<Implementation1>();
 
-        ServiceInterceptorBinder.Apply(collection, []);
+        ServiceInterceptorBinder.Apply(collection);
 
         var service = collection.Single(c => c.ServiceType == typeof(Implementation1));
         service.ImplementationType.ShouldBe(typeof(Implementation1));
@@ -137,11 +125,9 @@ public class ServiceInterceptorBinderTests
     public void ShouldHandleEmptyServiceCollection()
     {
         var collection = new ServiceCollection();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        var descriptor = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-
-        Should.NotThrow(() => ServiceInterceptorBinder.Apply(collection, [descriptor]));
+        Should.NotThrow(() => ServiceInterceptorBinder.Apply(collection));
         collection.Count.ShouldBe(0);
     }
 
@@ -150,11 +136,9 @@ public class ServiceInterceptorBinderTests
     {
         var collection = new ServiceCollection();
         collection.AddTransient<Implementation1>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
 
-        var descriptor = new InterceptorDescriptor(
-            typeof(Interceptor1), t => typeof(IImplementation).IsAssignableFrom(t));
-
-        ServiceInterceptorBinder.Apply(collection, [descriptor]);
+        ServiceInterceptorBinder.Apply(collection);
 
         collection.Count(c => c.ServiceType == typeof(Implementation1)).ShouldBe(1);
     }

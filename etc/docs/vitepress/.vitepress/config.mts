@@ -3,6 +3,11 @@ import { defineConfig } from 'vitepress'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcDir: "../en",
+  lastUpdated: true,
+  cleanUrls: true,
+  sitemap: {
+    hostname: 'https://axiomframework.dev'
+  },
 
   title: "Axiom Documentation",
   description: "A modular, extensible .NET application framework",
@@ -22,15 +27,40 @@ export default defineConfig({
         ]
       },
       {
-        text: 'Fundamentals',
+        text: 'Concepts',
         collapsed: false,
         items: [
-          { text: 'Dependency Injection', link: '/fundamentals/dependency-injection' },
-          { text: 'Modularity', link: '/fundamentals/modularity' },
-          { text: 'Interception', link: '/fundamentals/interception' },
+          { text: 'Dependency Injection', link: '/concepts/dependency-injection' },
+          {
+            text: 'Modularity',
+            collapsed: true,
+            items: [
+              { text: 'Overview', link: '/concepts/modularity/overview' },
+              { text: 'Application Options', link: '/concepts/modularity/application-options' },
+              { text: 'Plugins', link: '/concepts/modularity/plugins' },
+            ]
+          },
+          { text: 'Interception', link: '/concepts/interception' },
         ]
-      },
+      }
     ],
+
+    search: {
+      provider: 'local'
+    },
+
+    editLink: {
+      pattern: 'https://github.com/allegorysoft/axiom/edit/main/etc/docs/en/:path',
+      text: 'Edit this page on GitHub'
+    },
+
+    lastUpdated: {
+      text: 'Last updated',
+      formatOptions: {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }
+    },
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/allegorysoft/axiom' }

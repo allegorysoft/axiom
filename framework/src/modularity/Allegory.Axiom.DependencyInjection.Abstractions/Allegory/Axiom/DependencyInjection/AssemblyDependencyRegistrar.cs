@@ -21,6 +21,17 @@ public class AssemblyDependencyRegistrar(IServiceCollection serviceCollection)
         }
     }
 
+    protected virtual IEnumerable<Type> GetImplementationTypes(Assembly assembly)
+    {
+        return assembly.GetTypes()
+            .Where(t => t is {IsClass: true, IsAbstract: false})
+            .Where(t => typeof(ITransientService).IsAssignableFrom(t) ||
+                        typeof(IScopedService).IsAssignableFrom(t) ||
+                        typeof(ISingletonService).IsAssignableFrom(t) ||
+                        t.IsDefined(typeof(DependencyAttribute), inherit: true) ||
+                        t.IsDefined(typeof(DependencyAttribute<>), inherit: true));
+    }
+
     protected virtual void RegisterImplementation(Type implementation)
     {
         var implementationType = new ImplementationType(implementation);
@@ -74,16 +85,6 @@ public class AssemblyDependencyRegistrar(IServiceCollection serviceCollection)
         }
     }
 
-    protected virtual IEnumerable<Type> GetImplementationTypes(Assembly assembly)
-    {
-        return assembly.GetTypes()
-            .Where(t => t is {IsClass: true, IsAbstract: false})
-            .Where(t => typeof(ITransientService).IsAssignableFrom(t) ||
-                        typeof(IScopedService).IsAssignableFrom(t) ||
-                        typeof(ISingletonService).IsAssignableFrom(t) ||
-                        t.IsDefined(typeof(DependencyAttribute), inherit: true) ||
-                        t.IsDefined(typeof(DependencyAttribute<>), inherit: true));
-    }
 
     protected virtual void RegisterService(
         ServiceDescriptor serviceDescriptor,
