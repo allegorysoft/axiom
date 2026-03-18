@@ -150,6 +150,115 @@ builder.Services.AddKeyedScoped<IOrderService, OrderService>("primary");
 builder.Services.AddInterceptor<LoggingInterceptor>(t => t == typeof(OrderService));
 ```
 
+## Example
+
+This example shows attribute-driven logging interception. A `[Logging]` attribute controls which classes and methods get intercepted. The interceptor logs all arguments before the call and the return value after.
+
+### The attribute
+
+```csharp [LoggingAttribute.cs]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = true)]
+public sealed class LoggingAttribute : Attribute {}
+```
+
+### The interceptor
+
+The interceptor checks whether the invoked method or its declaring class has `[Logging]` applied. If neither does, it skips logging and just proceeds.
+
+```csharp [LoggingInterceptor.cs]
+public class LoggingInterceptor(ILogger<LoggingInterceptor> logger) : IAxiomInterceptor, ISingletonService
+{
+    public async Task InterceptAsync(IAxiomInterceptorContext context)
+    {
+        var method = context.Method;
+        var hasAttribute =
+            method.IsDefined(typeof(LoggingAttribute), inherit: true) ||
+            method.DeclaringType!.IsDefined(typeof(LoggingAttribute), inherit: true);
+
+        if (!hasAttribute)
+        {
+            await context.ProceedAsync();
+            return;
+        }
+
+        var args = context.Arguments
+            .Select((a, i) => $"{method.GetParameters()[i].Name}: {a}")
+            .ToArray();
+
+        logger.LogInformation(
+            "[{Type}.{Method}] called with ({Args})",
+            method.DeclaringType!.Name,
+            method.Name,
+            string.Join(", ", args));
+
+        await context.ProceedAsync();
+
+        logger.LogInformation(
+            "[{Type}.{Method}] returned {ReturnValue}",
+            method.DeclaringType!.Name,
+            method.Name,
+            context.ReturnValue);
+    }
+}
+```
+
+### The service
+
+`[Logging]` is applied at the class level here, so every method on `OrderService` is logged. You can also apply it at the method level to log only specific methods.
+
+::: code-group
+
+```csharp [IOrderService.cs]
+public interface IOrderService : ITransientService
+{
+    Task<Order> GetOrderAsync(int id);
+    Task<Order> CreateOrderAsync(string product, int quantity);
+}
+```
+
+```csharp [OrderService.cs]
+[Logging]
+public class OrderService : IOrderService
+{
+    public Task<Order> GetOrderAsync(int id)
+        => Task.FromResult(new Order(id, "Unknown", 0));
+
+    public Task<Order> CreateOrderAsync(string product, int quantity)
+        => Task.FromResult(new Order(Random.Shared.Next(), product, quantity));
+}
+
+public record Order(int Id, string Product, int Quantity);
+```
+
+:::
+
+### Registration
+
+The predicate checks whether the implementation type itself or any of its methods has `[Logging]`. This way a single `AddInterceptor` call covers both class-level and method-level usage.
+
+```csharp [MyAppPackage.cs]
+internal sealed class MyAppPackage : IConfigureApplication
+{
+    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    {
+        builder.Services.AddInterceptor<LoggingInterceptor>(t =>
+            t.IsDefined(typeof(LoggingAttribute), inherit: true) ||
+            t.GetMethods().Any(m => m.IsDefined(typeof(LoggingAttribute), inherit: true)));
+
+        return ValueTask.CompletedTask;
+    }
+}
+```
+
+With this setup, resolving `IOrderService` gives a proxy. Calling `GetOrderAsync(42)` produces log output like:
+
+```
+[OrderService.GetOrderAsync] called with (id: 42)
+[OrderService.GetOrderAsync] returned Order { Id = 42, Product = Unknown, Quantity = 0 }
+```
+
+Methods without `[Logging]` on a class that does not have the attribute are still proxied but the interceptor skips logging and proceeds directly.
+
 ## Limitations
 
 - Services registered via a factory delegate or an existing instance are not intercepted. The predicate only matches services that have a concrete `ImplementationType`.
