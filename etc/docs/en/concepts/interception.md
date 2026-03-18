@@ -257,7 +257,11 @@ With this setup, resolving `IOrderService` gives a proxy. Calling `GetOrderAsync
 [OrderService.GetOrderAsync] returned Order { Id = 42, Product = Unknown, Quantity = 0 }
 ```
 
-Methods without `[Logging]` on a class that does not have the attribute are still proxied but the interceptor skips logging and proceeds directly.
+It is worth understanding exactly what gets proxied and what gets intercepted:
+
+- **No attribute anywhere on the class or its methods**: the predicate returns `false`, so `ServiceInterceptorBinder` never replaces the service descriptor. The resolved instance is the plain `OrderService`, no proxy involved.
+- **`[Logging]` on the class**: the predicate returns `true`, so every method on that class gets a proxy. Every invocation enters `InterceptAsync`, but since the attribute check passes for all methods at class level, all of them are logged.
+- **`[Logging]` on a specific method only**: the predicate still returns `true` because `t.GetMethods().Any(...)` matches, so the class gets a proxy. But inside `InterceptAsync`, only the method that actually has `[Logging]` passes the attribute check. All other methods proceed immediately without logging.
 
 ## Limitations
 
