@@ -22,9 +22,24 @@ Axiom includes three built-in plugin types. You can also implement `IAxiomApplic
 
 This example walks through a host application that loads a command plugin at runtime. The plugin is not referenced by the host project, so it would never be discovered through the dependency graph. Plugins are the right tool for exactly this case.
 
+The example has three projects with the following dependency structure:
+
+```
+MyApp.Host        (references MyApp, Microsoft.Extensions.Hosting)
+  └── MyApp       (references Allegory.Axiom.Hosting.Abstractions)
+
+MyApp.Plugin      (references MyApp)
+```
+
+`MyApp.Plugin` is not referenced by `MyApp.Host`, so it will never be discovered through the dependency graph. The host loads it explicitly as a plugin at runtime.
+
 ### Base application
 
 The base application defines an `ICommand` interface and a `CommandManager` that holds registered commands. The package registers `CommandManager` as a singleton.
+
+```bash
+dotnet add package Allegory.Axiom.Hosting.Abstractions
+```
 
 ::: code-group
 
@@ -69,7 +84,7 @@ internal sealed class MyAppPackage : IConfigureApplication
 
 ### Plugin
 
-The plugin project references the base application but is not referenced back. This means the host will never discover it through the dependency graph on its own. It implements `ICommand` and registers itself into `CommandManager` during initialization.
+The plugin project references `MyApp` but is not referenced back. It does not need to install `Allegory.Axiom.Hosting.Abstractions` directly since it comes transitively through `MyApp`. It implements `ICommand` and registers itself into `CommandManager` during initialization.
 
 ::: code-group
 
@@ -99,7 +114,13 @@ internal sealed class MyPluginPackage : IInitializeApplication
 
 ### Host
 
-The host loads the plugin assembly by specified directory. The plugin's `IInitializeApplication` is called during `InitializeApplicationAsync`, at which point `HelloCommand` is registered into `CommandManager`.
+The host references `MyApp` and installs `Microsoft.Extensions.Hosting` to bootstrap the application. `Allegory.Axiom.Hosting.Abstractions` comes transitively through `MyApp`.
+
+```bash
+dotnet add package Microsoft.Extensions.Hosting
+```
+
+It loads all assemblies from a plugins directory using `AxiomApplicationDirectoryPlugin`. The plugin's `IInitializeApplication` is called during `InitializeApplicationAsync`, at which point `HelloCommand` is registered into `CommandManager`.
 
 ::: code-group
 
