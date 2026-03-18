@@ -48,7 +48,7 @@ Each assembly can contain at most one class implementing a given lifecycle inter
 
 You do not have to implement all three interfaces. Implement only what your assembly needs.
 
-Most of the time, you do not need a package class at all. Axiom automatically scans every discovered assembly with `AssemblyDependencyRegistrar`, so any class marked with a marker interface or a `[Dependency]` attribute is registered without any additional wiring. See [Dependency Injection](/concepts/dependency-injection) for details.
+Most of the time, you do not need a package class at all. Axiom automatically scans every discovered assembly with `AssemblyDependencyRegistrar`, so any class marked with a marker interface or a `[Dependency]` attribute is registered without any additional wiring. See [Dependency Injection](../dependency-injection) for details.
 
 A package class is only needed when you require something beyond automatic registration, such as configuring the options pattern, registering hosted services, or setting up third-party integrations.
 

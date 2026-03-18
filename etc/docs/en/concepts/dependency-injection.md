@@ -5,7 +5,7 @@ description: Convention-based, attribute-driven automatic service registration f
 
 # Dependency Injection
 
-Axiom dependency injection system provides convention-based assembly scanning built on top of `Microsoft.Extensions.DependencyInjection.Abstractions`, automatically registering your services with no manual `services.Add*()` calls needed. If you need to register services manually, see the [Configure Application](./modularity/overview#configure-application) section. You can add it to your project via NuGet:
+Axiom dependency injection system provides convention-based assembly scanning built on top of `Microsoft.Extensions.DependencyInjection.Abstractions`, automatically registering your services with no manual `services.Add*()` calls needed. If you need to register services manually, see the [Application Packages](./modularity/overview#application-packages) section. You can add it to your project via NuGet:
 
 ```bash
 dotnet add package Allegory.Axiom.DependencyInjection.Abstractions

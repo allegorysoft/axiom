@@ -13,7 +13,7 @@ Axiom is in early alpha. APIs may change without notice and is not recommended f
 
 ## What's next
 
-- [Installation](/get-started/installation)
-- [Dependency Injection](/concepts/dependency-injection)
-- [Modularity](/concepts/modularity/overview)
-- [Interception](/concepts/interception)
+- [Installation](./installation)
+- [Dependency Injection](../concepts/dependency-injection)
+- [Modularity](../concepts/modularity/overview)
+- [Interception](../concepts/interception)
