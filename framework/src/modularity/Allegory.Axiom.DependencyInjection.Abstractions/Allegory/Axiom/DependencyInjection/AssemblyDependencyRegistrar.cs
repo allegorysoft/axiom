@@ -85,7 +85,6 @@ public class AssemblyDependencyRegistrar(IServiceCollection serviceCollection)
         }
     }
 
-
     protected virtual void RegisterService(
         ServiceDescriptor serviceDescriptor,
         RegistrationStrategy strategy)
