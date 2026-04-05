@@ -4,6 +4,6 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public interface IUnitOfWorkManager : ISingletonService
 {
-    static abstract IUnitOfWork? Current { get; }
+    IUnitOfWork? Current { get; }
     IUnitOfWork Begin();
 }

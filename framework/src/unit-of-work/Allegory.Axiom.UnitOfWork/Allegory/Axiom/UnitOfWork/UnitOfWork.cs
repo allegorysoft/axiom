@@ -32,6 +32,6 @@ internal class UnitOfWork : IUnitOfWork
     public void Dispose()
     {
         Activity?.Dispose();
-        UnitOfWorkManager.Current = Parent;
+        UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
     }
 }
