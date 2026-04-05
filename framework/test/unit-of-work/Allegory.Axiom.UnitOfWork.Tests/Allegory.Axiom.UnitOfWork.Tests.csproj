@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\unit-of-work\Allegory.Axiom.UnitOfWork\Allegory.Axiom.UnitOfWork.csproj"/>
+        <ProjectReference Include="..\..\core\Allegory.Axiom.IntegrationTestBase\Allegory.Axiom.IntegrationTestBase.csproj" />
+    </ItemGroup>
+
+</Project>
