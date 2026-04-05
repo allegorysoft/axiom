@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace />
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference
+            Include="..\..\interception\Allegory.Axiom.Interception.Abstractions\Allegory.Axiom.Interception.Abstractions.csproj" />
+        <ProjectReference
+            Include="..\Allegory.Axiom.UnitOfWork.Abstractions\Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
