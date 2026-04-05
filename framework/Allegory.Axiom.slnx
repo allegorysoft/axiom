@@ -19,6 +19,7 @@
   <Folder Name="/test/" />
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
+    <Project Path="test/core/Allegory.Axiom.HostedTestBase/Allegory.Axiom.HostedTestBase.csproj" />
     <Project Path="test/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
   </Folder>
   <Folder Name="/test/interception/">
