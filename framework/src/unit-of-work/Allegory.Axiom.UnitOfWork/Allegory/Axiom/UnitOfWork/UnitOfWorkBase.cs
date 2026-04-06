@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,9 +11,10 @@ internal abstract class UnitOfWorkBase(UnitOfWorkOptions options) : IUnitOfWork
     // Implement async dispose pattern
 
     public Guid Id { get; } = Guid.NewGuid();
-    public Activity? Activity { get; set; }
-    public IUnitOfWork? Parent { get; set; }
-    public UnitOfWorkOptions Options { get; } = options;
+    public virtual IUnitOfWork? Parent { get; set; }
+    public virtual Activity? Activity { get; set; }
+    public virtual UnitOfWorkOptions Options { get; } = options;
+    public virtual Dictionary<string, object> Items { get; } = new();
 
     public virtual Task SaveChangesAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
@@ -22,7 +24,6 @@ internal abstract class UnitOfWorkBase(UnitOfWorkOptions options) : IUnitOfWork
 
     public virtual void Dispose()
     {
-        Activity?.Dispose();
         UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
     }
 }

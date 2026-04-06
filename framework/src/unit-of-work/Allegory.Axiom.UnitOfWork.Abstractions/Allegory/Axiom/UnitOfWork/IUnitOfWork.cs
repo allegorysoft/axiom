@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,8 +12,9 @@ public interface IUnitOfWork : IDisposable
     IUnitOfWork? Parent { get; }
     Activity? Activity { get; }
     UnitOfWorkOptions Options { get; }
+    Dictionary<string, object> Items { get; }
 
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task CompleteAsync(CancellationToken cancellationToken = default);
+    Task CompleteAsync(CancellationToken cancellationToken = default); 
     Task RollbackAsync(CancellationToken cancellationToken = default);
 }
