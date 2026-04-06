@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-internal abstract class UnitOfWorkBase(UnitOfWorkOptions options) : IUnitOfWork
+internal abstract class UnitOfWorkBase(UnitOfWorkOptions options, IUnitOfWork? parent = null) : IUnitOfWork
 {
     // Implement async dispose pattern
 
     public Guid Id { get; } = Guid.NewGuid();
-    public virtual IUnitOfWork? Parent { get; set; }
+    public IUnitOfWork? Parent { get; } = parent;
     public virtual Activity? Activity { get; set; }
     public virtual UnitOfWorkOptions Options { get; } = options;
     public virtual Dictionary<string, object> Items { get; } = new();

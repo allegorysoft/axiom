@@ -36,12 +36,10 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
 
     protected virtual IUnitOfWork CreateUnitOfWork(UnitOfWorkOptions options)
     {
-        return ShouldCreateRoot(options)
-            ? CreateRootUnitOfWork(options)
-            : new ChildUnitOfWork(Current!, options);
+        return ShouldCreateRoot(options) ? CreateRootUnitOfWork(options) : new ChildUnitOfWork(options, Current!);
     }
 
-    private bool ShouldCreateRoot(UnitOfWorkOptions options)
+    protected virtual bool ShouldCreateRoot(UnitOfWorkOptions options)
     {
         if (Current == null)
         {
@@ -63,12 +61,11 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
         return true;
     }
 
-    private UnitOfWork CreateRootUnitOfWork(UnitOfWorkOptions options)
+    protected virtual IUnitOfWork CreateRootUnitOfWork(UnitOfWorkOptions options)
     {
-        var unitOfWork = new UnitOfWork(options);
+        var unitOfWork = new UnitOfWork(options, Current);
         unitOfWork.Activity = ActivitySource.StartActivity();
         unitOfWork.Activity?.AddTag("id", unitOfWork.Id);
-        unitOfWork.Parent = Current;
         return unitOfWork;
     }
 }

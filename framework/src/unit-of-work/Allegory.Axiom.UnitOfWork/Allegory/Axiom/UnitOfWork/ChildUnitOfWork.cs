@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-internal class ChildUnitOfWork(IUnitOfWork parent,
-    UnitOfWorkOptions options) : UnitOfWorkBase(options)
+internal class ChildUnitOfWork(
+    UnitOfWorkOptions options,
+    IUnitOfWork parent)
+    : UnitOfWorkBase(options, parent)
 {
-    public override IUnitOfWork? Parent { get; set; } = parent;
     public override Activity? Activity => Parent!.Activity;
     public override UnitOfWorkOptions Options => Parent!.Options;
     public override Dictionary<string, object> Items => Parent!.Items;
