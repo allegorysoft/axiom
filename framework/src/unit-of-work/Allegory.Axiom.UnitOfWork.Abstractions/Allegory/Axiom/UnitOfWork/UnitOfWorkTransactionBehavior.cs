@@ -17,7 +17,6 @@ public enum UnitOfWorkTransactionBehavior
 
     /// <summary>
     /// Runs without a transaction. Each SaveChangesAsync call is auto-committed immediately and cannot be rolled back.
-    /// Useful for operations that must persist regardless of the outcome of an outer transaction.
     /// </summary>
     Suppress
 }

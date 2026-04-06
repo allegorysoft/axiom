@@ -83,7 +83,7 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
             }
         }
     }
-    
+
     [Fact]
     public void ShouldCreateSubRootUnitOfWorkWhenTransactionBehaviorIsRequiresNew()
     {

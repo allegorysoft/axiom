@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-internal abstract class UnitOfWorkBase(UnitOfWorkOptions options, IUnitOfWork? parent = null) : IUnitOfWork
+internal abstract class UnitOfWorkBase(
+    UnitOfWorkOptions options,
+    IUnitOfWork? parent = null)
+    : IUnitOfWork
 {
     // Implement async dispose pattern
 
