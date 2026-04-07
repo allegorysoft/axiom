@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -5,22 +6,28 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-internal class ChildUnitOfWork(
-    UnitOfWorkOptions options,
-    IUnitOfWork parent)
-    : UnitOfWorkBase(options, parent)
+internal sealed class ChildUnitOfWork(IUnitOfWork parent) : IUnitOfWork
 {
-    public override Activity? Activity => Parent!.Activity;
-    public override UnitOfWorkOptions Options => Parent!.Options;
-    public override Dictionary<string, object> Items => Parent!.Items;
+    public Guid Id { get; } = Guid.NewGuid();
+    public IUnitOfWork Parent { get; } = parent;
+    public Activity? Activity => Parent.Activity;
+    public UnitOfWorkOptions Options => Parent.Options;
+    public Dictionary<string, object> Items => Parent.Items;
 
-    public override async Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        await Parent!.SaveChangesAsync(cancellationToken);
+        await Parent.SaveChangesAsync(cancellationToken);
     }
 
-    public override async Task RollbackAsync(CancellationToken cancellationToken = default)
+    public Task CompleteAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
+
+    public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
-        await Parent!.RollbackAsync(cancellationToken);
+        await Parent.RollbackAsync(cancellationToken);
+    }
+
+    public void Dispose()
+    {
+        UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
     }
 }

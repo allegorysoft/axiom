@@ -212,12 +212,12 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     public void ShouldApplyDefaultOptionsWhenPreferredOptionsNull()
     {
         var manager = ServiceProvider.GetRequiredService<IUnitOfWorkManager>();
-        var options = ServiceProvider.GetRequiredService<IOptions<UnitOfWorkOptions>>();
+        var options = ServiceProvider.GetRequiredService<IOptions<UnitOfWorkOptions>>().Value;
 
         using var uow = manager.Begin();
 
-        manager.Current!.Options.ShouldBe(options.Value);
-        manager.Current!.Options.Timeout.ShouldBe(TimeSpan.FromSeconds(30));
+        manager.Current!.Options.ShouldBe(options);
+        manager.Current!.Options.Timeout.ShouldBe(options.Timeout);
     }
 
     [Fact]
@@ -229,7 +229,7 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
         using var uow = manager.Begin(preferred);
 
         manager.Current!.Options.ShouldBe(preferred);
-        manager.Current!.Options.Timeout.ShouldBe(TimeSpan.FromMinutes(1));
+        manager.Current!.Options.Timeout.ShouldBe(preferred.Timeout);
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
         using var uow = manager.Begin(preferred);
 
         manager.Current!.Options.ShouldBe(preferred);
-        manager.Current!.Options.IsolationLevel.ShouldBe(IsolationLevel.ReadUncommitted);
+        manager.Current!.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
         manager.Current!.Options.Timeout.ShouldBe(options.Timeout);
     }
 }

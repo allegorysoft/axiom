@@ -36,7 +36,7 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
 
     protected virtual IUnitOfWork CreateUnitOfWork(UnitOfWorkOptions options)
     {
-        return ShouldCreateRoot(options) ? CreateRootUnitOfWork(options) : new ChildUnitOfWork(options, Current!);
+        return ShouldCreateRoot(options) ? CreateRootUnitOfWork(options) : new ChildUnitOfWork(Current!);
     }
 
     protected virtual bool ShouldCreateRoot(UnitOfWorkOptions options)
@@ -63,7 +63,8 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
 
     protected virtual IUnitOfWork CreateRootUnitOfWork(UnitOfWorkOptions options)
     {
-        var unitOfWork = new UnitOfWork(options, Current);
+        var unitOfWork = new UnitOfWork(options);
+        unitOfWork.Parent = Current;
         unitOfWork.Activity = ActivitySource.StartActivity();
         unitOfWork.Activity?.AddTag("id", unitOfWork.Id);
         return unitOfWork;
