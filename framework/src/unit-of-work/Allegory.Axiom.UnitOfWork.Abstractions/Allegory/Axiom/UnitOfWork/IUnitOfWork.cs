@@ -13,8 +13,10 @@ public interface IUnitOfWork : IDisposable
     Activity? Activity { get; }
     UnitOfWorkOptions Options { get; }
     Dictionary<string, object> Items { get; }
+    IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases { get; }
 
+    void AddDatabase(string key, UnitOfWorkDatabaseHandle handle);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task CompleteAsync(CancellationToken cancellationToken = default); 
+    Task CompleteAsync(CancellationToken cancellationToken = default);
     Task RollbackAsync(CancellationToken cancellationToken = default);
 }

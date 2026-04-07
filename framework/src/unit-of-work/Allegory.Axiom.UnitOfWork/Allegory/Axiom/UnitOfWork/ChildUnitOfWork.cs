@@ -13,18 +13,15 @@ internal sealed class ChildUnitOfWork(IUnitOfWork parent) : IUnitOfWork
     public Activity? Activity => Parent.Activity;
     public UnitOfWorkOptions Options => Parent.Options;
     public Dictionary<string, object> Items => Parent.Items;
+    public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => Parent.Databases;
 
-    public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        await Parent.SaveChangesAsync(cancellationToken);
-    }
+    public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => Parent.AddDatabase(key, handle);
+
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Parent.SaveChangesAsync(cancellationToken);
 
     public Task CompleteAsync(CancellationToken cancellationToken = default) => Task.CompletedTask;
 
-    public async Task RollbackAsync(CancellationToken cancellationToken = default)
-    {
-        await Parent.RollbackAsync(cancellationToken);
-    }
+    public Task RollbackAsync(CancellationToken cancellationToken = default) => Parent.RollbackAsync(cancellationToken);
 
     public void Dispose()
     {
