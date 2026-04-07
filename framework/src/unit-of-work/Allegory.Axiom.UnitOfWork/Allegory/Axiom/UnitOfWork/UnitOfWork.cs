@@ -9,7 +9,6 @@ namespace Allegory.Axiom.UnitOfWork;
 
 internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 {
-    // Implement async dispose pattern
     // What's the flow ? Save -> Commit/Rollback
 
     public Guid Id { get; } = Guid.NewGuid();
@@ -54,7 +53,35 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
             }
         }
 
-        _databases.Clear();
+        Activity?.Dispose();
+        UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        foreach (var databaseHandle in Databases.Values)
+        {
+            switch (databaseHandle.Database)
+            {
+                case IAsyncDisposable asyncDisposable:
+                    await asyncDisposable.DisposeAsync();
+                    break;
+                case IDisposable disposable:
+                    disposable.Dispose();
+                    break;
+            }
+
+            switch (databaseHandle.Transaction)
+            {
+                case IAsyncDisposable asyncDisposable:
+                    await asyncDisposable.DisposeAsync();
+                    break;
+                case IDisposable disposable:
+                    disposable.Dispose();
+                    break;
+            }
+        }
+        
         Activity?.Dispose();
         UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
     }

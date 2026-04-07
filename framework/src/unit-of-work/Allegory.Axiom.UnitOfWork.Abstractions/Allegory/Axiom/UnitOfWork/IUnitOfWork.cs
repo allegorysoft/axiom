@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public interface IUnitOfWork : IDisposable
+public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
     Guid Id { get; }
     IUnitOfWork? Parent { get; }
