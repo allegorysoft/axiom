@@ -14,6 +14,7 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     UnitOfWorkOptions Options { get; }
     Dictionary<string, object> Items { get; }
     IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases { get; }
+    UnitOfWorkState State { get; }
 
     void AddDatabase(string key, UnitOfWorkDatabaseHandle handle);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);

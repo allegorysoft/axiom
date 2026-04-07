@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,26 +15,38 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
     public Activity? Activity { get; set; }
     public UnitOfWorkOptions Options { get; } = options;
     public Dictionary<string, object> Items { get; } = new();
+    public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => _databases;
+    public UnitOfWorkState State => _state;
 
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
-    public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => _databases;
+    private UnitOfWorkState _state = UnitOfWorkState.Started;
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        await Task.WhenAll(Databases.Values.Select(x => x.SaveChangesAsync(cancellationToken)));
+        foreach (var databaseHandle in Databases.Values)
+        {
+            await databaseHandle.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task CompleteAsync(CancellationToken cancellationToken = default)
     {
         await SaveChangesAsync(cancellationToken);
-        await Task.WhenAll(Databases.Values.Select(x => x.CommitAsync(cancellationToken)));
+
+        foreach (var databaseHandle in Databases.Values)
+        {
+            await databaseHandle.CommitAsync(cancellationToken);
+        }
     }
 
     public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
-        await Task.WhenAll(Databases.Values.Select(x => x.RollbackAsync(cancellationToken)));
+        foreach (var databaseHandle in Databases.Values)
+        {
+            await databaseHandle.RollbackAsync(cancellationToken);
+        }
     }
 
     public void Dispose()
@@ -81,7 +92,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
                     break;
             }
         }
-        
+
         Activity?.Dispose();
         UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
     }

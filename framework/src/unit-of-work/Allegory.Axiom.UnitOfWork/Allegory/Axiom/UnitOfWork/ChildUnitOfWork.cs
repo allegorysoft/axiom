@@ -14,6 +14,7 @@ internal sealed class ChildUnitOfWork(IUnitOfWork parent) : IUnitOfWork
     public UnitOfWorkOptions Options => Parent.Options;
     public Dictionary<string, object> Items => Parent.Items;
     public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => Parent.Databases;
+    public UnitOfWorkState State => Parent.State;
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => Parent.AddDatabase(key, handle);
 
