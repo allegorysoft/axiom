@@ -66,7 +66,7 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
         var unitOfWork = new UnitOfWork(options);
         unitOfWork.Parent = Current;
         unitOfWork.Activity = ActivitySource.StartActivity();
-        unitOfWork.Activity?.AddTag("id", unitOfWork.Id);
+        unitOfWork.Activity?.AddTag("uow.id", unitOfWork.Id);
         return unitOfWork;
     }
 }

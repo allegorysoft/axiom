@@ -8,18 +8,15 @@ namespace Allegory.Axiom.UnitOfWork;
 
 internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 {
-    // What's the flow ? Save -> Commit/Rollback
-
     public Guid Id { get; } = Guid.NewGuid();
     public IUnitOfWork? Parent { get; set; }
     public Activity? Activity { get; set; }
     public UnitOfWorkOptions Options { get; } = options;
     public Dictionary<string, object> Items { get; } = new();
     public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => _databases;
-    public UnitOfWorkState State => _state;
+    public UnitOfWorkState State { get; set; }
 
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
-    private UnitOfWorkState _state = UnitOfWorkState.Started;
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
 
@@ -33,24 +30,50 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 
     public async Task CompleteAsync(CancellationToken cancellationToken = default)
     {
+        if (State != UnitOfWorkState.Started)
+        {
+            throw new InvalidOperationException($"Invalid state. Expected: '{UnitOfWorkState.Started}', Actual: '{State}'. Operation cannot proceed.");
+        }
+
+        State = UnitOfWorkState.Committing;
+
         await SaveChangesAsync(cancellationToken);
 
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.CommitAsync(cancellationToken);
         }
+
+        State = UnitOfWorkState.Committed;
     }
 
     public async Task RollbackAsync(CancellationToken cancellationToken = default)
     {
+        if (State != UnitOfWorkState.Started)
+        {
+            throw new InvalidOperationException($"Invalid state. Expected: '{UnitOfWorkState.Started}', Actual: '{State}'. Operation cannot proceed.");
+        }
+
+        State = UnitOfWorkState.RollingBack;
+
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.RollbackAsync(cancellationToken);
         }
+
+        State = UnitOfWorkState.RolledBack;
     }
 
     public void Dispose()
     {
+        if (State == UnitOfWorkState.Disposed)
+        {
+            return;
+        }
+
+        Activity?.SetTag("uow.disposed_state", State.ToString());
+        State = UnitOfWorkState.Disposed;
+
         foreach (var databaseHandle in Databases.Values)
         {
             if (databaseHandle.Database is IDisposable database)
@@ -70,6 +93,14 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 
     public async ValueTask DisposeAsync()
     {
+        if (State == UnitOfWorkState.Disposed)
+        {
+            return;
+        }
+
+        Activity?.SetTag("uow.state", State.ToString());
+        State = UnitOfWorkState.Disposed;
+
         foreach (var databaseHandle in Databases.Values)
         {
             switch (databaseHandle.Database)
