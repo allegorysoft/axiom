@@ -9,8 +9,6 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkManagerTests : IntegrationTestBase
 {
-    protected IUnitOfWorkManager UnitOfWorkManager => Service<IUnitOfWorkManager>();
-
     public UnitOfWorkManagerTests()
     {
         Builder.Services.Configure<UnitOfWorkOptions>(options =>
@@ -18,6 +16,8 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
             options.Timeout = TimeSpan.FromSeconds(30);
         });
     }
+
+    protected IUnitOfWorkManager UnitOfWorkManager => Service<IUnitOfWorkManager>();
 
     [Fact]
     public void ShouldCreateUnitOfWork()

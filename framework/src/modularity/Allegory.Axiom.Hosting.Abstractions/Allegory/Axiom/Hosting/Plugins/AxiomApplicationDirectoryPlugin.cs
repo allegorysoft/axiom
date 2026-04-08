@@ -9,7 +9,6 @@ namespace Allegory.Axiom.Hosting.Plugins;
 public class AxiomApplicationDirectoryPlugin : IAxiomApplicationPlugin
 {
     protected static readonly string[] Patterns = ["*.dll", "*.exe"];
-    public IEnumerable<Assembly> Assemblies { get; }
 
     public AxiomApplicationDirectoryPlugin(string directory, bool recursive = true)
     {
@@ -21,6 +20,8 @@ public class AxiomApplicationDirectoryPlugin : IAxiomApplicationPlugin
             .Select(p => AssemblyLoadContext.Default.LoadFromAssemblyPath(p))
             .ToArray();
     }
+
+    public IEnumerable<Assembly> Assemblies { get; }
 
     public IEnumerable<Assembly> GetAssemblies()
     {

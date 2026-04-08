@@ -14,7 +14,7 @@ namespace Allegory.Axiom.Hosting;
 
 public class HostExtensionsTests
 {
-    public HostApplicationBuilder Builder { get; } = Host.CreateApplicationBuilder();
+    protected HostApplicationBuilder Builder { get; } = Host.CreateApplicationBuilder();
 
     [Fact]
     public async ValueTask ShouldConfigureApplication()
@@ -44,15 +44,14 @@ public class HostExtensionsTests
     public async ValueTask ShouldSetEntryAssemblyWhenStartupAssemblyIsNull()
     {
         var application = await Builder.ConfigureApplicationAsync();
-        
+
         application.StartupAssembly.ShouldBe(Assembly.GetEntryAssembly());
     }
 
     [Fact]
     public async ValueTask ShouldOverrideDependencyRegistrar()
     {
-        await Builder.ConfigureApplicationAsync(
-            o => o.DependencyRegistrar = new CustomDependencyRegistrar(Builder.Services));
+        await Builder.ConfigureApplicationAsync(o => o.DependencyRegistrar = new CustomDependencyRegistrar(Builder.Services));
 
         Builder.Services.ShouldContain(t => t.ServiceType == typeof(SomeClassRegisterMe));
     }
@@ -60,8 +59,7 @@ public class HostExtensionsTests
     [Fact]
     public async ValueTask ShouldOverrideApplicationBuilder()
     {
-        var application = await Builder.ConfigureApplicationAsync(
-            o => o.ApplicationBuilder = new CustomApplicationBuilder());
+        var application = await Builder.ConfigureApplicationAsync(o => o.ApplicationBuilder = new CustomApplicationBuilder());
 
         application.Id.ShouldBe(Guid.Empty);
         application.Assemblies.Count.ShouldBe(0);

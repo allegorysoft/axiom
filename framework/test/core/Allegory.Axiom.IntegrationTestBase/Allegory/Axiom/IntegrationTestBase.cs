@@ -10,11 +10,11 @@ namespace Allegory.Axiom;
 
 public abstract class IntegrationTestBase : IAsyncLifetime
 {
+    private readonly Dictionary<Type, object> _services = new();
+
     protected HostApplicationBuilder Builder { get; } = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
     protected IHost Host { get; set; } = null!;
     protected IServiceProvider ServiceProvider => Host.Services;
-
-    private readonly Dictionary<Type, object> _services = new();
 
     public virtual async ValueTask InitializeAsync()
     {

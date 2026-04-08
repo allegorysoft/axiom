@@ -8,6 +8,8 @@ namespace Allegory.Axiom.UnitOfWork;
 
 internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 {
+    private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
+
     public Guid Id { get; } = Guid.NewGuid();
     public IUnitOfWork? Parent { get; set; }
     public Activity? Activity { get; set; }
@@ -15,8 +17,6 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
     public Dictionary<string, object> Items { get; } = new();
     public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => _databases;
     public UnitOfWorkState State { get; set; }
-
-    private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
 

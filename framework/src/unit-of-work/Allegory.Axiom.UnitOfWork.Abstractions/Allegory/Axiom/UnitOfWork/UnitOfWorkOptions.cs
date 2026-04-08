@@ -5,10 +5,6 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkOptions
 {
-    public IsolationLevel? IsolationLevel { get; set; }
-    public UnitOfWorkTransactionBehavior TransactionBehavior { get; set; }
-    public TimeSpan? Timeout { get; set; }
-
     public UnitOfWorkOptions() {}
 
     public UnitOfWorkOptions(
@@ -20,4 +16,8 @@ public class UnitOfWorkOptions
         IsolationLevel = isolationLevel;
         Timeout = timeout;
     }
+
+    public IsolationLevel? IsolationLevel { get; set; }
+    public UnitOfWorkTransactionBehavior TransactionBehavior { get; set; }
+    public TimeSpan? Timeout { get; set; }
 }
