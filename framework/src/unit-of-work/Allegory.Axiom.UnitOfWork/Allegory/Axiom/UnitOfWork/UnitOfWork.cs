@@ -22,6 +22,11 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        if (State != UnitOfWorkState.Started)
+        {
+            throw new InvalidOperationException($"Invalid state. Expected: '{UnitOfWorkState.Started}', Actual: '{State}'. Operation cannot proceed.");
+        }
+
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.SaveChangesAsync(cancellationToken);
@@ -35,9 +40,9 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
             throw new InvalidOperationException($"Invalid state. Expected: '{UnitOfWorkState.Started}', Actual: '{State}'. Operation cannot proceed.");
         }
 
-        State = UnitOfWorkState.Committing;
-
         await SaveChangesAsync(cancellationToken);
+
+        State = UnitOfWorkState.Committing;
 
         foreach (var databaseHandle in Databases.Values)
         {
@@ -71,7 +76,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
             return;
         }
 
-        Activity?.SetTag("uow.disposed_state", State.ToString());
+        Activity?.SetTag("uow.state", State.ToString());
         State = UnitOfWorkState.Disposed;
 
         foreach (var databaseHandle in Databases.Values)
