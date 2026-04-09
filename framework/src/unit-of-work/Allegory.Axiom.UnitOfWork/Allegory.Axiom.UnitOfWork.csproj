@@ -2,14 +2,12 @@
 
     <PropertyGroup>
         <TargetFramework>$(DotnetVersion)</TargetFramework>
-        <RootNamespace />
+        <RootNamespace/>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference
-            Include="..\..\interception\Allegory.Axiom.Interception.Abstractions\Allegory.Axiom.Interception.Abstractions.csproj" />
-        <ProjectReference
-            Include="..\Allegory.Axiom.UnitOfWork.Abstractions\Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
+        <ProjectReference Include="..\Allegory.Axiom.UnitOfWork.Abstractions\Allegory.Axiom.UnitOfWork.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\interception\Allegory.Axiom.Interception.Abstractions\Allegory.Axiom.Interception.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>

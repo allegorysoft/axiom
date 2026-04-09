@@ -10,8 +10,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\core\Allegory.Axiom.IntegrationTestBase\Allegory.Axiom.IntegrationTestBase.csproj"/>
         <ProjectReference Include="..\..\..\src\unit-of-work\Allegory.Axiom.UnitOfWork\Allegory.Axiom.UnitOfWork.csproj"/>
-        <ProjectReference Include="..\..\core\Allegory.Axiom.IntegrationTestBase\Allegory.Axiom.IntegrationTestBase.csproj" />
     </ItemGroup>
 
 </Project>
