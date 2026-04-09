@@ -20,7 +20,7 @@
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
-    <Project Path="test\core\Allegory.Axiom.IntegrationTestBase\Allegory.Axiom.IntegrationTestBase.csproj" />
+    <Project Path="test/core/Allegory.Axiom.IntegrationTestBase/Allegory.Axiom.IntegrationTestBase.csproj" />
   </Folder>
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />
