@@ -11,9 +11,9 @@ namespace Allegory.Axiom.Hosting;
 
 public class AxiomApplicationBuilderTests
 {
-    public Assembly Assembly { get; } = typeof(AxiomApplicationBuilderTests).Assembly;
-    public IHostApplicationBuilder Builder { get; } = Host.CreateApplicationBuilder();
-    public AxiomApplicationBuilder ApplicationBuilder { get; } = new();
+    protected Assembly Assembly { get; } = typeof(AxiomApplicationBuilderTests).Assembly;
+    protected IHostApplicationBuilder Builder { get; } = Host.CreateApplicationBuilder();
+    protected AxiomApplicationBuilder ApplicationBuilder { get; } = new();
 
     [Fact]
     public async ValueTask ShouldBuildApplication()

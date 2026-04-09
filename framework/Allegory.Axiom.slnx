@@ -12,10 +12,15 @@
     <Project Path="src/modularity/Allegory.Axiom.DependencyInjection.Abstractions/Allegory.Axiom.DependencyInjection.Abstractions.csproj" />
     <Project Path="src/modularity/Allegory.Axiom.Hosting.Abstractions/Allegory.Axiom.Hosting.Abstractions.csproj" />
   </Folder>
+  <Folder Name="/src/unit-of-work/">
+    <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
+    <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
+  </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
+    <Project Path="test/core/Allegory.Axiom.IntegrationTestBase/Allegory.Axiom.IntegrationTestBase.csproj" />
   </Folder>
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />
@@ -29,5 +34,8 @@
     <Project Path="test/playground/Allegory.Axiom.Assembly1/Allegory.Axiom.Assembly1.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly2/Allegory.Axiom.Assembly2.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly3/Allegory.Axiom.Assembly3.csproj" />
+  </Folder>
+  <Folder Name="/test/unit-of-work/">
+    <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
   </Folder>
 </Solution>
