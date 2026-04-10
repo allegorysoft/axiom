@@ -14,7 +14,7 @@ public class UnitOfWorkInterceptor(IUnitOfWorkManager unitOfWorkManager) : IAxio
         ["Get", "Find", "Search", "List", "Count", "Exists", "Check", "Is", "Has"];
 
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
-    protected ConcurrentDictionary<MethodInfo, UnitOfWorkDescriptor> MethodInfoCache { get; } = new();
+    protected internal ConcurrentDictionary<MethodInfo, UnitOfWorkDescriptor> MethodInfoCache { get; } = new();
 
     public virtual async Task InterceptAsync(IAxiomInterceptorContext context)
     {
