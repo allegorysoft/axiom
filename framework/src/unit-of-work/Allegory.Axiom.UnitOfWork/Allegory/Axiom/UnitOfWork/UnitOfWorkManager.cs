@@ -14,8 +14,7 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
 
     public virtual IUnitOfWork Begin(UnitOfWorkOptions? options = null)
     {
-        var option = GetUnitOfWorkOptions(options);
-        var unitOfWork = CreateUnitOfWork(option);
+        var unitOfWork = CreateUnitOfWork(GetUnitOfWorkOptions(options));
         CurrentUnitOfWork.Value = unitOfWork;
 
         return unitOfWork;
