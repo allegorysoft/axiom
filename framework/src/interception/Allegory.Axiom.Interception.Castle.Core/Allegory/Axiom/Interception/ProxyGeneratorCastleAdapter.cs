@@ -25,9 +25,7 @@ public class ProxyGeneratorCastleAdapter : IProxyGenerator
     {
         var interceptors = GetInterceptors(serviceProvider, interceptorTypes);
 
-        return serviceType.IsInterface
-            ? Generator.CreateInterfaceProxyWithTarget(serviceType, target, interceptors)
-            : Generator.CreateClassProxyWithTarget(serviceType, target, interceptors);
+        return Generator.CreateInterfaceProxyWithTarget(serviceType, target, interceptors);
     }
 
     protected virtual IInterceptor[] GetInterceptors(

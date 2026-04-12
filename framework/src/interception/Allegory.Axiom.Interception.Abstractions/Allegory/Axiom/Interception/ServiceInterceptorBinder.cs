@@ -30,7 +30,7 @@ internal sealed class ServiceInterceptorBinder(IServiceCollection collection)
             var services = Collection.Where(t =>
                 {
                     var implementationType = t.IsKeyedService ? t.KeyedImplementationType : t.ImplementationType;
-                    return implementationType != null && interceptor.Predicate(implementationType);
+                    return t.ServiceType.IsInterface && implementationType != null && interceptor.Predicate(implementationType);
                 }
             );
 
@@ -50,9 +50,9 @@ internal sealed class ServiceInterceptorBinder(IServiceCollection collection)
 
     private void RegisterService(ServiceDescriptor service, List<Type> interceptors)
     {
-        var proxyService = service.IsKeyedService ?
-            GetKeyedService(service, interceptors) :
-            GetService(service, interceptors);
+        var proxyService = service.IsKeyedService
+            ? GetKeyedService(service, interceptors)
+            : GetService(service, interceptors);
 
         Collection.Remove(service);
         Collection.Add(proxyService);
