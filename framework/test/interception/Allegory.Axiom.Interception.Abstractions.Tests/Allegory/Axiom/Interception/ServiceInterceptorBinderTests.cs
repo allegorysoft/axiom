@@ -83,7 +83,7 @@ public class ServiceInterceptorBinderTests
     }
 
     [Fact]
-    public void ShouldNotAddInterceptorWhenServiceWithoutImplementationType()
+    public void ShouldSkipInterceptorWhenServiceHasNoImplementationType()
     {
         var collection = new ServiceCollection();
 
@@ -107,15 +107,15 @@ public class ServiceInterceptorBinderTests
         implementation2.ImplementationFactory.ShouldBeNull();
         implementation2.ImplementationInstance.ShouldBe(instance);
     }
-    
+
     [Fact]
-    public void ShouldNotAddInterceptorWhenServiceTypeIsNotInterface()
+    public void ShouldSkipInterceptorWhenServiceTypeIsNotInterface()
     {
         var collection = new ServiceCollection();
 
         collection.AddTransient<Implementation1>();
         collection.AddSingleton<Implementation2>();
-        collection.AddInterceptor<Interceptor1>(t => t == typeof(Implementation1) ||  t == typeof(Implementation2));
+        collection.AddInterceptor<Interceptor1>(t => t == typeof(Implementation1) || t == typeof(Implementation2));
 
         ServiceInterceptorBinder.Apply(collection);
 
