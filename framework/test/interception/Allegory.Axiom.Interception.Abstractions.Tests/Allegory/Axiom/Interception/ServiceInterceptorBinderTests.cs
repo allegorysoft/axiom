@@ -14,27 +14,27 @@ public class ServiceInterceptorBinderTests
     {
         var collection = new ServiceCollection();
 
-        collection.AddTransient<Implementation1>();
-        collection.AddScoped<Implementation2>();
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddTransient<IImplementation1, Implementation1>();
+        collection.AddScoped<IImplementation2, Implementation2>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t) || typeof(IImplementation2).IsAssignableFrom(t));
 
         ServiceInterceptorBinder.Apply(collection);
 
-        collection.Single(c => c.ServiceType == typeof(Implementation1)).ImplementationFactory.ShouldNotBeNull();
-        collection.Single(c => c.ServiceType == typeof(Implementation2)).ImplementationFactory.ShouldNotBeNull();
+        collection.Single(c => c.ServiceType == typeof(IImplementation1)).ImplementationFactory.ShouldNotBeNull();
+        collection.Single(c => c.ServiceType == typeof(IImplementation2)).ImplementationFactory.ShouldNotBeNull();
     }
 
     [Fact]
     public void ShouldNotApplyInterceptorsWhenNoMatchingServices()
     {
         var collection = new ServiceCollection();
-        collection.AddTransient<Implementation3>();
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddTransient<IImplementation2, Implementation2>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t));
 
         ServiceInterceptorBinder.Apply(collection);
 
-        var service = collection.Single(c => c.ServiceType == typeof(Implementation3));
-        service.ImplementationType.ShouldBe(typeof(Implementation3));
+        var service = collection.Single(c => c.ServiceType == typeof(IImplementation2));
+        service.ImplementationType.ShouldBe(typeof(Implementation2));
         service.ImplementationFactory.ShouldBeNull();
     }
 
@@ -42,28 +42,28 @@ public class ServiceInterceptorBinderTests
     public void ShouldApplyMultipleInterceptorsToSameService()
     {
         var collection = new ServiceCollection();
-        collection.AddTransient<Implementation1>();
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
-        collection.AddInterceptor<Interceptor2>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddTransient<IImplementation1, Implementation1>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t));
+        collection.AddInterceptor<Interceptor2>(t => typeof(IImplementation1).IsAssignableFrom(t));
 
         ServiceInterceptorBinder.Apply(collection);
 
-        collection.Count(c => c.ServiceType == typeof(Implementation1)).ShouldBe(1);
-        collection.Single(c => c.ServiceType == typeof(Implementation1)).ImplementationFactory.ShouldNotBeNull();
+        collection.Count(c => c.ServiceType == typeof(IImplementation1)).ShouldBe(1);
+        collection.Single(c => c.ServiceType == typeof(IImplementation1)).ImplementationFactory.ShouldNotBeNull();
     }
 
     [Fact]
     public void ShouldPreserveLifetimeWhenApplyingInterceptors()
     {
         var collection = new ServiceCollection();
-        collection.AddTransient<Implementation1>();
-        collection.AddScoped<Implementation2>();
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddTransient<IImplementation1, Implementation1>();
+        collection.AddScoped<IImplementation2, Implementation2>();
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t) || typeof(IImplementation2).IsAssignableFrom(t));
 
         ServiceInterceptorBinder.Apply(collection);
 
-        collection.Single(c => c.ServiceType == typeof(Implementation1)).Lifetime.ShouldBe(ServiceLifetime.Transient);
-        collection.Single(c => c.ServiceType == typeof(Implementation2)).Lifetime.ShouldBe(ServiceLifetime.Scoped);
+        collection.Single(c => c.ServiceType == typeof(IImplementation1)).Lifetime.ShouldBe(ServiceLifetime.Transient);
+        collection.Single(c => c.ServiceType == typeof(IImplementation2)).Lifetime.ShouldBe(ServiceLifetime.Scoped);
     }
 
     [Fact]
@@ -71,41 +71,61 @@ public class ServiceInterceptorBinderTests
     {
         var collection = new ServiceCollection();
         const string key = "my-key";
-        collection.AddKeyedScoped<Implementation1>(key);
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddKeyedScoped<IImplementation1, Implementation1>(key);
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t));
 
         ServiceInterceptorBinder.Apply(collection);
 
-        var service = collection.Single(c => c.ServiceType == typeof(Implementation1));
+        var service = collection.Single(c => c.ServiceType == typeof(IImplementation1));
         service.IsKeyedService.ShouldBeTrue();
         service.ServiceKey.ShouldBe(key);
         service.KeyedImplementationFactory.ShouldNotBeNull();
     }
 
     [Fact]
-    public void ShouldNotModifyServicesWithoutImplementationType()
+    public void ShouldSkipInterceptorWhenServiceHasNoImplementationType()
     {
         var collection = new ServiceCollection();
 
         Func<IServiceProvider, Implementation1> factory = _ => new Implementation1();
-        collection.AddTransient(factory);
+        collection.AddTransient<IImplementation1>(factory);
 
         var instance = new Implementation2();
-        collection.AddSingleton(instance);
+        collection.AddSingleton<IImplementation2>(instance);
 
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t) || typeof(IImplementation2).IsAssignableFrom(t));
 
         ServiceInterceptorBinder.Apply(collection);
 
-        var implementation1 = collection.Single(c => c.ServiceType == typeof(Implementation1));
+        var implementation1 = collection.Single(c => c.ServiceType == typeof(IImplementation1));
         implementation1.ImplementationType.ShouldBeNull();
         implementation1.ImplementationFactory.ShouldBe(factory);
         implementation1.ImplementationInstance.ShouldBeNull();
 
-        var implementation2 = collection.Single(c => c.ServiceType == typeof(Implementation2));
+        var implementation2 = collection.Single(c => c.ServiceType == typeof(IImplementation2));
         implementation2.ImplementationType.ShouldBeNull();
         implementation2.ImplementationFactory.ShouldBeNull();
         implementation2.ImplementationInstance.ShouldBe(instance);
+    }
+
+    [Fact]
+    public void ShouldSkipInterceptorWhenServiceTypeIsNotInterface()
+    {
+        var collection = new ServiceCollection();
+
+        collection.AddTransient<Implementation1>();
+        collection.AddSingleton<Implementation2>();
+        collection.AddInterceptor<Interceptor1>(t => t == typeof(Implementation1) || t == typeof(Implementation2));
+
+        ServiceInterceptorBinder.Apply(collection);
+
+        var implementation1 = collection.Single(c => c.ServiceType == typeof(Implementation1));
+        implementation1.ImplementationType.ShouldBe(typeof(Implementation1));
+        implementation1.ImplementationFactory.ShouldBeNull();
+
+        var implementation2 = collection.Single(c => c.ServiceType == typeof(Implementation2));
+        implementation2.ImplementationType.ShouldBe(typeof(Implementation2));
+        implementation2.ImplementationFactory.ShouldBeNull();
     }
 
     [Fact]
@@ -125,7 +145,7 @@ public class ServiceInterceptorBinderTests
     public void ShouldHandleEmptyServiceCollection()
     {
         var collection = new ServiceCollection();
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t));
 
         Should.NotThrow(() => ServiceInterceptorBinder.Apply(collection));
         collection.Count.ShouldBe(0);
@@ -136,7 +156,7 @@ public class ServiceInterceptorBinderTests
     {
         var collection = new ServiceCollection();
         collection.AddTransient<Implementation1>();
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
+        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t));
 
         ServiceInterceptorBinder.Apply(collection);
 
@@ -144,13 +164,13 @@ public class ServiceInterceptorBinderTests
     }
 }
 
-file interface IImplementation {}
+file interface IImplementation1 {}
 
-file class Implementation1 : IImplementation {}
+file class Implementation1 : IImplementation1 {}
 
-file class Implementation2 : IImplementation {}
+file interface IImplementation2 {}
 
-file class Implementation3 {}
+file class Implementation2 : IImplementation2 {}
 
 file class Interceptor1 : IAxiomInterceptor
 {

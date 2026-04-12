@@ -21,7 +21,7 @@ public class ProxyGeneratorCastleAdapterTests
     }
 
     [Fact]
-    public async Task ShouldCreateInterfaceProxyWhenServiceTypeIsInterface()
+    public async Task ShouldCreateProxyWhenServiceTypeIsInterface()
     {
         var services = await BuildServiceProvider(builder =>
         {
@@ -36,7 +36,7 @@ public class ProxyGeneratorCastleAdapterTests
     }
 
     [Fact]
-    public async Task ShouldCreateClassProxyWhenServiceTypeIsClass()
+    public async Task ShouldNotCreateProxyWhenServiceTypeIsClass()
     {
         var services = await BuildServiceProvider(builder =>
         {
@@ -46,8 +46,8 @@ public class ProxyGeneratorCastleAdapterTests
         var instance = services.GetRequiredService<Implementation>();
 
         instance.ShouldNotBeNull();
-        instance.GetType().Name.ShouldContain("Proxy");
-        instance.ShouldBeAssignableTo<Implementation>();
+        instance.GetType().Name.ShouldNotBe("Proxy");
+        instance.ShouldBeOfType<Implementation>();
     }
 
     [Fact]

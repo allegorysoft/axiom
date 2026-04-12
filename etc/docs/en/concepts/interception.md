@@ -14,7 +14,7 @@ dotnet add package Allegory.Axiom.Interception.Abstractions
 dotnet add package Allegory.Axiom.Interception.Castle.Core
 ```
 
-`Allegory.Axiom.Interception.Abstractions` provides the core interfaces and registration API. `Allegory.Axiom.Interception.Castle.Core` provides the [Castle DynamicProxy](https://www.castleproject.org/projects/dynamicproxy/) implementation that creates the actual proxies. You need both.
+`Allegory.Axiom.Interception.Abstractions` provides the core interfaces and registration API. `Allegory.Axiom.Interception.Castle.Core` provides the [Castle DynamicProxy](https://www.castleproject.org/projects/dynamicproxy/) implementation that creates the actual proxies.
 
 ## Writing an Interceptor
 
@@ -39,7 +39,7 @@ public class LoggingInterceptor : IAxiomInterceptor, ISingletonService
 }
 ```
 
-Interceptors are resolved from the DI container, so constructor injection works normally. Register them using a DI marker interface or `[Dependency]` attribute just like any other service.
+Interceptors are resolved from the DI container, so constructor injection works normally. Register them using a [DI marker](./dependency-injection.md#marker-interfaces) interface or `[Dependency]` attribute just like any other service.
 
 ## IAxiomInterceptorContext
 
@@ -71,7 +71,7 @@ public async Task InterceptAsync(IAxiomInterceptorContext context)
 
 ## Registering Interceptors
 
-Register interceptors via `services.AddInterceptor<T>(predicate)` in your package's `ConfigureAsync`. The predicate receives the implementation type of each registered service and returns `true` for the ones you want to intercept.
+Register interceptors via `services.AddInterceptor<T>(predicate)` in your [application packages](./modularity/overview.md#application-packages). The predicate receives the implementation type of each registered service. The service type must be an interface, otherwise it is **skipped**.
 
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication
@@ -83,6 +83,8 @@ internal sealed class MyAppPackage : IConfigureApplication
             t => typeof(IOrderService).IsAssignableFrom(t));
 
         // Intercept a specific type
+        // ✓ services.AddTransient<IProductRepository, ProductRepository>() - intercepted
+        // ✗ services.AddTransient<ProductRepository>() - skipped
         builder.Services.AddInterceptor<CachingInterceptor>(
             t => t == typeof(ProductRepository));
 
@@ -91,7 +93,7 @@ internal sealed class MyAppPackage : IConfigureApplication
 }
 ```
 
-`AddInterceptor` does not apply proxies immediately. It queues the registration. At the end of `ConfigureApplicationAsync`, Axiom runs `ServiceInterceptorBinder.Apply` as a post-configure action, which replaces all matched service descriptors with proxy factories.
+`AddInterceptor` does not apply proxies immediately. It queues the registration. At the end of package configurations, Axiom runs `ServiceInterceptorBinder.Apply` as a post-configure action, which replaces all matched service descriptors with proxy factories.
 
 ## Multiple Interceptors
 
@@ -118,27 +120,6 @@ The proxy preserves the lifetime of the original service descriptor. Registering
 
 ::: warning Lifetime mismatch
 If an interceptor has a longer lifetime than a service it depends on, you will get a captive dependency. For example, a scoped interceptor that injects a transient service holds onto that transient instance for the entire scope instead of getting a fresh one per resolution. Follow the standard .NET DI rule: a service should never depend on something with a shorter lifetime.
-:::
-
-## Interface vs Class Proxies
-
-Axiom automatically creates the right proxy type based on how the service is registered.
-
-- If the service type is an **interface**, an interface proxy is created.
-- If the service type is a **class**, a class proxy is created.
-
-```csharp
-// Interface proxy — recommended
-builder.Services.AddTransient<IOrderService, OrderService>();
-builder.Services.AddInterceptor<LoggingInterceptor>(t => t == typeof(OrderService));
-
-// Class proxy — works but requires the class to be non-sealed with virtual methods
-builder.Services.AddTransient<OrderService>();
-builder.Services.AddInterceptor<LoggingInterceptor>(t => t == typeof(OrderService));
-```
-
-::: warning
-Class proxies require the intercepted methods to be `virtual`. Non-virtual methods on a class proxy are not intercepted.
 :::
 
 ## Keyed Services
@@ -265,5 +246,13 @@ It is worth understanding exactly what gets proxied and what gets intercepted:
 
 ## Limitations
 
+- Only services registered with an **interface** as the service type are intercepted. Services registered as a concrete class are silently skipped even if the predicate matches.
+```csharp
+services.AddTransient<OrderService>(); // ✗ skipped, service type is not an interface
+services.AddTransient<IOrderService, OrderService>(); // ✓ intercepted, service type is an interface
+```
 - Services registered via a factory delegate or an existing instance are not intercepted. The predicate only matches services that have a concrete `ImplementationType`.
-- `ReturnValue` is not accessible for void methods (non-generic context). Accessing it throws `NotSupportedException`.
+```csharp
+  services.AddTransient<IOrderService>(_ => new OrderService()); // skipped, registred as factory
+  services.AddSingleton<IOrderService>(new OrderService()); // skipped, registered as instance
+```
