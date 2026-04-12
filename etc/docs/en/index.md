@@ -14,7 +14,7 @@ hero:
 features:
   - icon: 🔍
     title: Reflection-Based Dependency Injection
-    details: Automatically discover and register services by scanning assemblies. Use marker interfaces or attributes — no manual wiring needed.
+    details: Automatically discover and register services by scanning assemblies. Use marker interfaces or attributes no manual wiring needed.
 
   - icon: 🧩
     title: Built-in Modularity & Plugin System
@@ -22,7 +22,7 @@ features:
 
   - icon: 🔗
     title: Interception for Cross-Cutting Concerns
-    details: Apply logging, caching, transactions, and authorization transparently via a Castle DynamicProxy-backed AOP pipeline — zero changes to your business logic.
+    details: Apply logging, caching, transactions, and authorization transparently via a Castle DynamicProxy-backed AOP pipeline zero changes to your business logic.
 ---
 
 ::: warning 🚧 Work in Progress

@@ -41,6 +41,7 @@ export default defineConfig({
             ]
           },
           { text: 'Interception', link: '/concepts/interception' },
+          { text: 'Unit of Work', link: '/concepts/unit-of-work' },
         ]
       }
     ],
