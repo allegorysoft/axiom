@@ -58,12 +58,12 @@ public interface IUnitOfWorkManager : ISingletonService
 
 | Active (Parent) UoW | `Required` | `RequiresNew` | `Suppress` |
 |---|---|---|---|
-| None | 🆕 Root | 🆕 Root | 🆕 Root |
-| `Required` or `RequiresNew` | 👶 Child | 🆕 Root | 🆕 Root |
-| `Suppress` | 🆕 Root | 🆕 Root | 👶 Child |
+| None | → Root | → Root | → Root |
+| `Required` or `RequiresNew` | ↳ Child | → Root | → Root |
+| `Suppress` | → Root | → Root | ↳ Child |
 
-- **🆕 Root** starts an independent transaction. The previous ambient unit of work (if any) is stored as `Parent` and restored when this one is disposed.
-- **👶 Child** delegates all operations to the active unit of work. Calling `CompleteAsync` on a child is a no-op; only the root commits.
+- **→ Root** starts an independent transaction. The previous ambient unit of work (if any) is stored as `Parent` and restored when this one is disposed.
+- **↳ Child** delegates all operations to the active unit of work. Calling `CompleteAsync` on a child is a no-op; only the root commits.
 
 When `Begin` is called with `null` options, the registered `UnitOfWorkOptions` defaults are used.
 
@@ -71,17 +71,17 @@ Always dispose the unit of work with `await using` so the ambient context is res
 
 ```csharp
 // Root opens a real transaction
-await using (var root = unitOfWorkManager.Begin())                          // 🆕 Root
+await using (var root = unitOfWorkManager.Begin())                          // → Root
 {
     // Child delegates everything to root, CompleteAsync is a no-op here
-    await using (var child = unitOfWorkManager.Begin())                     // 👶 Child of root
+    await using (var child = unitOfWorkManager.Begin())                     // ↳ Child of root
     {
         await child.CompleteAsync();                                        // no-op
     }
 
     // Sub-root RequiresNew always opens an independent transaction
     await using (var subRoot = unitOfWorkManager.Begin(
-        new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew)))  // 🆕 Root (independent)
+        new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew)))  // → Root (independent)
     {
         await subRoot.CompleteAsync();                                      // commits subRoot only
     }
