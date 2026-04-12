@@ -56,16 +56,16 @@ public class UnitOfWorkInterceptor(IUnitOfWorkManager unitOfWorkManager) : IAxio
             return BuildDescriptorFromAttribute(attribute, methodInfo);
         }
 
-        if (!typeof(IUnitOfWorkScope).IsAssignableFrom(type))
+        if (typeof(IUnitOfWorkScope).IsAssignableFrom(type))
         {
-            return new UnitOfWorkDescriptor(false);
+            var transactionBehavior = TryGetDefaultBehaviour(methodInfo);
+
+            return transactionBehavior == null
+                ? new UnitOfWorkDescriptor(true)
+                : new UnitOfWorkDescriptor(true, new UnitOfWorkOptions(transactionBehavior));
         }
 
-        var transactionBehavior = TryGetDefaultBehaviour(methodInfo);
-
-        return transactionBehavior == null
-            ? new UnitOfWorkDescriptor(true)
-            : new UnitOfWorkDescriptor(true, new UnitOfWorkOptions(transactionBehavior));
+        return new UnitOfWorkDescriptor(false);
     }
 
     protected virtual UnitOfWorkDescriptor BuildDescriptorFromAttribute(
