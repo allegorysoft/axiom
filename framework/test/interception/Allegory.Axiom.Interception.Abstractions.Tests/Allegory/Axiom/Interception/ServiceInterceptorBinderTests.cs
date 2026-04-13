@@ -172,12 +172,12 @@ file interface IImplementation2 {}
 
 file class Implementation2 : IImplementation2 {}
 
-file class Interceptor1 : IAxiomInterceptor
+file class Interceptor1 : IInterceptor
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }
 
-file class Interceptor2 : IAxiomInterceptor
+file class Interceptor2 : IInterceptor
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }

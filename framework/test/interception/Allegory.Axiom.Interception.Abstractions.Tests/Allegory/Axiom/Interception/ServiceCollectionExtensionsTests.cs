@@ -28,7 +28,7 @@ public class ServiceCollectionExtensionsTests
     }
 }
 
-file class Interceptor1 : IAxiomInterceptor
+file class Interceptor1 : IInterceptor
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }

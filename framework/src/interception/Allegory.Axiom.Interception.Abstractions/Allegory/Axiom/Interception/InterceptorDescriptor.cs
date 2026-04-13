@@ -6,10 +6,10 @@ internal readonly struct InterceptorDescriptor
 {
     public InterceptorDescriptor(Type interceptor, Func<Type, bool> predicate)
     {
-        if (!typeof(IAxiomInterceptor).IsAssignableFrom(interceptor))
+        if (!typeof(IInterceptor).IsAssignableFrom(interceptor))
         {
             throw new ArgumentException(
-                $"Type '{interceptor}' must implement {nameof(IAxiomInterceptor)}.",
+                $"Type '{interceptor}' must implement {nameof(IInterceptor)}.",
                 nameof(interceptor));
         }
 

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Interception;
 
-internal class AxiomInterceptionAbstractionsPackage : IConfigureApplication
+internal sealed class InterceptionAbstractionsPackage : IConfigureApplication
 {
     public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {
