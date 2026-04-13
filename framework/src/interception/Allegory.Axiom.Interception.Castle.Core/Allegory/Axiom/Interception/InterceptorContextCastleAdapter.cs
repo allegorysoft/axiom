@@ -5,11 +5,11 @@ using Castle.DynamicProxy;
 
 namespace Allegory.Axiom.Interception;
 
-public sealed class AxiomInterceptorContextCastleAdapter(
+public sealed class InterceptorContextCastleAdapter(
     IInvocation invocation,
     IInvocationProceedInfo proceedInfo,
     Func<IInvocation, IInvocationProceedInfo, Task> proceed) :
-    IAxiomInterceptorContext
+    IInterceptorContext
 {
     public IInvocation Invocation { get; } = invocation;
     public IInvocationProceedInfo ProceedInfo { get; } = proceedInfo;
@@ -26,11 +26,11 @@ public sealed class AxiomInterceptorContextCastleAdapter(
     public Task ProceedAsync() => Proceed(Invocation, ProceedInfo);
 }
 
-public sealed class AxiomInterceptorContextCastleAdapter<TResult>(
+public sealed class InterceptorContextCastleAdapter<TResult>(
     IInvocation invocation,
     IInvocationProceedInfo proceedInfo,
     Func<IInvocation, IInvocationProceedInfo, Task<TResult>> proceed) :
-    IAxiomInterceptorContext
+    IInterceptorContext
 {
     public IInvocation Invocation { get; } = invocation;
     public IInvocationProceedInfo ProceedInfo { get; } = proceedInfo;

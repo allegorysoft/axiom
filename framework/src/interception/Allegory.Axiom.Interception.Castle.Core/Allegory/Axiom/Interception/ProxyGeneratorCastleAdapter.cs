@@ -28,18 +28,18 @@ public class ProxyGeneratorCastleAdapter : IProxyGenerator
         return Generator.CreateInterfaceProxyWithTarget(serviceType, target, interceptors);
     }
 
-    protected virtual IInterceptor[] GetInterceptors(
+    protected virtual Castle.DynamicProxy.IInterceptor[] GetInterceptors(
         IServiceProvider serviceProvider,
         IReadOnlyList<Type> interceptorTypes)
     {
-        var interceptors = new IInterceptor[interceptorTypes.Count];
+        var interceptors = new Castle.DynamicProxy.IInterceptor[interceptorTypes.Count];
 
         for (var i = 0; i < interceptors.Length; i++)
         {
             var interceptorType = InterceptorMapCache.GetOrAdd(
                 interceptorTypes[i],
-                type => typeof(AxiomInterceptorDeterminationCastleAdapter<>).MakeGenericType(type));
-            interceptors[i] = (IInterceptor) serviceProvider.GetRequiredService(interceptorType);
+                type => typeof(DeterminationInterceptorCastleAdapter<>).MakeGenericType(type));
+            interceptors[i] = (Castle.DynamicProxy.IInterceptor) serviceProvider.GetRequiredService(interceptorType);
         }
 
         return interceptors;
