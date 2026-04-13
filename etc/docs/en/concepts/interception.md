@@ -45,7 +45,7 @@ public class LoggingInterceptor : IInterceptor, ISingletonService
 
 Interceptors are resolved from the DI container, so constructor injection works normally. Register them using a [DI marker](./dependency-injection.md#marker-interfaces) interface or `[Dependency]` attribute just like any other service.
 
-## IInterceptorContext
+## Interceptor Context (`IInterceptorContext`)
 
 The context passed to `InterceptAsync` exposes everything about the current invocation.
 
@@ -267,4 +267,9 @@ services.AddTransient<IOrderService, OrderService>(); // ✓ intercepted, servic
 ```csharp
   services.AddTransient<IOrderService>(_ => new OrderService()); // skipped, registred as factory
   services.AddSingleton<IOrderService>(new OrderService()); // skipped, registered as instance
+```
+- Intercepted services must implement a public interface. Non-public interfaces are not supported by the interception pipeline.
+```csharp
+internal interface IInternalOrderService { } // ✗ not supported
+public interface IOrderService { } // ✓ intercepted
 ```
