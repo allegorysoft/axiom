@@ -18,10 +18,10 @@ dotnet add package Allegory.Axiom.Interception.Castle.Core
 
 ## Writing an Interceptor
 
-Implement `IAxiomInterceptor` with a single `InterceptAsync` method. Call `context.ProceedAsync()` to invoke the next interceptor in the chain or the actual method.
+Implement `IInterceptor` with a single `InterceptAsync` method. Call `context.ProceedAsync()` to invoke the next interceptor in the chain or the actual method.
 
 ```csharp
-public class LoggingInterceptor : IAxiomInterceptor, ISingletonService
+public class LoggingInterceptor : IInterceptor, ISingletonService
 {
     private readonly ILogger<LoggingInterceptor> _logger;
 
@@ -30,7 +30,7 @@ public class LoggingInterceptor : IAxiomInterceptor, ISingletonService
         _logger = logger;
     }
 
-    public async Task InterceptAsync(IAxiomInterceptorContext context)
+    public async Task InterceptAsync(IInterceptorContext context)
     {
         _logger.LogInformation("Calling {Method}", context.Method.Name);
         await context.ProceedAsync();
@@ -41,7 +41,7 @@ public class LoggingInterceptor : IAxiomInterceptor, ISingletonService
 
 Interceptors are resolved from the DI container, so constructor injection works normally. Register them using a [DI marker](./dependency-injection.md#marker-interfaces) interface or `[Dependency]` attribute just like any other service.
 
-## IAxiomInterceptorContext
+## IInterceptorContext
 
 The context passed to `InterceptAsync` exposes everything about the current invocation.
 
@@ -56,7 +56,7 @@ The context passed to `InterceptAsync` exposes everything about the current invo
 You can modify arguments before calling `ProceedAsync()`, or modify the return value after.
 
 ```csharp
-public async Task InterceptAsync(IAxiomInterceptorContext context)
+public async Task InterceptAsync(IInterceptorContext context)
 {
     // Modify an argument before the call
     context.Arguments[0] = ((string) context.Arguments[0]!).Trim();
@@ -111,16 +111,12 @@ builder.Services.AddInterceptor<CachingInterceptor>(t => typeof(IOrderService).I
 Interceptors support all three lifetimes. Register them using the appropriate marker interface.
 
 ```csharp
-public class SingletonInterceptor : IAxiomInterceptor, ISingletonService { ... }
-public class ScopedInterceptor    : IAxiomInterceptor, IScopedService    { ... }
-public class TransientInterceptor : IAxiomInterceptor, ITransientService { ... }
+public class SingletonInterceptor : IInterceptor, ISingletonService { ... }
+public class ScopedInterceptor    : IInterceptor, IScopedService    { ... }
+public class TransientInterceptor : IInterceptor, ITransientService { ... }
 ```
 
-The proxy preserves the lifetime of the original service descriptor. Registering a transient service with a scoped interceptor does not change the service's lifetime it still resolves as transient.
-
-::: warning Lifetime mismatch
-If an interceptor has a longer lifetime than a service it depends on, you will get a captive dependency. For example, a scoped interceptor that injects a transient service holds onto that transient instance for the entire scope instead of getting a fresh one per resolution. Follow the standard .NET DI rule: a service should never depend on something with a shorter lifetime.
-:::
+You can inject services of any lifetime into an interceptor. If an interceptor has a longer lifetime than a service it depends on, you will get a captive dependency. For example, a scoped interceptor that injects a transient service holds onto that transient instance for the entire scope instead of getting a fresh one per resolution. Follow the standard .NET DI rule: a service should never depend on something with a shorter lifetime.
 
 ## Keyed Services
 
@@ -147,9 +143,9 @@ public sealed class LoggingAttribute : Attribute {}
 The interceptor checks whether the invoked method or its declaring class has `[Logging]` applied. If neither does, it skips logging and just proceeds.
 
 ```csharp [LoggingInterceptor.cs]
-public class LoggingInterceptor(ILogger<LoggingInterceptor> logger) : IAxiomInterceptor, ISingletonService
+public class LoggingInterceptor(ILogger<LoggingInterceptor> logger) : IInterceptor, ISingletonService
 {
-    public async Task InterceptAsync(IAxiomInterceptorContext context)
+    public async Task InterceptAsync(IInterceptorContext context)
     {
         var method = context.Method;
         var hasAttribute =
