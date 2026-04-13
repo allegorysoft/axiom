@@ -21,6 +21,10 @@ dotnet add package Allegory.Axiom.Interception.Castle.Core
 Implement `IInterceptor` with a single `InterceptAsync` method. Call `context.ProceedAsync()` to invoke the next interceptor in the chain or the actual method.
 
 ```csharp
+using Allegory.Axiom.Interception;
+
+namespace MyApp.Interceptors;
+
 public class LoggingInterceptor : IInterceptor, ISingletonService
 {
     private readonly ILogger<LoggingInterceptor> _logger;
@@ -116,7 +120,19 @@ public class ScopedInterceptor    : IInterceptor, IScopedService    { ... }
 public class TransientInterceptor : IInterceptor, ITransientService { ... }
 ```
 
-You can inject services of any lifetime into an interceptor. If an interceptor has a longer lifetime than a service it depends on, you will get a captive dependency. For example, a scoped interceptor that injects a transient service holds onto that transient instance for the entire scope instead of getting a fresh one per resolution. Follow the standard .NET DI rule: a service should never depend on something with a shorter lifetime.
+Interceptors act as wrappers around your services. For stability, their lifetimes must align with the services they proxy and the dependencies they consume.
+
+### Key Risks
+* **Captive Dependencies:** A long-lived Interceptor (Singleton) holding a short-lived service (Scoped). The Scoped service never disposes, causing memory leaks or stale state.
+* **Object Disposed Errors:** A long-lived service using a short-lived Interceptor. The Interceptor may be disposed of while the service is still active.
+
+### Best Practices
+* **Match Lifetimes:** Ensure a dependency lives at least as long as its consumer.
+* **Default to Singletons:** Since most interceptors are stateless logic, making them **Singletons** is the safest way to avoid lifecycle conflicts and maximize performance.
+
+::: tip Rule of Thumb
+Keep lifetimes aligned. When in doubt, use a Singleton interceptor and avoid injecting Transient/Scoped services into it.
+:::
 
 ## Keyed Services
 
