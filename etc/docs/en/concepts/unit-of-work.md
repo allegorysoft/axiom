@@ -40,6 +40,24 @@ builder.Services.Configure<UnitOfWorkOptions>(options =>
 | `IsolationLevel` | `IsolationLevel?` | `null` | Default isolation level passed to the database transaction. |
 | `Timeout` | `TimeSpan?` | `null` | Default timeout for unit of work operations. |
 
+When `Begin` is called with options that contain `null` values, those values fall back to defaults.
+
+```csharp
+// Default: Timeout = 30s, IsolationLevel = ReadCommitted
+var opts = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
+
+await using var uow = manager.Begin(opts);
+
+// Result:
+// uow.Options.IsolationLevel = ReadUncommitted (explicit value)
+// uow.Options.Timeout = 30s (default fallback)
+```
+
+**Rules:**
+
+* Only `null` properties fall back to defaults
+* Explicit (non-null) values always take precedence
+
 ## `IUnitOfWorkManager`
 
 `IUnitOfWorkManager` is the entry point for managing unit of work boundaries manually. It is registered as a singleton automatically.

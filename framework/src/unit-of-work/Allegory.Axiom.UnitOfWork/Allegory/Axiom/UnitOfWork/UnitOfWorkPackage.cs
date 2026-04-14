@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class AxiomUnitOfWorkPackage : IConfigureApplication
+internal sealed class UnitOfWorkPackage : IConfigureApplication
 {
     public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {

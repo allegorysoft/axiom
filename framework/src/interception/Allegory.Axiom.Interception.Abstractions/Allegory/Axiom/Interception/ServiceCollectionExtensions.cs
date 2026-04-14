@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
         internal IReadOnlyList<InterceptorDescriptor> Interceptors =>
             ExtraProperties.GetOrCreateValue(collection).Interceptors;
 
-        public void AddInterceptor<T>(Func<Type, bool> predicate) where T : class, IAxiomInterceptor
+        public void AddInterceptor<T>(Func<Type, bool> predicate) where T : class, IInterceptor
         {
             ExtraProperties.GetOrCreateValue(collection)
                 .Interceptors

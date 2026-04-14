@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Interception;
 
-internal class AxiomInterceptionCastleCorePackage : IConfigureApplication
+internal sealed class InterceptionCastleCorePackage : IConfigureApplication
 {
     public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {
@@ -17,21 +17,21 @@ internal class AxiomInterceptionCastleCorePackage : IConfigureApplication
 
     private static void RegisterCastleAdaptersByInterceptorLifetime(IServiceCollection serviceCollection)
     {
-        var interceptors = serviceCollection.Where(
-            x => typeof(IAxiomInterceptor).IsAssignableFrom(x.ServiceType) &&
-                 x.Lifetime > ServiceLifetime.Singleton)
+        var interceptors = serviceCollection
+            .Where(x => typeof(IInterceptor).IsAssignableFrom(x.ServiceType)
+                        && x.Lifetime > ServiceLifetime.Singleton)
             .ToList();
 
         foreach (var interceptor in interceptors)
         {
-            var castleDeterminationType = typeof(AxiomInterceptorDeterminationCastleAdapter<>)
+            var interceptorType = typeof(InterceptorCastleAdapter<>).MakeGenericType(interceptor.ServiceType);
+            serviceCollection.Add(
+                ServiceDescriptor.Describe(interceptorType, interceptorType, interceptor.Lifetime));
+
+            var determinationInterceptorType = typeof(DeterminationInterceptorCastleAdapter<>)
                 .MakeGenericType(interceptor.ServiceType);
             serviceCollection.Add(
-                ServiceDescriptor.Describe(castleDeterminationType, castleDeterminationType, interceptor.Lifetime));
-
-            var castleAsyncType = typeof(AxiomInterceptorCastleAdapter<>).MakeGenericType(interceptor.ServiceType);
-            serviceCollection.Add(
-                ServiceDescriptor.Describe(castleAsyncType, castleAsyncType, interceptor.Lifetime));
+                ServiceDescriptor.Describe(determinationInterceptorType, determinationInterceptorType, interceptor.Lifetime));
         }
     }
 }

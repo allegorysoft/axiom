@@ -97,7 +97,7 @@ public class ProxyGeneratorCastleAdapterTests
         services.GetRequiredService<IImplementation>();
 
         generator.InterceptorMapCache.ContainsKey(typeof(Interceptor1)).ShouldBeTrue();
-        generator.InterceptorMapCache[typeof(Interceptor1)].ShouldBe(typeof(AxiomInterceptorDeterminationCastleAdapter<Interceptor1>));
+        generator.InterceptorMapCache[typeof(Interceptor1)].ShouldBe(typeof(DeterminationInterceptorCastleAdapter<Interceptor1>));
     }
 
     [Fact]
@@ -125,27 +125,27 @@ public class ProxyGeneratorCastleAdapterTests
         });
 
         var scopeFactory = services.GetRequiredService<IServiceScopeFactory>();
-        AxiomInterceptorDeterminationCastleAdapter<ScopedInterceptor> scope1ScopedInterceptor, scope2ScopedInterceptor;
-        AxiomInterceptorDeterminationCastleAdapter<SingletonInterceptor> scope1SingletonInterceptor, scope2SingletonInterceptor;
+        DeterminationInterceptorCastleAdapter<ScopedInterceptor> scope1Scoped, scope2Scoped;
+        DeterminationInterceptorCastleAdapter<SingletonInterceptor> scope1Singleton, scope2Singleton;
 
         using (var scope = scopeFactory.CreateScope())
         {
-            scope1ScopedInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<ScopedInterceptor>>();
-            scope1SingletonInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<SingletonInterceptor>>();
+            scope1Scoped = scope.ServiceProvider.GetRequiredService<DeterminationInterceptorCastleAdapter<ScopedInterceptor>>();
+            scope1Singleton = scope.ServiceProvider.GetRequiredService<DeterminationInterceptorCastleAdapter<SingletonInterceptor>>();
 
-            var transient1 = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<TransientInterceptor>>();
-            var transient2 = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<TransientInterceptor>>();
+            var transient1 = scope.ServiceProvider.GetRequiredService<DeterminationInterceptorCastleAdapter<TransientInterceptor>>();
+            var transient2 = scope.ServiceProvider.GetRequiredService<DeterminationInterceptorCastleAdapter<TransientInterceptor>>();
             transient1.ShouldNotBe(transient2);
         }
 
         using (var scope = scopeFactory.CreateScope())
         {
-            scope2ScopedInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<ScopedInterceptor>>();
-            scope2SingletonInterceptor = scope.ServiceProvider.GetRequiredService<AxiomInterceptorDeterminationCastleAdapter<SingletonInterceptor>>();
+            scope2Scoped = scope.ServiceProvider.GetRequiredService<DeterminationInterceptorCastleAdapter<ScopedInterceptor>>();
+            scope2Singleton = scope.ServiceProvider.GetRequiredService<DeterminationInterceptorCastleAdapter<SingletonInterceptor>>();
         }
 
-        scope1ScopedInterceptor.ShouldNotBe(scope2ScopedInterceptor);
-        scope1SingletonInterceptor.ShouldBe(scope2SingletonInterceptor);
+        scope1Scoped.ShouldNotBe(scope2Scoped);
+        scope1Singleton.ShouldBe(scope2Singleton);
     }
 }
 
@@ -161,55 +161,55 @@ public class Implementation : IImplementation
     public Task<int> GetValueAsync() => Task.FromResult(42);
 }
 
-public class Interceptor1 : IAxiomInterceptor, ISingletonService
+public class Interceptor1 : IInterceptor, ISingletonService
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }
 
-public class RecordingInterceptor : IAxiomInterceptor, ISingletonService
+public class RecordingInterceptor : IInterceptor, ISingletonService
 {
     public static bool Invoked { get; private set; }
 
-    public Task InterceptAsync(IAxiomInterceptorContext context)
+    public Task InterceptAsync(IInterceptorContext context)
     {
         Invoked = true;
         return context.ProceedAsync();
     }
 }
 
-public class OrderInterceptor1 : IAxiomInterceptor, ISingletonService
+public class OrderInterceptor1 : IInterceptor, ISingletonService
 {
     public static long InvokedTime { get; private set; }
 
-    public Task InterceptAsync(IAxiomInterceptorContext context)
+    public Task InterceptAsync(IInterceptorContext context)
     {
         InvokedTime = Stopwatch.GetTimestamp();
         return context.ProceedAsync();
     }
 }
 
-public class OrderInterceptor2 : IAxiomInterceptor, ISingletonService
+public class OrderInterceptor2 : IInterceptor, ISingletonService
 {
     public static long InvokedTime { get; private set; }
 
-    public Task InterceptAsync(IAxiomInterceptorContext context)
+    public Task InterceptAsync(IInterceptorContext context)
     {
         InvokedTime = Stopwatch.GetTimestamp();
         return context.ProceedAsync();
     }
 }
 
-public class TransientInterceptor : IAxiomInterceptor, ITransientService
+public class TransientInterceptor : IInterceptor, ITransientService
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }
 
-public class ScopedInterceptor : IAxiomInterceptor, IScopedService
+public class ScopedInterceptor : IInterceptor, IScopedService
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }
 
-public class SingletonInterceptor : IAxiomInterceptor, ISingletonService
+public class SingletonInterceptor : IInterceptor, ISingletonService
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }

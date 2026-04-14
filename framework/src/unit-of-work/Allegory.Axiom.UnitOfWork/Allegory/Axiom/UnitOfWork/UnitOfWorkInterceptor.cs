@@ -8,7 +8,7 @@ using Allegory.Axiom.Interception;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkInterceptor(IUnitOfWorkManager unitOfWorkManager) : IAxiomInterceptor, ISingletonService
+public class UnitOfWorkInterceptor(IUnitOfWorkManager unitOfWorkManager) : IInterceptor, ISingletonService
 {
     protected static readonly string[] ReadPrefixes =
         ["Get", "Find", "Search", "List", "Count", "Exists", "Check", "Is", "Has"];
@@ -16,7 +16,7 @@ public class UnitOfWorkInterceptor(IUnitOfWorkManager unitOfWorkManager) : IAxio
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected internal ConcurrentDictionary<MethodInfo, UnitOfWorkDescriptor> MethodInfoCache { get; } = new();
 
-    public virtual async Task InterceptAsync(IAxiomInterceptorContext context)
+    public virtual async Task InterceptAsync(IInterceptorContext context)
     {
         var uowDescriptor = MethodInfoCache.GetOrAdd(context.Method, GetDescriptor);
 

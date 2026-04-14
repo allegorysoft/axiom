@@ -59,9 +59,9 @@ internal sealed class MyAppPackage : IConfigureApplication
 Write an interceptor once, apply it across any matching service no changes to business logic required.
 
 ```csharp
-public class LoggingInterceptor : IAxiomInterceptor, ISingletonService
+public class LoggingInterceptor : IInterceptor, ISingletonService
 {
-    public async Task InterceptAsync(IAxiomInterceptorContext context)
+    public async Task InterceptAsync(IInterceptorContext context)
     {
         Console.WriteLine($"Calling {context.Method.Name}");
         await context.ProceedAsync();

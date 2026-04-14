@@ -43,8 +43,8 @@ public class AxiomApplicationBuilderTests
                 new AssemblyDependencyRegistrar(Builder.Services),
                 []));
 
-        AxiomHostingAbstractionsTestsPackage.ConfigureApplication.ShouldBeTrue();
-        AxiomHostingAbstractionsTestsPackage.PostConfigureApplication.ShouldBeTrue();
+        HostingAbstractionsTestsPackage.ConfigureApplication.ShouldBeTrue();
+        HostingAbstractionsTestsPackage.PostConfigureApplication.ShouldBeTrue();
         postConfigureAction.ShouldBeTrue();
     }
 

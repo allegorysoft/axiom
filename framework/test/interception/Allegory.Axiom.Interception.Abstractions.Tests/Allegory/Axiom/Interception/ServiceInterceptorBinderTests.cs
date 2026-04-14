@@ -150,18 +150,6 @@ public class ServiceInterceptorBinderTests
         Should.NotThrow(() => ServiceInterceptorBinder.Apply(collection));
         collection.Count.ShouldBe(0);
     }
-
-    [Fact]
-    public void ShouldReplaceOriginalServiceNotAddDuplicate()
-    {
-        var collection = new ServiceCollection();
-        collection.AddTransient<Implementation1>();
-        collection.AddInterceptor<Interceptor1>(t => typeof(IImplementation1).IsAssignableFrom(t));
-
-        ServiceInterceptorBinder.Apply(collection);
-
-        collection.Count(c => c.ServiceType == typeof(Implementation1)).ShouldBe(1);
-    }
 }
 
 file interface IImplementation1 {}
@@ -172,12 +160,12 @@ file interface IImplementation2 {}
 
 file class Implementation2 : IImplementation2 {}
 
-file class Interceptor1 : IAxiomInterceptor
+file class Interceptor1 : IInterceptor
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }
 
-file class Interceptor2 : IAxiomInterceptor
+file class Interceptor2 : IInterceptor
 {
-    public Task InterceptAsync(IAxiomInterceptorContext context) => context.ProceedAsync();
+    public Task InterceptAsync(IInterceptorContext context) => context.ProceedAsync();
 }

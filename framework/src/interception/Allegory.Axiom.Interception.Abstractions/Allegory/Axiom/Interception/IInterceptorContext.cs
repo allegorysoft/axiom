@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.Interception;
 
-public interface IAxiomInterceptorContext
+public interface IInterceptorContext
 {
     MethodInfo Method { get; }
     object? Target { get; }
