@@ -6,5 +6,6 @@ namespace Allegory.Axiom.FileProviders;
 public class FileProviderOptions
 {
     public List<IFileProvider> Providers { get; } = [];
-    public string[]? PhysicalPaths { get; set; }
+    public bool AddContentRootFileProvider { get; set; } = true;
+    public List<string> PhysicalPaths { get; } = [];
 }

@@ -11,11 +11,6 @@ internal sealed class FileProvidersPackage : IConfigureApplication
 
     public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<FileProviderOptions>(o =>
-        {
-            o.Providers.Add(builder.Environment.ContentRootFileProvider);
-        });
-
         builder.Services.Configure<FileProviderOptions>(
             builder.Configuration.GetSection(ConfigurationSectionName));
 
