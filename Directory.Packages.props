@@ -5,21 +5,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageVersion Include="System.Text.Json" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="BenchmarkDotNet" Version="0.15.8"/>
 
-        <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
+        <PackageVersion Include="Castle.Core" Version="5.2.1"/>
+        <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
+
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="System.Text.Json" Version="$(MicrosoftPackageVersion)"/>
 
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
-
-        <PackageVersion Include="Castle.Core" Version="5.2.1"/>
-        <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
 
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
         <PackageVersion Include="MSTest.TestAdapter" Version="4.0.1"/>
