@@ -26,9 +26,9 @@ public class FileProviderManager : IFileProvider, ISingletonService
     protected IHostEnvironment HostEnvironment { get; }
     public CompositeFileProvider FileProvider => _lazyFileProvider.Value;
 
-    public IFileInfo GetFileInfo(string subpath) => FileProvider.GetFileInfo(subpath);
-    public IDirectoryContents GetDirectoryContents(string subpath) => FileProvider.GetDirectoryContents(subpath);
-    public IChangeToken Watch(string filter) => FileProvider.Watch(filter);
+    public virtual IFileInfo GetFileInfo(string subpath) => FileProvider.GetFileInfo(subpath);
+    public virtual IDirectoryContents GetDirectoryContents(string subpath) => FileProvider.GetDirectoryContents(subpath);
+    public virtual IChangeToken Watch(string filter) => FileProvider.Watch(filter);
 
     protected virtual CompositeFileProvider CreateFileProvider()
     {
