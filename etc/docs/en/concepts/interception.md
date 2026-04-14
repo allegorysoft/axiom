@@ -87,8 +87,8 @@ internal sealed class MyAppPackage : IConfigureApplication
             t => typeof(IOrderService).IsAssignableFrom(t));
 
         // Intercept a specific type
-        // ✓ services.AddTransient<IProductRepository, ProductRepository>() - intercepted
-        // ✗ services.AddTransient<ProductRepository>() - skipped
+        // ✅ services.AddTransient<IProductRepository, ProductRepository>() - intercepted
+        // ❌ services.AddTransient<ProductRepository>() - skipped
         builder.Services.AddInterceptor<CachingInterceptor>(
             t => t == typeof(ProductRepository));
 
@@ -260,8 +260,8 @@ It is worth understanding exactly what gets proxied and what gets intercepted:
 
 - Only services registered with an **interface** as the service type are intercepted. Services registered as a concrete class are silently skipped even if the predicate matches.
 ```csharp
-services.AddTransient<OrderService>(); // ✗ skipped, service type is not an interface
-services.AddTransient<IOrderService, OrderService>(); // ✓ intercepted, service type is an interface
+services.AddTransient<OrderService>(); // ❌ skipped, service type is not an interface
+services.AddTransient<IOrderService, OrderService>(); // ✅ intercepted, service type is an interface
 ```
 - Services registered via a factory delegate or an existing instance are not intercepted. The predicate only matches services that have a concrete `ImplementationType`.
 ```csharp
@@ -270,6 +270,6 @@ services.AddTransient<IOrderService, OrderService>(); // ✓ intercepted, servic
 ```
 - Intercepted services must implement a public interface. Non-public interfaces are not supported by the interception pipeline.
 ```csharp
-internal interface IInternalOrderService { } // ✗ not supported
-public interface IOrderService { } // ✓ intercepted
+internal interface IInternalOrderService { } // ❌ not supported
+public interface IOrderService { } // ✅ intercepted
 ```

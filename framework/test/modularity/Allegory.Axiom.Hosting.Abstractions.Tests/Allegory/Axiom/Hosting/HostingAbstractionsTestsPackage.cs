@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Hosting;
 
-public class AxiomHostingAbstractionsTestsPackage :
+internal sealed class HostingAbstractionsTestsPackage :
     IConfigureApplication,
     IPostConfigureApplication,
     IInitializeApplication

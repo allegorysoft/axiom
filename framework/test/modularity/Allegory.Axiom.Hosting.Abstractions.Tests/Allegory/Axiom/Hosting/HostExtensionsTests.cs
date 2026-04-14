@@ -37,7 +37,7 @@ public class HostExtensionsTests
         var host = Builder.Build();
         await host.InitializeApplicationAsync();
 
-        AxiomHostingAbstractionsTestsPackage.InitializeApplication.ShouldBeTrue();
+        HostingAbstractionsTestsPackage.InitializeApplication.ShouldBeTrue();
     }
 
     [Fact]
