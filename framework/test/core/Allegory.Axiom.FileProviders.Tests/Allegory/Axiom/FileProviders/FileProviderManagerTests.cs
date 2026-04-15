@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -8,25 +10,24 @@ using Xunit;
 
 namespace Allegory.Axiom.FileProviders;
 
-public class FileProviderManagerTests
+public class FileProviderManagerTests : LightIntegrationTestBase
 {
-    public FileProviderManagerTests()
+    protected FileProviderManager Manager => Service<FileProviderManager>();
+
+    protected override ValueTask ConfigureAsync(
+        IServiceCollection services,
+        AssemblyDependencyRegistrar registrar)
     {
-        var collection = new ServiceCollection();
-        var registrar = new AssemblyDependencyRegistrar(collection);
         registrar.Register(typeof(FileProviderManager).Assembly);
 
-        collection.Configure<FileProviderOptions>(o =>
+        services.Configure<FileProviderOptions>(o =>
         {
             o.AddEmbedded<FileProviderManagerTests>();
             o.AddPhysical(AppContext.BaseDirectory);
         });
 
-        var provider = collection.BuildServiceProvider();
-        Manager = provider.GetRequiredService<FileProviderManager>();
+        return ValueTask.CompletedTask;
     }
-
-    protected FileProviderManager Manager { get; set; }
 
     [Fact]
     public void ShouldReverseProvidersOrder()

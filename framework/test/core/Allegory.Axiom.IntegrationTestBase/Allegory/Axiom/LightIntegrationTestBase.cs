@@ -1,29 +1,31 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Allegory.Axiom.Hosting;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Testing.Platform.Services;
+using Allegory.Axiom.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Allegory.Axiom;
 
-public abstract class IntegrationTestBase : IAsyncLifetime
+public abstract class LightIntegrationTestBase : IAsyncLifetime
 {
     private readonly Dictionary<Type, object> _services = new();
 
-    protected IHost Host { get; set; } = null!;
+    protected IServiceProvider ServiceProvider { get; private set; } = null!;
 
     public virtual async ValueTask InitializeAsync()
     {
-        var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
-        await builder.ConfigureApplicationAsync();
-        await ConfigureAsync(builder);
-        Host = builder.Build();
-        await Host.InitializeApplicationAsync();
+        var services = new ServiceCollection();
+        var registrar = new AssemblyDependencyRegistrar(services);
+
+        await ConfigureAsync(services, registrar);
+
+        ServiceProvider = services.BuildServiceProvider();
     }
 
-    protected virtual ValueTask ConfigureAsync(IHostApplicationBuilder builder) => ValueTask.CompletedTask;
+    protected virtual ValueTask ConfigureAsync(
+        IServiceCollection services,
+        AssemblyDependencyRegistrar registrar) => ValueTask.CompletedTask;
 
     protected T Service<T>() where T : notnull
     {
@@ -32,14 +34,14 @@ public abstract class IntegrationTestBase : IAsyncLifetime
             return (T) cached;
         }
 
-        var service = Host.Services.GetRequiredService<T>();
+        var service = ServiceProvider.GetRequiredService<T>();
         _services.Add(typeof(T), service);
         return service;
     }
 
     public virtual async ValueTask DisposeAsync()
     {
-        switch (Host)
+        switch (ServiceProvider)
         {
             case IAsyncDisposable asyncDisposable:
                 await asyncDisposable.DisposeAsync();

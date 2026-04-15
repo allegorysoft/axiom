@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
@@ -9,15 +11,17 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkManagerTests : IntegrationTestBase
 {
-    public UnitOfWorkManagerTests()
+    protected IUnitOfWorkManager UnitOfWorkManager => Service<IUnitOfWorkManager>();
+
+    protected override ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {
-        Builder.Services.Configure<UnitOfWorkOptions>(options =>
+        builder.Services.Configure<UnitOfWorkOptions>(options =>
         {
             options.Timeout = TimeSpan.FromSeconds(30);
         });
-    }
 
-    protected IUnitOfWorkManager UnitOfWorkManager => Service<IUnitOfWorkManager>();
+        return ValueTask.CompletedTask;
+    }
 
     [Fact]
     public void ShouldCreateUnitOfWork()
@@ -199,7 +203,7 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     [Fact]
     public void ShouldApplyDefaultOptionsWhenPreferredOptionsNull()
     {
-        var options = ServiceProvider.GetRequiredService<IOptions<UnitOfWorkOptions>>().Value;
+        var options = Service<IOptions<UnitOfWorkOptions>>().Value;
 
         using var uow = UnitOfWorkManager.Begin();
 
@@ -220,7 +224,7 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     [Fact]
     public void ShouldFallbackDefaultOptionsWhenPreferredOptionsPropertyIsNull()
     {
-        var options = ServiceProvider.GetRequiredService<IOptions<UnitOfWorkOptions>>().Value;
+        var options = Service<IOptions<UnitOfWorkOptions>>().Value;
 
         var preferred = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
         using var uow = UnitOfWorkManager.Begin(preferred);
