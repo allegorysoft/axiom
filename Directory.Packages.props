@@ -18,6 +18,7 @@
         <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftPackageVersion)"/>
         <PackageVersion Include="System.Text.Json" Version="$(MicrosoftPackageVersion)"/>
 
