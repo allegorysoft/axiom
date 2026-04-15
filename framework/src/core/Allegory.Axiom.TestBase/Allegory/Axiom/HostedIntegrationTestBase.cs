@@ -28,7 +28,6 @@ public abstract class HostedIntegrationTestBase : IAsyncLifetime
         {
             await configureAsync(builder);
         }
-
         await builder.ConfigureApplicationAsync();
 
         var host = builder.Build();

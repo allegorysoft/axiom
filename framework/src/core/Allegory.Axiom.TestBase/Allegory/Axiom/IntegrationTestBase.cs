@@ -11,7 +11,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 {
     private readonly Dictionary<Type, object> _services = new();
 
-    protected IServiceProvider ServiceProvider { get; private set; } = null!;
+    protected IServiceProvider ServiceProvider { get; set; } = null!;
 
     public virtual async ValueTask InitializeAsync()
     {

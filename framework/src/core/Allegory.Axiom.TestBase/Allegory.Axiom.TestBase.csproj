@@ -6,11 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="xunit.v3"/>
-        <PackageReference Include="xunit.runner.visualstudio"/>
-        <PackageReference Include="Shouldly"/>
-
+        <PackageReference Include="xunit.v3.extensibility.core"/>
         <PackageReference Include="Microsoft.Extensions.Hosting"/>
     </ItemGroup>
 
