@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkInterceptorTests : IntegrationTestBase
+public class UnitOfWorkInterceptorTests : HostedIntegrationTestBase
 {
-    protected IUnitOfWorkManager UnitOfWorkManager => Service<IUnitOfWorkManager>();
+    protected IUnitOfWorkManager Manager => Service<IUnitOfWorkManager>();
 
     [Fact]
     public async Task ShouldBeginUnitOfWorkWhenServiceHasMarkerInterface()
@@ -18,9 +18,9 @@ public class UnitOfWorkInterceptorTests : IntegrationTestBase
 
         service.OnExecute = () =>
         {
-            UnitOfWorkManager.Current.ShouldNotBeNull();
-            UnitOfWorkManager.Current.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Required);
-            UnitOfWorkManager.Current.State.ShouldBe(UnitOfWorkState.Started);
+            Manager.Current.ShouldNotBeNull();
+            Manager.Current.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Required);
+            Manager.Current.State.ShouldBe(UnitOfWorkState.Started);
         };
 
         await service.DoWorkAsync();
@@ -33,9 +33,9 @@ public class UnitOfWorkInterceptorTests : IntegrationTestBase
 
         service.OnExecute = () =>
         {
-            UnitOfWorkManager.Current.ShouldNotBeNull();
-            UnitOfWorkManager.Current.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Required);
-            UnitOfWorkManager.Current.State.ShouldBe(UnitOfWorkState.Started);
+            Manager.Current.ShouldNotBeNull();
+            Manager.Current.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Required);
+            Manager.Current.State.ShouldBe(UnitOfWorkState.Started);
         };
 
         await service.DoWorkAsync();
@@ -48,7 +48,7 @@ public class UnitOfWorkInterceptorTests : IntegrationTestBase
 
         service.OnExecute = () =>
         {
-            UnitOfWorkManager.Current.ShouldBeNull();
+            Manager.Current.ShouldBeNull();
         };
 
         await service.SkippedAsync();
@@ -61,7 +61,7 @@ public class UnitOfWorkInterceptorTests : IntegrationTestBase
 
         service.OnExecute = () =>
         {
-            var options = UnitOfWorkManager.Current!.Options;
+            var options = Manager.Current!.Options;
             options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.RequiresNew);
             options.IsolationLevel.ShouldBe(IsolationLevel.Chaos);
             options.Timeout.ShouldBe(TimeSpan.FromMilliseconds(5000));
@@ -77,7 +77,7 @@ public class UnitOfWorkInterceptorTests : IntegrationTestBase
 
         service.OnExecute = () =>
         {
-            UnitOfWorkManager.Current!.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Suppress);
+            Manager.Current!.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Suppress);
         };
 
         await service.GetAsync();
@@ -90,7 +90,7 @@ public class UnitOfWorkInterceptorTests : IntegrationTestBase
 
         service.OnExecute = () =>
         {
-            UnitOfWorkManager.Current?.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Required);
+            Manager.Current?.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Required);
         };
 
         await service.GetOptionedAsync();
@@ -124,7 +124,7 @@ public interface IUnitOfWorkScopedService : IUnitOfWorkScope, IHasExecuteAction
     Task DoWorkAsync();
 }
 
-internal sealed class UnitOfWorkScopedService : IUnitOfWorkScopedService
+file class UnitOfWorkScopedService : IUnitOfWorkScopedService
 {
     public Action? OnExecute { get; set; }
     public Task DoWorkAsync()
@@ -144,7 +144,7 @@ public interface IAttributedUnitOfWorkService : IHasExecuteAction
 }
 
 [UnitOfWork]
-internal sealed class AttributedUnitOfWorkService : IAttributedUnitOfWorkService
+file class AttributedUnitOfWorkService : IAttributedUnitOfWorkService
 {
     public Action? OnExecute { get; set; }
 

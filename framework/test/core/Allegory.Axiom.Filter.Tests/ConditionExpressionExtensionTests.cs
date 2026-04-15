@@ -297,7 +297,7 @@ public class ConditionExpressionExtensionTests
     {
         var conditions = new Condition();
 
-        Assert.Throws<FilterException>(() =>
+        Should.Throw<FilterException>(() =>
         {
             conditions.ToLambdaExpression<Sample>();
         });

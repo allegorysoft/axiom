@@ -1,49 +1,53 @@
 ﻿using System;
 using System.Data;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkManagerTests : IntegrationTestBase
+public class UnitOfWorkManagerTests : HostedIntegrationTestBase
 {
-    public UnitOfWorkManagerTests()
+    protected IUnitOfWorkManager Manager => Service<IUnitOfWorkManager>();
+
+    protected override ValueTask ConfigureAsync(IHostApplicationBuilder builder)
     {
-        Builder.Services.Configure<UnitOfWorkOptions>(options =>
+        builder.Services.Configure<UnitOfWorkOptions>(options =>
         {
             options.Timeout = TimeSpan.FromSeconds(30);
         });
-    }
 
-    protected IUnitOfWorkManager UnitOfWorkManager => Service<IUnitOfWorkManager>();
+        return ValueTask.CompletedTask;
+    }
 
     [Fact]
     public void ShouldCreateUnitOfWork()
     {
-        using (var root = UnitOfWorkManager.Begin())
+        using (var root = Manager.Begin())
         {
-            UnitOfWorkManager.Current.ShouldNotBeNull();
-            UnitOfWorkManager.Current.ShouldBe(root);
+            Manager.Current.ShouldNotBeNull();
+            Manager.Current.ShouldBe(root);
         }
 
-        UnitOfWorkManager.Current.ShouldBeNull();
+        Manager.Current.ShouldBeNull();
     }
 
     [Fact]
     public void ShouldCreateChildUnitOfWorkWhenParentExists()
     {
-        using (var root = UnitOfWorkManager.Begin())
+        using (var root = Manager.Begin())
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = UnitOfWorkManager.Begin())
+            using (var child = Manager.Begin())
             {
-                UnitOfWorkManager.Current.ShouldBe(child);
-                UnitOfWorkManager.Current.ShouldBeOfType<ChildUnitOfWork>();
-                UnitOfWorkManager.Current.Parent.ShouldBe(root);
+                Manager.Current.ShouldBe(child);
+                Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
+                Manager.Current.Parent.ShouldBe(root);
             }
         }
     }
@@ -51,28 +55,28 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     [Fact]
     public void ShouldRestoreParentUnitOfWorkAfterChildUnitOfWorkDisposed()
     {
-        using (var root = UnitOfWorkManager.Begin())
+        using (var root = Manager.Begin())
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
+            Manager.Current.ShouldBe(root);
 
-            using (var child = UnitOfWorkManager.Begin())
+            using (var child = Manager.Begin())
             {
-                UnitOfWorkManager.Current.ShouldBe(child);
+                Manager.Current.ShouldBe(child);
             }
 
-            UnitOfWorkManager.Current.ShouldBe(root);
+            Manager.Current.ShouldBe(root);
         }
     }
 
     [Fact]
     public void ShouldUseParentPropertiesWhenUnitOfWorkIsChild()
     {
-        using (var root = UnitOfWorkManager.Begin())
+        using (var root = Manager.Begin())
         {
             root.Items["key"] = "value";
-            using (var child = UnitOfWorkManager.Begin())
+            using (var child = Manager.Begin())
             {
-                UnitOfWorkManager.Current!.Items["key"].ShouldBe("value");
+                Manager.Current!.Items["key"].ShouldBe("value");
                 root.Items.ShouldBe(child.Items);
             }
         }
@@ -81,19 +85,19 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     [Fact]
     public void ShouldCreateSubRootUnitOfWorkWhenTransactionBehaviorIsRequiresNew()
     {
-        using (var root = UnitOfWorkManager.Begin())
+        using (var root = Manager.Begin())
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
                        transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
             {
-                UnitOfWorkManager.Current.ShouldBe(subRoot);
-                UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+                Manager.Current.ShouldBe(subRoot);
+                Manager.Current.ShouldBeOfType<UnitOfWork>();
             }
 
-            UnitOfWorkManager.Current.ShouldBe(root);
+            Manager.Current.ShouldBe(root);
         }
     }
 
@@ -101,47 +105,47 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     public void ShouldCreateChildUnitOfWorkWhenTransactionBehaviorCompatible()
     {
         // Required, Required
-        using (var root = UnitOfWorkManager.Begin())
+        using (var root = Manager.Begin())
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = UnitOfWorkManager.Begin())
+            using (var child = Manager.Begin())
             {
-                UnitOfWorkManager.Current.ShouldBe(child);
-                UnitOfWorkManager.Current.ShouldBeOfType<ChildUnitOfWork>();
-                UnitOfWorkManager.Current.Parent.ShouldBe(root);
+                Manager.Current.ShouldBe(child);
+                Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
+                Manager.Current.Parent.ShouldBe(root);
             }
         }
 
         // RequiresNew, Required
-        using (var root = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+        using (var root = Manager.Begin(new UnitOfWorkOptions(
                    transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = UnitOfWorkManager.Begin())
+            using (var child = Manager.Begin())
             {
-                UnitOfWorkManager.Current.ShouldBe(child);
-                UnitOfWorkManager.Current.ShouldBeOfType<ChildUnitOfWork>();
-                UnitOfWorkManager.Current.Parent.ShouldBe(root);
+                Manager.Current.ShouldBe(child);
+                Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
+                Manager.Current.Parent.ShouldBe(root);
             }
         }
 
         // Suppress, Suppress
-        using (var root = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+        using (var root = Manager.Begin(new UnitOfWorkOptions(
                    transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+            using (var child = Manager.Begin(new UnitOfWorkOptions(
                        transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
             {
-                UnitOfWorkManager.Current.ShouldBe(child);
-                UnitOfWorkManager.Current.ShouldBeOfType<ChildUnitOfWork>();
-                UnitOfWorkManager.Current.Parent.ShouldBe(root);
+                Manager.Current.ShouldBe(child);
+                Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
+                Manager.Current.Parent.ShouldBe(root);
             }
         }
     }
@@ -150,48 +154,48 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     public void ShouldCreateSubRootUnitOfWorkWhenTransactionBehaviorIncompatible()
     {
         // Required, Suppress
-        using (var root = UnitOfWorkManager.Begin())
+        using (var root = Manager.Begin())
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
                        transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
             {
-                UnitOfWorkManager.Current.ShouldBe(subRoot);
-                UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
-                UnitOfWorkManager.Current.Parent.ShouldBe(root);
+                Manager.Current.ShouldBe(subRoot);
+                Manager.Current.ShouldBeOfType<UnitOfWork>();
+                Manager.Current.Parent.ShouldBe(root);
             }
         }
 
         // Suppress, Required
-        using (var root = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+        using (var root = Manager.Begin(new UnitOfWorkOptions(
                    transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = UnitOfWorkManager.Begin())
+            using (var subRoot = Manager.Begin())
             {
-                UnitOfWorkManager.Current.ShouldBe(subRoot);
-                UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
-                UnitOfWorkManager.Current.Parent.ShouldBe(root);
+                Manager.Current.ShouldBe(subRoot);
+                Manager.Current.ShouldBeOfType<UnitOfWork>();
+                Manager.Current.Parent.ShouldBe(root);
             }
         }
 
         // RequiresNew, Suppress
-        using (var root = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+        using (var root = Manager.Begin(new UnitOfWorkOptions(
                    transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
         {
-            UnitOfWorkManager.Current.ShouldBe(root);
-            UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
+            Manager.Current.ShouldBe(root);
+            Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = UnitOfWorkManager.Begin(new UnitOfWorkOptions(
+            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
                        transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
             {
-                UnitOfWorkManager.Current.ShouldBe(subRoot);
-                UnitOfWorkManager.Current.ShouldBeOfType<UnitOfWork>();
-                UnitOfWorkManager.Current.Parent.ShouldBe(root);
+                Manager.Current.ShouldBe(subRoot);
+                Manager.Current.ShouldBeOfType<UnitOfWork>();
+                Manager.Current.Parent.ShouldBe(root);
             }
         }
     }
@@ -199,34 +203,34 @@ public class UnitOfWorkManagerTests : IntegrationTestBase
     [Fact]
     public void ShouldApplyDefaultOptionsWhenPreferredOptionsNull()
     {
-        var options = ServiceProvider.GetRequiredService<IOptions<UnitOfWorkOptions>>().Value;
+        var options = Service<IOptions<UnitOfWorkOptions>>().Value;
 
-        using var uow = UnitOfWorkManager.Begin();
+        using var uow = Manager.Begin();
 
-        UnitOfWorkManager.Current!.Options.ShouldBe(options);
-        UnitOfWorkManager.Current!.Options.Timeout.ShouldBe(options.Timeout);
+        Manager.Current!.Options.ShouldBe(options);
+        Manager.Current!.Options.Timeout.ShouldBe(options.Timeout);
     }
 
     [Fact]
     public void ShouldApplyPreferredOptionsWhenPreferredOptionsNotNull()
     {
         var preferred = new UnitOfWorkOptions(timeout: TimeSpan.FromMinutes(1));
-        using var uow = UnitOfWorkManager.Begin(preferred);
+        using var uow = Manager.Begin(preferred);
 
-        UnitOfWorkManager.Current!.Options.ShouldBe(preferred);
-        UnitOfWorkManager.Current!.Options.Timeout.ShouldBe(preferred.Timeout);
+        Manager.Current!.Options.ShouldBe(preferred);
+        Manager.Current!.Options.Timeout.ShouldBe(preferred.Timeout);
     }
 
     [Fact]
     public void ShouldFallbackDefaultOptionsWhenPreferredOptionsPropertyIsNull()
     {
-        var options = ServiceProvider.GetRequiredService<IOptions<UnitOfWorkOptions>>().Value;
+        var options = Service<IOptions<UnitOfWorkOptions>>().Value;
 
         var preferred = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
-        using var uow = UnitOfWorkManager.Begin(preferred);
+        using var uow = Manager.Begin(preferred);
 
-        UnitOfWorkManager.Current!.Options.ShouldBe(preferred);
-        UnitOfWorkManager.Current!.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
-        UnitOfWorkManager.Current!.Options.Timeout.ShouldBe(options.Timeout);
+        Manager.Current!.Options.ShouldBe(preferred);
+        Manager.Current!.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
+        Manager.Current!.Options.Timeout.ShouldBe(options.Timeout);
     }
 }

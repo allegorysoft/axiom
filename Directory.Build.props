@@ -14,28 +14,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\allegory-icon.png"
-            Pack="true"
-            Visible="false"
-            PackagePath="\" />
+        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\allegory-icon.png" Pack="true" Visible="false" PackagePath="\"/>
     </ItemGroup>
 
     <PropertyGroup>
-
-        <!-- General .NET version -->
         <DotnetVersion>net10.0</DotnetVersion>
-        <!-- General .NET Standard version -->
-        <DotnetStandardVersion>netstandard2.1</DotnetStandardVersion>
-        <!-- All Microsoft packages -->
         <MicrosoftPackageVersion>10.0.0</MicrosoftPackageVersion>
-
         <IsTestProject>$(MSBuildProjectDirectory.Replace('\', '/').Contains('/test/'))</IsTestProject>
         <IsPackable Condition="'$(IsTestProject)' == 'true'">false</IsPackable>
-
     </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' == 'false'">
-        <InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
+        <InternalsVisibleTo Include="$(MSBuildProjectName).Tests"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="xunit.runner.visualstudio"/>
+        <PackageReference Include="Shouldly"/>
     </ItemGroup>
 
 </Project>

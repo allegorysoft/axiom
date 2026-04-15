@@ -1,7 +1,9 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/core/">
+    <Project Path="src/core/Allegory.Axiom.FileProviders/Allegory.Axiom.FileProviders.csproj" />
     <Project Path="src/core/Allegory.Axiom.Filter/Allegory.Axiom.Filter.csproj" />
+    <Project Path="src/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
   </Folder>
   <Folder Name="/src/integration/" />
   <Folder Name="/src/interception/">
@@ -18,9 +20,8 @@
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/core/">
+    <Project Path="test/core/Allegory.Axiom.FileProviders.Tests/Allegory.Axiom.FileProviders.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
-    <Project Path="test/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
-    <Project Path="test/core/Allegory.Axiom.IntegrationTestBase/Allegory.Axiom.IntegrationTestBase.csproj" />
   </Folder>
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />

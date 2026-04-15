@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="xunit.v3.extensibility.core"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\interception\Allegory.Axiom.Interception.Castle.Core\Allegory.Axiom.Interception.Castle.Core.csproj"/>
+        <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.UnitOfWork\Allegory.Axiom.UnitOfWork.csproj"/>
+        <ProjectReference Include="..\Allegory.Axiom.FileProviders\Allegory.Axiom.FileProviders.csproj"/>
+    </ItemGroup>
+
+</Project>

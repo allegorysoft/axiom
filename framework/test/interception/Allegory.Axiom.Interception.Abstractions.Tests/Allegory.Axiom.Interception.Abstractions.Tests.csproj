@@ -6,12 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\..\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
+        <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
         <ProjectReference Include="..\..\..\src\interception\Allegory.Axiom.Interception.Abstractions\Allegory.Axiom.Interception.Abstractions.csproj"/>
     </ItemGroup>
 
