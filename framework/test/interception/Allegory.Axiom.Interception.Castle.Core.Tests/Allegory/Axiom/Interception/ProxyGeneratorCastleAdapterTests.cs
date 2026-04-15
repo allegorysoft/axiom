@@ -10,20 +10,14 @@ using Xunit;
 
 namespace Allegory.Axiom.Interception;
 
-public class ProxyGeneratorCastleAdapterTests
+public class ProxyGeneratorCastleAdapterTests : HostedIntegrationTestBase
 {
-    private async Task<IServiceProvider> BuildServiceProvider(Action<IHostApplicationBuilder> configure)
-    {
-        var builder = Host.CreateApplicationBuilder();
-        configure(builder);
-        await builder.ConfigureApplicationAsync();
-        return builder.Build().Services;
-    }
+    public override ValueTask InitializeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task ShouldCreateProxyWhenServiceTypeIsInterface()
     {
-        var services = await BuildServiceProvider(builder =>
+        var services = await CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
         });
@@ -38,7 +32,7 @@ public class ProxyGeneratorCastleAdapterTests
     [Fact]
     public async Task ShouldNotCreateProxyWhenServiceTypeIsClass()
     {
-        var services = await BuildServiceProvider(builder =>
+        var services = await CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddInterceptor<Interceptor1>(t => t == typeof(Implementation));
         });
@@ -53,7 +47,7 @@ public class ProxyGeneratorCastleAdapterTests
     [Fact]
     public async Task ShouldInvokeInterceptorWhenCallingMethod()
     {
-        var services = await BuildServiceProvider(builder =>
+        var services = await CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddInterceptor<RecordingInterceptor>(t => typeof(IImplementation).IsAssignableFrom(t));
         });
@@ -67,7 +61,7 @@ public class ProxyGeneratorCastleAdapterTests
     [Fact]
     public async Task ShouldInvokeMultipleInterceptorsInOrder()
     {
-        var services = await BuildServiceProvider(builder =>
+        var services = await CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddInterceptor<OrderInterceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
             builder.Services.AddInterceptor<OrderInterceptor2>(t => typeof(IImplementation).IsAssignableFrom(t));
@@ -82,7 +76,7 @@ public class ProxyGeneratorCastleAdapterTests
     [Fact]
     public async Task ShouldCacheInterceptorTypeMapping()
     {
-        var services = await BuildServiceProvider(builder =>
+        var services = await CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
         });
@@ -103,7 +97,7 @@ public class ProxyGeneratorCastleAdapterTests
     [Fact]
     public async Task ShouldReturnCorrectValueFromInterceptedAsyncMethod()
     {
-        var services = await BuildServiceProvider(builder =>
+        var services = await CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddInterceptor<Interceptor1>(t => typeof(IImplementation).IsAssignableFrom(t));
         });
@@ -117,7 +111,7 @@ public class ProxyGeneratorCastleAdapterTests
     [Fact]
     public async Task ShouldResolveCorrectLifetimeForInterceptors()
     {
-        var services = await BuildServiceProvider(builder =>
+        var services = await CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddInterceptor<TransientInterceptor>(_ => false);
             builder.Services.AddInterceptor<ScopedInterceptor>(_ => false);

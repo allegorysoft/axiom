@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Allegory.Axiom;
 
-public abstract class LightIntegrationTestBase : IAsyncLifetime
+public abstract class IntegrationTestBase : IAsyncLifetime
 {
     private readonly Dictionary<Type, object> _services = new();
 

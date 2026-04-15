@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Allegory.Axiom.FileProviders;
 
-public class FileProviderManagerTests : LightIntegrationTestBase
+public class FileProviderManagerTests : IntegrationTestBase
 {
     protected FileProviderManager Manager => Service<FileProviderManager>();
 
