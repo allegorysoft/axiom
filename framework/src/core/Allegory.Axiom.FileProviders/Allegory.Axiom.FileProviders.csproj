@@ -9,11 +9,10 @@
         <PackageReference Include="Microsoft.Extensions.FileProviders.Composite"/>
         <PackageReference Include="Microsoft.Extensions.FileProviders.Physical"/>
         <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded"/>
-        <PackageReference Include="Microsoft.Extensions.Options"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\modularity\Allegory.Axiom.DependencyInjection.Abstractions\Allegory.Axiom.DependencyInjection.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>
