@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
@@ -38,26 +37,27 @@ public class FileProviderManagerTests : IntegrationTestBase
 
         providers.Count.ShouldBe(2);
         providers[0].ShouldBeOfType<PhysicalFileProvider>();// Added last, so it should be first
-        providers[1].ShouldBeOfType<EmbeddedFileProvider>();// Added first, so it should be last
+        providers[1].ShouldBeOfType<ManifestEmbeddedFileProvider>();// Added first, so it should be last
     }
 
     [Fact]
     public void ShouldGetFileInfo()
     {
-        var fileInfo = Manager.GetFileInfo("Allegory.Axiom.FileProviders.Tests.dll");
+        var fileInfo = Manager.GetFileInfo("/Resources/NewFile1.txt");
 
         fileInfo.ShouldNotBeNull();
         fileInfo.Exists.ShouldBeTrue();
-        fileInfo.Name.ShouldBe("Allegory.Axiom.FileProviders.Tests.dll");
+        fileInfo.Name.ShouldBe("NewFile1.txt");
     }
 
     [Fact]
     public void ShouldGetDirectoryContents()
     {
-        var directoryContents = Manager.GetDirectoryContents("/");
+        var directoryContents = Manager.GetDirectoryContents("/Resources");
 
         directoryContents.ShouldNotBeNull();
         directoryContents.Exists.ShouldBeTrue();
+        directoryContents.Count().ShouldBe(2);
     }
 
     [Fact]

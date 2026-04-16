@@ -16,7 +16,7 @@ public class FileProviderOptionsTests
         options.AddEmbedded<FileProviderOptionsTests>();
 
         options.Providers.ShouldHaveSingleItem();
-        options.Providers[0].ShouldBeOfType<EmbeddedFileProvider>();
+        options.Providers[0].ShouldBeOfType<ManifestEmbeddedFileProvider>();
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public class FileProviderOptionsTests
         options.AddEmbedded(Assembly.GetExecutingAssembly());
 
         options.Providers.ShouldHaveSingleItem();
-        options.Providers[0].ShouldBeOfType<EmbeddedFileProvider>();
+        options.Providers[0].ShouldBeOfType<ManifestEmbeddedFileProvider>();
     }
 
     [Fact]
