@@ -37,7 +37,7 @@ dotnet add package Microsoft.Extensions.Hosting
 
 ### 3. Create your service
 
-Services implementing `ISingletonService` are automatically registered — no manual wiring needed. Create `Implementation.cs`:
+Services implementing `ISingletonService` are automatically registered no manual wiring needed. Create `Implementation.cs`:
 ```csharp
 using Allegory.Axiom.DependencyInjection;
 
