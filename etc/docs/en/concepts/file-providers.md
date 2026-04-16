@@ -15,7 +15,7 @@ dotnet add package Allegory.Axiom.FileProviders
 
 `FileProviderManager` accepts providers via `FileProviderOptions` and merges them into a single [CompositeFileProvider](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.fileproviders.compositefileprovider).
 
-Providers are registered in order, but resolved in **reverse order** the last registered provider has highest priority. This matches the typical override pattern: add defaults first, then environment-specific overrides last.
+Providers are registered in order, but resolved in **reverse order** the last registered provider has highest priority.
 
 ```csharp
 // configure
@@ -32,6 +32,7 @@ public class MyService(FileProviderManager fileProvider) : ITransientService
 
     public void DoSomething()
     {
+        var contents = FileProvider.GetDirectoryContents("/");
         var file = FileProvider.GetFileInfo("data.json");
     }
 }
@@ -64,7 +65,7 @@ Order matters: providers added later override earlier ones. If multiple provider
 Example: if a.txt exists in both Embedded and Physical providers, and Physical is registered last, the Physical version of a.txt will be returned.
 :::
 
-## `FileProviderOptions`
+## File Provider Options
 
 | Method | Description |
 |---|---|
@@ -82,22 +83,53 @@ options.Providers.Add(new MyCustomFileProvider());
 See [Microsoft.Extensions.FileProviders](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/file-providers) for built-in providers.
 :::
 
-::: details Root parameter behavior (Embedded providers)
-When using `AddEmbedded`, the optional `root` parameter controls which embedded resources are exposed and how their paths are resolved.
+## Embedded Provider Behavior
 
-#### What it does
+When using `AddEmbedded` to register embedded resources, the provider uses [ManifestEmbeddedFileProvider](https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.fileproviders.manifestembeddedfileprovider) under the hood. This requires your project to be configured correctly so that a manifest file is generated at build time without it, the provider cannot discover or serve any embedded files.
 
-- Limits exposed resources to a specific namespace/root
-- Strips that root prefix from the final virtual path
+### Required Project Configuration
 
-#### Embedded resource inside assembly
+Add the following to your `.csproj` file in the assembly that contains the embedded resources:
 
-Let's say in a c# project we have embedded file like; `MyApp/Resources/Images/logo.png`
+**1. Enable manifest generation**
 
-```csharp
-options.AddEmbedded<MyApp>("MyApp.Resources");
-//Resulting exposed path: "Images/logo.png" instead of "MyApp/Resources/Images/logo.png"
+The `GenerateEmbeddedFilesManifest` property instructs the build system to produce the manifest file that `ManifestEmbeddedFileProvider` reads at runtime to locate embedded resources.
+
+```xml
+<PropertyGroup>
+    <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+</PropertyGroup>
 ```
 
-Root acts like a “virtual mount point” for embedded resources.
-:::
+**2. Add the embedded file provider package**
+
+This package supplies `ManifestEmbeddedFileProvider` itself, and its build targets are responsible for generating and embedding the manifest into the output assembly.
+
+```xml
+<ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.0" />
+</ItemGroup>
+```
+
+**3. Mark your files as embedded resources**
+
+By default, files inside your project are not embedded. You must explicitly include them as `EmbeddedResource` items. The example below embeds everything under a `Resources/` folder:
+
+```xml
+<ItemGroup>
+    <None Remove="Resources\**" />
+    <EmbeddedResource Include="Resources\**" />
+</ItemGroup>
+```
+
+Now you can use `AddEmbedded` in your `FileProviderOptions` to register these embedded resources, and they will be discoverable at runtime through the file provider system.
+
+## File Provider Manager
+
+`FileProviderManager` is the central entry point for all file resolution in Axiom. You can be injected and use it anywhere in your application to access the virtual file system composed of all registered providers.
+
+Internally, it wraps a `CompositeFileProvider` built from all providers registered through `FileProviderOptions`. Rather than exposing its own resolution logic, it delegates every call `GetFileInfo`, `GetDirectoryContents`, and `Watch` to that composite.
+
+### Extensibility
+
+`GetFileInfo`, `GetDirectoryContents`, and `Watch` are all declared `virtual`, so you can subclass `FileProviderManager` to intercept or augment resolution behavior for example, to add path rewriting, logging, or access control without replacing the entire provider pipeline.
