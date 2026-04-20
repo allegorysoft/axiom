@@ -10,6 +10,10 @@
     <Project Path="src/interception/Allegory.Axiom.Interception.Abstractions/Allegory.Axiom.Interception.Abstractions.csproj" />
     <Project Path="src/interception/Allegory.Axiom.Interception.Castle.Core/Allegory.Axiom.Interception.Castle.Core.csproj" />
   </Folder>
+  <Folder Name="/src/localization/">
+    <Project Path="src/localization/Allegory.Axiom.Localization.Abstractions/Allegory.Axiom.Localization.Abstractions.csproj" />
+    <Project Path="src/localization/Allegory.Axiom.Localization/Allegory.Axiom.Localization.csproj" />
+  </Folder>
   <Folder Name="/src/modularity/">
     <Project Path="src/modularity/Allegory.Axiom.DependencyInjection.Abstractions/Allegory.Axiom.DependencyInjection.Abstractions.csproj" />
     <Project Path="src/modularity/Allegory.Axiom.Hosting.Abstractions/Allegory.Axiom.Hosting.Abstractions.csproj" />
@@ -26,6 +30,9 @@
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />
     <Project Path="test/interception/Allegory.Axiom.Interception.Castle.Core.Tests/Allegory.Axiom.Interception.Castle.Core.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/localization/">
+    <Project Path="test/localization/Allegory.Axiom.Localization.Tests/Allegory.Axiom.Localization.Tests.csproj" />
   </Folder>
   <Folder Name="/test/modularity/">
     <Project Path="test/modularity/Allegory.Axiom.DependencyInjection.Abstractions.Tests/Allegory.Axiom.DependencyInjection.Abstractions.Tests.csproj" />
