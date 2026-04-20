@@ -60,11 +60,13 @@ internal sealed class ServiceInterceptorBinder(IServiceCollection collection)
 
     private static ServiceDescriptor GetService(ServiceDescriptor service, List<Type> interceptors)
     {
+        var factory = ActivatorUtilities.CreateFactory(service.ImplementationType!, Type.EmptyTypes);
+
         return ServiceDescriptor.Describe(
             service.ServiceType,
             provider =>
             {
-                var implementation = ActivatorUtilities.CreateInstance(provider, service.ImplementationType!);
+                var implementation = factory(provider, null);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
                 return proxy.Create(provider, implementation, service.ServiceType, interceptors);
             },
@@ -74,12 +76,14 @@ internal sealed class ServiceInterceptorBinder(IServiceCollection collection)
 
     private static ServiceDescriptor GetKeyedService(ServiceDescriptor service, List<Type> interceptors)
     {
+        var factory = ActivatorUtilities.CreateFactory(service.KeyedImplementationType!, Type.EmptyTypes);
+
         return ServiceDescriptor.DescribeKeyed(
             service.ServiceType,
             service.ServiceKey,
             (provider, _) =>
             {
-                var implementation = ActivatorUtilities.CreateInstance(provider, service.KeyedImplementationType!);
+                var implementation = factory(provider, null);
                 var proxy = provider.GetRequiredService<IProxyGenerator>();
                 return proxy.Create(provider, implementation, service.ServiceType, interceptors);
             },
