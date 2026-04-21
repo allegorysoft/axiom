@@ -53,28 +53,47 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
                 : [];
         }
 
+        var cultures = GetCultureHierarchy(culture);
         var merged = new Dictionary<string, string>();
-        var current = culture;
-        while (!current.Equals(CultureInfo.InvariantCulture))
+
+        foreach (var item in cultures)
         {
-            if (Translations.TryGetValue(current.Name, out var translations))
+            if (!Translations.TryGetValue(item, out var translations))
             {
-                foreach (var (key, value) in translations)
-                    merged.TryAdd(key, value);
+                continue;
             }
 
-            current = current.Parent;
-        }
-
-        if (Translations.TryGetValue(Options.DefaultCulture.Name, out var defaultTranslations))
-        {
-            foreach (var (key, value) in defaultTranslations)
+            foreach (var (key, value) in translations)
             {
                 merged.TryAdd(key, value);
             }
         }
 
         return merged.Select(t => new LocalizedString(t.Key, t.Value));
+    }
+
+    protected virtual List<string> GetCultureHierarchy(CultureInfo culture)
+    {
+        var cultures = new List<string>();
+        var current = culture;
+        while (true)
+        {
+            cultures.Add(current.Name);
+
+            if (current.Parent.Equals(CultureInfo.InvariantCulture))
+            {
+                if (!cultures.Contains(Options.DefaultCulture.Name))
+                {
+                    cultures.Add(Options.DefaultCulture.Name);
+                }
+
+                break;
+            }
+
+            current = current.Parent;
+        }
+
+        return cultures;
     }
 
     protected virtual string? GetTranslation(string name, CultureInfo? culture = null)
@@ -91,9 +110,9 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
 
             if (current.Parent.Equals(CultureInfo.InvariantCulture))
             {
-                return Translations.TryGetValue(Options.DefaultCulture.Name, out var defaultTranslations)
-                    ? defaultTranslations.GetValueOrDefault(name)
-                    : null;
+                return current.Equals(Options.DefaultCulture)
+                    ? null
+                    : Translations[Options.DefaultCulture.Name].GetValueOrDefault(name);
             }
 
             current = current.Parent;
