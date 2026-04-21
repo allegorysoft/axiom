@@ -6,11 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\core\Allegory.Axiom.FileProviders\Allegory.Axiom.FileProviders.csproj"/>
-        <ProjectReference Include="..\Allegory.Axiom.Localization.Abstractions\Allegory.Axiom.Localization.Abstractions.csproj"/>
-        <ProjectReference Include="..\..\modularity\Allegory.Axiom.DependencyInjection.Abstractions\Allegory.Axiom.DependencyInjection.Abstractions.csproj"/>
+        <PackageReference Include="Microsoft.Extensions.Localization"/>
     </ItemGroup>
 
-    
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.Localization.Abstractions\Allegory.Axiom.Localization.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\core\Allegory.Axiom.FileProviders\Allegory.Axiom.FileProviders.csproj"/>
+    </ItemGroup>
 
 </Project>
