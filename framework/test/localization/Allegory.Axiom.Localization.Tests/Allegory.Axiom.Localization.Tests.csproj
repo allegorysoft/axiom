@@ -16,11 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Allegory\Axiom\Localization\Resources\**"/>
-        <EmbeddedResource Include="Allegory\Axiom\Localization\Resources\**"/>
-
-        <None Remove="Allegory\Axiom\Localization\Resources2\**"/>
-        <EmbeddedResource Include="Allegory\Axiom\Localization\Resources2\**" />
+        <EmbeddedResource Include="Allegory\Axiom\Localization\Resources\**" Exclude="**\*.cs"/>
     </ItemGroup>
 
 </Project>
