@@ -16,7 +16,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
     {
         Options = options;
         FileProviderManager = fileProviderManager;
-        Seed();
+        InitialSeed();
     }
 
     public LocalizationResourceOptions Options { get; }
@@ -60,7 +60,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
             if (Translations.TryGetValue(current.Name, out var translations))
             {
                 foreach (var (key, value) in translations)
-                    merged.TryAdd(key, value);// child already added? skip
+                    merged.TryAdd(key, value);
             }
 
             current = current.Parent;
@@ -100,7 +100,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
         }
     }
 
-    protected virtual void Seed()
+    private void InitialSeed()
     {
         foreach (var path in Options.Paths)
         {

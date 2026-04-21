@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.Localization.Abstractions\Allegory.Axiom.Localization.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
         <ProjectReference Include="..\..\core\Allegory.Axiom.FileProviders\Allegory.Axiom.FileProviders.csproj"/>
     </ItemGroup>
 
