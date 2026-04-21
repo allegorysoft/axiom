@@ -14,9 +14,9 @@ public class AxiomStringLocalizerFactory(
     ResourceManagerStringLocalizerFactory localizerFactory)
     : IStringLocalizerFactory, ISingletonService
 {
-    public IServiceProvider ServiceProvider { get; } = serviceProvider;
-    public LocalizationOptions Options { get; } = options.Value;
-    public ResourceManagerStringLocalizerFactory LocalizerFactory { get; } = localizerFactory;
+    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
+    protected LocalizationOptions Options { get; } = options.Value;
+    protected ResourceManagerStringLocalizerFactory LocalizerFactory { get; } = localizerFactory;
     protected internal ConcurrentDictionary<string, IStringLocalizer> LocalizerCache { get; } = new();
 
     public virtual IStringLocalizer Create(Type resourceType)
@@ -28,7 +28,7 @@ public class AxiomStringLocalizerFactory(
             return localizer;
         }
 
-        var options = Options.Resources.FirstOrDefault(o => o.Resource == resourceType.FullName);
+        var options = Options.Resources.FirstOrDefault(o => o.Name == resourceType.FullName);
         if (options == null)
         {
             return LocalizerFactory.Create(resourceType);
@@ -46,7 +46,7 @@ public class AxiomStringLocalizerFactory(
             return localizer;
         }
 
-        var options = Options.Resources.FirstOrDefault(o => o.Resource == baseName);
+        var options = Options.Resources.FirstOrDefault(o => o.Name == baseName);
         if (options == null)
         {
             return LocalizerFactory.Create(baseName, location);

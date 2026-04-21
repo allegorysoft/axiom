@@ -13,7 +13,7 @@ public static class LocalizationResourceOptionsExtensions
             var resource = typeof(T).FullName;
             ArgumentException.ThrowIfNullOrEmpty(resource);
 
-            if (options.Any(o => o.Resource == resource))
+            if (options.Any(o => o.Name == resource))
             {
                 throw new ArgumentException($"Resource ({resource}) already exists");
             }
@@ -21,14 +21,14 @@ public static class LocalizationResourceOptionsExtensions
             options.Add(new LocalizationResourceOptions(resource, defaultCulture, paths));
         }
 
-        public void Add(string resource, string defaultCulture, params IEnumerable<string> paths)
+        public void Add(string name, string defaultCulture, params IEnumerable<string> paths)
         {
-            if (options.Any(o => o.Resource == resource))
+            if (options.Any(o => o.Name == name))
             {
-                throw new ArgumentException($"Resource ({resource}) already exists");
+                throw new ArgumentException($"Resource ({name}) already exists");
             }
 
-            options.Add(new LocalizationResourceOptions(resource, defaultCulture, paths));
+            options.Add(new LocalizationResourceOptions(name, defaultCulture, paths));
         }
     }
 }

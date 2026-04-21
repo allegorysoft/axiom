@@ -5,6 +5,5 @@ namespace Allegory.Axiom.Localization;
 
 public interface IAxiomStringLocalizer : IStringLocalizer
 {
-    LocalizationResourceOptions Options { get; }
     ConcurrentDictionary<string, ConcurrentDictionary<string, string>> Translations { get; }
 }

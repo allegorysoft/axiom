@@ -19,11 +19,11 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
         InitialSeed();
     }
 
-    public LocalizationResourceOptions Options { get; }
     public ConcurrentDictionary<string, ConcurrentDictionary<string, string>> Translations { get; } = new(StringComparer.OrdinalIgnoreCase);
-    public FileProviderManager FileProviderManager { get; }
+    protected LocalizationResourceOptions Options { get; }
+    protected FileProviderManager FileProviderManager { get; }
 
-    public LocalizedString this[string name]
+    public virtual LocalizedString this[string name]
     {
         get
         {
@@ -125,8 +125,8 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
         {
             foreach (var content in FileProviderManager.GetDirectoryContents(path).Where(x => !x.IsDirectory))
             {
-                var key = new CultureInfo(Path.GetFileNameWithoutExtension(content.Name));
-                var translations = Translations.GetOrAdd(key.Name, _ => new ConcurrentDictionary<string, string>());
+                var key = Path.GetFileNameWithoutExtension(content.Name);
+                var translations = Translations.GetOrAdd(key, _ => new ConcurrentDictionary<string, string>());
                 using var stream = content.CreateReadStream();
                 var contentTranslations = JsonSerializer.Deserialize<Dictionary<string, string>>(stream) ?? [];
 

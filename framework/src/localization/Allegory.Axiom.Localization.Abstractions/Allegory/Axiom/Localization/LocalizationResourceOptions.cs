@@ -7,26 +7,26 @@ namespace Allegory.Axiom.Localization;
 public class LocalizationResourceOptions
 {
     internal LocalizationResourceOptions(
-        string resource,
+        string name,
         string defaultCulture,
         params IEnumerable<string> paths)
     {
-        Resource = resource;
+        Name = name;
         DefaultCulture = new CultureInfo(defaultCulture);
         Paths = paths.ToArray();
     }
 
-    public string Resource { get; }
+    public string Name { get; }
     public CultureInfo DefaultCulture { get; }
     public string[] Paths { get; }
 
     public override int GetHashCode()
     {
-        return Resource.GetHashCode();
+        return Name.GetHashCode();
     }
 
     public override bool Equals(object? obj)
     {
-        return obj is LocalizationResourceOptions other && Resource == other.Resource;
+        return obj is LocalizationResourceOptions other && Name == other.Name;
     }
 }
