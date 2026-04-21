@@ -23,27 +23,37 @@ public class AxiomStringLocalizerFactory(
     {
         ArgumentException.ThrowIfNullOrEmpty(resourceType.FullName);
 
+        if (LocalizerCache.TryGetValue(resourceType.FullName, out var localizer))
+        {
+            return localizer;
+        }
+
         var options = Options.Resources.FirstOrDefault(o => o.Resource == resourceType.FullName);
         if (options == null)
         {
             return LocalizerFactory.Create(resourceType);
         }
 
-        return LocalizerCache.GetOrAdd(
-            options.Resource,
-            _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options));
+        localizer = ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options);
+        LocalizerCache[resourceType.FullName] = localizer;
+        return localizer;
     }
 
     public virtual IStringLocalizer Create(string baseName, string location)
     {
+        if (LocalizerCache.TryGetValue(baseName, out var localizer))
+        {
+            return localizer;
+        }
+
         var options = Options.Resources.FirstOrDefault(o => o.Resource == baseName);
         if (options == null)
         {
             return LocalizerFactory.Create(baseName, location);
         }
 
-        return LocalizerCache.GetOrAdd(
-            options.Resource,
-            _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options));
+        localizer = ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options);
+        LocalizerCache[baseName] = localizer;
+        return localizer;
     }
 }
