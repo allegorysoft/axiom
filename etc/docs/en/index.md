@@ -1,11 +1,10 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: "Axiom Framework"
   text: "Open Source .NET Application Framework"
-  tagline: "Modular by design. Extensible by default. Clean architecture without the boilerplate."
+  tagline: "Modular by design. Extensible by default. Clean architecture with minimal setup."
   actions:
     - theme: brand
       text: Get Started →
@@ -13,16 +12,16 @@ hero:
 
 features:
   - icon: 🔍
-    title: Reflection-Based Dependency Injection
-    details: Automatically discover and register services by scanning assemblies. Use marker interfaces or attributes no manual wiring needed.
+    title: Convention Over Configuration
+    details: Services, modules, and integrations are discovered and wired automatically. Write your logic Axiom handles the plumbing.
 
   - icon: 🧩
-    title: Built-in Modularity & Plugin System
-    details: Compose your application from self-contained modules with ordered lifecycle hooks. Drop in plugin assemblies at runtime without recompiling.
+    title: Composable by Design
+    details: Build from self-contained modules with ordered lifecycle hooks. Extend at runtime via plugins without recompiling or modifying existing code.
 
   - icon: 🔗
-    title: Interception for Cross-Cutting Concerns
-    details: Apply logging, caching, transactions, and authorization transparently via a Castle DynamicProxy-backed AOP pipeline zero changes to your business logic.
+    title: Rich Infrastructure, Zero Lock-in
+    details: Interception, transaction management, file handling, localization, and more ready to use, optional to adopt, and designed to stay out of your business logic.
 ---
 
 ::: warning 🚧 Work in Progress
