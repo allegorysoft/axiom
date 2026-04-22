@@ -107,7 +107,7 @@ This package supplies `ManifestEmbeddedFileProvider` itself, and its build targe
 
 ```xml
 <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
 </ItemGroup>
 ```
 

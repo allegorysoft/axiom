@@ -14,6 +14,36 @@ dotnet add package Allegory.Axiom.Localization.Abstractions
 dotnet add package Allegory.Axiom.Localization
 ```
 
+The key terms to understand before diving in:
+
+| Concept | Description |
+|---|---|
+| **Resource** | A marker class (`MyAppResource`) that identifies a named set of translations. |
+| **Translation file** | A JSON file named after a culture code (e.g. `en.json`, `tr-TR.json`). |
+| **Default culture** | The fallback culture used when no translation exists for the current culture chain. |
+| **Path** | A virtual directory path resolved through the file provider. Multiple paths merge at the key level. |
+| **File provider** | The source of translation files. Configured separately via `FileProviderOptions`. |
+
+```csharp
+// 1. Register the file provider containing your translation files
+builder.Services.Configure<FileProviderOptions>(options =>
+{
+    options.AddEmbedded<MyAppPackage>();
+});
+
+// 2. Map your resource marker to a default culture and translation directory
+builder.Services.Configure<LocalizationOptions>(options =>
+{
+    options.Resources.Add<MyAppResource>(defaultCulture: "en", "/Resources/Localization");
+});
+
+// 3. Inject IStringLocalizer<T> and resolve strings
+public class OrderService(IStringLocalizer<MyAppResource> localizer) : ITransientService
+{
+    public string Greet(string name) => localizer["welcome", name].Value;
+}
+```
+
 ## Translation Files
 
 Translation files are JSON files named after a culture code, placed inside one or more registered directories.
@@ -179,7 +209,7 @@ var localizer = (IAxiomStringLocalizer) factory.Create(typeof(MyAppResource));
 localizer.Translations["en"]["dynamic-key"] = "Dynamic value";
 ```
 
-All instances backed by the same resource share the same `Translations` dictionary a change in one is visible in all.
+All instances backed by the same resource share the same `Translations` dictionary a change in one is visible in all. Changes are in-memory only and not persisted.
 
 ## Embedded Resources Setup
 
@@ -191,7 +221,7 @@ When serving translation files from embedded resources, configure your `.csproj`
 </PropertyGroup>
 
 <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" />
 </ItemGroup>
 
 <ItemGroup>
@@ -211,5 +241,5 @@ builder.Services.Configure<FileProviderOptions>(options =>
 See [File Providers](./file-providers) for full provider configuration options.
 
 ::: warning
-Be careful with file provider ordering. If any registered file provider (embedded, physical, or custom) has files from the same path as your localization directories, it will **completely replace** those translation files rather than merge with them. This is different from passing multiple paths to `options.Resources.Add`, which merges translations at the key level. To safely compose translations from multiple sources, use [multiple localization paths](#multiple-directories) instead of multiple file providers pointing at the same directory.
+Be careful with file provider ordering. If any registered file provider (embedded, physical, or custom) has files from the same path as your localization directories, it will **completely replace** those files rather than merge with them. This is different from passing multiple paths to `options.Resources.Add`, which merges translations at the key level. To safely compose translations from multiple sources, use [multiple localization paths](#multiple-directories) instead of multiple file providers pointing at the same directory.
 :::
