@@ -1,8 +1,4 @@
-﻿using System.Threading.Tasks;
-using Allegory.Axiom.FileProviders;
-using Allegory.Axiom.Localization.Resources;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using Allegory.Axiom.Localization.Resources;
 using Microsoft.Extensions.Localization;
 using Shouldly;
 using Xunit;
@@ -12,24 +8,6 @@ namespace Allegory.Axiom.Localization;
 public class AxiomStringLocalizerFactoryTests : HostedIntegrationTestBase
 {
     protected IStringLocalizerFactory LocalizerFactory => Service<IStringLocalizerFactory>();
-
-    protected override ValueTask ConfigureAsync(IHostApplicationBuilder builder)
-    {
-        builder.Services.Configure<FileProviderOptions>(options =>
-        {
-            options.AddEmbedded<AxiomStringLocalizerFactoryTests>();
-        });
-
-        builder.Services.Configure<LocalizationOptions>(options =>
-        {
-            options.Resources.Add<AxiomLocalizationResource>(
-                "en",
-                "/Allegory/Axiom/Localization/Resources/Directory-1",
-                "/Allegory/Axiom/Localization/Resources/Directory-2");
-        });
-
-        return ValueTask.CompletedTask;
-    }
 
     [Fact]
     public void ShouldCreateStringLocalizerForRegisteredResourceType()
@@ -92,7 +70,7 @@ public class AxiomStringLocalizerFactoryTests : HostedIntegrationTestBase
     [Fact]
     public void ShouldCacheLocalizerCreatedByResourceType()
     {
-        var factory = (AxiomStringLocalizerFactory)LocalizerFactory;
+        var factory = (AxiomStringLocalizerFactory) LocalizerFactory;
 
         LocalizerFactory.Create(typeof(AxiomLocalizationResource));
 
@@ -102,7 +80,7 @@ public class AxiomStringLocalizerFactoryTests : HostedIntegrationTestBase
     [Fact]
     public void ShouldCacheLocalizerCreatedByResourceName()
     {
-        var factory = (AxiomStringLocalizerFactory)LocalizerFactory;
+        var factory = (AxiomStringLocalizerFactory) LocalizerFactory;
         var resourceName = typeof(AxiomLocalizationResource).FullName!;
 
         LocalizerFactory.Create(resourceName, string.Empty);

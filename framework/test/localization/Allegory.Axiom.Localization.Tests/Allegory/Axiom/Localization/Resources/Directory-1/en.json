@@ -1,4 +1,5 @@
 {
   "txt1": "txt1 - en.json",
-  "txt2": "txt2 - en.json"
+  "txt2": "txt2 - en.json",
+  "txt-formatted": "{0}, formatted"
 }
