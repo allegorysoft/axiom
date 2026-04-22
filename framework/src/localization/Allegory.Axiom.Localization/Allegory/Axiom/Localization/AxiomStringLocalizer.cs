@@ -112,7 +112,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
             {
                 return current.Equals(Options.DefaultCulture)
                     ? null
-                    : Translations[Options.DefaultCulture.Name].GetValueOrDefault(name);
+                    : Translations.GetValueOrDefault(Options.DefaultCulture.Name)?.GetValueOrDefault(name) ?? null;
             }
 
             current = current.Parent;

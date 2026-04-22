@@ -34,9 +34,9 @@ public class AxiomStringLocalizerFactory(
             return LocalizerFactory.Create(resourceType);
         }
 
-        localizer = ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options);
-        LocalizerCache[resourceType.FullName] = localizer;
-        return localizer;
+        return LocalizerCache.GetOrAdd(
+            resourceType.FullName,
+            _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options));
     }
 
     public virtual IStringLocalizer Create(string baseName, string location)
@@ -52,8 +52,8 @@ public class AxiomStringLocalizerFactory(
             return LocalizerFactory.Create(baseName, location);
         }
 
-        localizer = ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options);
-        LocalizerCache[baseName] = localizer;
-        return localizer;
+        return LocalizerCache.GetOrAdd(
+            baseName,
+            _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options));
     }
 }
