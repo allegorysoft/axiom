@@ -32,6 +32,7 @@
     <Project Path="test/interception/Allegory.Axiom.Interception.Castle.Core.Tests/Allegory.Axiom.Interception.Castle.Core.Tests.csproj" />
   </Folder>
   <Folder Name="/test/localization/">
+    <Project Path="test/localization/Allegory.Axiom.Localization.Abstractions.Tests/Allegory.Axiom.Localization.Abstractions.Tests.csproj" />
     <Project Path="test/localization/Allegory.Axiom.Localization.Tests/Allegory.Axiom.Localization.Tests.csproj" />
   </Folder>
   <Folder Name="/test/modularity/">
