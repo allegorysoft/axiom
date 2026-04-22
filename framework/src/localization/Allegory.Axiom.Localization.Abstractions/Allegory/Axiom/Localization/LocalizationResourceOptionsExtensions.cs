@@ -8,6 +8,16 @@ public static class LocalizationResourceOptionsExtensions
 {
     extension(ICollection<LocalizationResourceOptions> options)
     {
+        public LocalizationResourceOptions Get<T>()
+        {
+            return options.First(o => o.Name == typeof(T).FullName);
+        }
+
+        public LocalizationResourceOptions Get(string name)
+        {
+            return options.First(o => o.Name == name);
+        }
+
         public void Add<T>(string defaultCulture, params IEnumerable<string> paths)
         {
             var resource = typeof(T).FullName;

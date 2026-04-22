@@ -6,6 +6,8 @@ namespace Allegory.Axiom.Localization;
 
 public class LocalizationResourceOptions
 {
+    private readonly List<string> _paths;
+
     internal LocalizationResourceOptions(
         string name,
         string defaultCulture,
@@ -13,12 +15,14 @@ public class LocalizationResourceOptions
     {
         Name = name;
         DefaultCulture = new CultureInfo(defaultCulture);
-        Paths = paths.ToArray();
+        _paths = paths.ToList();
     }
 
     public string Name { get; }
     public CultureInfo DefaultCulture { get; }
-    public string[] Paths { get; }
+    public IReadOnlyList<string> Paths => _paths;
+
+    public void AddPaths(params IEnumerable<string> paths) => _paths.AddRange(paths);
 
     public override int GetHashCode()
     {
