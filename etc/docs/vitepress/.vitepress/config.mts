@@ -1,6 +1,5 @@
 import { defineConfig } from 'vitepress'
 
-// https://vitepress.dev/reference/site-config
 export default defineConfig({
   srcDir: "../en",
   lastUpdated: true,
@@ -11,8 +10,10 @@ export default defineConfig({
 
   title: "Axiom Documentation",
   description: "A modular, extensible .NET application framework",
+  head: [
+    ['link', {  rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' }]
+  ],
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Documentation', link: '/get-started/overview' }

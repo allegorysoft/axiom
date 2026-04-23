@@ -27,3 +27,11 @@
   border-color: rgba(92, 115, 231, 0.4) !important;
   transform: translateY(-2px);
 }
+
+.VPHero .image-container {
+  transform: scale(1.5) translateY(-20px);
+}
+
+.VPHero .VPImage {
+  filter: drop-shadow(0 0 50px rgba(99, 102, 241, 0.35));
+}

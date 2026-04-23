@@ -5,6 +5,8 @@ hero:
   name: "Axiom Framework"
   text: "Open Source .NET Application Framework"
   tagline: "Modular by design. Extensible by default. Clean architecture with minimal setup."
+  image:
+    src: /logo.png
   actions:
     - theme: brand
       text: Get Started →
