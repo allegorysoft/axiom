@@ -7,14 +7,14 @@
         <RepositoryUrl>https://github.com/allegorysoft/axiom</RepositoryUrl>
         <Authors>Allegorysoft</Authors>
         <Version>0.1.6</Version>
-        <PackageIcon>allegory-icon.png</PackageIcon>
+        <PackageIcon>axiom-logo.png</PackageIcon>
         <PackageProjectUrl>https://axiomframework.dev</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\allegory-icon.png" Pack="true" Visible="false" PackagePath="\"/>
+        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\axiom-logo.png" Pack="true" Visible="false" PackagePath="\"/>
     </ItemGroup>
 
     <PropertyGroup>
