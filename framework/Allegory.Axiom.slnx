@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/core/">
+    <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
     <Project Path="src/core/Allegory.Axiom.FileProviders/Allegory.Axiom.FileProviders.csproj" />
     <Project Path="src/core/Allegory.Axiom.Filter/Allegory.Axiom.Filter.csproj" />
     <Project Path="src/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
@@ -17,6 +18,10 @@
   <Folder Name="/src/modularity/">
     <Project Path="src/modularity/Allegory.Axiom.DependencyInjection.Abstractions/Allegory.Axiom.DependencyInjection.Abstractions.csproj" />
     <Project Path="src/modularity/Allegory.Axiom.Hosting.Abstractions/Allegory.Axiom.Hosting.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/src/multi-tenancy/">
+    <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.Abstractions/Allegory.Axiom.MultiTenancy.Abstractions.csproj" />
+    <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy/Allegory.Axiom.MultiTenancy.csproj" />
   </Folder>
   <Folder Name="/src/unit-of-work/">
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
