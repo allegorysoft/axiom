@@ -29,6 +29,7 @@
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/core/">
+    <Project Path="test/core/Allegory.Axiom.Core.Tests/Allegory.Axiom.Core.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.FileProviders.Tests/Allegory.Axiom.FileProviders.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
   </Folder>
@@ -44,6 +45,7 @@
     <Project Path="test/modularity/Allegory.Axiom.DependencyInjection.Abstractions.Tests/Allegory.Axiom.DependencyInjection.Abstractions.Tests.csproj" />
     <Project Path="test/modularity/Allegory.Axiom.Hosting.Abstractions.Tests/Allegory.Axiom.Hosting.Abstractions.Tests.csproj" />
   </Folder>
+  <Folder Name="/test/multi-tenancy/" />
   <Folder Name="/test/playground/">
     <Project Path="test/playground/Allegory.Axiom.Assembly1/Allegory.Axiom.Assembly1.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly2/Allegory.Axiom.Assembly2.csproj" />
