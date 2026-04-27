@@ -9,4 +9,8 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\..\core\Allegory.Axiom.Core\Allegory.Axiom.Core.csproj"/>
+    </ItemGroup>
+
 </Project>

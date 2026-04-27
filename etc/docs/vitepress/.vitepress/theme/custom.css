@@ -28,8 +28,11 @@
   transform: translateY(-2px);
 }
 
-.VPHero .image-container {
-  transform: scale(1.5) translateY(-20px);
+@media (min-width: 960px) {
+  .VPHero .image-container img {
+    width: 380px !important;
+    height: auto !important;
+  }
 }
 
 .VPHero .VPImage {
