@@ -26,7 +26,7 @@ internal sealed class ChildUnitOfWork(IUnitOfWork parent) : IUnitOfWork
 
     public void Dispose()
     {
-        UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
+        UnitOfWorkManager.CurrentUnitOfWork.Value?.Context = Parent;
     }
 
     public ValueTask DisposeAsync()
