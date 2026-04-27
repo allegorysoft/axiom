@@ -93,7 +93,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
         }
 
         Activity?.Dispose();
-        UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
+        UnitOfWorkManager.CurrentUnitOfWork.Value?.Context = Parent;
     }
 
     public async ValueTask DisposeAsync()
@@ -130,6 +130,6 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
         }
 
         Activity?.Dispose();
-        UnitOfWorkManager.CurrentUnitOfWork.Value = Parent;
+        UnitOfWorkManager.CurrentUnitOfWork.Value?.Context = Parent;
     }
 }

@@ -1,21 +1,30 @@
 ﻿using System.Diagnostics;
 using System.Threading;
+using Allegory.Axiom.Threading;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWorkManager
 {
-    internal static readonly AsyncLocal<IUnitOfWork?> CurrentUnitOfWork = new();
+    protected internal static readonly AsyncLocal<AsyncLocalContext<IUnitOfWork>?> CurrentUnitOfWork = new();
     private static readonly ActivitySource ActivitySource = new("Allegory.Axiom.UnitOfWork");
 
-    public virtual IUnitOfWork? Current => CurrentUnitOfWork.Value;
+    public virtual IUnitOfWork? Current => CurrentUnitOfWork.Value?.Context;
     protected virtual UnitOfWorkOptions Options { get; } = options.Value;
 
     public virtual IUnitOfWork Begin(UnitOfWorkOptions? options = null)
     {
         var unitOfWork = CreateUnitOfWork(GetUnitOfWorkOptions(options));
-        CurrentUnitOfWork.Value = unitOfWork;
+
+        if (CurrentUnitOfWork.Value == null)
+        {
+            CurrentUnitOfWork.Value = new AsyncLocalContext<IUnitOfWork>(unitOfWork);
+        }
+        else
+        {
+            CurrentUnitOfWork.Value.Context = unitOfWork;
+        }
 
         return unitOfWork;
     }
