@@ -69,6 +69,23 @@ public class UnitOfWorkManagerTests : HostedIntegrationTestBase
     }
 
     [Fact]
+    public async Task ShouldRestoreParentUnitOfWorkAfterSubUnitOfWorkAsyncDisposed()
+    {
+        await using (var root = Manager.Begin())
+        {
+            Manager.Current.ShouldBe(root);
+
+            await using (var child = Manager.Begin(new UnitOfWorkOptions(
+                             transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+            {
+                Manager.Current.ShouldBe(child);
+            }
+
+            Manager.Current.ShouldBe(root);
+        }
+    }
+
+    [Fact]
     public void ShouldUseParentPropertiesWhenUnitOfWorkIsChild()
     {
         using (var root = Manager.Begin())
