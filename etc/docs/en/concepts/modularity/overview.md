@@ -22,22 +22,22 @@ You do not register packages anywhere. Having one in an assembly that is part of
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication, IPostConfigureApplication, IInitializeApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton<IMyService, MyService>();
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public static ValueTask PostConfigureAsync(IHostApplicationBuilder builder)
+    public static Task PostConfigureAsync(IHostApplicationBuilder builder)
     {
         // Runs after all ConfigureAsync calls have completed across all assemblies
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public static ValueTask InitializeAsync(IHost host)
+    public static Task InitializeAsync(IHost host)
     {
         // Runs after the host is built
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```
@@ -59,13 +59,13 @@ public class OrderService : IOrderService, ITransientService { }
 // A package class is needed for things like options configuration
 internal sealed class MyLibraryPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<MyLibraryOptions>(
             builder.Configuration.GetSection("MyLibrary"));
 
         builder.Services.AddHostedService<MyBackgroundWorker>();
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```
@@ -85,11 +85,11 @@ internal sealed class MyLibraryPackage : IConfigureApplication
 ```csharp
 internal sealed class MyAppPackage : IPostConfigureApplication
 {
-    public static ValueTask PostConfigureAsync(IHostApplicationBuilder builder)
+    public static Task PostConfigureAsync(IHostApplicationBuilder builder)
     {
         // Safe to replace here, all assemblies have already run ConfigureAsync
         builder.Services.Replace<IOrderService, ReplacedOrderManager>();
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```
@@ -99,7 +99,7 @@ internal sealed class MyAppPackage : IPostConfigureApplication
 ```csharp
 internal sealed class MyAppPackage : IInitializeApplication
 {
-    public static async ValueTask InitializeAsync(IHost host)
+    public static async Task InitializeAsync(IHost host)
     {
         var seeder = host.Services.GetRequiredService<IDatabaseSeeder>();
         await seeder.SeedAsync();

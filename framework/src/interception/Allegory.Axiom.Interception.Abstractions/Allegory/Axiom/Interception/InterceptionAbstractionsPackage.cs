@@ -7,9 +7,9 @@ namespace Allegory.Axiom.Interception;
 
 internal sealed class InterceptionAbstractionsPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddPostConfigureAction(ServiceInterceptorBinder.Apply);
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }

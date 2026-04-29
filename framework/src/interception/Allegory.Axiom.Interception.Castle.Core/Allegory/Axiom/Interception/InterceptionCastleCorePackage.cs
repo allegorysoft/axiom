@@ -9,10 +9,10 @@ namespace Allegory.Axiom.Interception;
 
 internal sealed class InterceptionCastleCorePackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddPostConfigureAction(RegisterCastleAdaptersByInterceptorLifetime);
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
     private static void RegisterCastleAdaptersByInterceptorLifetime(IServiceCollection serviceCollection)

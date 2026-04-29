@@ -10,11 +10,11 @@ namespace Allegory.Axiom.UnitOfWork;
 
 internal sealed class UnitOfWorkPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddInterceptor<UnitOfWorkInterceptor>(AddUnitOfWorkInterceptor);
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
     private static bool AddUnitOfWorkInterceptor(Type type)

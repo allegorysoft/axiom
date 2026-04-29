@@ -23,9 +23,9 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         ServiceProvider = services.BuildServiceProvider();
     }
 
-    protected virtual ValueTask ConfigureAsync(
+    protected virtual Task ConfigureAsync(
         IServiceCollection services,
-        AssemblyDependencyRegistrar registrar) => ValueTask.CompletedTask;
+        AssemblyDependencyRegistrar registrar) => Task.CompletedTask;
 
     protected T Service<T>() where T : notnull
     {

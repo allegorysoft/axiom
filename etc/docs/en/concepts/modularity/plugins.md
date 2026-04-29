@@ -141,11 +141,11 @@ public class CommandManager : ISingletonService
 ```csharp [MyAppPackage.cs]
 internal sealed class MyAppPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         // CommandManager is registered automatically via ISingletonService,
         // but you can do additional setup here if needed.
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```
@@ -169,11 +169,11 @@ public class HelloCommand : ICommand
 ```csharp [MyPluginPackage.cs]
 internal sealed class MyPluginPackage : IInitializeApplication
 {
-    public static ValueTask InitializeAsync(IHost host)
+    public static Task InitializeAsync(IHost host)
     {
         var manager = host.Services.GetRequiredService<CommandManager>();
         manager.Register(new HelloCommand());
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```

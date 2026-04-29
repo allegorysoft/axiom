@@ -80,7 +80,7 @@ Register interceptors via `services.AddInterceptor<T>(predicate)` in your [appli
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         // Intercept all services that implement IOrderService
         builder.Services.AddInterceptor<LoggingInterceptor>(
@@ -92,7 +92,7 @@ internal sealed class MyAppPackage : IConfigureApplication
         builder.Services.AddInterceptor<CachingInterceptor>(
             t => t == typeof(ProductRepository));
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```
@@ -232,13 +232,13 @@ The predicate checks whether the implementation type itself or any of its method
 ```csharp [MyAppPackage.cs]
 internal sealed class MyAppPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddInterceptor<LoggingInterceptor>(t =>
             t.IsDefined(typeof(LoggingAttribute), inherit: true) ||
             t.GetMethods().Any(m => m.IsDefined(typeof(LoggingAttribute), inherit: true)));
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```

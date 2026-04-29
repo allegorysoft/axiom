@@ -8,11 +8,11 @@ namespace Allegory.Axiom.Localization;
 
 internal sealed class LocalizationPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
         builder.Services.AddSingleton<ResourceManagerStringLocalizerFactory>();
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }

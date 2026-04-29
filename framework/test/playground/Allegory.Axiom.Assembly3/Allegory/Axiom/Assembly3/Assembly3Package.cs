@@ -6,5 +6,5 @@ namespace Allegory.Axiom.Assembly3;
 
 public class Assembly3Package : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder) => ValueTask.CompletedTask;
+    public static Task ConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
 }

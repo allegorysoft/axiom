@@ -13,8 +13,7 @@ public class FileProviderManagerTests : IntegrationTestBase
 {
     protected FileProviderManager Manager => Service<FileProviderManager>();
 
-    protected override ValueTask ConfigureAsync(
-        IServiceCollection services,
+    protected override Task ConfigureAsync(IServiceCollection services,
         AssemblyDependencyRegistrar registrar)
     {
         registrar.Register(typeof(FileProviderManager).Assembly);
@@ -25,7 +24,7 @@ public class FileProviderManagerTests : IntegrationTestBase
             o.AddPhysical(AppContext.BaseDirectory);
         });
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
     [Fact]

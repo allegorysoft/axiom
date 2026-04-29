@@ -87,12 +87,12 @@ using Microsoft.Extensions.Hosting;
 
 namespace MyAxiomApp;
 
-public class MyAxiomAppPackage : IConfigureApplication
+internal sealed class MyAxiomAppPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddHostedService<WorkerService>();
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```
