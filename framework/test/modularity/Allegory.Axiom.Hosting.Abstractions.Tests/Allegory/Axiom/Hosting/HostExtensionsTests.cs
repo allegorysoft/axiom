@@ -17,7 +17,7 @@ public class HostExtensionsTests
     protected HostApplicationBuilder Builder { get; } = Host.CreateApplicationBuilder();
 
     [Fact]
-    public async ValueTask ShouldConfigureApplication()
+    public async Task ShouldConfigureApplication()
     {
         var postConfigureAction = false;
         Builder.Services.AddPostConfigureAction(_ => postConfigureAction = true);
@@ -31,7 +31,7 @@ public class HostExtensionsTests
     }
 
     [Fact]
-    public async ValueTask ShouldInitializeApplication()
+    public async Task ShouldInitializeApplication()
     {
         await Builder.ConfigureApplicationAsync();
         var host = Builder.Build();
@@ -41,7 +41,7 @@ public class HostExtensionsTests
     }
 
     [Fact]
-    public async ValueTask ShouldSetEntryAssemblyWhenStartupAssemblyIsNull()
+    public async Task ShouldSetEntryAssemblyWhenStartupAssemblyIsNull()
     {
         var application = await Builder.ConfigureApplicationAsync();
 
@@ -49,7 +49,7 @@ public class HostExtensionsTests
     }
 
     [Fact]
-    public async ValueTask ShouldOverrideDependencyRegistrar()
+    public async Task ShouldOverrideDependencyRegistrar()
     {
         await Builder.ConfigureApplicationAsync(o => o.DependencyRegistrar = new CustomDependencyRegistrar(Builder.Services));
 
@@ -57,7 +57,7 @@ public class HostExtensionsTests
     }
 
     [Fact]
-    public async ValueTask ShouldOverrideApplicationBuilder()
+    public async Task ShouldOverrideApplicationBuilder()
     {
         var application = await Builder.ConfigureApplicationAsync(o => o.ApplicationBuilder = new CustomApplicationBuilder());
 
@@ -66,7 +66,7 @@ public class HostExtensionsTests
     }
 
     [Fact]
-    public async ValueTask ShouldPassPluginsToBuilder()
+    public async Task ShouldPassPluginsToBuilder()
     {
         var assembly = typeof(Assembly1.Assembly1Package).Assembly;
         var application = await Builder.ConfigureApplicationAsync(o =>
@@ -100,8 +100,8 @@ internal class SomeClassRegisterMe {}
 
 file class CustomApplicationBuilder : AxiomApplicationBuilder
 {
-    protected override ValueTask<AxiomApplication> BuildAsync()
+    protected override Task<AxiomApplication> BuildAsync()
     {
-        return ValueTask.FromResult(new AxiomApplication(Guid.Empty, Context.StartupAssembly, []));
+        return Task.FromResult(new AxiomApplication(Guid.Empty, Context.StartupAssembly, []));
     }
 }

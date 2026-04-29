@@ -9,7 +9,7 @@ namespace Allegory.Axiom.Localization;
 
 internal sealed class LocalizationTestsPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<FileProviderOptions>(options =>
         {
@@ -19,11 +19,14 @@ internal sealed class LocalizationTestsPackage : IConfigureApplication
         builder.Services.Configure<LocalizationOptions>(options =>
         {
             options.Resources.Add<AxiomLocalizationResource>(
-                "en",
-                "/Allegory/Axiom/Localization/Resources/Directory-1",
-                "/Allegory/Axiom/Localization/Resources/Directory-2");
+                defaultCulture: "en",
+                paths:
+                [
+                    "/Allegory/Axiom/Localization/Resources/Directory-1",
+                    "/Allegory/Axiom/Localization/Resources/Directory-2"
+                ]);
         });
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }

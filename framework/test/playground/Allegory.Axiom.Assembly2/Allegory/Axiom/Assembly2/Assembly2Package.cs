@@ -11,9 +11,9 @@ namespace Allegory.Axiom.Assembly2;
 
 public class Assembly2Package : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         Console.WriteLine("Assembly2Package configure executed");
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }

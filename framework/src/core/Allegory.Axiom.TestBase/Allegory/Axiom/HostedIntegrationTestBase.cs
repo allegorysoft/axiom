@@ -17,11 +17,11 @@ public abstract class HostedIntegrationTestBase : IAsyncLifetime
 
     public virtual async ValueTask InitializeAsync()
     {
-        Host = await CreateHostAsync(ConfigureAsync);
+        Host = await CreateHostAsync((Func<IHostApplicationBuilder, Task>?) ConfigureAsync);
     }
 
-    protected virtual async ValueTask<IHost> CreateHostAsync(
-        Func<IHostApplicationBuilder, ValueTask>? configureAsync = null)
+    protected virtual async Task<IHost> CreateHostAsync(
+        Func<IHostApplicationBuilder, Task>? configureAsync = null)
     {
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
         if (configureAsync != null)
@@ -37,7 +37,7 @@ public abstract class HostedIntegrationTestBase : IAsyncLifetime
         return host;
     }
 
-    protected virtual async ValueTask<IHost> CreateHostAsync(
+    protected virtual async Task<IHost> CreateHostAsync(
         Action<IHostApplicationBuilder>? configure = null)
     {
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder();
@@ -51,19 +51,19 @@ public abstract class HostedIntegrationTestBase : IAsyncLifetime
         return host;
     }
 
-    protected virtual async ValueTask<IServiceProvider> CreateServiceProviderAsync(
-        Func<IHostApplicationBuilder, ValueTask>? configureAsync = null)
+    protected virtual async Task<IServiceProvider> CreateServiceProviderAsync(
+        Func<IHostApplicationBuilder, Task>? configureAsync = null)
     {
-        return (await CreateHostAsync(configureAsync)).Services;
+        return (await CreateHostAsync((Func<IHostApplicationBuilder, Task>?) configureAsync)).Services;
     }
 
-    protected virtual async ValueTask<IServiceProvider> CreateServiceProviderAsync(
+    protected virtual async Task<IServiceProvider> CreateServiceProviderAsync(
         Action<IHostApplicationBuilder>? configure = null)
     {
         return (await CreateHostAsync(configure)).Services;
     }
 
-    protected virtual ValueTask ConfigureAsync(IHostApplicationBuilder builder) => ValueTask.CompletedTask;
+    protected virtual Task ConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
 
     protected T Service<T>() where T : notnull
     {

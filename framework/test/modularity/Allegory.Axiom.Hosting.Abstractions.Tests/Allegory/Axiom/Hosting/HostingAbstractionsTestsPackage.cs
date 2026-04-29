@@ -10,21 +10,21 @@ internal sealed class HostingAbstractionsTestsPackage :
 {
     public static bool ConfigureApplication, PostConfigureApplication, InitializeApplication;
 
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         ConfigureApplication = true;
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public static ValueTask PostConfigureAsync(IHostApplicationBuilder builder)
+    public static Task PostConfigureAsync(IHostApplicationBuilder builder)
     {
         PostConfigureApplication = true;
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
-    public static ValueTask InitializeAsync(IHost host)
+    public static Task InitializeAsync(IHost host)
     {
         InitializeApplication = true;
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }

@@ -5,5 +5,5 @@ namespace Allegory.Axiom.Hosting;
 
 public interface IConfigureApplication
 {
-    static abstract ValueTask ConfigureAsync(IHostApplicationBuilder builder);
+    static abstract Task ConfigureAsync(IHostApplicationBuilder builder);
 }

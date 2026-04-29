@@ -45,7 +45,7 @@ Configure providers through the options pattern in your [application package](./
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<FileProviderOptions>(options =>
         {
@@ -54,7 +54,7 @@ internal sealed class MyAppPackage : IConfigureApplication
             options.AddPhysical(AppContext.BaseDirectory);
         });
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```

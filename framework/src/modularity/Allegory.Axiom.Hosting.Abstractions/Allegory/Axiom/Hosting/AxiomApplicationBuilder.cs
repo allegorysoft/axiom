@@ -14,7 +14,7 @@ public class AxiomApplicationBuilder
 {
     protected AxiomApplicationBuilderContext Context { get; set; } = null!;
 
-    public virtual async ValueTask<AxiomApplication> BuildAsync(
+    public virtual async Task<AxiomApplication> BuildAsync(
         AxiomApplicationBuilderContext context)
     {
         Context = context;
@@ -23,7 +23,7 @@ public class AxiomApplicationBuilder
         return application;
     }
 
-    protected virtual async ValueTask<AxiomApplication> BuildAsync()
+    protected virtual async Task<AxiomApplication> BuildAsync()
     {
         var assemblies = GetDependencies().ToList();
         assemblies.AddRange(GetPlugins());
@@ -113,7 +113,7 @@ public class AxiomApplicationBuilder
         return plugins;
     }
 
-    protected virtual async ValueTask ConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
+    protected virtual async Task ConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
     {
         foreach (var assembly in assemblies)
         {
@@ -126,12 +126,12 @@ public class AxiomApplicationBuilder
 
             if (configureMethod != null)
             {
-                await (ValueTask) configureMethod.Invoke(null, [Context.Builder])!;
+                await (Task) configureMethod.Invoke(null, [Context.Builder])!;
             }
         }
     }
 
-    protected virtual async ValueTask PostConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
+    protected virtual async Task PostConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
     {
         foreach (var assembly in assemblies)
         {
@@ -142,7 +142,7 @@ public class AxiomApplicationBuilder
 
             if (configureMethod != null)
             {
-                await (ValueTask) configureMethod.Invoke(null, [Context.Builder])!;
+                await (Task) configureMethod.Invoke(null, [Context.Builder])!;
             }
         }
     }

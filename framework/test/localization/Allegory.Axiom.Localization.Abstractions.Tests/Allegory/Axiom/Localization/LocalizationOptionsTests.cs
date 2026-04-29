@@ -13,7 +13,9 @@ public class LocalizationOptionsTests
     {
         var options = new LocalizationOptions();
 
-        options.Resources.Add<LocalizationOptionsTests>("en", "/i18n");
+        options.Resources.Add<LocalizationOptionsTests>(
+            defaultCulture: "en",
+            paths: ["/i18n"]);
 
         options.Resources.ShouldHaveSingleItem();
         options.Resources.First().Name.ShouldBe(typeof(LocalizationOptionsTests).FullName);
@@ -26,7 +28,9 @@ public class LocalizationOptionsTests
     {
         var options = new LocalizationOptions();
 
-        options.Resources.Add("MyApp.Resources.Messages", "en", "/i18n/messages");
+        options.Resources.Add("MyApp.Resources.Messages",
+            defaultCulture: "en",
+            paths: ["/i18n/messages"]);
 
         options.Resources.ShouldHaveSingleItem();
         options.Resources.First().Name.ShouldBe("MyApp.Resources.Messages");

@@ -12,8 +12,6 @@ namespace Allegory.Axiom.Interception;
 
 public class ProxyGeneratorCastleAdapterTests : HostedIntegrationTestBase
 {
-    public override ValueTask InitializeAsync() => ValueTask.CompletedTask;
-
     [Fact]
     public async Task ShouldCreateProxyWhenServiceTypeIsInterface()
     {

@@ -75,7 +75,7 @@ Resources are registered through `LocalizationOptions` in your [application pack
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         // Register embedded file provider that contains your translation files
         builder.Services.Configure<FileProviderOptions>(options =>
@@ -91,7 +91,7 @@ internal sealed class MyAppPackage : IConfigureApplication
                 paths: "/Resources/Localization");
         });
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }
 ```

@@ -12,7 +12,7 @@ public static class HostExtensions
 {
     extension(IHostApplicationBuilder builder)
     {
-        public ValueTask<AxiomApplication> ConfigureApplicationAsync(
+        public Task<AxiomApplication> ConfigureApplicationAsync(
             Action<AxiomApplicationOptions>? optionsAction = null)
         {
             var options = new AxiomApplicationOptions();
@@ -34,7 +34,7 @@ public static class HostExtensions
 
     extension(IHost host)
     {
-        public async ValueTask InitializeApplicationAsync()
+        public async Task InitializeApplicationAsync()
         {
             //TODO: Add concurrent parameter
 
@@ -49,7 +49,7 @@ public static class HostExtensions
 
                 if (configureMethod != null)
                 {
-                    await (ValueTask) configureMethod.Invoke(null, [host])!;
+                    await (Task) configureMethod.Invoke(null, [host])!;
                 }
             }
         }

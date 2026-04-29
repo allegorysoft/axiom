@@ -5,16 +5,11 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Assembly1;
 
-public class Assembly1Package : IConfigureApplication, IPostConfigureApplication
+public class Assembly1Package : IConfigureApplication
 {
-    public static ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         Console.WriteLine("Assembly1Package configure executed");
-        return ValueTask.CompletedTask;
-    }
-
-    public static ValueTask PostConfigureAsync(IHostApplicationBuilder builder)
-    {
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 }

@@ -16,7 +16,7 @@ public class AxiomApplicationBuilderTests
     protected AxiomApplicationBuilder ApplicationBuilder { get; } = new();
 
     [Fact]
-    public async ValueTask ShouldBuildApplication()
+    public async Task ShouldBuildApplication()
     {
         var application = await ApplicationBuilder.BuildAsync(
             new AxiomApplicationBuilderContext(
@@ -31,7 +31,7 @@ public class AxiomApplicationBuilderTests
     }
 
     [Fact]
-    public async ValueTask ShouldInvokeConfigureMethods()
+    public async Task ShouldInvokeConfigureMethods()
     {
         var postConfigureAction = false;
         Builder.Services.AddPostConfigureAction(_ => postConfigureAction = true);
@@ -49,7 +49,7 @@ public class AxiomApplicationBuilderTests
     }
 
     [Fact]
-    public async ValueTask ShouldDiscoverDependenciesAndRegisterServices()
+    public async Task ShouldDiscoverDependenciesAndRegisterServices()
     {
         var application = await ApplicationBuilder.BuildAsync(
             new AxiomApplicationBuilderContext(
@@ -67,7 +67,7 @@ public class AxiomApplicationBuilderTests
     }
 
     [Fact]
-    public async ValueTask ShouldLoadPlugins()
+    public async Task ShouldLoadPlugins()
     {
         var assembly = typeof(Assembly1.Assembly1Package).Assembly;
 

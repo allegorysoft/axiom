@@ -13,14 +13,14 @@ public class UnitOfWorkManagerTests : HostedIntegrationTestBase
 {
     protected IUnitOfWorkManager Manager => Service<IUnitOfWorkManager>();
 
-    protected override ValueTask ConfigureAsync(IHostApplicationBuilder builder)
+    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<UnitOfWorkOptions>(options =>
         {
             options.Timeout = TimeSpan.FromSeconds(30);
         });
 
-        return ValueTask.CompletedTask;
+        return Task.CompletedTask;
     }
 
     [Fact]
