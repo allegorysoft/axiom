@@ -12,6 +12,7 @@ internal sealed class InterceptionCastleCorePackage : IConfigureApplication
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddPostConfigureAction(RegisterCastleAdaptersByInterceptorLifetime);
+
         return Task.CompletedTask;
     }
 

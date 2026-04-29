@@ -10,6 +10,7 @@ internal sealed class InterceptionAbstractionsPackage : IConfigureApplication
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddPostConfigureAction(ServiceInterceptorBinder.Apply);
+
         return Task.CompletedTask;
     }
 }
