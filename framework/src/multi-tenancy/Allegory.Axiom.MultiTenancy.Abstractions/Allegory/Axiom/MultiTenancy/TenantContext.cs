@@ -9,5 +9,5 @@ public class TenantContext(Guid id, string name, string normalizedName) : IReadO
     public Guid Id { get; } = id;
     public string Name { get; } = name;
     public string NormalizedName { get; } = normalizedName;
-    public IReadOnlyDictionary<string, object?> ExtraProperties { get; } = new Dictionary<string, object?>();
+    public IReadOnlyDictionary<string, object?> ExtraProperties { get; init; } = new Dictionary<string, object?>();
 }

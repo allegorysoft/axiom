@@ -1,7 +1,5 @@
 using System;
-using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.Disposables;
 
 namespace Allegory.Axiom.MultiTenancy;
 

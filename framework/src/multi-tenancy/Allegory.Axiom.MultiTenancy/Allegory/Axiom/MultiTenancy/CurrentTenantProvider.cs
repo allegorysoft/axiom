@@ -5,49 +5,51 @@ using System.Threading.Tasks;
 namespace Allegory.Axiom.MultiTenancy;
 
 public class CurrentTenantProvider(
-    IEnumerable<ICurrentTenantResolver> resolvers,
+    IEnumerable<ICurrentTenantIdentifierProvider> providers,
     ITenantStore store,
-    ITenantNormalizer normalizer,
     ICurrentTenantChecker checker)
     : ICurrentTenantProvider
 {
-    protected IEnumerable<ICurrentTenantResolver> Resolvers { get; } = resolvers;
+    protected IEnumerable<ICurrentTenantIdentifierProvider> Providers { get; } = providers;
     protected ITenantStore Store { get; } = store;
-    public ITenantNormalizer Normalizer { get; } = normalizer;
-    public ICurrentTenantChecker Checker { get; } = checker;
+    protected ICurrentTenantChecker Checker { get; } = checker;
 
     public async ValueTask<TenantContext?> TryGetAsync()
     {
-        string? tenant = null;
+        string? identifier = null;
 
-        foreach (var provider in Resolvers)
+        foreach (var provider in Providers)
         {
-            tenant = await provider.TryGetAsync();
-            if (!string.IsNullOrEmpty(tenant))
+            identifier = await provider.TryGetAsync();
+            if (!string.IsNullOrEmpty(identifier))
             {
                 break;
             }
         }
 
-        if (string.IsNullOrEmpty(tenant))
+        if (string.IsNullOrEmpty(identifier))
         {
             return null;
         }
 
-        var current = await TryGetAsync(tenant);
+        var tenant = await TryGetAsync(identifier);
 
-        if (current != null)
+        if (tenant == null)
         {
-            await Checker.CheckAsync(current);
+            throw new Exception($"Tenant ({identifier}) couldn't be found.");
         }
+        
+        //Check tenant.IsActive
 
-        return current;
+        await Checker.CheckAsync(tenant);
+
+        return tenant;
     }
 
-    protected virtual ValueTask<TenantContext?> TryGetAsync(string tenant)
+    protected virtual ValueTask<TenantContext?> TryGetAsync(string identifier)
     {
-        return Guid.TryParse(tenant, out var id)
+        return Guid.TryParse(identifier, out var id)
             ? Store.FindAsync(id)
-            : Store.FindAsync(Normalizer.NormalizeName(tenant));
+            : Store.FindAsync(identifier);
     }
 }

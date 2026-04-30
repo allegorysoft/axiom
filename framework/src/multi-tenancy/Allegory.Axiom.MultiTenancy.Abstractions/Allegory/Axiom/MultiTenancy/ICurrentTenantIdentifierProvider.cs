@@ -3,7 +3,7 @@ using Allegory.Axiom.DependencyInjection;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public interface ICurrentTenantResolver : ISingletonService
+public interface ICurrentTenantIdentifierProvider : ISingletonService
 {
     ValueTask<string?> TryGetAsync();
 }
