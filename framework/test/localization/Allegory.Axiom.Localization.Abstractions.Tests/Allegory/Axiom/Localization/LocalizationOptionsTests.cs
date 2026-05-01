@@ -48,15 +48,15 @@ public class LocalizationOptionsTests
             options.Resources.Add<LocalizationOptionsTests>("tr", ["/i18n2"]));
 
         Should.Throw<ArgumentException>(() =>
-            options.Resources.Add(typeof(LocalizationOptionsTests).FullName!, "tr", "/i18n2"));
+            options.Resources.Add(typeof(LocalizationOptionsTests).FullName!, "tr", paths: ["/i18n2"]));
     }
 
     [Fact]
     public void ShouldAddMultipleDistinctResources()
     {
         var options = new LocalizationOptions();
-        options.Resources.Add("MyApp.Resources.Messages", "en", ["/i18n/messages"]);
-        options.Resources.Add("MyApp.Resources.Errors", "en", ["/i18n/errors"]);
+        options.Resources.Add("MyApp.Resources.Messages", "en", paths: ["/i18n/messages"]);
+        options.Resources.Add("MyApp.Resources.Errors", "en", paths: ["/i18n/errors"]);
 
         options.Resources.Count.ShouldBe(2);
     }
@@ -66,7 +66,7 @@ public class LocalizationOptionsTests
     {
         var options = new LocalizationOptions();
 
-        options.Resources.Add<LocalizationOptionsTests>("en", "/i18n");
+        options.Resources.Add<LocalizationOptionsTests>("en", paths: ["/i18n"]);
 
         var localizationResourceOptions = options.Resources.Get<LocalizationOptionsTests>();
         localizationResourceOptions.Name.ShouldBe(typeof(LocalizationOptionsTests).FullName);
@@ -79,7 +79,7 @@ public class LocalizationOptionsTests
     {
         var options = new LocalizationOptions();
 
-        options.Resources.Add("MyApp.Resources.Messages", "en", "/i18n/messages");
+        options.Resources.Add("MyApp.Resources.Messages", "en", paths: ["/i18n/messages"]);
 
         var localizationResourceOptions = options.Resources.Get("MyApp.Resources.Messages");
         localizationResourceOptions.Name.ShouldBe("MyApp.Resources.Messages");
@@ -92,7 +92,7 @@ public class LocalizationOptionsTests
     {
         var options = new LocalizationOptions();
 
-        options.Resources.Add<LocalizationOptionsTests>("en", "/i18n");
+        options.Resources.Add<LocalizationOptionsTests>("en", paths: ["/i18n"]);
         options.Resources.First().Paths.ShouldBe(["/i18n"]);
 
         options.Resources.Get<LocalizationOptionsTests>().AddPaths("/i18n2", "/i18n3");

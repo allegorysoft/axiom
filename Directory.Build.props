@@ -19,7 +19,6 @@
 
     <PropertyGroup>
         <DotnetVersion>net10.0</DotnetVersion>
-        <MicrosoftPackageVersion>10.0.0</MicrosoftPackageVersion>
         <IsTestProject>$(MSBuildProjectDirectory.Replace('\', '/').Contains('/test/'))</IsTestProject>
         <IsPackable Condition="'$(IsTestProject)' == 'true'">false</IsPackable>
     </PropertyGroup>
