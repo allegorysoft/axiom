@@ -26,6 +26,11 @@
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.Abstractions/Allegory.Axiom.MultiTenancy.Abstractions.csproj" />
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy/Allegory.Axiom.MultiTenancy.csproj" />
   </Folder>
+  <Folder Name="/src/security/">
+    <Project Path="src/security/Allegory.Axiom.Security.Abstractions/Allegory.Axiom.Security.Abstractions.csproj" />
+    <Project Path="src/security/Allegory.Axiom.Security/Allegory.Axiom.Security.csproj" />
+    <Project Path="src/security/Allegory.Axiom.AspNetCore.Security/Allegory.Axiom.AspNetCore.Security.csproj" />
+  </Folder>
   <Folder Name="/src/unit-of-work/">
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
