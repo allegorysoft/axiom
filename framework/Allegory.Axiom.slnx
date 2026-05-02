@@ -53,7 +53,9 @@
     <Project Path="test/modularity/Allegory.Axiom.DependencyInjection.Abstractions.Tests/Allegory.Axiom.DependencyInjection.Abstractions.Tests.csproj" />
     <Project Path="test/modularity/Allegory.Axiom.Hosting.Abstractions.Tests/Allegory.Axiom.Hosting.Abstractions.Tests.csproj" />
   </Folder>
-  <Folder Name="/test/multi-tenancy/" />
+  <Folder Name="/test/multi-tenancy/">
+    <Project Path="test/multi-tenancy/Allegory.Axiom.MultiTenancy.Tests/Allegory.Axiom.MultiTenancy.Tests.csproj" />
+  </Folder>
   <Folder Name="/test/playground/">
     <Project Path="test/playground/Allegory.Axiom.Assembly1/Allegory.Axiom.Assembly1.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly2/Allegory.Axiom.Assembly2.csproj" />
