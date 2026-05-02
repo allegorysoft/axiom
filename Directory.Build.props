@@ -1,6 +1,7 @@
 <Project>
 
     <PropertyGroup>
+        <DotnetVersion>net10.0</DotnetVersion>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <RepositoryType>git</RepositoryType>
@@ -14,11 +15,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\axiom-logo.png" Pack="true" Visible="false" PackagePath="\"/>
+        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\axiom-logo.png"
+              Pack="true" Visible="false" PackagePath="\"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="$(MSBuildProjectName.Contains('AspNetCore'))">
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
     </ItemGroup>
 
     <PropertyGroup>
-        <DotnetVersion>net10.0</DotnetVersion>
         <IsTestProject>$(MSBuildProjectDirectory.Replace('\', '/').Contains('/test/'))</IsTestProject>
         <IsPackable Condition="'$(IsTestProject)' == 'true'">false</IsPackable>
     </PropertyGroup>

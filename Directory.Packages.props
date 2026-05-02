@@ -3,7 +3,6 @@
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <RuntimePackageVersion>10.0.0</RuntimePackageVersion>
-        <AspNetCorePackageVersion>2.3.9</AspNetCorePackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,8 +11,6 @@
         <PackageVersion Include="Castle.Core" Version="5.2.1"/>
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
 
-        <PackageVersion Include="Microsoft.AspNetCore.Http" Version="$(AspNetCorePackageVersion)"/>
-        
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(RuntimePackageVersion)"/>
