@@ -59,6 +59,9 @@
     <Project Path="test/playground/Allegory.Axiom.Assembly2/Allegory.Axiom.Assembly2.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly3/Allegory.Axiom.Assembly3.csproj" />
   </Folder>
+  <Folder Name="/test/security/">
+    <Project Path="test/security/Allegory.Axiom.Security.Tests/Allegory.Axiom.Security.Tests.csproj" />
+  </Folder>
   <Folder Name="/test/unit-of-work/">
     <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
   </Folder>
