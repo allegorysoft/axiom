@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
 namespace Allegory.Axiom.FileProviders;
 
-public class FileProviderManagerTests : IntegrationTestBase
+public class FileProviderManagerTests : HostedIntegrationTestBase
 {
     protected FileProviderManager Manager => Service<FileProviderManager>();
 
-    protected override Task ConfigureAsync(IServiceCollection services,
-        AssemblyDependencyRegistrar registrar)
+    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        registrar.Register(typeof(FileProviderManager).Assembly);
-
-        services.Configure<FileProviderOptions>(o =>
+        builder.Services.Configure<FileProviderOptions>(o =>
         {
             o.AddEmbedded<FileProviderManagerTests>();
             o.AddPhysical(AppContext.BaseDirectory);

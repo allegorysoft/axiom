@@ -1,11 +1,10 @@
 ﻿using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Allegory.Axiom.Security.Principal;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.Security;
+namespace Allegory.Axiom.Security.Principal;
 
 public class ClaimsPrincipalAccessorTests : HostedIntegrationTestBase
 {
