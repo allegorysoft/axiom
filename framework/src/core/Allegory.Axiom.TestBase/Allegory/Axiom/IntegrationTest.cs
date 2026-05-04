@@ -8,19 +8,19 @@ using Xunit;
 
 namespace Allegory.Axiom;
 
-public abstract class HostedIntegrationTestBase : IAsyncLifetime
+public abstract class IntegrationTest : IAsyncLifetime
 {
     private readonly Dictionary<Type, object> _services = new();
     private readonly List<IHost> _hosts = [];
 
-    protected IHost Host { get; set; } = null!;
+    public IHost Host { get; protected set; } = null!;
 
     public virtual async ValueTask InitializeAsync()
     {
         Host = await CreateHostAsync(ConfigureAsync, PostConfigureAsync);
     }
 
-    protected virtual async Task<IHost> CreateHostAsync(
+    public virtual async Task<IHost> CreateHostAsync(
         Func<IHostApplicationBuilder, Task>? configureAsync = null,
         Func<IHostApplicationBuilder, Task>? postConfigureAsync = null)
     {
@@ -30,6 +30,7 @@ public abstract class HostedIntegrationTestBase : IAsyncLifetime
         {
             await configureAsync(builder);
         }
+
         await builder.ConfigureApplicationAsync();
         if (postConfigureAsync != null)
         {
@@ -43,7 +44,7 @@ public abstract class HostedIntegrationTestBase : IAsyncLifetime
         return host;
     }
 
-    protected virtual async Task<IHost> CreateHostAsync(
+    public virtual async Task<IHost> CreateHostAsync(
         Action<IHostApplicationBuilder>? configure = null,
         Action<IHostApplicationBuilder>? postConfigure = null)
     {
@@ -60,23 +61,23 @@ public abstract class HostedIntegrationTestBase : IAsyncLifetime
         return host;
     }
 
-    protected virtual async Task<IServiceProvider> CreateServiceProviderAsync(
+    public virtual async Task<IServiceProvider> CreateServiceProviderAsync(
         Func<IHostApplicationBuilder, Task>? configureAsync = null)
     {
         return (await CreateHostAsync(configureAsync)).Services;
     }
 
-    protected virtual async Task<IServiceProvider> CreateServiceProviderAsync(
+    public virtual async Task<IServiceProvider> CreateServiceProviderAsync(
         Action<IHostApplicationBuilder>? configure = null)
     {
         return (await CreateHostAsync(configure)).Services;
     }
 
     protected virtual Task ConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
-    
+
     protected virtual Task PostConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
 
-    protected virtual T Service<T>() where T : notnull
+    public virtual T Service<T>() where T : notnull
     {
         if (_services.TryGetValue(typeof(T), out var cached))
         {

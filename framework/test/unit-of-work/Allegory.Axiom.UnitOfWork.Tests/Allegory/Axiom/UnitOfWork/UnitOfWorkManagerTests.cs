@@ -9,19 +9,9 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkManagerTests : HostedIntegrationTestBase
+public class UnitOfWorkManagerTests(UnitOfWorkManagerTestFixture fixture) : IClassFixture<UnitOfWorkManagerTestFixture>
 {
-    protected IUnitOfWorkManager Manager => Service<IUnitOfWorkManager>();
-
-    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
-    {
-        builder.Services.Configure<UnitOfWorkOptions>(options =>
-        {
-            options.Timeout = TimeSpan.FromSeconds(30);
-        });
-
-        return Task.CompletedTask;
-    }
+    protected IUnitOfWorkManager Manager { get; } = fixture.Service<IUnitOfWorkManager>();
 
     [Fact]
     public void ShouldCreateUnitOfWork()
@@ -220,7 +210,7 @@ public class UnitOfWorkManagerTests : HostedIntegrationTestBase
     [Fact]
     public void ShouldApplyDefaultOptionsWhenPreferredOptionsNull()
     {
-        var options = Service<IOptions<UnitOfWorkOptions>>().Value;
+        var options = fixture.Service<IOptions<UnitOfWorkOptions>>().Value;
 
         using var uow = Manager.Begin();
 
@@ -241,7 +231,7 @@ public class UnitOfWorkManagerTests : HostedIntegrationTestBase
     [Fact]
     public void ShouldFallbackDefaultOptionsWhenPreferredOptionsPropertyIsNull()
     {
-        var options = Service<IOptions<UnitOfWorkOptions>>().Value;
+        var options = fixture.Service<IOptions<UnitOfWorkOptions>>().Value;
 
         var preferred = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
         using var uow = Manager.Begin(preferred);
@@ -249,5 +239,18 @@ public class UnitOfWorkManagerTests : HostedIntegrationTestBase
         Manager.Current!.Options.ShouldBe(preferred);
         Manager.Current!.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
         Manager.Current!.Options.Timeout.ShouldBe(options.Timeout);
+    }
+}
+
+public class UnitOfWorkManagerTestFixture : IntegrationTestFixture
+{
+    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<UnitOfWorkOptions>(options =>
+        {
+            options.Timeout = TimeSpan.FromSeconds(30);
+        });
+
+        return Task.CompletedTask;
     }
 }

@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Allegory.Axiom.Localization;
 
-public class AxiomStringLocalizerTests : HostedIntegrationTestBase
+public class AxiomStringLocalizerTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected IStringLocalizer<AxiomLocalizationResource> Localizer => Service<IStringLocalizer<AxiomLocalizationResource>>();
+    protected IStringLocalizer<AxiomLocalizationResource> Localizer { get; } = fixture.Service<IStringLocalizer<AxiomLocalizationResource>>();
 
     [Fact]
     public void ShouldReturnTranslationForCurrentCulture()
@@ -141,10 +141,10 @@ public class AxiomStringLocalizerTests : HostedIntegrationTestBase
     public void ShouldReflectDynamicTranslationChangesAcrossAllLocalizers()
     {
         CultureInfo.CurrentUICulture = new CultureInfo("en");
-        var factory = Service<IStringLocalizerFactory>();
+        var factory = fixture.Service<IStringLocalizerFactory>();
         var localizer1 = (IAxiomStringLocalizer) factory.Create(typeof(AxiomLocalizationResource));
         var localizer2 = factory.Create(typeof(AxiomLocalizationResource).FullName!, string.Empty);
-        var localizer3 = Service<IStringLocalizer<AxiomLocalizationResource>>();
+        var localizer3 = fixture.Service<IStringLocalizer<AxiomLocalizationResource>>();
 
         localizer1.Translations["en"].TryGetValue("some-key", out _).ShouldBeFalse();
         localizer2["some-key"].ResourceNotFound.ShouldBeTrue();

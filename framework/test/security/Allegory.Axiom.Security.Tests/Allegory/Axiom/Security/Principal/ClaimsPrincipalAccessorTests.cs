@@ -6,9 +6,9 @@ using Xunit;
 
 namespace Allegory.Axiom.Security.Principal;
 
-public class ClaimsPrincipalAccessorTests : HostedIntegrationTestBase
+public class ClaimsPrincipalAccessorTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected IPrincipalAccessor Accessor => Service<IPrincipalAccessor>();
+    protected IPrincipalAccessor Accessor { get; } = fixture.Service<IPrincipalAccessor>();
 
     [Fact]
     public void ShouldReturnCurrentClaimsPrincipal()

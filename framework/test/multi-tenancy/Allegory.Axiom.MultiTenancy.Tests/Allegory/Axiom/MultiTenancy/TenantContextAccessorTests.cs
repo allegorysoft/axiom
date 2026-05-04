@@ -9,13 +9,13 @@ using Xunit;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public class TenantContextAccessorTests : HostedIntegrationTestBase
+public class TenantContextAccessorTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     [Fact]
     public async Task Test()
     {
-        var x = Host.Services.GetService<IPrincipalAccessor>();
-        var provider = Service<ICurrentTenantProvider>();
+        var x = fixture.Host.Services.GetService<IPrincipalAccessor>();
+        var provider = fixture.Service<ICurrentTenantProvider>();
         var result = (await provider.TryGetAsync())!;
         var r = result.GetProperty<int>("key-1");
         var r2 = result.GetProperty<int>("key-1");

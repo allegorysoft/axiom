@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkInterceptorTests : HostedIntegrationTestBase
+public class UnitOfWorkInterceptorTests : IntegrationTest
 {
     protected IUnitOfWorkManager Manager => Service<IUnitOfWorkManager>();
 
