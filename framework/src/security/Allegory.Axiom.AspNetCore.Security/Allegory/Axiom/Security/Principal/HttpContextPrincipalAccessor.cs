@@ -1,8 +1,7 @@
 ﻿using System.Security.Claims;
-using Allegory.Axiom.Security.Principal;
 using Microsoft.AspNetCore.Http;
 
-namespace Allegory.Axiom.AspNetCore.Security.Principal;
+namespace Allegory.Axiom.Security.Principal;
 
 public class HttpContextPrincipalAccessor(IHttpContextAccessor httpContextAccessor) : ClaimsPrincipalAccessor
 {

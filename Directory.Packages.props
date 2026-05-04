@@ -11,6 +11,8 @@
         <PackageVersion Include="Castle.Core" Version="5.2.1"/>
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
 
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(RuntimePackageVersion)"/>
+
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(RuntimePackageVersion)"/>
