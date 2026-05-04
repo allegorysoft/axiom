@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <RuntimePackageVersion>10.0.0</RuntimePackageVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -10,24 +11,27 @@
         <PackageVersion Include="Castle.Core" Version="5.2.1"/>
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
 
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Localization" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MicrosoftPackageVersion)"/>
-        <PackageVersion Include="System.Text.Json" Version="$(MicrosoftPackageVersion)"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(RuntimePackageVersion)"/>
+
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Composite" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Embedded" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.FileProviders.Physical" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Localization" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Options" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="System.Text.Json" Version="$(RuntimePackageVersion)"/>
 
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
 
+        <PackageVersion Include="NSubstitute" Version="5.3.0"/>
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
         <PackageVersion Include="MSTest.TestAdapter" Version="4.0.1"/>
         <PackageVersion Include="MSTest.TestFramework" Version="4.0.1"/>

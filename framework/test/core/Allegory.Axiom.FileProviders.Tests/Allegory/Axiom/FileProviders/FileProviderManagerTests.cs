@@ -1,31 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
 namespace Allegory.Axiom.FileProviders;
 
-public class FileProviderManagerTests : IntegrationTestBase
+public class FileProviderManagerTests(FileProviderManagerTestFixture fixture)
+    : IClassFixture<FileProviderManagerTestFixture>
 {
-    protected FileProviderManager Manager => Service<FileProviderManager>();
-
-    protected override Task ConfigureAsync(IServiceCollection services,
-        AssemblyDependencyRegistrar registrar)
-    {
-        registrar.Register(typeof(FileProviderManager).Assembly);
-
-        services.Configure<FileProviderOptions>(o =>
-        {
-            o.AddEmbedded<FileProviderManagerTests>();
-            o.AddPhysical(AppContext.BaseDirectory);
-        });
-
-        return Task.CompletedTask;
-    }
+    protected FileProviderManager Manager { get; } = fixture.Service<FileProviderManager>();
 
     [Fact]
     public void ShouldReverseProvidersOrder()
@@ -66,5 +53,19 @@ public class FileProviderManagerTests : IntegrationTestBase
 
         changeToken.ShouldNotBeNull();
         changeToken.ActiveChangeCallbacks.ShouldBeTrue();
+    }
+}
+
+public class FileProviderManagerTestFixture : IntegrationTestFixture
+{
+    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<FileProviderOptions>(o =>
+        {
+            o.AddEmbedded<FileProviderManagerTests>();
+            o.AddPhysical(AppContext.BaseDirectory);
+        });
+
+        return Task.CompletedTask;
     }
 }

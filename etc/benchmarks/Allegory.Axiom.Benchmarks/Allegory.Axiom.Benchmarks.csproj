@@ -12,7 +12,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\framework\src\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
-        <ProjectReference Include="..\module-1\Allegory.Axiom.Module1.Assembly3\Allegory.Axiom.Module1.Assembly3.csproj"/>
+        <ProjectReference Include="..\module-1\Allegory.Axiom.Module1.Assembly2\Allegory.Axiom.Module1.Assembly2.csproj" />
     </ItemGroup>
 
 </Project>

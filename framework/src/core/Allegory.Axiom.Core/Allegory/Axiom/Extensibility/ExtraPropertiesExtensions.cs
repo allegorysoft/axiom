@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Allegory.Axiom.Extensibility;
@@ -16,11 +17,22 @@ public static class ExtraPropertiesExtensions
             return entity.ExtraProperties.GetValueOrDefault(name, defaultValue);
         }
 
-        public T? GetProperty<T>(string name, T? defaultValue = default)
+        public T? GetProperty<T>(string name, T? defaultValue = default, bool convert = true)
         {
-            return entity.ExtraProperties.TryGetValue(name, out var value) && value is T typedValue
-                ? typedValue
-                : defaultValue;
+            if (entity.ExtraProperties.TryGetValue(name, out var value))
+            {
+                if (value is T typedValue)
+                {
+                    return typedValue;
+                }
+
+                if (convert)
+                {
+                    return Convert.ChangeType(value, typeof(T)) is T convertedValue ? convertedValue : defaultValue;
+                }
+            }
+
+            return defaultValue;
         }
     }
 
@@ -36,11 +48,22 @@ public static class ExtraPropertiesExtensions
             return entity.ExtraProperties.TryGetValue(name, out var value) ? value : defaultValue;
         }
 
-        public T? GetProperty<T>(string name, T? defaultValue = default)
+        public T? GetProperty<T>(string name, T? defaultValue = default, bool convert = true)
         {
-            return entity.ExtraProperties.TryGetValue(name, out var value) && value is T typedVaule
-                ? typedVaule
-                : defaultValue;
+            if (entity.ExtraProperties.TryGetValue(name, out var value))
+            {
+                if (value is T typedValue)
+                {
+                    return typedValue;
+                }
+
+                if (convert)
+                {
+                    return Convert.ChangeType(value, typeof(T)) is T convertedValue ? convertedValue : defaultValue;
+                }
+            }
+
+            return defaultValue;
         }
 
         public void SetProperty(string name, object? value)

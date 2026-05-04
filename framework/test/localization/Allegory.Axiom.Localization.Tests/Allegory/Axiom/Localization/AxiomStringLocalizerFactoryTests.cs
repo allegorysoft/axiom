@@ -5,9 +5,9 @@ using Xunit;
 
 namespace Allegory.Axiom.Localization;
 
-public class AxiomStringLocalizerFactoryTests : HostedIntegrationTestBase
+public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected IStringLocalizerFactory LocalizerFactory => Service<IStringLocalizerFactory>();
+    protected IStringLocalizerFactory LocalizerFactory { get; } = fixture.Service<IStringLocalizerFactory>();
 
     [Fact]
     public void ShouldCreateStringLocalizerForRegisteredResourceType()

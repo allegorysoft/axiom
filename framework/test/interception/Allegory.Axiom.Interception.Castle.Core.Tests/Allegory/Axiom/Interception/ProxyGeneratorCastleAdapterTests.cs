@@ -1,16 +1,13 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
 namespace Allegory.Axiom.Interception;
 
-public class ProxyGeneratorCastleAdapterTests : HostedIntegrationTestBase
+public class ProxyGeneratorCastleAdapterTests : IntegrationTest
 {
     public override ValueTask InitializeAsync() => ValueTask.CompletedTask;
 

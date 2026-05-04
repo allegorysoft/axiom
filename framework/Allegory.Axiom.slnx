@@ -1,5 +1,8 @@
 <Solution>
   <Folder Name="/src/" />
+  <Folder Name="/src/aspnetcore/">
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Http/Allegory.Axiom.AspNetCore.Http.csproj" />
+  </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
     <Project Path="src/core/Allegory.Axiom.FileProviders/Allegory.Axiom.FileProviders.csproj" />
@@ -23,6 +26,11 @@
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.Abstractions/Allegory.Axiom.MultiTenancy.Abstractions.csproj" />
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy/Allegory.Axiom.MultiTenancy.csproj" />
   </Folder>
+  <Folder Name="/src/security/">
+    <Project Path="src/security/Allegory.Axiom.Security.Abstractions/Allegory.Axiom.Security.Abstractions.csproj" />
+    <Project Path="src/security/Allegory.Axiom.Security/Allegory.Axiom.Security.csproj" />
+    <Project Path="src/security/Allegory.Axiom.AspNetCore.Security/Allegory.Axiom.AspNetCore.Security.csproj" />
+  </Folder>
   <Folder Name="/src/unit-of-work/">
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
@@ -45,11 +53,17 @@
     <Project Path="test/modularity/Allegory.Axiom.DependencyInjection.Abstractions.Tests/Allegory.Axiom.DependencyInjection.Abstractions.Tests.csproj" />
     <Project Path="test/modularity/Allegory.Axiom.Hosting.Abstractions.Tests/Allegory.Axiom.Hosting.Abstractions.Tests.csproj" />
   </Folder>
-  <Folder Name="/test/multi-tenancy/" />
+  <Folder Name="/test/multi-tenancy/">
+    <Project Path="test/multi-tenancy/Allegory.Axiom.MultiTenancy.Tests/Allegory.Axiom.MultiTenancy.Tests.csproj" />
+  </Folder>
   <Folder Name="/test/playground/">
     <Project Path="test/playground/Allegory.Axiom.Assembly1/Allegory.Axiom.Assembly1.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly2/Allegory.Axiom.Assembly2.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly3/Allegory.Axiom.Assembly3.csproj" />
+  </Folder>
+  <Folder Name="/test/security/">
+    <Project Path="test/security/Allegory.Axiom.AspNetCore.Security.Tests/Allegory.Axiom.AspNetCore.Security.Tests.csproj" />
+    <Project Path="test/security/Allegory.Axiom.Security.Tests/Allegory.Axiom.Security.Tests.csproj" />
   </Folder>
   <Folder Name="/test/unit-of-work/">
     <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
