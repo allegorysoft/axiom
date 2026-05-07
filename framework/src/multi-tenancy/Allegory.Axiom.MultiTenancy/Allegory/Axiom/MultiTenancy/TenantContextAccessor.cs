@@ -10,10 +10,10 @@ public class TenantContextAccessor : ITenantContextAccessor
 
     public virtual TenantContext? Current => CurrentTenantContext.Value;
 
-    public virtual void Set(TenantContext? context = null)
+    public virtual void Set(TenantContext? current = null)
     {
         // Reduce disposable object allocation
-        CurrentTenantContext.Value = context;
+        CurrentTenantContext.Value = current;
     }
 
     public virtual IDisposable Change(TenantContext? current = null)

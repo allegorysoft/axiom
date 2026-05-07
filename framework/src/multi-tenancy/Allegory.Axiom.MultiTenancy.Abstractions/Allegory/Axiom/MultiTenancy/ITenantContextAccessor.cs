@@ -6,6 +6,6 @@ namespace Allegory.Axiom.MultiTenancy;
 public interface ITenantContextAccessor : ISingletonService
 {
     TenantContext? Current { get; }
-    void Set(TenantContext? context = null);
+    void Set(TenantContext? current = null);
     IDisposable Change(TenantContext? current = null);
 }
