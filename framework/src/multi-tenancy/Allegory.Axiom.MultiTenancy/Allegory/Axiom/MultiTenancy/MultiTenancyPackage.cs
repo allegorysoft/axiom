@@ -9,7 +9,7 @@ internal sealed class MultiTenancyPackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<ConfigurationTenantStoreOptions>(
+        builder.Services.Configure<ConfigurationTenantOptions>(
             builder.Configuration.GetSection("Axiom"));
 
         return Task.CompletedTask;

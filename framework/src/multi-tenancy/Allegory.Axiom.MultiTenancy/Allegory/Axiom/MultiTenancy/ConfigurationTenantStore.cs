@@ -8,11 +8,11 @@ namespace Allegory.Axiom.MultiTenancy;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class ConfigurationTenantStore(
-    IOptions<ConfigurationTenantStoreOptions> options,
+    IOptions<ConfigurationTenantOptions> options,
     ITenantNormalizer tenantNormalizer)
     : ITenantStore
 {
-    protected ConfigurationTenantStoreOptions Options { get; } = options.Value;
+    protected ConfigurationTenantOptions Options { get; } = options.Value;
     protected ITenantNormalizer TenantNormalizer { get; } = tenantNormalizer;
 
     public virtual ValueTask<TenantContext?> FindAsync(Guid id)
