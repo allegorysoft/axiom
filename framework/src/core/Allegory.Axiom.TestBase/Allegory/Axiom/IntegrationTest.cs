@@ -62,15 +62,17 @@ public abstract class IntegrationTest : IAsyncLifetime
     }
 
     public virtual async Task<IServiceProvider> CreateServiceProviderAsync(
-        Func<IHostApplicationBuilder, Task>? configureAsync = null)
+        Func<IHostApplicationBuilder, Task>? configureAsync = null,
+        Func<IHostApplicationBuilder, Task>? postConfigureAsync = null)
     {
-        return (await CreateHostAsync(configureAsync)).Services;
+        return (await CreateHostAsync(configureAsync, postConfigureAsync)).Services;
     }
 
     public virtual async Task<IServiceProvider> CreateServiceProviderAsync(
-        Action<IHostApplicationBuilder>? configure = null)
+        Action<IHostApplicationBuilder>? configure = null,
+        Action<IHostApplicationBuilder>? postConfigure = null)
     {
-        return (await CreateHostAsync(configure)).Services;
+        return (await CreateHostAsync(configure, postConfigure)).Services;
     }
 
     protected virtual Task ConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
