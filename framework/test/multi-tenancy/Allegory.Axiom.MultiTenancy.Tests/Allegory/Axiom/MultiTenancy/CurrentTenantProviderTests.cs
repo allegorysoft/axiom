@@ -137,6 +137,8 @@ public class CurrentTenantProviderTests : IntegrationTest
         result.Message.ShouldContain("ghost");
     }
 
+    //ShouldThrowWhenTenantIsNotActive
+
     [Fact]
     public async Task ShouldResolveWhenPrincipalHasAccessToTenant()
     {
@@ -160,7 +162,7 @@ public class CurrentTenantProviderTests : IntegrationTest
     }
 
     [Fact]
-    public async Task ShouldThrowWhenPrincipalHasNoAccessToTenant()
+    public async Task ShouldThrowWhenPrincipalDoesNotHaveAccessToTenant()
     {
         var services = await CreateServiceProviderAsync(builder =>
         {
