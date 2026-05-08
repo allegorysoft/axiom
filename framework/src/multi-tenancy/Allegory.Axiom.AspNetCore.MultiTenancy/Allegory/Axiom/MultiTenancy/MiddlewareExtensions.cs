@@ -4,8 +4,11 @@ namespace Allegory.Axiom.MultiTenancy;
 
 public static class MiddlewareExtensions
 {
-    public static IApplicationBuilder UseMultiTenancy(this IApplicationBuilder app)
+    extension(IApplicationBuilder applicationBuilder)
     {
-        return app.UseMiddleware<MultiTenancyMiddleware>();
+        public IApplicationBuilder UseMultiTenancy()
+        {
+            return applicationBuilder.UseMiddleware<MultiTenancyMiddleware>();
+        }
     }
 }

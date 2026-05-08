@@ -21,8 +21,8 @@ public class HttpContextCurrentTenantIdentifierProvider(
     protected virtual ValueTask<string?> TryGetAsync(HttpContext context)
     {
         var identifier = TryGetFromHeader(context)
-                     ?? TryGetFromQuery(context)
-                     ?? TryGetFromRoute(context);
+                         ?? TryGetFromQuery(context)
+                         ?? TryGetFromRoute(context);
 
         return ValueTask.FromResult(identifier);
     }

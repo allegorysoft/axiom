@@ -9,11 +9,11 @@ using Microsoft.Extensions.Options;
 namespace Allegory.Axiom.MultiTenancy;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
-public class ConfigurationTenantPrincipalStore(
-    IOptions<ConfigurationTenantOptions> options)
+public class DefaultTenantPrincipalStore(
+    IOptions<DefaultTenantStoreOptions> options)
     : ITenantPrincipalStore
 {
-    public ConfigurationTenantOptions Options { get; } = options.Value;
+    public DefaultTenantStoreOptions Options { get; } = options.Value;
 
     public async Task<bool> HasAccessAsync(
         string principalId,

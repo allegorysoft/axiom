@@ -11,7 +11,11 @@ public class MultiTenancyMiddleware(
     public async Task InvokeAsync(HttpContext context)
     {
         var tenant = await currentTenantProvider.TryGetAsync();
-        tenantContextAccessor.Set(tenant);
+        if (tenant != null)
+        {
+            tenantContextAccessor.Set(tenant);
+        }
+
         await next(context);
     }
 }

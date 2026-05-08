@@ -5,11 +5,11 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-internal sealed class MultiTenancyPackage : IConfigureApplication
+internal sealed class MultiTenancyDefaultStorePackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<ConfigurationTenantOptions>(
+        builder.Services.Configure<DefaultTenantStoreOptions>(
             builder.Configuration.GetSection("Axiom"));
 
         return Task.CompletedTask;
