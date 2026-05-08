@@ -23,6 +23,7 @@
     <Project Path="src/modularity/Allegory.Axiom.Hosting.Abstractions/Allegory.Axiom.Hosting.Abstractions.csproj" />
   </Folder>
   <Folder Name="/src/multi-tenancy/">
+    <Project Path="src/multi-tenancy/Allegory.Axiom.AspNetCore.MultiTenancy/Allegory.Axiom.AspNetCore.MultiTenancy.csproj" />
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.Abstractions/Allegory.Axiom.MultiTenancy.Abstractions.csproj" />
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy/Allegory.Axiom.MultiTenancy.csproj" />
   </Folder>
