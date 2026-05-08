@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-[Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class DefaultTenantStore(
     IOptions<DefaultTenantStoreOptions> options,
     ITenantNormalizer tenantNormalizer)

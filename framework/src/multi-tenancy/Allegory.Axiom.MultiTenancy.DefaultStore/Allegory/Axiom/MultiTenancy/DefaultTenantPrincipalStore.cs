@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-[Dependency(Strategy = RegistrationStrategy.TryAdd)]
-public class DefaultTenantPrincipalStore(
-    IOptions<DefaultTenantStoreOptions> options)
-    : ITenantPrincipalStore
+public class DefaultTenantPrincipalStore(IOptions<DefaultTenantStoreOptions> options) : ITenantPrincipalStore
 {
     public DefaultTenantStoreOptions Options { get; } = options.Value;
 
