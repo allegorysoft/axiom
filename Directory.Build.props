@@ -7,7 +7,7 @@
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/allegorysoft/axiom</RepositoryUrl>
         <Authors>Allegorysoft</Authors>
-        <Version>0.1.6</Version>
+        <Version>0.1.7</Version>
         <PackageIcon>axiom-logo.png</PackageIcon>
         <PackageProjectUrl>https://axiomframework.dev</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
