@@ -9,7 +9,7 @@ public class TenantContextAccessorTests
 {
     protected TenantContextAccessor Accessor { get; } = new();
 
-    private static TenantContext MakeTenant(string name = "TestTenant") =>
+    private static TenantContext CreateTenant(string name = "TestTenant") =>
         new(Guid.NewGuid(), name, name.ToUpperInvariant());
 
     [Fact]
@@ -21,7 +21,7 @@ public class TenantContextAccessorTests
     [Fact]
     public void ShouldReturnContextAfterSet()
     {
-        var tenant = MakeTenant();
+        var tenant = CreateTenant();
 
         Accessor.Set(tenant);
 
@@ -31,7 +31,7 @@ public class TenantContextAccessorTests
     [Fact]
     public void ShouldReturnNullAfterSetWithNull()
     {
-        Accessor.Set(MakeTenant());
+        Accessor.Set(CreateTenant());
         Accessor.Current.ShouldNotBeNull();
 
         Accessor.Set(current: null);
@@ -41,8 +41,8 @@ public class TenantContextAccessorTests
     [Fact]
     public void ShouldRestorePreviousContextAfterChangeDisposed()
     {
-        var original = MakeTenant("Original");
-        var temporary = MakeTenant("Temporary");
+        var original = CreateTenant("Original");
+        var temporary = CreateTenant("Temporary");
 
         Accessor.Set(original);
 
@@ -59,7 +59,7 @@ public class TenantContextAccessorTests
     {
         Accessor.Current.ShouldBeNull();
 
-        using (Accessor.Change(MakeTenant()))
+        using (Accessor.Change(CreateTenant()))
         {
             Accessor.Current.ShouldNotBeNull();
         }
@@ -70,7 +70,7 @@ public class TenantContextAccessorTests
     [Fact]
     public void ShouldSetNullContextWithChange()
     {
-        Accessor.Set(MakeTenant());
+        Accessor.Set(CreateTenant());
         Accessor.Current.ShouldNotBeNull();
 
         using (Accessor.Change(current: null))
@@ -82,8 +82,8 @@ public class TenantContextAccessorTests
     [Fact]
     public async Task ShouldIsolateContextPerAsyncFlow()
     {
-        var tenant1 = MakeTenant("Tenant1");
-        var tenant2 = MakeTenant("Tenant2");
+        var tenant1 = CreateTenant("Tenant1");
+        var tenant2 = CreateTenant("Tenant2");
 
         Accessor.Set(tenant1);
 
@@ -103,8 +103,8 @@ public class TenantContextAccessorTests
     [Fact]
     public async Task ShouldScopeChangeToCurrentAsyncContext()
     {
-        var outer = MakeTenant("Outer");
-        var inner = MakeTenant("Inner");
+        var outer = CreateTenant("Outer");
+        var inner = CreateTenant("Inner");
 
         Accessor.Set(outer);
 
@@ -126,9 +126,9 @@ public class TenantContextAccessorTests
     [Fact]
     public void ShouldSupportNestedChanges()
     {
-        var first = MakeTenant("First");
-        var second = MakeTenant("Second");
-        var third = MakeTenant("Third");
+        var first = CreateTenant("First");
+        var second = CreateTenant("Second");
+        var third = CreateTenant("Third");
 
         Accessor.Set(first);
 
