@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using Allegory.Axiom.Disposables;
 
@@ -10,14 +11,16 @@ public class TenantContextAccessor : ITenantContextAccessor
 
     public virtual TenantContext? Current => CurrentTenantContext.Value;
 
-    public virtual void Set(TenantContext? context = null)
+    public virtual void Set(TenantContext? current = null)
     {
+        Activity.Current?.AddBaggage("tenant.id", current?.Id.ToString());
         // Reduce disposable object allocation
-        CurrentTenantContext.Value = context;
+        CurrentTenantContext.Value = current;
     }
 
     public virtual IDisposable Change(TenantContext? current = null)
     {
+        Activity.Current?.AddBaggage("tenant.id", current?.Id.ToString());
         var parent = Current;
         CurrentTenantContext.Value = current;
 
@@ -26,6 +29,7 @@ public class TenantContextAccessor : ITenantContextAccessor
 
     private static void Restore(TenantContext? parent)
     {
+        Activity.Current?.AddBaggage("tenant.id", parent?.Id.ToString());
         CurrentTenantContext.Value = parent;
     }
 }

@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.MultiTenancy.Abstractions\Allegory.Axiom.MultiTenancy.Abstractions.csproj"/>
-        <ProjectReference Include="..\..\security\Allegory.Axiom.Security.Abstractions\Allegory.Axiom.Security.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>

@@ -23,7 +23,9 @@
     <Project Path="src/modularity/Allegory.Axiom.Hosting.Abstractions/Allegory.Axiom.Hosting.Abstractions.csproj" />
   </Folder>
   <Folder Name="/src/multi-tenancy/">
+    <Project Path="src/multi-tenancy/Allegory.Axiom.AspNetCore.MultiTenancy/Allegory.Axiom.AspNetCore.MultiTenancy.csproj" />
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.Abstractions/Allegory.Axiom.MultiTenancy.Abstractions.csproj" />
+    <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.DefaultStore/Allegory.Axiom.MultiTenancy.DefaultStore.csproj" />
     <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy/Allegory.Axiom.MultiTenancy.csproj" />
   </Folder>
   <Folder Name="/src/security/">
@@ -54,6 +56,7 @@
     <Project Path="test/modularity/Allegory.Axiom.Hosting.Abstractions.Tests/Allegory.Axiom.Hosting.Abstractions.Tests.csproj" />
   </Folder>
   <Folder Name="/test/multi-tenancy/">
+    <Project Path="test/multi-tenancy/Allegory.Axiom.AspNetCore.MultiTenancy.Tests/Allegory.Axiom.AspNetCore.MultiTenancy.Tests.csproj" />
     <Project Path="test/multi-tenancy/Allegory.Axiom.MultiTenancy.Tests/Allegory.Axiom.MultiTenancy.Tests.csproj" />
   </Folder>
   <Folder Name="/test/playground/">

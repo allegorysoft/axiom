@@ -16,6 +16,22 @@ public class CurrentTenantProvider(
 
     public async ValueTask<TenantContext?> TryGetAsync()
     {
+        var identifier = await TryGetIdentifierAsync();
+
+        if (string.IsNullOrEmpty(identifier))
+        {
+            return null;
+        }
+
+        var tenant = await GetTenantAsync(identifier);
+
+        await Checker.CheckAsync(tenant);
+
+        return tenant;
+    }
+
+    protected virtual async ValueTask<string?> TryGetIdentifierAsync()
+    {
         string? identifier = null;
 
         foreach (var provider in Providers)
@@ -27,29 +43,22 @@ public class CurrentTenantProvider(
             }
         }
 
-        if (string.IsNullOrEmpty(identifier))
-        {
-            return null;
-        }
+        return identifier;
+    }
 
-        var tenant = await TryGetAsync(identifier);
+    protected virtual async ValueTask<TenantContext> GetTenantAsync(string identifier)
+    {
+        var tenant = Guid.TryParse(identifier, out var id)
+            ? await Store.FindAsync(id)
+            : await Store.FindAsync(identifier);
 
         if (tenant == null)
         {
             throw new Exception($"Tenant ({identifier}) couldn't be found.");
         }
-        
+
         //Check tenant.IsActive
 
-        await Checker.CheckAsync(tenant);
-
         return tenant;
-    }
-
-    protected virtual ValueTask<TenantContext?> TryGetAsync(string identifier)
-    {
-        return Guid.TryParse(identifier, out var id)
-            ? Store.FindAsync(id)
-            : Store.FindAsync(identifier);
     }
 }

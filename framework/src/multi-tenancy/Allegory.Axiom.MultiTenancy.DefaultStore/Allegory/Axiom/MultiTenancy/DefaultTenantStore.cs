@@ -1,18 +1,16 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-[Dependency(Strategy = RegistrationStrategy.TryAdd)]
-public class ConfigurationTenantStore(
-    IOptions<ConfigurationTenantStoreOptions> options,
+public class DefaultTenantStore(
+    IOptions<DefaultTenantStoreOptions> options,
     ITenantNormalizer tenantNormalizer)
     : ITenantStore
 {
-    protected ConfigurationTenantStoreOptions Options { get; } = options.Value;
+    protected DefaultTenantStoreOptions Options { get; } = options.Value;
     protected ITenantNormalizer TenantNormalizer { get; } = tenantNormalizer;
 
     public virtual ValueTask<TenantContext?> FindAsync(Guid id)
