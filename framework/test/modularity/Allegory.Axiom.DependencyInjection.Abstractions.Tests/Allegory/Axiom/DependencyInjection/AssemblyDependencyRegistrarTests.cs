@@ -70,13 +70,6 @@ public class AssemblyDependencyRegistrarTests
         singleton.ShouldNotBeNull();
         singleton.ImplementationType.ShouldBe(typeof(ExtendedNameSingletonOrderManager));
         singleton.Lifetime.ShouldBe(ServiceLifetime.Singleton);
-
-        // Concrete classes are also registered alongside their interfaces (3 total)
-        Registrar.ServiceCollection.Count(s =>
-                s.ServiceType == typeof(TransientOrderManager) ||
-                s.ServiceType == typeof(ScopedOrderManager) ||
-                s.ServiceType == typeof(ExtendedNameSingletonOrderManager))
-            .ShouldBe(3);
     }
 
     [Fact]
@@ -161,13 +154,6 @@ public class AssemblyDependencyRegistrarTests
         singleton.ShouldNotBeNull();
         singleton.ImplementationType.ShouldBe(typeof(ExtendedNameAttributedSingletonOrderManager));
         singleton.Lifetime.ShouldBe(ServiceLifetime.Singleton);
-
-        // Concrete classes are also registered alongside their interfaces (3 total)
-        Registrar.ServiceCollection.Count(s =>
-                s.ServiceType == typeof(AttributedTransientOrderManager) ||
-                s.ServiceType == typeof(AttributedScopedOrderManager) ||
-                s.ServiceType == typeof(ExtendedNameAttributedSingletonOrderManager))
-            .ShouldBe(3);
     }
 
     [Fact]
@@ -217,14 +203,6 @@ public class AssemblyDependencyRegistrarTests
         service.ServiceKey.ShouldBe(1);
         service.KeyedImplementationType.ShouldBe(typeof(KeyedProductManager));
         service.Lifetime.ShouldBe(ServiceLifetime.Transient);
-
-        var implementation = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(KeyedProductManager));
-        implementation.ShouldNotBeNull();
-        implementation.ImplementationType.ShouldBeNull();
-        implementation.IsKeyedService.ShouldBeTrue();
-        implementation.ServiceKey.ShouldBe(1);
-        implementation.KeyedImplementationType.ShouldBe(typeof(KeyedProductManager));
-        implementation.Lifetime.ShouldBe(ServiceLifetime.Transient);
     }
 
     [Fact]
@@ -234,11 +212,39 @@ public class AssemblyDependencyRegistrarTests
 
         service.ShouldBeNull();
     }
+    
+    [Fact]
+    public void SkipImplementationTypeRegistrationWhenSelfRegisterIsFalseViaDependencyAttribute()
+    {
+        var service = Registrar.ServiceCollection.FirstOrDefault(
+            s => s.ServiceType == typeof(IDontSelfRegisterService));
+        service.ShouldNotBeNull();
+        service.ImplementationType.ShouldBe(typeof(DontSelfRegisterService));
+        
+        var implementation = Registrar.ServiceCollection.FirstOrDefault(
+            s => s.ServiceType == typeof(DontSelfRegisterService));
+        implementation.ShouldBeNull();
+    }
 
+    [Fact]
+    public void RegisterImplementationTypeWhenSelfRegisterIsTrueViaDependencyAttribute()
+    {
+        var service = Registrar.ServiceCollection.FirstOrDefault(
+            s => s.ServiceType == typeof(ISelfRegisterService));
+        service.ShouldNotBeNull();
+        service.ImplementationType.ShouldBe(typeof(SelfRegisterService));
+        
+        var implementation = Registrar.ServiceCollection.FirstOrDefault(
+            s => s.ServiceType == typeof(SelfRegisterService));
+        implementation.ShouldNotBeNull();
+        implementation.ImplementationType.ShouldBe(typeof(SelfRegisterService));
+    }
+    
     [Fact]
     public void RegisterInterfaceOnceWhenTryAddViaDependencyAttribute()
     {
         Registrar.ServiceCollection.Count(s => s.ServiceType == typeof(IAttributedTransientOrderManager)).ShouldBe(1);
+        Registrar.ServiceCollection.Count(s => s.ImplementationType == typeof(TryAddAttributedTransientOrderManager)).ShouldBe(0);
 
         var service = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(IAttributedTransientOrderManager));
         service.ShouldNotBeNull();
@@ -247,9 +253,10 @@ public class AssemblyDependencyRegistrarTests
     }
 
     [Fact]
-    public void RegisterInterfaceReplacingExistingViaDependencyAttribute()
+    public void ReplaceServiceInterfaceWhenStrategyIsReplaceViaDependencyAttribute()
     {
         Registrar.ServiceCollection.Count(s => s.ServiceType == typeof(ICustomerManager)).ShouldBe(1);
+        Registrar.ServiceCollection.Count(s => s.ImplementationType == typeof(CustomerManager)).ShouldBe(0);
 
         var service = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(ICustomerManager));
         service.ShouldNotBeNull();
@@ -264,11 +271,6 @@ public class AssemblyDependencyRegistrarTests
         service.ShouldNotBeNull();
         service.ImplementationType.ShouldBe(typeof(GenericAttributedManager));
         service.Lifetime.ShouldBe(ServiceLifetime.Transient);
-
-        var implementation = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(GenericAttributedManager));
-        implementation.ShouldNotBeNull();
-        implementation.ImplementationType.ShouldBe(typeof(GenericAttributedManager));
-        implementation.Lifetime.ShouldBe(ServiceLifetime.Transient);
     }
 
     [Fact]
@@ -297,9 +299,6 @@ public class AssemblyDependencyRegistrarTests
         service.ShouldNotBeNull();
         service.ImplementationType.ShouldBe(typeof(GenericAttributedManager3));
         service.Lifetime.ShouldBe(ServiceLifetime.Scoped);
-
-        var implementation = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(GenericAttributedManager3));
-        implementation.ShouldBeNull();
     }
 
     [Fact]
@@ -312,18 +311,13 @@ public class AssemblyDependencyRegistrarTests
         service.ServiceKey.ShouldBe(1);
         service.KeyedImplementationType.ShouldBe(typeof(GenericAttributedManager4));
         service.Lifetime.ShouldBe(ServiceLifetime.Transient);
-
-        var implementation = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(GenericAttributedManager4));
-        implementation.ShouldNotBeNull();
-        implementation.IsKeyedService.ShouldBeFalse();
-        implementation.ImplementationType.ShouldBe(typeof(GenericAttributedManager4));
-        implementation.Lifetime.ShouldBe(ServiceLifetime.Transient);
     }
 
     [Fact]
     public void RegisterInterfaceOnceWhenTryAddViaGenericDependencyAttribute()
     {
         Registrar.ServiceCollection.Count(s => s.ServiceType == typeof(IGenericAttributeTryAddService)).ShouldBe(1);
+        Registrar.ServiceCollection.Count(s => s.ImplementationType == typeof(GenericAttributedManager6)).ShouldBe(0);
 
         var service = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(IGenericAttributeTryAddService));
         service.ShouldNotBeNull();
@@ -332,9 +326,10 @@ public class AssemblyDependencyRegistrarTests
     }
 
     [Fact]
-    public void RegisterInterfaceReplacingExistingViaGenericDependencyAttribute()
+    public void ReplaceInterfaceWhenStrategyIsReplaceViaGenericDependencyAttribute()
     {
         Registrar.ServiceCollection.Count(s => s.ServiceType == typeof(IGenericAttributeReplaceService)).ShouldBe(1);
+        Registrar.ServiceCollection.Count(s => s.ImplementationType == typeof(GenericAttributedManager7)).ShouldBe(0);
 
         var service = Registrar.ServiceCollection.FirstOrDefault(s => s.ServiceType == typeof(IGenericAttributeReplaceService));
         service.ShouldNotBeNull();

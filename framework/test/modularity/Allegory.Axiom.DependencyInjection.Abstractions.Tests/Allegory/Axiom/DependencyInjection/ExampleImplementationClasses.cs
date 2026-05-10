@@ -87,6 +87,16 @@ internal class KeyedProductManager : IKeyedProductManager {}
 [Dependency(AutoRegister = false)]
 internal class SkipRegisterForThisClass : ITransientService {}
 
+internal interface IDontSelfRegisterService : ITransientService {}
+
+[Dependency(SelfRegister = false)]
+internal class DontSelfRegisterService : IDontSelfRegisterService {}
+
+internal interface ISelfRegisterService : ITransientService {}
+
+[Dependency(SelfRegister = true)]
+internal class SelfRegisterService : ISelfRegisterService {}
+
 [Dependency(ServiceLifetime.Transient, Strategy = RegistrationStrategy.TryAdd)]
 internal class TryAddAttributedTransientOrderManager : IAttributedTransientOrderManager {}
 
@@ -108,6 +118,7 @@ internal interface IHooManager {}
 
 [Dependency<IZooManager>(ServiceLifetime.Transient)]
 [Dependency<IHooManager>(ServiceLifetime.Scoped)]
+[Dependency(SelfRegister = true)]
 internal class GenericAttributedManager2 : IZooManager, IHooManager, ISingletonService {}
 
 internal interface IGooManager {}
