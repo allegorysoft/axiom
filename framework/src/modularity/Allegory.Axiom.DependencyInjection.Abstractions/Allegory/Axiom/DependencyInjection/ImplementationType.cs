@@ -33,7 +33,37 @@ internal readonly struct ImplementationType(Type type)
             null;
     }
 
-    public bool ShouldRegister(Type serviceType)
+    public IEnumerable<(ServiceDescriptor, RegistrationStrategy)> GetServices()
+    {
+        if (ServiceAttributes.Count > 0)
+        {
+            foreach (var service in ServiceAttributes)
+            {
+                yield return (
+                    new ServiceDescriptor(
+                        GetServiceType(service.ServiceType),
+                        service.ServiceKey,
+                        Type,
+                        GetLifetime(service)),
+                    service.Strategy);
+            }
+        }
+        else
+        {
+            foreach (var serviceType in Interfaces.Where(ShouldRegister))
+            {
+                yield return (
+                    new ServiceDescriptor(
+                        GetServiceType(serviceType),
+                        Attribute?.ServiceKey,
+                        Type,
+                        GetLifetime()),
+                    Attribute?.Strategy ?? RegistrationStrategy.Add);
+            }
+        }
+    }
+
+    private bool ShouldRegister(Type serviceType)
     {
         var serviceName = serviceType.Name.StartsWith('I') ? serviceType.Name[1..] : serviceType.Name;
         var typeName = Type.Name;
@@ -51,7 +81,7 @@ internal readonly struct ImplementationType(Type type)
         return typeName.EndsWith(serviceName, StringComparison.OrdinalIgnoreCase);
     }
 
-    public Type GetServiceType(Type serviceType)
+    private Type GetServiceType(Type serviceType)
     {
         if (Type.IsGenericTypeDefinition)
         {
