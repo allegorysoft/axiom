@@ -41,7 +41,7 @@ export default defineConfig({
               { text: 'Plugins', link: '/concepts/modularity/plugins' },
             ]
           },
-          { text: 'Interception', link: '/concepts/interception' },
+          { text: 'Interception (AOP)', link: '/concepts/interception' },
           { text: 'Unit of Work', link: '/concepts/unit-of-work' },
           { text: 'File Providers', link: '/concepts/file-providers' },
           { text: 'Localization', link: '/concepts/localization' },
