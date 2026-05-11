@@ -75,7 +75,7 @@ public async Task InterceptAsync(IInterceptorContext context)
 
 ## Registering Interceptors
 
-Register interceptors via `services.AddInterceptor<T>(predicate)` in your [application packages](./modularity/overview.md#application-packages). The predicate receives the implementation type of each registered service. The service type must be an interface, otherwise it is **skipped**.
+Register interceptors via `services.AddInterceptor<T>(predicate)` in your [application packages](./modularity/overview.md#application-packages). The predicate receives the **implementation type** of each registered service. The service type must be an interface, otherwise it is **skipped**.
 
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication

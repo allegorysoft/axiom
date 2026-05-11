@@ -9,6 +9,8 @@ namespace Allegory.Axiom.DependencyInjection;
 
 public class AssemblyDependencyRegistrar(IServiceCollection serviceCollection)
 {
+    public static HashSet<Type> IgnoredServiceTypes { get; } = [];
+
     protected internal IServiceCollection ServiceCollection { get; } = serviceCollection;
 
     public virtual void Register(Assembly assembly)
@@ -40,48 +42,22 @@ public class AssemblyDependencyRegistrar(IServiceCollection serviceCollection)
             return;
         }
 
-        var defaultLifetime = implementationType.TryGetLifetime();
-        if (defaultLifetime.HasValue)
+        var services = implementationType.GetServices().ToList();
+
+        foreach (var (descriptor, strategy) in services)
+        {
+            RegisterService(descriptor, strategy);
+        }
+
+        if (services.Count == 0 || implementationType.Attribute?.SelfRegister == true)
         {
             RegisterService(
                 new ServiceDescriptor(
                     implementationType.Type,
                     implementationType.Attribute?.ServiceKey,
                     implementationType.Type,
-                    defaultLifetime.Value),
+                    implementationType.GetLifetime()),
                 implementationType.Attribute?.Strategy ?? RegistrationStrategy.Add);
-        }
-
-        RegisterImplementationServices(implementationType);
-    }
-
-    private void RegisterImplementationServices(ImplementationType implementation)
-    {
-        if (implementation.ServiceAttributes.Count > 0)
-        {
-            foreach (var service in implementation.ServiceAttributes)
-            {
-                RegisterService(
-                    new ServiceDescriptor(
-                        implementation.GetServiceType(service.ServiceType),
-                        service.ServiceKey,
-                        implementation.Type,
-                        implementation.GetLifetime(service)),
-                    service.Strategy);
-            }
-        }
-        else
-        {
-            foreach (var serviceType in implementation.Interfaces.Where(implementation.ShouldRegister))
-            {
-                RegisterService(
-                    new ServiceDescriptor(
-                        implementation.GetServiceType(serviceType),
-                        implementation.Attribute?.ServiceKey,
-                        implementation.Type,
-                        implementation.GetLifetime()),
-                    implementation.Attribute?.Strategy ?? RegistrationStrategy.Add);
-            }
         }
     }
 

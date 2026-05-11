@@ -14,6 +14,7 @@ public class DependencyAttribute : Attribute
     }
 
     public bool AutoRegister { get; set; } = true;
+    public bool SelfRegister { get; set; }
     public ServiceLifetime? Lifetime { get; set; }
     public RegistrationStrategy Strategy { get; set; } = RegistrationStrategy.Add;
     public object? ServiceKey { get; set; }
