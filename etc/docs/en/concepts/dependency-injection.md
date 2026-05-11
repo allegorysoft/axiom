@@ -40,13 +40,17 @@ public class UserSession  : IUserSession,  IScopedService    { }
 public class AppConfig    : IAppConfig,    ISingletonService { }
 ```
 
+::: tip
+When an interface is registered, the implementation type itself is **not** registered as a service type. Only the matched interface is registered. [Service Type Resolution](#service-type-resolution) rules apply when resolving service types for an implementation.
+:::
+
 ### Interface-to-implementation name matching
 
 When the scanner finds a type, it automatically registers matching interfaces based on naming convention. The interface name with the leading `I` stripped must match the end of the class name (case-insensitive).
 ```csharp
-// ✅ IOrderService → OrderService         — matched, registered
-// ✅ IOrderService → ExtendedOrderService — matched, registered
-// ❌ IOrderManager → OrderService         — not matched, skipped
+// ✅ IOrderService → OrderService         - matched, registered
+// ✅ IOrderService → ExtendedOrderService - matched, registered
+// ❌ IOrderManager → OrderService         - not matched, skipped
 ```
 
 ### Lifetime inheritance
@@ -68,6 +72,8 @@ Use this attribute when you need explicit control over lifetime, registration st
 | `Lifetime` | `ServiceLifetime?` | `null` | Overrides the lifetime from marker interfaces. Falls back to the marker interface lifetime when `null`. |
 | `Strategy` | `RegistrationStrategy` | `Add` | Controls how the descriptor enters the container. |
 | `ServiceKey` | `object?` | `null` | Registers as a keyed service when set. |
+| `SelfRegister` | `bool` | `false` | Set to `true` to also register the implementation type itself as a service type. |
+
 ```csharp
 // Basic lifetime
 [Dependency(ServiceLifetime.Transient)]
@@ -84,6 +90,13 @@ public class PrimaryCache : ICache, ITransientService { }
 // Override marker interface lifetime, attribute wins
 [Dependency(ServiceLifetime.Transient)]
 public class OverriddenService : ISingletonService { }
+
+// Also register the implementation type as a service type
+[Dependency(SelfRegister = true)]
+public class OrderService : IOrderService, ITransientService { }
+// Registers:
+//   IOrderService → OrderService (Transient)
+//   OrderService  → OrderService (Transient)
 ```
 
 ## `[Dependency<TService>]` Attribute
@@ -108,11 +121,7 @@ public class AnimalManager : IZooManager, IHooManager, ISingletonService { }
 // Registers:
 //   IZooManager   → AnimalManager (Transient)
 //   IHooManager   → AnimalManager (Scoped)
-//   AnimalManager → AnimalManager (Singleton, from ISingletonService)
-
-// No default lifetime — only the explicit service type is registered, not the class itself
-[Dependency<IGooManager>(ServiceLifetime.Scoped)]
-public class GooManager : IGooManager { }
+//   AnimalManager → NOT registered (Services already registered via explicit attributes, no "SelfRegister" applied)
 
 // Keyed service
 [Dependency<IGenericKeyedService>(ServiceKey = 1)]
@@ -149,33 +158,57 @@ The lifetime of a registration is resolved in the following order of precedence:
 2. `[Dependency].Lifetime` if specified on the default attribute
 3. Marker interface: `ITransientService`, `IScopedService`, or `ISingletonService`
 
-The behavior differs depending on whether the lifetime is resolved for an explicit service registration (`[Dependency<TService>]`) or a default self/interface registration:
+When no lifetime can be resolved for a type that is being registered as a service, an `InvalidOperationException` is thrown at scan time. This prevents accidentally registering services when you forgot to specify one.
 
-- For **explicit service registrations** (`[Dependency<TService>]`), if no lifetime can be resolved, an `InvalidOperationException` is thrown at scan time.
-- For **default registration** (self + name-matched interfaces), if no lifetime can be resolved, the class is silently skipped. To be eligible, a class must either implement a marker interface or specify `Lifetime` on a `[Dependency]` attribute.
 ```csharp
-// ✅ Lifetime from marker interface
-public class OrderService : IOrderService, ITransientService { }
-
-// ✅ Lifetime from [Dependency] attribute
-[Dependency(ServiceLifetime.Scoped)]
-public class ReportService : IReportService { }
-
-// ⏭️ Silently skipped, no lifetime resolvable, no interfaces to match
+// 💥 InvalidOperationException - Self registration matched but no lifetime resolvable
 [Dependency]
 public class AmbiguousService { }
 
-// 💥 InvalidOperationException, IAmbiguousService matches name convention but no lifetime resolvable
+// 💥 InvalidOperationException - IAmbiguousService matched by name convention but no lifetime resolvable
 [Dependency]
 public class AmbiguousService : IAmbiguousService { }
 
-// ✅ IGooManager registered as Scoped, GooManager itself is skipped (no default lifetime)
-[Dependency<IGooManager>(ServiceLifetime.Scoped)]
-public class GooManager : IGooManager { }
-
-// 💥 InvalidOperationException, explicit [Dependency<TService>] with no lifetime
+// 💥 InvalidOperationException - explicit attribute [Dependency<TService>] matched but no lifetime resolvable
 [Dependency<IFooManager>]
 public class BadManager : IFooManager { }
+```
+
+## Service Type Resolution
+
+The service types registered for an implementation are resolved in the following order of precedence:
+
+1. `[Dependency<TService>]` attributes only the listed `TService` types are registered. Interface-name matching is **bypassed entirely**.
+2. Interface-name matching interfaces whose name (minus leading `I`) matches the end of the class name.
+3. Implementation self-registration applies in two cases:
+   - No interfaces were matched by the rules above (fallback)
+   - `[Dependency(SelfRegister = true)]` is set (explicit opt-in)
+
+```csharp
+// ✅ No interface, registers OrderService → OrderService (Transient)
+public class OrderService : ITransientService { }
+
+// ✅ Name-matched: IOrderService → OrderService (Transient)
+// ❌ OrderService itself → NOT registered
+public class OrderService : IOrderService, ITransientService { }
+
+// ✅ Explicit: IPaymentGateway → StripeGateway (Transient)
+// ❌ IStripeGateway (name match) → bypassed, not registered
+// ❌ StripeGateway itself → NOT registered
+[Dependency<IPaymentGateway>(ServiceLifetime.Transient)]
+public class StripeGateway : IPaymentGateway, IStripeGateway { }
+
+// ✅ Name-matched: IOrderService → OrderService (Transient)
+// ✅ SelfRegister: OrderService  → OrderService (Transient)
+[Dependency(SelfRegister = true)]
+public class OrderService : IOrderService, ITransientService { }
+
+// ✅ Explicit: IZooManager → AnimalManager (Transient)
+// ✅ Explicit: IHooManager → AnimalManager (Scoped)
+// ❌ AnimalManager itself → NOT registered (explicit attributes bypass name match + no SelfRegister)
+[Dependency<IZooManager>(ServiceLifetime.Transient)]
+[Dependency<IHooManager>(ServiceLifetime.Scoped)]
+public class AnimalManager : IZooManager, IHooManager, ISingletonService { }
 ```
 
 ## Generic Services
