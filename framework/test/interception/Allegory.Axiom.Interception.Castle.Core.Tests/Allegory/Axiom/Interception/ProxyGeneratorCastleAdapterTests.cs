@@ -146,6 +146,7 @@ public interface IImplementation : ITransientService
     Task<int> GetValueAsync();
 }
 
+[Dependency(SelfRegister = true)]
 public class Implementation : IImplementation
 {
     public void Execute() {}

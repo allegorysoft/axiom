@@ -9,6 +9,8 @@ namespace Allegory.Axiom.DependencyInjection;
 
 public class AssemblyDependencyRegistrar(IServiceCollection serviceCollection)
 {
+    public static HashSet<Type> IgnoredServiceTypes { get; } = [];
+
     protected internal IServiceCollection ServiceCollection { get; } = serviceCollection;
 
     public virtual void Register(Assembly assembly)

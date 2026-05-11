@@ -9,7 +9,8 @@ namespace Allegory.Axiom.DependencyInjection;
 internal readonly struct ImplementationType(Type type)
 {
     public Type Type { get; } = type;
-    public Type[] Interfaces { get; } = type.GetInterfaces();
+    public Type[] Interfaces { get; } = type.GetInterfaces()
+        .Where(c => !AssemblyDependencyRegistrar.IgnoredServiceTypes.Contains(c)).ToArray();
     public DependencyAttribute? Attribute { get; } = type.GetCustomAttribute<DependencyAttribute>();
     public List<IDependencyAttribute> ServiceAttributes { get; } = type
         .GetCustomAttributes(typeof(DependencyAttribute<>))
