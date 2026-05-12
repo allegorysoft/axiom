@@ -1,4 +1,4 @@
-namespace Allegory.Axiom.Exceptions;
+namespace Allegory.Axiom;
 
 public static class AxiomExceptionExtensions
 {
