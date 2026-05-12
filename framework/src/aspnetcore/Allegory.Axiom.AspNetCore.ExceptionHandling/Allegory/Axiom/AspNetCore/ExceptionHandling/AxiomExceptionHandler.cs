@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,19 +12,22 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using LocalizationOptions=Allegory.Axiom.Localization.LocalizationOptions;
 
-namespace Allegory.Axiom.ExceptionHandling;
+namespace Allegory.Axiom.AspNetCore.ExceptionHandling;
 
 public class AxiomExceptionHandler(
     ILogger<AxiomExceptionHandler> logger,
     IProblemDetailsService problemDetailsService,
     IStringLocalizerFactory localizerFactory,
+    IOptions<AspNetCoreExceptionHandlerOptions> options,
     IOptions<LocalizationOptions> localizationOptions)
     : IExceptionHandler
 {
     protected ILogger<AxiomExceptionHandler> Logger { get; } = logger;
     protected IProblemDetailsService ProblemDetailsService { get; } = problemDetailsService;
     protected IStringLocalizerFactory LocalizerFactory { get; } = localizerFactory;
-    protected LocalizationOptions LocalizationOptions { get; } = localizationOptions.Value;
+    protected AspNetCoreExceptionHandlerOptions Options { get; } = options.Value;
+    protected Dictionary<string, string>.AlternateLookup<ReadOnlySpan<char>> ExceptionCodeLookup { get; }
+        = localizationOptions.Value.ExceptionCodeMappings.GetAlternateLookup<ReadOnlySpan<char>>();
 
     public virtual async ValueTask<bool> TryHandleAsync(
         HttpContext context,
@@ -34,14 +39,8 @@ public class AxiomExceptionHandler(
             return false;
         }
 
-        LoggerExtensions.LogException(
-            Logger,
-            exception.LogLevel,
-            exception,
-            exception.Code,
-            exception.HttpStatusCode);
-
-        context.Response.StatusCode = (int) exception.HttpStatusCode;
+        TryLogException(exception);
+        TrySetStatusCode(context, exception);
 
         var problem = new ProblemDetailsContext
         {
@@ -51,6 +50,30 @@ public class AxiomExceptionHandler(
         };
 
         return await ProblemDetailsService.TryWriteAsync(problem);
+    }
+
+    protected virtual void TryLogException(AxiomException exception)
+    {
+        if (!Options.ExceptionLogLevels.TryGetValue(exception.GetType(), out var logLevel))
+        {
+            return;
+        }
+
+        LoggerExtensions.LogException(
+            Logger,
+            logLevel,
+            exception,
+            exception.Code);
+    }
+
+    protected virtual void TrySetStatusCode(HttpContext context, AxiomException exception)
+    {
+        if (!Options.ExceptionStatusCodes.TryGetValue(exception.GetType(), out var statusCode))
+        {
+            return;
+        }
+
+        context.Response.StatusCode = (int) statusCode;
     }
 
     protected virtual ProblemDetails GetProblemDetails(AxiomException exception)
@@ -70,7 +93,7 @@ public class AxiomExceptionHandler(
 
             problem.Extensions[key] = data.Value;
 
-            //optimize here
+            //Optimize here
             problem.Detail = problem.Detail.Replace(
                 "{" + key + "}",
                 data.Value?.ToString());
@@ -86,16 +109,15 @@ public class AxiomExceptionHandler(
             return null;
         }
 
-        var index = exception.Code.IndexOf(':');
-        if (index == -1)
+        ReadOnlySpan<char> code = exception.Code;
+
+        var index = code.IndexOf(':');
+        if (index <= 0)
         {
             return null;
         }
 
-        var exceptionCodePrefix = exception.Code[..index];
-
-        if (!LocalizationOptions.ExceptionCodeMappings.TryGetValue(
-                exceptionCodePrefix, out var localizationResource))
+        if (!ExceptionCodeLookup.TryGetValue(code[..index], out var localizationResource))
         {
             return null;
         }

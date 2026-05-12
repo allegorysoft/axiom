@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/aspnetcore/">
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.ExceptionHandling/Allegory.Axiom.AspNetCore.ExceptionHandling.csproj" />
     <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Http/Allegory.Axiom.AspNetCore.Http.csproj" />
   </Folder>
   <Folder Name="/src/core/">
@@ -8,10 +9,6 @@
     <Project Path="src/core/Allegory.Axiom.FileProviders/Allegory.Axiom.FileProviders.csproj" />
     <Project Path="src/core/Allegory.Axiom.Filter/Allegory.Axiom.Filter.csproj" />
     <Project Path="src/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
-  </Folder>
-  <Folder Name="/src/exception-handling/">
-    <Project Path="src/exception-handling/Allegory.Axiom.AspNetCore.ExceptionHandling/Allegory.Axiom.AspNetCore.ExceptionHandling.csproj" />
-    <Project Path="src/exception-handling/Allegory.Axiom.Exceptions/Allegory.Axiom.Exceptions.csproj" />
   </Folder>
   <Folder Name="/src/integration/" />
   <Folder Name="/src/interception/">
