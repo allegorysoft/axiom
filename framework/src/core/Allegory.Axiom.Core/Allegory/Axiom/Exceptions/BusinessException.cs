@@ -8,5 +8,6 @@ public class BusinessException(
     HttpStatusCode? httpStatusCode = null)
     : AxiomException(code, message)
 {
-    public HttpStatusCode? HttpStatusCode { get; init; } = httpStatusCode;
+    public virtual HttpStatusCode HttpStatusCode { get; init; } = httpStatusCode ?? HttpStatusCode.Conflict;
+    public override string Message { get; } = message ?? string.Empty;
 }
