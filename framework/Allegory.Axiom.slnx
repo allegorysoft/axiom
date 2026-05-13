@@ -39,6 +39,9 @@
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
   </Folder>
   <Folder Name="/test/" />
+  <Folder Name="/test/aspnetcore/">
+    <Project Path="test/aspnetcore/Allegory.Axiom.AspNetCore.ExceptionHandling.Tests/Allegory.Axiom.AspNetCore.ExceptionHandling.Tests.csproj" />
+  </Folder>
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Core.Tests/Allegory.Axiom.Core.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.FileProviders.Tests/Allegory.Axiom.FileProviders.Tests.csproj" />
