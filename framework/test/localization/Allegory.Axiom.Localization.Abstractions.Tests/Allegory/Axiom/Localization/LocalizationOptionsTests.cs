@@ -98,4 +98,52 @@ public class LocalizationOptionsTests
         options.Resources.Get<LocalizationOptionsTests>().AddPaths("/i18n2", "/i18n3");
         options.Resources.First().Paths.ShouldBe(["/i18n", "/i18n2", "/i18n3"]);
     }
+
+    [Fact]
+    public void ShouldMapExceptionCodeViaGenericExtension()
+    {
+        var options = new LocalizationOptions();
+        options.Resources.Add<LocalizationOptionsTests>("en", paths: ["/i18n"]);
+
+        options.MapExceptionCode<LocalizationOptionsTests>("ERR");
+
+        options.ExceptionCodeMappings.ShouldHaveSingleItem();
+        options.ExceptionCodeMappings["ERR"].ShouldBe(typeof(LocalizationOptionsTests).FullName);
+    }
+
+    [Fact]
+    public void ShouldMapExceptionCodeViaStringExtension()
+    {
+        var options = new LocalizationOptions();
+
+        options.MapExceptionCode("ERR", "MyApp.Resources.Messages");
+
+        options.ExceptionCodeMappings.ShouldHaveSingleItem();
+        options.ExceptionCodeMappings["ERR"].ShouldBe("MyApp.Resources.Messages");
+    }
+
+    [Fact]
+    public void ShouldOverwriteExceptionCodeMappingForSamePrefix()
+    {
+        var options = new LocalizationOptions();
+
+        options.MapExceptionCode("ERR", "MyApp.Resources.Messages");
+        options.MapExceptionCode("ERR", "MyApp.Resources.Errors");
+
+        options.ExceptionCodeMappings.ShouldHaveSingleItem();
+        options.ExceptionCodeMappings["ERR"].ShouldBe("MyApp.Resources.Errors");
+    }
+
+    [Fact]
+    public void ShouldMapMultipleDistinctExceptionCodes()
+    {
+        var options = new LocalizationOptions();
+
+        options.MapExceptionCode("MSG", "MyApp.Resources.Messages");
+        options.MapExceptionCode("ERR", "MyApp.Resources.Errors");
+
+        options.ExceptionCodeMappings.Count.ShouldBe(2);
+        options.ExceptionCodeMappings["MSG"].ShouldBe("MyApp.Resources.Messages");
+        options.ExceptionCodeMappings["ERR"].ShouldBe("MyApp.Resources.Errors");
+    }
 }
