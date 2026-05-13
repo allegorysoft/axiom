@@ -54,26 +54,38 @@ public class AxiomExceptionHandler(
 
     protected virtual void TryLogException(AxiomException exception)
     {
-        if (!Options.ExceptionLogLevels.TryGetValue(exception.GetType(), out var logLevel))
-        {
-            return;
-        }
+        var type = exception.GetType();
 
-        LoggerExtensions.LogException(
-            Logger,
-            logLevel,
-            exception,
-            exception.Code);
+        while (type != typeof(AxiomException) && type != null)
+        {
+            if (Options.ExceptionLogLevels.TryGetValue(type, out var logLevel))
+            {
+                LoggerExtensions.LogException(
+                    Logger,
+                    logLevel,
+                    exception,
+                    exception.Code);
+                break;
+            }
+
+            type = type.BaseType;
+        }
     }
 
     protected virtual void TrySetStatusCode(HttpContext context, AxiomException exception)
     {
-        if (!Options.ExceptionStatusCodes.TryGetValue(exception.GetType(), out var statusCode))
-        {
-            return;
-        }
+        var type = exception.GetType();
 
-        context.Response.StatusCode = (int) statusCode;
+        while (type != typeof(AxiomException) && type != null)
+        {
+            if (Options.ExceptionStatusCodes.TryGetValue(type, out var statusCode))
+            {
+                context.Response.StatusCode = (int) statusCode;
+                break;
+            }
+
+            type = type.BaseType;
+        }
     }
 
     protected virtual ProblemDetails GetProblemDetails(AxiomException exception)
