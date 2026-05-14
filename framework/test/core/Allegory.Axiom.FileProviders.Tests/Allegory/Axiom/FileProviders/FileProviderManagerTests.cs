@@ -9,8 +9,8 @@ using Xunit;
 
 namespace Allegory.Axiom.FileProviders;
 
-public class FileProviderManagerTests(FileProviderManagerTestFixture fixture)
-    : IClassFixture<FileProviderManagerTestFixture>
+public class FileProviderManagerTests(FileProviderManagerFixture fixture)
+    : IClassFixture<FileProviderManagerFixture>
 {
     protected FileProviderManager Manager { get; } = fixture.Service<FileProviderManager>();
 
@@ -56,7 +56,7 @@ public class FileProviderManagerTests(FileProviderManagerTestFixture fixture)
     }
 }
 
-public class FileProviderManagerTestFixture : IntegrationTestFixture
+public class FileProviderManagerFixture : IntegrationTest
 {
     protected override Task ConfigureAsync(IHostApplicationBuilder builder)
     {

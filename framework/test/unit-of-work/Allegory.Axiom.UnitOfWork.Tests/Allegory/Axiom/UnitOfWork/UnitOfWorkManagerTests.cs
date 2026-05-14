@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkManagerTests(UnitOfWorkManagerTestFixture fixture) : IClassFixture<UnitOfWorkManagerTestFixture>
+public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFixture<UnitOfWorkManagerFixture>
 {
     protected IUnitOfWorkManager Manager { get; } = fixture.Service<IUnitOfWorkManager>();
 
@@ -242,7 +242,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerTestFixture fixture) : ICla
     }
 }
 
-public class UnitOfWorkManagerTestFixture : IntegrationTestFixture
+public class UnitOfWorkManagerFixture : IntegrationTest
 {
     protected override Task ConfigureAsync(IHostApplicationBuilder builder)
     {

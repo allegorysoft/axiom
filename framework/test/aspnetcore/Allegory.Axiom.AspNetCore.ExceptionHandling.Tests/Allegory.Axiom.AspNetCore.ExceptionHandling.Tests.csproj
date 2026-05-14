@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
+        <ProjectReference Include="..\..\..\src\aspnetcore\Allegory.Axiom.AspNetCore.ExceptionHandling\Allegory.Axiom.AspNetCore.ExceptionHandling.csproj"/>
+    </ItemGroup>
+
+</Project>

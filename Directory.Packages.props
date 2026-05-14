@@ -23,6 +23,8 @@
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Localization" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Localization.Abstractions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="System.Text.Json" Version="$(RuntimePackageVersion)"/>

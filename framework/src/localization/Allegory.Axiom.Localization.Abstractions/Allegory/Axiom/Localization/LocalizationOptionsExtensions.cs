@@ -4,8 +4,24 @@ using System.Linq;
 
 namespace Allegory.Axiom.Localization;
 
-public static class LocalizationResourceOptionsExtensions
+public static class LocalizationOptionsExtensions
 {
+    extension(LocalizationOptions options)
+    {
+        public void MapExceptionCode<T>(string exceptionCodePrefix)
+        {
+            var resource = typeof(T).FullName;
+            ArgumentException.ThrowIfNullOrEmpty(resource);
+
+            options.ExceptionCodeMappings[exceptionCodePrefix] = resource;
+        }
+
+        public void MapExceptionCode(string exceptionCodePrefix, string resourceName)
+        {
+            options.ExceptionCodeMappings[exceptionCodePrefix] = resourceName;
+        }
+    }
+
     extension(ICollection<LocalizationResourceOptions> options)
     {
         public LocalizationResourceOptions Get<T>()
