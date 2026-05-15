@@ -1,11 +1,12 @@
 ﻿using System.Diagnostics;
 using System.Threading;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Threading;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWorkManager
+public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWorkManager, ISingletonService
 {
     protected internal static readonly AsyncLocal<AsyncLocalContext<IUnitOfWork>?> CurrentUnitOfWork = new();
     private static readonly ActivitySource ActivitySource = new("Allegory.Axiom.UnitOfWork");

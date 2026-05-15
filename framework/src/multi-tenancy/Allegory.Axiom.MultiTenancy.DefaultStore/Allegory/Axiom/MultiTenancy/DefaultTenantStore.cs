@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.MultiTenancy;
@@ -8,7 +9,7 @@ namespace Allegory.Axiom.MultiTenancy;
 public class DefaultTenantStore(
     IOptions<DefaultTenantStoreOptions> options,
     ITenantNormalizer tenantNormalizer)
-    : ITenantStore
+    : ITenantStore, ISingletonService
 {
     protected DefaultTenantStoreOptions Options { get; } = options.Value;
     protected ITenantNormalizer TenantNormalizer { get; } = tenantNormalizer;

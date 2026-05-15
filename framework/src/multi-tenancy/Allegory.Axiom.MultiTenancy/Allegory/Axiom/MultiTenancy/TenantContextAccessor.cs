@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Disposables;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public class TenantContextAccessor : ITenantContextAccessor
+public class TenantContextAccessor : ITenantContextAccessor, ISingletonService
 {
     protected internal static readonly AsyncLocal<TenantContext?> CurrentTenantContext = new();
 

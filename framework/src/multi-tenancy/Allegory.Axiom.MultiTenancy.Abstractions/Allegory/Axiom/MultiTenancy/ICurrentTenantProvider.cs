@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public interface ICurrentTenantProvider : ISingletonService
+public interface ICurrentTenantProvider
 {
     ValueTask<TenantContext?> TryGetAsync();
 }

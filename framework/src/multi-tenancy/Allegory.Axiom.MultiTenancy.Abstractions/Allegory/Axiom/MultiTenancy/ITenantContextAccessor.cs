@@ -1,9 +1,8 @@
 using System;
-using Allegory.Axiom.DependencyInjection;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public interface ITenantContextAccessor : ISingletonService
+public interface ITenantContextAccessor
 {
     TenantContext? Current { get; }
     void Set(TenantContext? current = null);

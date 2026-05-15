@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
@@ -8,7 +9,7 @@ namespace Allegory.Axiom.MultiTenancy;
 public class HttpContextCurrentTenantIdentifierProvider(
     IHttpContextAccessor httpContextAccessor,
     IOptions<AspNetCoreMultiTenancyOptions> options)
-    : ICurrentTenantIdentifierProvider
+    : ICurrentTenantIdentifierProvider, ISingletonService
 {
     public AspNetCoreMultiTenancyOptions Options { get; } = options.Value;
 

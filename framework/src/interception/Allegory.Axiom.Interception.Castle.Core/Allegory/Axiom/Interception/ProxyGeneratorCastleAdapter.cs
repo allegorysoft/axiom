@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Allegory.Axiom.Interception;
 
 [Dependency<IProxyGenerator>]
-public class ProxyGeneratorCastleAdapter : IProxyGenerator
+public class ProxyGeneratorCastleAdapter : IProxyGenerator, ISingletonService
 {
     //CreateClassProxy, CreateClassProxy<>, CreateClassProxyWithTarget
     //CreateInterfaceProxyWithTarget, CreateInterfaceProxyWithTargetInterface
