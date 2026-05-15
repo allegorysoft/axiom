@@ -1,5 +1,6 @@
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Exceptions;
 using Allegory.Axiom.Security.Principal;
 
@@ -8,7 +9,7 @@ namespace Allegory.Axiom.MultiTenancy;
 public class CurrentTenantChecker(
     ITenantPrincipalStore tenantPrincipalStore,
     IPrincipalAccessor principalAccessor)
-    : ICurrentTenantChecker
+    : ICurrentTenantChecker, ISingletonService
 {
     protected ITenantPrincipalStore TenantPrincipalStore { get; } = tenantPrincipalStore;
     protected IPrincipalAccessor PrincipalAccessor { get; } = principalAccessor;

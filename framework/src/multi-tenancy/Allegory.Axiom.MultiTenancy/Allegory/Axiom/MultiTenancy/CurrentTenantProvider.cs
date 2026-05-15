@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Exceptions;
 
 namespace Allegory.Axiom.MultiTenancy;
@@ -9,7 +10,7 @@ public class CurrentTenantProvider(
     IEnumerable<ICurrentTenantIdentifierProvider> providers,
     ITenantStore store,
     ICurrentTenantChecker checker)
-    : ICurrentTenantProvider
+    : ICurrentTenantProvider, ISingletonService
 {
     protected IEnumerable<ICurrentTenantIdentifierProvider> Providers { get; } = providers;
     protected ITenantStore Store { get; } = store;

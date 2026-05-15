@@ -1,8 +1,6 @@
-using Allegory.Axiom.DependencyInjection;
-
 namespace Allegory.Axiom.MultiTenancy;
 
-public interface ITenantNormalizer : ISingletonService
+public interface ITenantNormalizer
 {
     string NormalizeName(string name);
 }

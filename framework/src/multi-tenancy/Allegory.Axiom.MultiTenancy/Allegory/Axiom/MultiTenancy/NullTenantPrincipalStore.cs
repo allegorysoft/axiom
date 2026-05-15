@@ -8,7 +8,7 @@ using Allegory.Axiom.DependencyInjection;
 namespace Allegory.Axiom.MultiTenancy;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
-public class NullTenantPrincipalStore : ITenantPrincipalStore
+public class NullTenantPrincipalStore : ITenantPrincipalStore, ISingletonService
 {
     public Task<bool> HasAccessAsync(
         string principalId,

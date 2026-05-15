@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public interface ITenantPrincipalStore : ISingletonService
+public interface ITenantPrincipalStore
 {
     Task<bool> HasAccessAsync(
         string principalId,

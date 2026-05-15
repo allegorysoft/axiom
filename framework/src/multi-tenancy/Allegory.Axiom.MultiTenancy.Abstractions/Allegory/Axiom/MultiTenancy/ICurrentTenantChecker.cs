@@ -1,9 +1,8 @@
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public interface ICurrentTenantChecker : ISingletonService
+public interface ICurrentTenantChecker
 {
     Task CheckAsync(TenantContext tenant);
 }
