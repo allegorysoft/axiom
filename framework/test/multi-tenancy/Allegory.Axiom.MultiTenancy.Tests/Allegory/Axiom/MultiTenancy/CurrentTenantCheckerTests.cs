@@ -53,6 +53,7 @@ public class CurrentTenantCheckerTests(IntegrationTestFixture fixture) : IClassF
         var ex = await Should.ThrowAsync<AuthorizationException>(() =>
             Checker.CheckAsync(tenant!));
 
+        ex.Code.ShouldBe(MultiTenancyExceptionCodes.PrincipalHasNoAccess);
         ex.Data["tenantId"].ShouldBe(tenant!.Id);
         ex.Data["principalId"].ShouldBe(Thread.CurrentPrincipal.Identity!.GetNameIdentifier());
     }
