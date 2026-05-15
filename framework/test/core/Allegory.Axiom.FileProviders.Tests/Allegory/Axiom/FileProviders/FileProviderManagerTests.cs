@@ -15,9 +15,18 @@ public class FileProviderManagerTests(FileProviderManagerFixture fixture)
     protected FileProviderManager Manager { get; } = fixture.Service<FileProviderManager>();
 
     [Fact]
-    public void ShouldReverseProvidersOrder()
+    public async Task ShouldReverseProvidersOrder()
     {
-        var compositeProvider = Manager.FileProvider;
+        var provider = await fixture.CreateServiceProviderAsync(postConfigure: builder =>
+        {
+            builder.Services.Configure<FileProviderOptions>(o =>
+            {
+                o.Providers.Clear();
+                o.AddEmbedded<FileProviderManagerTests>();
+                o.AddPhysical(AppContext.BaseDirectory);
+            });
+        });
+        var compositeProvider = provider.GetRequiredService<FileProviderManager>().FileProvider;
 
         var providers = compositeProvider.FileProviders.ToList();
 
