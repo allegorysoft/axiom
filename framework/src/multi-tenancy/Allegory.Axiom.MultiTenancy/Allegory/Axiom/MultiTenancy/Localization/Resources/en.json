@@ -1,0 +1,5 @@
+{
+  "Axiom.MultiTenancy:TenantNotFound": "Tenant was not found.",
+  "Axiom.MultiTenancy:TenantNotActive": "Tenant is not active.",
+  "Axiom.MultiTenancy:PrincipalHasNoAccess": "The current principal does not have access to the requested tenant."
+}

@@ -1,6 +1,6 @@
-using System;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using Allegory.Axiom.Exceptions;
 using Allegory.Axiom.Security.Principal;
 
 namespace Allegory.Axiom.MultiTenancy;
@@ -22,16 +22,13 @@ public class CurrentTenantChecker(
             return;
         }
 
-        var principalId = identity.FindId();
-
-        if (string.IsNullOrWhiteSpace(principalId))
-        {
-            throw new Exception("Principal id not found");
-        }
+        var principalId = identity.GetNameIdentifier();
 
         if (!await TenantPrincipalStore.HasAccessAsync(principalId, tenant.Id))
         {
-            throw new Exception($"Principal ({principalId}) does not have access to {tenant.Id}");
+            throw new AuthorizationException(MultiTenancyExceptionCodes.PrincipalHasNoAccess)
+                .AddData("principalId", principalId)
+                .AddData("tenantId", tenant.Id);
         }
     }
 }

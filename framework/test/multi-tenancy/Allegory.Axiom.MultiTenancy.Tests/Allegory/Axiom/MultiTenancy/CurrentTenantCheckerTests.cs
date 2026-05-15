@@ -1,8 +1,9 @@
-using System;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using NSubstitute.Exceptions;
+using Allegory.Axiom.Exceptions;
+using Allegory.Axiom.Security;
 using Shouldly;
 using Xunit;
 
@@ -36,10 +37,10 @@ public class CurrentTenantCheckerTests(IntegrationTestFixture fixture) : IClassF
         Thread.CurrentPrincipal = new ClaimsPrincipal(
             new ClaimsIdentity([], authenticationType: "test"));// no NameIdentifier
 
-        var ex = await Should.ThrowAsync<Exception>(() =>
+        var ex = await Should.ThrowAsync<AuthorizationException>(() =>
             Checker.CheckAsync(tenant!));
 
-        ex.Message.ShouldContain("Principal id not found");
+        ex.Code.ShouldBe(SecurityExceptionCodes.NameIdentifierNotFound);
     }
     
     [Fact]
@@ -49,10 +50,12 @@ public class CurrentTenantCheckerTests(IntegrationTestFixture fixture) : IClassF
         Thread.CurrentPrincipal = new ClaimsPrincipal(
             new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "123")], authenticationType: "test"));
 
-        var ex = await Should.ThrowAsync<Exception>(() =>
+        var ex = await Should.ThrowAsync<AuthorizationException>(() =>
             Checker.CheckAsync(tenant!));
 
-        ex.Message.ShouldContain(tenant!.Id.ToString());
+        ex.Code.ShouldBe(MultiTenancyExceptionCodes.PrincipalHasNoAccess);
+        ex.Data["tenantId"].ShouldBe(tenant!.Id);
+        ex.Data["principalId"].ShouldBe(Thread.CurrentPrincipal.Identity!.GetNameIdentifier());
     }
     
     [Fact]

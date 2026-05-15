@@ -2,6 +2,7 @@ using System;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Shouldly;
@@ -116,9 +117,10 @@ public class CurrentTenantProviderTests : IntegrationTest
         });
 
         var provider = services.GetRequiredService<ICurrentTenantProvider>();
-        var result = await Should.ThrowAsync<Exception>(async () => await provider.TryGetAsync());
+        var result = await Should.ThrowAsync<NotFoundException>(async () => await provider.TryGetAsync());
 
-        result.Message.ShouldContain(missingId.ToString());
+        result.Code.ShouldBe(MultiTenancyExceptionCodes.TenantNotFound);
+        result.Data["identifier"].ShouldBe(missingId.ToString());
     }
 
     [Fact]
@@ -132,9 +134,10 @@ public class CurrentTenantProviderTests : IntegrationTest
         });
 
         var provider = services.GetRequiredService<ICurrentTenantProvider>();
-        var result = await Should.ThrowAsync<Exception>(async () => await provider.TryGetAsync());
+        var result = await Should.ThrowAsync<NotFoundException>(async () => await provider.TryGetAsync());
 
-        result.Message.ShouldContain("ghost");
+        result.Code.ShouldBe(MultiTenancyExceptionCodes.TenantNotFound);
+        result.Data["identifier"].ShouldBe("ghost");
     }
 
     //ShouldThrowWhenTenantIsNotActive

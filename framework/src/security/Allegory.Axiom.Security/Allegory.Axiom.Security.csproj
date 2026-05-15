@@ -3,10 +3,23 @@
     <PropertyGroup>
         <TargetFramework>$(DotnetVersion)</TargetFramework>
         <RootNamespace/>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.Security.Abstractions\Allegory.Axiom.Security.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\core\Allegory.Axiom.FileProviders\Allegory.Axiom.FileProviders.csproj"/>
+        <ProjectReference Include="..\..\localization\Allegory.Axiom.Localization.Abstractions\Allegory.Axiom.Localization.Abstractions.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Allegory\Axiom\Security\Localization\Resources\*.json"/>
+        <Content Remove="Allegory\Axiom\Security\Localization\Resources\*.json"/>
     </ItemGroup>
 
 </Project>
