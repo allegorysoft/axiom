@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Allegory.Axiom.Exceptions;
 
 namespace Allegory.Axiom.MultiTenancy;
 
@@ -54,7 +55,8 @@ public class CurrentTenantProvider(
 
         if (tenant == null)
         {
-            throw new Exception($"Tenant ({identifier}) couldn't be found.");
+            throw new NotFoundException(MultiTenancyExceptionCodes.TenantNotFound)
+                .AddData("identifier", identifier);
         }
 
         //Check tenant.IsActive
