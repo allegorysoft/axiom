@@ -24,7 +24,7 @@ public class HttpContextCurrentTenantIdentifierProviderTests
         string? headerValue = null,
         string? queryValue = null,
         string? routeValue = null,
-        string headerKey = "X-Tenant",
+        string headerKey = "Tenant",
         string queryKey = "__tenant",
         string routeKey = "tenant")
     {

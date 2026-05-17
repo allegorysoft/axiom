@@ -45,6 +45,7 @@ export default defineConfig({
           { text: 'Unit of Work', link: '/concepts/unit-of-work' },
           { text: 'File Providers', link: '/concepts/file-providers' },
           { text: 'Localization', link: '/concepts/localization' },
+          { text: 'Multi Tenancy', link: '/concepts/multi-tenancy' },
         ]
       }
     ],
