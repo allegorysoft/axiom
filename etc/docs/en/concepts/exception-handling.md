@@ -74,8 +74,9 @@ public class OrderNotFoundException(string? code = null, string? message = null)
 Entries in `Exception.Data` are interpolated into the message using `{key}` placeholders and also added as extensions on the problem details response. The placeholder name must match the data key exactly.
 
 ```csharp
-var ex = new BusinessException(code: "BIZ:001", message: "Entity {id} not found");
-ex.Data["id"] = 42;
+var ex = new BusinessException(
+     code: "BIZ:001", message: "Entity {id} not found"
+    ).AddData("id", 42);
 
 // ProblemDetails:
 // title:   "BIZ:001"
@@ -134,7 +135,7 @@ Every handled exception produces a response conforming to [RFC 9457](https://www
 {
   "title": "BIZ:001",
   "detail": "Entity 42 not found",
-  "status": 422,
+  "status": 409,
   "id": 42
 }
 ```
