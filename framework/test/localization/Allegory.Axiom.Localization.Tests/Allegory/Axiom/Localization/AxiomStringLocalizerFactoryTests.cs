@@ -12,7 +12,7 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldCreateStringLocalizerForRegisteredResourceType()
     {
-        var localizer = LocalizerFactory.Create(typeof(AxiomLocalizationResource));
+        var localizer = LocalizerFactory.Create(typeof(LocalizationResource));
 
         localizer.ShouldNotBeNull();
         localizer.ShouldBeOfType<AxiomStringLocalizer>();
@@ -21,7 +21,7 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldCreateStringLocalizerByResourceName()
     {
-        var resourceName = typeof(AxiomLocalizationResource).FullName!;
+        var resourceName = ResourceNameAttribute.Get<LocalizationResource>();
 
         var localizer = LocalizerFactory.Create(resourceName, string.Empty);
 
@@ -32,8 +32,8 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldReturnSameStringLocalizerOnSubsequentCallsForSameResourceType()
     {
-        var first = LocalizerFactory.Create(typeof(AxiomLocalizationResource));
-        var second = LocalizerFactory.Create(typeof(AxiomLocalizationResource));
+        var first = LocalizerFactory.Create(typeof(LocalizationResource));
+        var second = LocalizerFactory.Create(typeof(LocalizationResource));
 
         first.ShouldBeSameAs(second);
     }
@@ -41,7 +41,7 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldReturnSameStringLocalizerOnSubsequentCallsForSameResourceName()
     {
-        var resourceName = typeof(AxiomLocalizationResource).FullName!;
+        var resourceName = ResourceNameAttribute.Get<LocalizationResource>();
 
         var first = LocalizerFactory.Create(resourceName, string.Empty);
         var second = LocalizerFactory.Create(resourceName, string.Empty);
@@ -72,16 +72,16 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     {
         var factory = (AxiomStringLocalizerFactory) LocalizerFactory;
 
-        LocalizerFactory.Create(typeof(AxiomLocalizationResource));
+        LocalizerFactory.Create(typeof(LocalizationResource));
 
-        factory.LocalizerCache.ContainsKey(typeof(AxiomLocalizationResource).FullName!).ShouldBeTrue();
+        factory.LocalizerCache.ContainsKey(ResourceNameAttribute.Get<LocalizationResource>()).ShouldBeTrue();
     }
 
     [Fact]
     public void ShouldCacheLocalizerCreatedByResourceName()
     {
         var factory = (AxiomStringLocalizerFactory) LocalizerFactory;
-        var resourceName = typeof(AxiomLocalizationResource).FullName!;
+        var resourceName = ResourceNameAttribute.Get<LocalizationResource>();
 
         LocalizerFactory.Create(resourceName, string.Empty);
 
@@ -91,9 +91,9 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldReturnSameLocalizerInstanceWhenCreatedByResourceTypeAndResourceName()
     {
-        var baseName = typeof(AxiomLocalizationResource).FullName!;
+        var baseName = ResourceNameAttribute.Get<LocalizationResource>();
 
-        var byType = LocalizerFactory.Create(typeof(AxiomLocalizationResource));
+        var byType = LocalizerFactory.Create(typeof(LocalizationResource));
         var byName = LocalizerFactory.Create(baseName, string.Empty);
 
         byType.ShouldBeSameAs(byName);

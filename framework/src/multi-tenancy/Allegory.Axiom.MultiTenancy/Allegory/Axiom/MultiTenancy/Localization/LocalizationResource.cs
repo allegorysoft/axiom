@@ -1,3 +1,6 @@
+using Allegory.Axiom.Localization;
+
 namespace Allegory.Axiom.MultiTenancy.Localization;
 
-public class LocalizationResource {}
+[ResourceName(MultiTenancyExceptionCodes.Resource)]
+public sealed class LocalizationResource {}

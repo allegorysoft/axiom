@@ -21,10 +21,7 @@ internal sealed class MultiTenancyPackage : IConfigureApplication
         {
             options.Resources.Add<LocalizationResource>(
                 defaultCulture: "en",
-                paths:
-                [
-                    "Allegory/Axiom/MultiTenancy/Localization/Resources"
-                ]);
+                paths: "Allegory/Axiom/MultiTenancy/Localization/Resources");
 
             options.MapExceptionCode<LocalizationResource>(MultiTenancyExceptionCodes.Resource);
         });

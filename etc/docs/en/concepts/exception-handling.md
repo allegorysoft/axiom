@@ -11,9 +11,9 @@ The base class for all Axiom exceptions is `AxiomException`. Several subtypes ar
 
 | Exception | Intended use |
 |---|---|
+| `AuthorizationException` | The caller lacks permission |
 | `BusinessException` | A violated business rule or precondition |
 | `NotFoundException` | A requested resource does not exist |
-| `AuthorizationException` | The caller lacks permission |
 
 Throw them from anywhere in your application logic:
 
@@ -86,7 +86,7 @@ var ex = new BusinessException(
 
 ### Localization
 
-If an exception has no message but has a code, the handler can look up the detail from a string localizer. The code must contain a `:` separator and the prefix before it must be mapped to a resource name via `MapExceptionCode` in `LocalizationOptions`.
+If an exception has no message but has a code, the handler can look up the detail from a string localizer. The code must contain a `:` separator and the prefix before it must be [mapped](./localization#exception-code-mapping) to a resource name via `MapExceptionCode` in `LocalizationOptions`.
 
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication

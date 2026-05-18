@@ -18,7 +18,7 @@ internal sealed class LocalizationTestsPackage : IConfigureApplication
 
         builder.Services.Configure<LocalizationOptions>(options =>
         {
-            options.Resources.Add<AxiomLocalizationResource>(
+            options.Resources.Add<LocalizationResource>(
                 defaultCulture: "en",
                 paths:
                 [

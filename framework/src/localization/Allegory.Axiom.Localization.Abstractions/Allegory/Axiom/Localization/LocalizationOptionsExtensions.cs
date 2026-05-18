@@ -10,8 +10,7 @@ public static class LocalizationOptionsExtensions
     {
         public void MapExceptionCode<T>(string exceptionCodePrefix)
         {
-            var resource = typeof(T).FullName;
-            ArgumentException.ThrowIfNullOrEmpty(resource);
+            var resource = ResourceNameAttribute.Get<T>();
 
             options.ExceptionCodeMappings[exceptionCodePrefix] = resource;
         }
@@ -26,7 +25,7 @@ public static class LocalizationOptionsExtensions
     {
         public LocalizationResourceOptions Get<T>()
         {
-            return options.First(o => o.Name == typeof(T).FullName);
+            return options.First(o => o.Name == ResourceNameAttribute.Get<T>());
         }
 
         public LocalizationResourceOptions Get(string name)
@@ -36,8 +35,7 @@ public static class LocalizationOptionsExtensions
 
         public void Add<T>(string defaultCulture, params IEnumerable<string> paths)
         {
-            var resource = typeof(T).FullName;
-            ArgumentException.ThrowIfNullOrEmpty(resource);
+            var resource = ResourceNameAttribute.Get<T>();
 
             if (options.Any(o => o.Name == resource))
             {

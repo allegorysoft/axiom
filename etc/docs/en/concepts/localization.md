@@ -18,7 +18,7 @@ The key terms to understand before diving in:
 
 | Concept | Description |
 |---|---|
-| **Resource** | A marker class (`MyAppResource`) that identifies a named set of translations. |
+| **Resource** | A named localization set identified by a marker type or explicit resource name. |
 | **Translation file** | A JSON file named after a culture code (e.g. `en.json`, `tr-TR.json`). |
 | **Default culture** | The fallback culture used when no translation exists for the current culture chain. |
 | **Path** | A virtual directory path resolved through the file provider. Multiple paths merge at the key level. |
@@ -72,7 +72,7 @@ String formatting uses `{0}`, `{1}`, etc. passed as arguments when indexing the 
 
 ## Resource Registration
 
-Resources are registered through `LocalizationOptions` in your [application package](./modularity/overview#application-packages). Each resource has a marker type (or name string), default culture and one or more translation directories.
+Resources are registered through `LocalizationOptions` in your [application package](./modularity/overview#application-packages). Each resource has a unique resource name, default culture and one or more translation directories. Resource names can be inferred from the marker type or explicitly defined using [ResourceName].
 
 ```csharp
 internal sealed class MyAppPackage : IConfigureApplication
@@ -101,9 +101,16 @@ internal sealed class MyAppPackage : IConfigureApplication
 }
 ```
 
-`MyAppResource` is a plain marker class used to identify the resource:
+`MyAppResource` is a plain marker class used to identify the resource. By default, the resource name is inferred from the type name (`MyAppResource` in this example).
 
 ```csharp
+public class MyAppResource { }
+```
+
+You can explicitly define the resource name using `[ResourceName]`. Using explicit resource names avoids relying on naming conventions and ensures resource resolution remains stable even if the marker class name changes.
+
+```csharp
+[ResourceName("MyCustomResource")]
 public class MyAppResource { }
 ```
 
@@ -123,6 +130,107 @@ options.Resources.Add<MyAppResource>(
 For registering embedded resources correctly, follow the [Embedded Resources Setup](#embedded-resources-setup) section.
 :::
 
+## Resource Names
+
+Every localization resource has a unique string name internally.
+
+When using generic APIs like:
+
+```csharp
+options.Resources.Add<MyAppResource>();
+```
+
+Axiom resolves the resource name through `ResourceNameAttribute.Get<T>()`.
+
+If no `[ResourceName]` attribute exists, the marker type name is used:
+
+```csharp
+public class MyAppResource { }
+
+// Resource name: "Namespace.MyAppResource"
+```
+
+You can override this explicitly:
+
+```csharp
+[ResourceName("MyApp")]
+public class MyAppResource { }
+
+// Resource name: "MyApp"
+```
+
+This is useful when:
+
+* You want stable resource identifiers independent from type renames
+* You prefer shorter or cleaner resource names
+* You want explicit resource mapping instead of convention-based inference
+
+Non-generic APIs can also be used directly with resource names:
+
+```csharp
+options.Resources.Add(
+    name: "MyApp",
+    defaultCulture: "en",
+    paths: "/Resources/Localization");
+
+options.Resources.Get("MyApp");
+
+options.MapExceptionCode("App.Exceptions", "MyApp");
+```
+
+## Exception Code Mapping
+
+Localization options map exception code prefixes to localization resources. This allows infrastructure and application exceptions to resolve localized messages automatically.
+
+Register mappings through `LocalizationOptions`:
+
+```csharp
+builder.Services.Configure<LocalizationOptions>(options =>
+{
+    options.Resources.Add<MyAppResource>(
+        defaultCulture: "en",
+        paths: "/Resources/Localization");
+
+    // When exception code starts with "App", look up the resource mapped to MyAppResource for translations
+    options.MapExceptionCode<MyAppResource>("App");
+});
+```
+
+You can also map directly by resource name:
+
+```csharp
+options.MapExceptionCode(
+    exceptionCodePrefix: "App",
+    resourceName: "MyApp");
+```
+
+Exception codes are matched by prefix. Example exception:
+
+```csharp
+throw new BusinessException("App:UserNotFound");
+```
+
+Translation file:
+
+```json
+{
+  "App:UserNotFound": "User not found."
+}
+```
+
+When the exception is handled, the localization system resolves the resource mapped to the `App` prefix and retrieves the localized message using the full exception code as the translation key.
+
+Multiple prefixes can map to different resources:
+
+```csharp
+options.MapExceptionCode<AccountResource>("Account");
+options.MapExceptionCode<IdentityResource>("Identity");
+options.MapExceptionCode<PaymentResource>("Payment");
+```
+
+This keeps exception translations modular and isolated per bounded context or package.
+For more details on exception handling and localization, see the [Exception Handling](./exception-handling.md) documentation.
+
 ## Resolving Strings
 
 Inject `IStringLocalizer<T>` where `T` is your resource marker class:
@@ -132,6 +240,19 @@ public class OrderService(IStringLocalizer<MyAppResource> localizer) : ITransien
 {
     public string GetGreeting(string name)
         => localizer["welcome", name].Value;
+}
+```
+
+When a resource type has `[ResourceName]` attribute, `IStringLocalizer<T>` resolves translations using the configured resource name instead of the marker class type name.
+
+```csharp
+[ResourceName("Orders")]
+public class OrderResource { }
+
+public class OrderService(IStringLocalizer<OrderResource> localizer)
+{
+    public string GetMessage()
+        => localizer["created"];
 }
 ```
 

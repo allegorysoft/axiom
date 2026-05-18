@@ -14,5 +14,5 @@ public class AxiomApplicationOptions
     public AxiomApplicationBuilder? ApplicationBuilder { get; set; }
     public List<IAxiomApplicationPlugin> Plugins { get; set; } = [];
 
-    //Remote plugin
+    //TODO: Remote plugin
 }

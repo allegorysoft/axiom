@@ -60,7 +60,7 @@ public class CurrentTenantProvider(
                 .AddData("identifier", identifier);
         }
 
-        //Check tenant.IsActive
+        //TODO: Check tenant.IsActive
 
         return tenant;
     }
