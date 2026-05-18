@@ -21,7 +21,7 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldCreateStringLocalizerByResourceName()
     {
-        var resourceName = typeof(LocalizationResource).FullName!;
+        var resourceName = ResourceNameAttribute.Get<LocalizationResource>();
 
         var localizer = LocalizerFactory.Create(resourceName, string.Empty);
 
@@ -41,7 +41,7 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldReturnSameStringLocalizerOnSubsequentCallsForSameResourceName()
     {
-        var resourceName = typeof(LocalizationResource).FullName!;
+        var resourceName = ResourceNameAttribute.Get<LocalizationResource>();
 
         var first = LocalizerFactory.Create(resourceName, string.Empty);
         var second = LocalizerFactory.Create(resourceName, string.Empty);
@@ -74,14 +74,14 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
 
         LocalizerFactory.Create(typeof(LocalizationResource));
 
-        factory.LocalizerCache.ContainsKey(typeof(LocalizationResource).FullName!).ShouldBeTrue();
+        factory.LocalizerCache.ContainsKey(ResourceNameAttribute.Get<LocalizationResource>()).ShouldBeTrue();
     }
 
     [Fact]
     public void ShouldCacheLocalizerCreatedByResourceName()
     {
         var factory = (AxiomStringLocalizerFactory) LocalizerFactory;
-        var resourceName = typeof(LocalizationResource).FullName!;
+        var resourceName = ResourceNameAttribute.Get<LocalizationResource>();
 
         LocalizerFactory.Create(resourceName, string.Empty);
 
@@ -91,7 +91,7 @@ public class AxiomStringLocalizerFactoryTests(IntegrationTestFixture fixture) : 
     [Fact]
     public void ShouldReturnSameLocalizerInstanceWhenCreatedByResourceTypeAndResourceName()
     {
-        var baseName = typeof(LocalizationResource).FullName!;
+        var baseName = ResourceNameAttribute.Get<LocalizationResource>();
 
         var byType = LocalizerFactory.Create(typeof(LocalizationResource));
         var byName = LocalizerFactory.Create(baseName, string.Empty);

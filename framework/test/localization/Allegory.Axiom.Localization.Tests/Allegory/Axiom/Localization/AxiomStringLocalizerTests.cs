@@ -143,7 +143,7 @@ public class AxiomStringLocalizerTests(IntegrationTestFixture fixture) : IClassF
         CultureInfo.CurrentUICulture = new CultureInfo("en");
         var factory = fixture.Service<IStringLocalizerFactory>();
         var localizer1 = (IAxiomStringLocalizer) factory.Create(typeof(LocalizationResource));
-        var localizer2 = factory.Create(typeof(LocalizationResource).FullName!, string.Empty);
+        var localizer2 = factory.Create(ResourceNameAttribute.Get<LocalizationResource>(), string.Empty);
         var localizer3 = fixture.Service<IStringLocalizer<LocalizationResource>>();
 
         localizer1.Translations["en"].TryGetValue("some-key", out _).ShouldBeFalse();

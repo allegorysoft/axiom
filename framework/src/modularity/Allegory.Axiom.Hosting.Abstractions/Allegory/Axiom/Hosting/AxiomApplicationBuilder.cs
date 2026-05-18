@@ -84,7 +84,6 @@ public class AxiomApplicationBuilder
             return result;
         }
 
-        // To include DependencyInjection.Abstractions, add " || library.Name == targetName" to the condition
         if (library.Dependencies.Any(d => d.Name == targetName))
         {
             return checkedLibraries[library.Name] = true;

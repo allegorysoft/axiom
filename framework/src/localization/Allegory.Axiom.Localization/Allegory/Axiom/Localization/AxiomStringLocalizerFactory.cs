@@ -21,21 +21,21 @@ public class AxiomStringLocalizerFactory(
 
     public virtual IStringLocalizer Create(Type resourceType)
     {
-        ArgumentException.ThrowIfNullOrEmpty(resourceType.FullName);
+        var resourceName = ResourceNameAttribute.Get(resourceType);
 
-        if (LocalizerCache.TryGetValue(resourceType.FullName, out var localizer))
+        if (LocalizerCache.TryGetValue(resourceName, out var localizer))
         {
             return localizer;
         }
 
-        var options = Options.Resources.FirstOrDefault(o => o.Name == resourceType.FullName);
+        var options = Options.Resources.FirstOrDefault(o => o.Name == resourceName);
         if (options == null)
         {
             return LocalizerFactory.Create(resourceType);
         }
 
         return LocalizerCache.GetOrAdd(
-            resourceType.FullName,
+            resourceName,
             _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options));
     }
 
