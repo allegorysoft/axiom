@@ -34,7 +34,9 @@ builder.Services.Configure<FileProviderOptions>(options =>
 // 2. Map your resource marker to a default culture and translation directory
 builder.Services.Configure<LocalizationOptions>(options =>
 {
-    options.Resources.Add<MyAppResource>(defaultCulture: "en", "/Resources/Localization");
+    options.Resources.Add<MyAppResource>(
+        defaultCulture: "en",
+        paths: "/Resources/Localization");
 });
 
 // 3. Inject IStringLocalizer<T> and resolve strings
@@ -89,6 +91,9 @@ internal sealed class MyAppPackage : IConfigureApplication
             options.Resources.Add<MyAppResource>(
                 defaultCulture: "en",
                 paths: "/Resources/Localization");
+
+            // It maps resources with exception codes.
+            options.MapExceptionCode<MyAppResource>("App.Exceptions");
         });
 
         return Task.CompletedTask;
@@ -105,9 +110,13 @@ public class MyAppResource { }
 You can specify multiple directories. All translation files are combined into a single set. If the same culture has duplicate keys, the values from files in later directories take precedence and override earlier ones.
 
 ```csharp
-options.Resources.Add<MyAppResource>("en",
-    "/Resources/Localization/Base",
-    "/Resources/Localization/Overrides");
+options.Resources.Add<MyAppResource>(
+    defaultCulture: "en",
+    paths: 
+    [
+        "/Resources/Localization/Base",
+        "/Resources/Localization/Overrides"
+    ]);
 ```
 
 ::: info
