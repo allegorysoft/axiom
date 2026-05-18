@@ -1,3 +1,3 @@
 namespace Allegory.Axiom.Localization.Resources;
 
-public class AxiomLocalizationResource {}
+public sealed class LocalizationResource {}

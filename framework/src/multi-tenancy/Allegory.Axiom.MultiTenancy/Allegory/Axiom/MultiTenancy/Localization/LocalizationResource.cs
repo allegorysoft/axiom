@@ -1,3 +1,3 @@
 namespace Allegory.Axiom.MultiTenancy.Localization;
 
-public class LocalizationResource {}
+public sealed class LocalizationResource {}
