@@ -178,6 +178,59 @@ options.Resources.Get("MyApp");
 options.MapExceptionCode("App.Exceptions", "MyApp");
 ```
 
+## Exception Code Mapping
+
+Localization options map exception code prefixes to localization resources. This allows infrastructure and application exceptions to resolve localized messages automatically.
+
+Register mappings through `LocalizationOptions`:
+
+```csharp
+builder.Services.Configure<LocalizationOptions>(options =>
+{
+    options.Resources.Add<MyAppResource>(
+        defaultCulture: "en",
+        paths: "/Resources/Localization");
+
+    // When exception code starts with "App", look up the resource mapped to MyAppResource for translations
+    options.MapExceptionCode<MyAppResource>("App");
+});
+```
+
+You can also map directly by resource name:
+
+```csharp
+options.MapExceptionCode(
+    exceptionCodePrefix: "App",
+    resourceName: "MyApp");
+```
+
+Exception codes are matched by prefix. Example exception:
+
+```csharp
+throw new BusinessException("App:UserNotFound");
+```
+
+Translation file:
+
+```json
+{
+  "App:UserNotFound": "User not found."
+}
+```
+
+When the exception is handled, the localization system resolves the resource mapped to the `App` prefix and retrieves the localized message using the full exception code as the translation key.
+
+Multiple prefixes can map to different resources:
+
+```csharp
+options.MapExceptionCode<AccountResource>("Account");
+options.MapExceptionCode<IdentityResource>("Identity");
+options.MapExceptionCode<PaymentResource>("Payment");
+```
+
+This keeps exception translations modular and isolated per bounded context or package.
+For more details on exception handling and localization, see the [Exception Handling](./exception-handling.md) documentation.
+
 ## Resolving Strings
 
 Inject `IStringLocalizer<T>` where `T` is your resource marker class:
