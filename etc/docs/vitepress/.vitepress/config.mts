@@ -46,6 +46,7 @@ export default defineConfig({
           { text: 'File Providers', link: '/concepts/file-providers' },
           { text: 'Localization', link: '/concepts/localization' },
           { text: 'Multi Tenancy', link: '/concepts/multi-tenancy' },
+          { text: 'Current User (Principal)', link: '/concepts/current-user' },
         ]
       }
     ],

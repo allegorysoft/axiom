@@ -5,6 +5,10 @@ description: Tenant resolution, context management, and access control for multi
 
 # Multi-Tenancy
 
+::: warning
+Once the axiom framework matures, we plan to introduce a tenant management module with database-backed tenants, a UI, and admin APIs. Until then, the current multi-tenancy features are considered "preview" and not ready to be used in production without custom implementation of tenant stores and principal access control.
+:::
+
 Multi-tenancy is the ability to serve multiple independent tenants from a single application codebase. Each tenant has isolated data, configuration, and context but shares the same codebase and infrastructure.
 
 Axiom handles this through an **ambient tenant context**: once the current tenant is resolved (from an HTTP header, route, query string, or any custom source), it is stored in an `AsyncLocal` slot and flows automatically through the async call chain. Your services read it without any explicit passing.
@@ -200,10 +204,6 @@ public class DatabaseTenantStore(IDbContext db) : ITenantStore
     }
 }
 ```
-
-::: info
-Once the axiom framework matures, we plan to introduce a tenant management module with database-backed tenants, a UI, and admin APIs. Until then, you can either implement your own tenant store or use the default configuration-based store.
-:::
 
 ## Principal Access Control
 
