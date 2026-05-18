@@ -47,6 +47,7 @@ export default defineConfig({
           { text: 'Localization', link: '/concepts/localization' },
           { text: 'Multi Tenancy', link: '/concepts/multi-tenancy' },
           { text: 'Current User (Principal)', link: '/concepts/current-user' },
+          { text: 'Exception Handling', link: '/concepts/exception-handling' },
         ]
       }
     ],

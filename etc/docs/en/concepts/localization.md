@@ -91,6 +91,9 @@ internal sealed class MyAppPackage : IConfigureApplication
             options.Resources.Add<MyAppResource>(
                 defaultCulture: "en",
                 paths: "/Resources/Localization");
+
+            // It maps resources with exception codes.
+            options.MapExceptionCode<MyAppResource>("App.Exceptions");
         });
 
         return Task.CompletedTask;
