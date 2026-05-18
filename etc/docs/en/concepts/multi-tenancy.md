@@ -67,7 +67,7 @@ public class OrderService(ITenantContextAccessor accessor) : ITransientService
 ### `ITenantContextAccessor`
 
 ```csharp
-public interface ITenantContextAccessor : ISingletonService
+public interface ITenantContextAccessor
 {
     TenantContext? Current { get; }
     void Set(TenantContext? current = null);
@@ -150,7 +150,7 @@ app.MapControllerRoute(
 `ITenantStore` resolves a `TenantContext` from a raw identifier. Axiom calls it internally during resolution you do not call it directly in most cases.
 
 ```csharp
-public interface ITenantStore : ISingletonService
+public interface ITenantStore
 {
     ValueTask<TenantContext?> FindAsync(Guid id);
     ValueTask<TenantContext?> FindAsync(string name);
@@ -212,7 +212,7 @@ After resolving a tenant from the store, Axiom checks whether the current authen
 `ICurrentTenantChecker` performs the check:
 
 ```csharp
-public interface ICurrentTenantChecker : ISingletonService
+public interface ICurrentTenantChecker
 {
     Task CheckAsync(TenantContext tenant);
 }
@@ -228,7 +228,7 @@ The default implementation:
 ### Principal Store
 
 ```csharp
-public interface ITenantPrincipalStore : ISingletonService
+public interface ITenantPrincipalStore
 {
     Task<bool> HasAccessAsync(string principalId, Guid tenantId, CancellationToken cancellationToken = default);
     ValueTask<IReadOnlySet<Guid>> GetTenantListAsync(string principalId, CancellationToken cancellationToken = default);
@@ -287,7 +287,7 @@ public class OrderProcessingJob(
 `ICurrentTenantIdentifierProvider` is for extending **how the HTTP pipeline identifies the tenant** for example, resolving it from a custom claim, a domain name, or a subdomain instead of a header or route value:
  
 ```csharp
-public interface ICurrentTenantIdentifierProvider : ISingletonService
+public interface ICurrentTenantIdentifierProvider
 {
     ValueTask<string?> TryGetAsync();
 }
@@ -314,7 +314,7 @@ public class SubdomainTenantIdentifierProvider(IHttpContextAccessor httpContextA
 Names are normalized before lookup via `ITenantNormalizer`. The default uses `ToUpperInvariant()`, which avoids locale-specific issues (e.g., the Turkish dotted-I problem).
 
 ```csharp
-public interface ITenantNormalizer : ISingletonService
+public interface ITenantNormalizer
 {
     string NormalizeName(string name);
 }

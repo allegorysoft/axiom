@@ -23,7 +23,7 @@ dotnet add package Allegory.Axiom.AspNetCore.Security
 ## `IPrincipalAccessor`
 
 ```csharp
-public interface IPrincipalAccessor : ISingletonService
+public interface IPrincipalAccessor
 {
     ClaimsPrincipal? Current { get; }
 }

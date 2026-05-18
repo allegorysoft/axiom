@@ -63,7 +63,7 @@ await using var uow = manager.Begin(opts);
 `IUnitOfWorkManager` is the entry point for managing unit of work boundaries manually. It is registered as a singleton automatically.
 
 ```csharp
-public interface IUnitOfWorkManager : ISingletonService
+public interface IUnitOfWorkManager
 {
     IUnitOfWork? Current { get; }
     IUnitOfWork Begin(UnitOfWorkOptions? options = null);
