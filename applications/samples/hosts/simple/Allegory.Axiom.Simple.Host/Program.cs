@@ -1,5 +1,6 @@
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.MultiTenancy;
+using Allegory.Axiom.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ app.MapGet("/", () => "Hello World!");
 
 app.UseRequestLocalization();
 app.UseExceptionHandler();
-//app.UseUnitOfWork();
+app.UseUnitOfWork();
 app.UseAuthentication();
 app.UseMultiTenancy();
 app.UseAuthorization();
