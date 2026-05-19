@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/hosts/" />
+  <Folder Name="/hosts/distributed/" />
+  <Folder Name="/hosts/scalable/" />
+  <Folder Name="/hosts/simple/">
+    <Project Path="hosts/simple/Allegory.Axiom.Simple.Host/Allegory.Axiom.Simple.Host.csproj" />
+  </Folder>
+  <Folder Name="/modules/" />
+  <Folder Name="/modules/module-1/">
+    <Project Path="modules/module-1/Allegory.Axiom.Module1.Application/Allegory.Axiom.Module1.Application.csproj" />
+    <Project Path="modules/module-1/Allegory.Axiom.Module1.Domain/Allegory.Axiom.Module1.Domain.csproj" />
+  </Folder>
+</Solution>

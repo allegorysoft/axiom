@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Allegory.Axiom.Module1.Domain\Allegory.Axiom.Module1.Domain.csproj" />
+    </ItemGroup>
+
+</Project>
