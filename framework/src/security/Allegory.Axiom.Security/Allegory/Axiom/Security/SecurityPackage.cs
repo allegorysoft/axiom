@@ -21,7 +21,7 @@ internal sealed class SecurityPackage : IConfigureApplication
         {
             options.Resources.Add<LocalizationResource>(
                 defaultCulture: "en",
-                paths: "Allegory/Axiom/Security/Localization/Resources");
+                paths: ["Allegory/Axiom/Security/Localization/Resources"]);
 
             options.MapExceptionCode<LocalizationResource>(SecurityExceptionCodes.Resource);
         });
