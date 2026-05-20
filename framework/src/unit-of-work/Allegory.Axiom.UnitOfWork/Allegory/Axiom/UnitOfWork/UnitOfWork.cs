@@ -42,6 +42,8 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 
         await SaveChangesAsync(cancellationToken);
 
+        // Publish events
+
         State = UnitOfWorkState.Committing;
 
         foreach (var databaseHandle in Databases.Values)
@@ -50,6 +52,8 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
         }
 
         State = UnitOfWorkState.Committed;
+
+        // Invoke on completed delegates
     }
 
     public async Task RollbackAsync(CancellationToken cancellationToken = default)

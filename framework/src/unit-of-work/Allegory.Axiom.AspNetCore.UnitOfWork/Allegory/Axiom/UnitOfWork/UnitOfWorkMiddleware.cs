@@ -30,9 +30,7 @@ public class UnitOfWorkMiddleware
     public virtual async Task InvokeAsync(HttpContext context)
     {
         var option = Options.OptionsSelector!(context);
-
-        await using var unitOfWork = Manager.Begin(option);
+        await using var _ = Manager.Begin(option);// Complete handled by action/endpoint filters
         await Next(context);
-        await unitOfWork.CompleteAsync();
     }
 }
