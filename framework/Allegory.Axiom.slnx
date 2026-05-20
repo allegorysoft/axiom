@@ -75,5 +75,6 @@
   </Folder>
   <Folder Name="/test/unit-of-work/">
     <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
+    <Project Path="test\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork.Tests\Allegory.Axiom.AspNetCore.UnitOfWork.Tests.csproj" />
   </Folder>
 </Solution>
