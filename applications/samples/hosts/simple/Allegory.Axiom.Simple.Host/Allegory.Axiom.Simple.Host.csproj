@@ -17,7 +17,7 @@
         <ProjectReference Include="..\..\..\..\..\framework\src\localization\Allegory.Axiom.Localization\Allegory.Axiom.Localization.csproj"/>
         <ProjectReference Include="..\..\..\..\..\framework\src\multi-tenancy\Allegory.Axiom.AspNetCore.MultiTenancy\Allegory.Axiom.AspNetCore.MultiTenancy.csproj"/>
         <ProjectReference Include="..\..\..\..\..\framework\src\security\Allegory.Axiom.AspNetCore.Security\Allegory.Axiom.AspNetCore.Security.csproj"/>
-        <ProjectReference Include="..\..\..\..\..\framework\src\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork\Allegory.Axiom.AspNetCore.UnitOfWork.csproj"/>
+        <ProjectReference Include="..\..\..\..\..\framework\src\unit-of-work\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.csproj"/>
     </ItemGroup>
 
 </Project>
