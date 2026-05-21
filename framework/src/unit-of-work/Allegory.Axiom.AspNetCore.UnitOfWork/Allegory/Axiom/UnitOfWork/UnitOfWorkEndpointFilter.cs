@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
@@ -18,8 +19,18 @@ public class UnitOfWorkEndpointFilter(IUnitOfWorkManager manager) : IEndpointFil
             return await next(context);
         }
 
-        var result = await next(context);
-        await uow.CompleteAsync();
+        object? result;
+        try
+        {
+            result = await next(context);
+        }
+        catch (Exception e)
+        {
+            await uow.TryRollbackAsync(e);
+            throw;
+        }
+
+        await uow.TryCompleteAsync(context.HttpContext.RequestAborted);
         return result;
     }
 }

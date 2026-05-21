@@ -18,9 +18,14 @@ public class UnitOfWorkActionFilter(IUnitOfWorkManager manager) : IAsyncActionFi
         }
 
         var result = await next();
+
         if (result.Exception == null || result.ExceptionHandled)
         {
-            await uow.CompleteAsync();
+            await uow.TryCompleteAsync(result.HttpContext.RequestAborted);
+        }
+        else
+        {
+            await uow.TryRollbackAsync(result.Exception, result.HttpContext.RequestAborted);
         }
     }
 }
