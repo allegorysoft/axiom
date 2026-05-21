@@ -35,9 +35,9 @@
     <Project Path="src/security/Allegory.Axiom.AspNetCore.Security/Allegory.Axiom.AspNetCore.Security.csproj" />
   </Folder>
   <Folder Name="/src/unit-of-work/">
-    <Project Path="src/unit-of-work/Allegory.Axiom.AspNetCore.UnitOfWork/Allegory.Axiom.AspNetCore.UnitOfWork.csproj" />
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
+    <Project Path="src/unit-of-work/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.csproj" />
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/aspnetcore/">
@@ -75,6 +75,6 @@
   </Folder>
   <Folder Name="/test/unit-of-work/">
     <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
-    <Project Path="test\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork.Tests\Allegory.Axiom.AspNetCore.UnitOfWork.Tests.csproj" />
+    <Project Path="test/unit-of-work/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.Tests/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.Tests.csproj" />
   </Folder>
 </Solution>
