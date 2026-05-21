@@ -31,7 +31,7 @@ public static class UnitOfWorkExtensions
             }
             catch (Exception exception)
             {
-                throw new AggregateException("Unit of work rollback failed.", exception, innerException);
+                throw new AggregateException(exception, innerException);
             }
         }
     }

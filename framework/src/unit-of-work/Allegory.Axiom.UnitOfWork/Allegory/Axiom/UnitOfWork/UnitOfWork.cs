@@ -24,7 +24,8 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
     {
         if (State != UnitOfWorkState.Started)
         {
-            throw new InvalidOperationException($"Invalid state. Expected: '{UnitOfWorkState.Started}', Actual: '{State}'. Operation cannot proceed.");
+            throw new InvalidOperationException(
+                $"Cannot save UnitOfWork. Expected state '{UnitOfWorkState.Started}', but was '{State}'.");
         }
 
         foreach (var databaseHandle in Databases.Values)
@@ -37,7 +38,8 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
     {
         if (State != UnitOfWorkState.Started)
         {
-            throw new InvalidOperationException($"Invalid state. Expected: '{UnitOfWorkState.Started}', Actual: '{State}'. Operation cannot proceed.");
+            throw new InvalidOperationException(
+                $"Cannot complete UnitOfWork. Expected state '{UnitOfWorkState.Started}', but was '{State}'.");
         }
 
         await SaveChangesAsync(cancellationToken);
@@ -60,7 +62,8 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
     {
         if (State != UnitOfWorkState.Started)
         {
-            throw new InvalidOperationException($"Invalid state. Expected: '{UnitOfWorkState.Started}', Actual: '{State}'. Operation cannot proceed.");
+            throw new InvalidOperationException(
+                $"Cannot rollback UnitOfWork. Expected state '{UnitOfWorkState.Started}', but was '{State}'.");
         }
 
         State = UnitOfWorkState.RollingBack;
