@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using NSubstitute;
-using NSubstitute.ExceptionExtensions;
 using Shouldly;
 using Xunit;
 
@@ -116,24 +115,25 @@ public class UnitOfWorkActionFilterTests
         Manager.Current.Returns(UnitOfWork);
         var ctx = CreateExecutingContext();
 
-        await Filter.OnActionExecutionAsync(ctx,
+        await Filter.OnActionExecutionAsync(
+            ctx,
             () => Task.FromResult(CreateExecutedContext(ctx)));
 
         await UnitOfWork.Received(1).DisposeAsync();
     }
-
+    
     [Fact]
-    public async Task ShouldDisposeEvenWhenCompleteThrows()
+    public async Task ShouldUseRequestAbortedTokenForComplete()
     {
         Manager.Current.Returns(UnitOfWork);
-        UnitOfWork.TryCompleteAsync(Arg.Any<CancellationToken>())
-            .ThrowsAsync(new InvalidOperationException());
+        var cts = new CancellationTokenSource();
         var ctx = CreateExecutingContext();
+        ctx.HttpContext.RequestAborted = cts.Token;
 
-        await Should.ThrowAsync<InvalidOperationException>(() =>
-            Filter.OnActionExecutionAsync(ctx,
-                () => Task.FromResult(CreateExecutedContext(ctx))));
+        await Filter.OnActionExecutionAsync(
+            ctx,
+            () => Task.FromResult(CreateExecutedContext(ctx)));
 
-        await UnitOfWork.Received(1).DisposeAsync();
+        await UnitOfWork.Received(1).TryCompleteAsync(cts.Token);
     }
 }
