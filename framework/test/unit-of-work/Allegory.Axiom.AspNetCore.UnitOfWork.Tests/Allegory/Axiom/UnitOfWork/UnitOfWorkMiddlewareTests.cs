@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -54,53 +54,35 @@ public class UnitOfWorkMiddlewareTests
     }
 
     [Fact]
-    public async Task ShouldCompleteUnitOfWorkAfterNext()
+    public async Task ShouldNotCompleteUnitOfWork()
     {
-        var middleware = CreateMiddleware();
-
-        await middleware.InvokeAsync(CreateHttpContext());
-
-        await UnitOfWork.Received(1).CompleteAsync(Arg.Any<CancellationToken>());
+        await CreateMiddleware().InvokeAsync(CreateHttpContext());
+        await UnitOfWork.DidNotReceive().CompleteAsync(Arg.Any<CancellationToken>());
     }
 
     [Fact]
-    public async Task ShouldAlwaysCallNext()
+    public async Task ShouldDisposeUnitOfWork()
     {
-        var isNextCalled = false;
-        var middleware = CreateMiddleware(_ =>
-        {
-            isNextCalled = true;
-            return Task.CompletedTask;
-        });
+        await CreateMiddleware().InvokeAsync(CreateHttpContext());
 
-        await middleware.InvokeAsync(CreateHttpContext());
-
-        isNextCalled.ShouldBeTrue();
+        await UnitOfWork.Received(1).DisposeAsync();
     }
 
     [Fact]
-    public async Task ShouldCompleteAfterCallingNext()
+    public async Task ShouldDisposeUnitOfWorkEvenWhenNextThrows()
     {
-        var callOrder = new List<string>();
-        UnitOfWork.When(x => x.CompleteAsync())
-            .Do(_ => callOrder.Add("complete"));
-        var middleware = CreateMiddleware(_ =>
-        {
-            callOrder.Add("next");
-            return Task.CompletedTask;
-        });
+        var middleware = CreateMiddleware(_ => throw new InvalidOperationException("boom"));
 
-        await middleware.InvokeAsync(CreateHttpContext());
+        await Should.ThrowAsync<InvalidOperationException>(() =>
+            middleware.InvokeAsync(CreateHttpContext()));
 
-        callOrder.ShouldBe(["next", "complete"]);
+        await UnitOfWork.Received(1).DisposeAsync();
     }
 
     [Fact]
     public async Task ShouldUseSuppressedTransactionForGetRequests()
     {
-        var middleware = CreateMiddleware();
-
-        await middleware.InvokeAsync(CreateHttpContext());
+        await CreateMiddleware().InvokeAsync(CreateHttpContext());
 
         Manager.Received(1).Begin(Arg.Is<UnitOfWorkOptions?>(o => o != null && o.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress));
     }
@@ -108,9 +90,7 @@ public class UnitOfWorkMiddlewareTests
     [Fact]
     public async Task ShouldUseNullOptionsForNonGetRequests()
     {
-        var middleware = CreateMiddleware();
-
-        await middleware.InvokeAsync(CreateHttpContext(HttpMethod.Post));
+        await CreateMiddleware().InvokeAsync(CreateHttpContext(HttpMethod.Post));
 
         Manager.Received(1).Begin(options: null);
     }
@@ -118,22 +98,25 @@ public class UnitOfWorkMiddlewareTests
     [Fact]
     public async Task ShouldUseCustomOptionsSelectorWhenProvided()
     {
-        var customOptions = new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.Required);
-        Options.OptionsSelector = _ => customOptions;
-        var middleware = CreateMiddleware();
+        var custom = new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew);
+        Options.OptionsSelector = _ => custom;
 
-        await middleware.InvokeAsync(CreateHttpContext());
+        await CreateMiddleware().InvokeAsync(CreateHttpContext());
 
-        Manager.Received(1).Begin(customOptions);
+        Manager.Received(1).Begin(custom);
     }
 
     [Fact]
-    public async Task ShouldDisposeUnitOfWorkAfterCompletion()
+    public async Task ShouldCallNext()
     {
-        var middleware = CreateMiddleware();
+        var called = false;
+        await CreateMiddleware(_ =>
+            {
+                called = true;
+                return Task.CompletedTask;
+            })
+            .InvokeAsync(CreateHttpContext());
 
-        await middleware.InvokeAsync(CreateHttpContext());
-
-        await UnitOfWork.Received(1).DisposeAsync();
+        called.ShouldBeTrue();
     }
 }
