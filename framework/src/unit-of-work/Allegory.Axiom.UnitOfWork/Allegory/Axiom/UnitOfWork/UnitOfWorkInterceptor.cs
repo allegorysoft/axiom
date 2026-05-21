@@ -27,8 +27,17 @@ public class UnitOfWorkInterceptor(IUnitOfWorkManager unitOfWorkManager) : IInte
         }
 
         await using var uow = UnitOfWorkManager.Begin(uowDescriptor.Options);
-        await context.ProceedAsync();
-        await uow.CompleteAsync();
+        try
+        {
+            await context.ProceedAsync();
+        }
+        catch (Exception e)
+        {
+            await uow.TryRollbackAsync(e);
+            throw;
+        }
+
+        await uow.TryCompleteAsync();
     }
 
     protected virtual UnitOfWorkDescriptor GetDescriptor(MethodInfo methodInfo)
