@@ -1,8 +1,12 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/aspnetcore/">
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Abstractions/Allegory.Axiom.AspNetCore.Abstractions.csproj" />
     <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.ExceptionHandling/Allegory.Axiom.AspNetCore.ExceptionHandling.csproj" />
     <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Http/Allegory.Axiom.AspNetCore.Http.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Mvc.Abstractions/Allegory.Axiom.AspNetCore.Mvc.Abstractions.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Mvc/Allegory.Axiom.AspNetCore.Mvc.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore/Allegory.Axiom.AspNetCore.csproj" />
   </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />

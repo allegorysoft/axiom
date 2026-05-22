@@ -1,3 +1,4 @@
+using Allegory.Axiom.AspNetCore;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
@@ -15,7 +16,11 @@ builder.Services.AddControllers(o =>
 });
 
 var app = builder.Build();
+
+await app.InitializeApplicationAsync();
+
 app.MapGet("/",() => "Hello World!");
+
 
 app.UseRequestLocalization();
 app.UseExceptionHandler();

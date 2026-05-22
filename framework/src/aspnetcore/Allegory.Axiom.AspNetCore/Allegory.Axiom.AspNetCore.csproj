@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.AspNetCore.Abstractions\Allegory.Axiom.AspNetCore.Abstractions.csproj"/>
+        <ProjectReference Include="..\Allegory.Axiom.AspNetCore.ExceptionHandling\Allegory.Axiom.AspNetCore.ExceptionHandling.csproj"/>
+        <ProjectReference Include="..\Allegory.Axiom.AspNetCore.Http\Allegory.Axiom.AspNetCore.Http.csproj"/>
+        <ProjectReference Include="..\..\multi-tenancy\Allegory.Axiom.AspNetCore.MultiTenancy\Allegory.Axiom.AspNetCore.MultiTenancy.csproj"/>
+        <ProjectReference Include="..\..\security\Allegory.Axiom.AspNetCore.Security\Allegory.Axiom.AspNetCore.Security.csproj"/>
+    </ItemGroup>
+
+</Project>
