@@ -34,15 +34,92 @@ public class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void ShouldNotShareStateBetweenServiceCollections()
+    public void ShouldInvokeBuilderAction()
+    {
+        var services = new ServiceCollection();
+        var wasCalled = false;
+
+        services.AddBuilderAction<TestBuilder>(_ => wasCalled = true);
+        services.ExecuteBuilderActions(new TestBuilder());
+
+        wasCalled.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ShouldInvokeBuilderActionsInOrder()
+    {
+        var services = new ServiceCollection();
+        var callOrder = new List<int>();
+
+        services.AddBuilderAction<TestBuilder>(_ => callOrder.Add(1));
+        services.AddBuilderAction<TestBuilder>(_ => callOrder.Add(2));
+        services.AddBuilderAction<TestBuilder>(_ => callOrder.Add(3));
+        services.ExecuteBuilderActions(new TestBuilder());
+
+        callOrder.ShouldBe([1, 2, 3]);
+    }
+
+    [Fact]
+    public void ShouldPassBuilderInstanceToAction()
+    {
+        var services = new ServiceCollection();
+
+        TestBuilder? received = null;
+        services.AddBuilderAction<TestBuilder>(b => received = b);
+
+        var builder = new TestBuilder();
+        services.ExecuteBuilderActions(builder);
+
+        received.ShouldBeSameAs(builder);
+    }
+
+    [Fact]
+    public void ShouldNotInvokeBuilderActionsWhenNoneRegistered()
+    {
+        var services = new ServiceCollection();
+        var wasCalled = false;
+
+        // no AddBuilderAction call
+        services.ExecuteBuilderActions(new TestBuilder());
+
+        wasCalled.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ShouldScopeBuilderActionsByType()
+    {
+        var services = new ServiceCollection();
+
+        var testBuilderCalled = false;
+        services.AddBuilderAction<TestBuilder>(_ => testBuilderCalled = true);
+
+        var otherBuilderCalled = false;
+        services.AddBuilderAction<OtherBuilder>(_ => otherBuilderCalled = true);
+
+        services.ExecuteBuilderActions(new OtherBuilder());
+
+        testBuilderCalled.ShouldBeFalse();
+        otherBuilderCalled.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ShouldNotShareExtraPropertiesBetweenServiceCollections()
     {
         var services1 = new ServiceCollection();
         var services2 = new ServiceCollection();
+        var service1ExtraProperties = ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services1);
+        var service2ExtraProperties = ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services2);
 
         services1.AddPostConfigureAction(_ => {});
-        services2.ExecutePostConfigureActions();
+        services1.AddBuilderAction<TestBuilder>(_ => {});
 
-        ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services1).PostConfigureActions.Count.ShouldBe(1);
-        ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services2).PostConfigureActions.Count.ShouldBe(0);
+        service1ExtraProperties.PostConfigureActions.Count.ShouldBe(1);
+        service1ExtraProperties.BuilderActions.Count.ShouldBe(1);
+        service2ExtraProperties.PostConfigureActions.Count.ShouldBe(0);
+        service2ExtraProperties.BuilderActions.Count.ShouldBe(0);
     }
 }
+
+file class TestBuilder;
+
+file class OtherBuilder;
