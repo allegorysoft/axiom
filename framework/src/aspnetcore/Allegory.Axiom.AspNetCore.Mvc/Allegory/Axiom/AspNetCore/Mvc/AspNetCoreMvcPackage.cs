@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Hosting;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,15 +10,10 @@ internal sealed class AspNetCoreMvcPackage : IConfigureApplication, IInitializeA
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddPostConfigureAction(ConfigurePackage);
+        var mvcBuilder = builder.Services.AddControllers();
+        builder.AddBuilder(mvcBuilder);
 
         return Task.CompletedTask;
-    }
-
-    private static void ConfigurePackage(IServiceCollection services)
-    {
-        var mvcBuilder = services.AddControllers();
-        services.ExecuteBuilderActions(mvcBuilder);
     }
 
     public static Task InitializeAsync(IHost host)

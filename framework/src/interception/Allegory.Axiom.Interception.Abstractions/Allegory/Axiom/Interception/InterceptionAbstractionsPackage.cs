@@ -10,7 +10,7 @@ internal sealed class InterceptionAbstractionsPackage : IConfigureApplication
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(IInterceptor));
-        builder.Services.AddPostConfigureAction(ServiceInterceptorBinder.Apply);
+        builder.AddDeferredAction(static b => ServiceInterceptorBinder.Apply(b.Services));
 
         return Task.CompletedTask;
     }

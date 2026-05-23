@@ -33,9 +33,6 @@ public class AxiomApplicationBuilderTests
     [Fact]
     public async Task ShouldInvokeConfigureMethods()
     {
-        var postConfigureAction = false;
-        Builder.Services.AddPostConfigureAction(_ => postConfigureAction = true);
-
         var application = await ApplicationBuilder.BuildAsync(
             new AxiomApplicationBuilderContext(
                 Builder,
@@ -45,7 +42,6 @@ public class AxiomApplicationBuilderTests
 
         HostingAbstractionsTestsPackage.ConfigureApplication.ShouldBeTrue();
         HostingAbstractionsTestsPackage.PostConfigureApplication.ShouldBeTrue();
-        postConfigureAction.ShouldBeTrue();
     }
 
     [Fact]

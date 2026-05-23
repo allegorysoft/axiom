@@ -13,7 +13,7 @@ internal sealed class AspNetCoreExceptionHandlingPackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddPostConfigureAction(ConfigureExceptionHandling);
+        builder.AddDeferredAction(ConfigureExceptionHandling);
 
         builder.Services.Configure<AspNetCoreExceptionHandlerOptions>(o =>
         {
@@ -27,9 +27,9 @@ internal sealed class AspNetCoreExceptionHandlingPackage : IConfigureApplication
         return Task.CompletedTask;
     }
 
-    private static void ConfigureExceptionHandling(IServiceCollection services)
+    private static void ConfigureExceptionHandling(IHostApplicationBuilder builder)
     {
-        services.AddProblemDetails();
-        services.AddExceptionHandler<AxiomExceptionHandler>();
+        builder.Services.AddProblemDetails();
+        builder.Services.AddExceptionHandler<AxiomExceptionHandler>();
     }
 }

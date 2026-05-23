@@ -10,7 +10,7 @@ internal sealed class AspNetCoreMvcUnitOfWorkPackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddBuilderAction<IMvcBuilder>(mvcBuilder =>
+        builder.AddBuilderAction<IMvcBuilder>(mvcBuilder =>
         {
             mvcBuilder.AddMvcOptions(mvcOptions =>
             {
