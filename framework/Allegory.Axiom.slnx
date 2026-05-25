@@ -1,8 +1,12 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/aspnetcore/">
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Abstractions/Allegory.Axiom.AspNetCore.Abstractions.csproj" />
     <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.ExceptionHandling/Allegory.Axiom.AspNetCore.ExceptionHandling.csproj" />
     <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Http/Allegory.Axiom.AspNetCore.Http.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Mvc.Abstractions/Allegory.Axiom.AspNetCore.Mvc.Abstractions.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Mvc/Allegory.Axiom.AspNetCore.Mvc.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore/Allegory.Axiom.AspNetCore.csproj" />
   </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
@@ -37,7 +41,7 @@
   <Folder Name="/src/unit-of-work/">
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
-    <Project Path="src/unit-of-work/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.csproj" />
+    <Project Path="src\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork\Allegory.Axiom.AspNetCore.UnitOfWork.csproj" />
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/aspnetcore/">
@@ -75,6 +79,6 @@
   </Folder>
   <Folder Name="/test/unit-of-work/">
     <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
-    <Project Path="test/unit-of-work/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.Tests/Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.Tests.csproj" />
+    <Project Path="test\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork.Tests\Allegory.Axiom.AspNetCore.UnitOfWork.Tests.csproj" />
   </Folder>
 </Solution>

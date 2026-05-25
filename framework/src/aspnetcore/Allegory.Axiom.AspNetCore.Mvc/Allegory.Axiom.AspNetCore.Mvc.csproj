@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.AspNetCore\Allegory.Axiom.AspNetCore.csproj"/>
+        <ProjectReference Include="..\Allegory.Axiom.AspNetCore.Mvc.Abstractions\Allegory.Axiom.AspNetCore.Mvc.Abstractions.csproj"/>
+    </ItemGroup>
+
+</Project>

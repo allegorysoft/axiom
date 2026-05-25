@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Allegory.Axiom.UnitOfWork\Allegory.Axiom.UnitOfWork.csproj" />
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>

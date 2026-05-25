@@ -1,39 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.Hosting.Plugins;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
 namespace Allegory.Axiom.Hosting;
 
-public class HostExtensionsTests
+public class HostExtensionsTests : IAsyncLifetime
 {
     protected HostApplicationBuilder Builder { get; } = Host.CreateApplicationBuilder();
 
-    [Fact]
-    public async Task ShouldConfigureApplication()
-    {
-        var postConfigureAction = false;
-        Builder.Services.AddPostConfigureAction(_ => postConfigureAction = true);
-        Builder.Services.ShouldNotContain(t => t.ServiceType == typeof(AxiomApplication));
-
-        var application = await Builder.ConfigureApplicationAsync();
-
-        application.Id.ShouldNotBe(Guid.Empty);
-        Builder.Services.ShouldContain(t => t.ServiceType == typeof(AxiomApplication));
-        postConfigureAction.ShouldBeTrue();
-    }
+    public async ValueTask InitializeAsync() => await Builder.ConfigureApplicationAsync();
+    public ValueTask DisposeAsync() => ValueTask.CompletedTask;
 
     [Fact]
     public async Task ShouldInitializeApplication()
     {
-        await Builder.ConfigureApplicationAsync();
         var host = Builder.Build();
         await host.InitializeApplicationAsync();
 
@@ -41,67 +24,88 @@ public class HostExtensionsTests
     }
 
     [Fact]
-    public async Task ShouldSetEntryAssemblyWhenStartupAssemblyIsNull()
+    public async Task ShouldInvokeBuilderAction()
     {
-        var application = await Builder.ConfigureApplicationAsync();
+        var wasCalled = false;
+        var builderInstance = new TestBuilder();
 
-        application.StartupAssembly.ShouldBe(Assembly.GetEntryAssembly());
+        var host = Builder.Build();
+        host.AddBuilder(builderInstance);
+        host.AddBuilderAction<TestBuilder>(_ => wasCalled = true);
+
+        await host.InitializeApplicationAsync();
+
+        wasCalled.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task ShouldOverrideDependencyRegistrar()
+    public async Task ShouldInvokeBuilderActionsInOrder()
     {
-        await Builder.ConfigureApplicationAsync(o => o.DependencyRegistrar = new CustomDependencyRegistrar(Builder.Services));
+        var callOrder = new List<int>();
+        var builderInstance = new TestBuilder();
 
-        Builder.Services.ShouldContain(t => t.ServiceType == typeof(SomeClassRegisterMe));
+        var host = Builder.Build();
+        host.AddBuilder(builderInstance);
+        host.AddBuilderAction<TestBuilder>(_ => callOrder.Add(1));
+        host.AddBuilderAction<TestBuilder>(_ => callOrder.Add(2));
+        host.AddBuilderAction<TestBuilder>(_ => callOrder.Add(3));
+
+        await host.InitializeApplicationAsync();
+
+        callOrder.ShouldBe([1, 2, 3]);
     }
 
     [Fact]
-    public async Task ShouldOverrideApplicationBuilder()
+    public async Task ShouldPassBuilderInstanceToAction()
     {
-        var application = await Builder.ConfigureApplicationAsync(o => o.ApplicationBuilder = new CustomApplicationBuilder());
+        var builderInstance = new TestBuilder();
+        TestBuilder? received = null;
 
-        application.Id.ShouldBe(Guid.Empty);
-        application.Assemblies.Count.ShouldBe(0);
+        var host = Builder.Build();
+        host.AddBuilder(builderInstance);
+        host.AddBuilderAction<TestBuilder>(b => received = b);
+
+        await host.InitializeApplicationAsync();
+
+        received.ShouldBeSameAs(builderInstance);
     }
 
     [Fact]
-    public async Task ShouldPassPluginsToBuilder()
+    public async Task ShouldThrowWhenBuilderActionRegisteredWithoutBuilder()
     {
-        var assembly = typeof(Assembly1.Assembly1Package).Assembly;
-        var application = await Builder.ConfigureApplicationAsync(o =>
-        {
-            o.StartupAssembly = assembly;
-            o.Plugins.Add(new AxiomApplicationAssemblyPlugin(typeof(Assembly2.Assembly2Package).Assembly));
-        });
+        var wasCalled = false;
 
-        application.StartupAssembly.ShouldBe(assembly);
-        application.Assemblies.ShouldContain(assembly);
-        application.Assemblies.ShouldContain(typeof(Assembly2.Assembly2Package).Assembly);
-        application.Assemblies.ShouldNotContain(typeof(Assembly3.Assembly3Package).Assembly);
+        var host = Builder.Build();
+        host.AddBuilderAction<TestBuilder>(_ => wasCalled = true);
+
+        await Should.ThrowAsync<ArgumentNullException>(host.InitializeApplicationAsync());
+
+        wasCalled.ShouldBeFalse();
+    }
+
+    [Fact]
+    public void ShouldThrowWhenSameBuilderTypeRegisteredTwice()
+    {
+        var host = Builder.Build();
+        host.AddBuilder(new TestBuilder());
+
+        Should.Throw<InvalidOperationException>(() => host.AddBuilder(new TestBuilder()));
+    }
+
+    [Fact]
+    public async Task ShouldClearBuilderContextsAfterExecution()
+    {
+        var host = Builder.Build();
+        host.AddBuilder(new TestBuilder());
+        host.AddBuilderAction<TestBuilder>(_ => {});
+
+        var contexts = HostExtensions.HostProperties.GetOrCreateValue(host).BuilderContexts;
+        contexts.ShouldNotBeEmpty();
+        
+        await host.InitializeApplicationAsync();
+
+        contexts.ShouldBeEmpty();
     }
 }
 
-file class CustomDependencyRegistrar(IServiceCollection serviceCollection) :
-    AssemblyDependencyRegistrar(serviceCollection)
-{
-    protected override void RegisterImplementation(Type implementation)
-    {
-        ServiceCollection.AddTransient(implementation);
-    }
-
-    protected override IEnumerable<Type> GetImplementationTypes(Assembly assembly)
-    {
-        return assembly.GetTypes().Where(t => t.IsClass && t.Name.EndsWith("RegisterMe"));
-    }
-}
-
-internal class SomeClassRegisterMe {}
-
-file class CustomApplicationBuilder : AxiomApplicationBuilder
-{
-    protected override Task<AxiomApplication> BuildAsync()
-    {
-        return Task.FromResult(new AxiomApplication(Guid.Empty, Context.StartupAssembly, []));
-    }
-}
+file class TestBuilder;

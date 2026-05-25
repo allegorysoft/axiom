@@ -11,14 +11,14 @@ internal sealed class InterceptionCastleCorePackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddPostConfigureAction(RegisterCastleAdaptersByInterceptorLifetime);
+        builder.AddDeferredAction(RegisterCastleAdaptersByInterceptorLifetime);
 
         return Task.CompletedTask;
     }
 
-    private static void RegisterCastleAdaptersByInterceptorLifetime(IServiceCollection serviceCollection)
+    private static void RegisterCastleAdaptersByInterceptorLifetime(IHostApplicationBuilder builder)
     {
-        var interceptors = serviceCollection
+        var interceptors = builder.Services
             .Where(x => typeof(IInterceptor).IsAssignableFrom(x.ServiceType)
                         && x.Lifetime > ServiceLifetime.Singleton)
             .ToList();
@@ -26,12 +26,12 @@ internal sealed class InterceptionCastleCorePackage : IConfigureApplication
         foreach (var interceptor in interceptors)
         {
             var interceptorType = typeof(InterceptorCastleAdapter<>).MakeGenericType(interceptor.ServiceType);
-            serviceCollection.Add(
+            builder.Services.Add(
                 ServiceDescriptor.Describe(interceptorType, interceptorType, interceptor.Lifetime));
 
             var determinationInterceptorType = typeof(DeterminationInterceptorCastleAdapter<>)
                 .MakeGenericType(interceptor.ServiceType);
-            serviceCollection.Add(
+            builder.Services.Add(
                 ServiceDescriptor.Describe(determinationInterceptorType, determinationInterceptorType, interceptor.Lifetime));
         }
     }

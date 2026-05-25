@@ -10,14 +10,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\..\..\framework\src\aspnetcore\Allegory.Axiom.AspNetCore.ExceptionHandling\Allegory.Axiom.AspNetCore.ExceptionHandling.csproj"/>
-        <ProjectReference Include="..\..\..\..\..\framework\src\aspnetcore\Allegory.Axiom.AspNetCore.Http\Allegory.Axiom.AspNetCore.Http.csproj"/>
+        <ProjectReference Include="..\..\..\..\..\framework\src\aspnetcore\Allegory.Axiom.AspNetCore.Mvc\Allegory.Axiom.AspNetCore.Mvc.csproj"/>
+
         <ProjectReference Include="..\..\..\..\..\framework\src\core\Allegory.Axiom.FileProviders\Allegory.Axiom.FileProviders.csproj"/>
         <ProjectReference Include="..\..\..\..\..\framework\src\interception\Allegory.Axiom.Interception.Castle.Core\Allegory.Axiom.Interception.Castle.Core.csproj"/>
         <ProjectReference Include="..\..\..\..\..\framework\src\localization\Allegory.Axiom.Localization\Allegory.Axiom.Localization.csproj"/>
-        <ProjectReference Include="..\..\..\..\..\framework\src\multi-tenancy\Allegory.Axiom.AspNetCore.MultiTenancy\Allegory.Axiom.AspNetCore.MultiTenancy.csproj"/>
-        <ProjectReference Include="..\..\..\..\..\framework\src\security\Allegory.Axiom.AspNetCore.Security\Allegory.Axiom.AspNetCore.Security.csproj"/>
-        <ProjectReference Include="..\..\..\..\..\framework\src\unit-of-work\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.csproj"/>
     </ItemGroup>
 
 </Project>
