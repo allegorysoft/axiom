@@ -6,7 +6,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Allegory.Axiom.UnitOfWork\Allegory.Axiom.UnitOfWork.csproj" />
+        <ProjectReference Include="..\Allegory.Axiom.UnitOfWork\Allegory.Axiom.UnitOfWork.csproj"/>
+        <ProjectReference Include="..\..\aspnetcore\Allegory.Axiom.AspNetCore.Mvc.Abstractions\Allegory.Axiom.AspNetCore.Mvc.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>

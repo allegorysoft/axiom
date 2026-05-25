@@ -19,7 +19,8 @@ internal sealed class AspNetCoreMvcPackage : IConfigureApplication, IInitializeA
     public static Task InitializeAsync(IHost host)
     {
         var endpoint = host.GetEndpointRouteBuilder();
-        endpoint.MapControllers();
+        var conventionBuilder = endpoint.MapControllers();
+        host.AddBuilder(conventionBuilder);
 
         return Task.CompletedTask;
     }
