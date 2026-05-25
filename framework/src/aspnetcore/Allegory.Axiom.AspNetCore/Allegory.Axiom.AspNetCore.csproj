@@ -11,6 +11,7 @@
         <ProjectReference Include="..\Allegory.Axiom.AspNetCore.Http\Allegory.Axiom.AspNetCore.Http.csproj"/>
         <ProjectReference Include="..\..\multi-tenancy\Allegory.Axiom.AspNetCore.MultiTenancy\Allegory.Axiom.AspNetCore.MultiTenancy.csproj"/>
         <ProjectReference Include="..\..\security\Allegory.Axiom.AspNetCore.Security\Allegory.Axiom.AspNetCore.Security.csproj"/>
+        <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork\Allegory.Axiom.AspNetCore.UnitOfWork.csproj"/>
     </ItemGroup>
 
 </Project>

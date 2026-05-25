@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
-        <ProjectReference Include="..\..\..\src\unit-of-work\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.csproj" />
+        <ProjectReference Include="..\..\..\src\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork\Allegory.Axiom.AspNetCore.UnitOfWork.csproj" />
     </ItemGroup>
 
 </Project>

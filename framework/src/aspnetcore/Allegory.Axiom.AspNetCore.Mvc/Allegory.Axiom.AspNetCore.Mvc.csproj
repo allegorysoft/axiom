@@ -8,7 +8,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.AspNetCore\Allegory.Axiom.AspNetCore.csproj"/>
         <ProjectReference Include="..\Allegory.Axiom.AspNetCore.Mvc.Abstractions\Allegory.Axiom.AspNetCore.Mvc.Abstractions.csproj"/>
-        <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork\Allegory.Axiom.AspNetCore.Mvc.UnitOfWork.csproj"/>
     </ItemGroup>
 
 </Project>
