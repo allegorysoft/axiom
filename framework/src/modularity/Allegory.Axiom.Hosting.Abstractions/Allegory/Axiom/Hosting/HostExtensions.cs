@@ -22,15 +22,21 @@ public static class HostExtensions
 
             foreach (var assembly in application.Assemblies)
             {
-                var configureMethod = assembly.GetTypes()
+                var type = assembly
+                    .GetTypes()
                     .SingleOrDefault(t => typeof(IInitializeApplication).IsAssignableFrom(t)
-                                          && t is {IsClass: true, IsAbstract: false})?
-                    .GetMethod(nameof(IInitializeApplication.InitializeAsync));
-
-                if (configureMethod != null)
+                                          && t is {IsClass: true, IsAbstract: false});
+                if (type == null)
                 {
-                    await (Task) configureMethod.Invoke(null, [host])!;
+                    continue;
                 }
+                
+                var method = type
+                    .GetInterfaceMap(typeof(IInitializeApplication))
+                    .TargetMethods
+                    .Single(c => c.Name == nameof(IInitializeApplication.InitializeAsync));
+
+                await (Task) method.Invoke(null, [host])!;
             }
 
             host.ExecuteBuilderActions();
