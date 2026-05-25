@@ -202,10 +202,11 @@ public class HostApplicationBuilderExtensionsTests
         Builder.AddBuilder(new TestBuilder());
         Builder.AddBuilderAction<TestBuilder>(_ => {});
 
+        var contexts = HostApplicationBuilderExtensions.BuilderProperties.GetOrCreateValue(Builder).BuilderContexts;
+        contexts.ShouldNotBeEmpty();
+
         await Builder.ConfigureApplicationAsync();
 
-        var contexts = HostApplicationBuilderExtensions.BuilderProperties
-            .GetOrCreateValue(Builder).BuilderContexts;
         contexts.ShouldBeEmpty();
     }
 }
@@ -235,5 +236,3 @@ file class CustomApplicationBuilder : AxiomApplicationBuilder
 }
 
 file class TestBuilder;
-
-file class OtherBuilder;
