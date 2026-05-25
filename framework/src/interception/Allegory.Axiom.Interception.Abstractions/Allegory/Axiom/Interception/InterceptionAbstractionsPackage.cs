@@ -7,9 +7,13 @@ namespace Allegory.Axiom.Interception;
 
 internal sealed class InterceptionAbstractionsPackage : IConfigureApplication
 {
-    public static Task ConfigureAsync(IHostApplicationBuilder builder)
+    static InterceptionAbstractionsPackage()
     {
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(IInterceptor));
+    }
+
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
+    {
         builder.AddDeferredAction(static b => ServiceInterceptorBinder.Apply(b.Services));
 
         return Task.CompletedTask;

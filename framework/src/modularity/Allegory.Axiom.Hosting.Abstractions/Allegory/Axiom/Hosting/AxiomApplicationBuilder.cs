@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 
@@ -48,6 +48,7 @@ public class AxiomApplicationBuilder
         {
             packages.Add(AssemblyLoadContext.Default.LoadFromAssemblyName(assembly));
         }
+
         packages.Add(Context.StartupAssembly);
         return packages;
     }
@@ -108,40 +109,65 @@ public class AxiomApplicationBuilder
         {
             plugins.AddRange(plugin.GetAssemblies());
         }
+
         return plugins;
     }
 
-    protected virtual async Task ConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
+    protected virtual async Task ConfigureApplicationAsync(List<Assembly> assemblies)
     {
+        var methods = assemblies
+            .Select(assembly =>
+            {
+                var type = assembly
+                    .GetTypes()
+                    .SingleOrDefault(t => typeof(IConfigureApplication).IsAssignableFrom(t)
+                                          && t is {IsClass: true, IsAbstract: false});
+
+                if (type == null)
+                {
+                    return null;
+                }
+
+                // Call static constructor
+                RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                return type
+                    .GetInterfaceMap(typeof(IConfigureApplication))
+                    .TargetMethods
+                    .Single(c => c.Name == nameof(IConfigureApplication.ConfigureAsync));
+            })
+            .Where(method => method != null)
+            .ToList();
+
         foreach (var assembly in assemblies)
         {
             Context.DependencyRegistrar.Register(assembly);
+        }
 
-            var configureMethod = assembly.GetTypes().SingleOrDefault(
-                    t => typeof(IConfigureApplication).IsAssignableFrom(t) &&
-                         t is {IsClass: true, IsAbstract: false})?
-                .GetMethod(nameof(IConfigureApplication.ConfigureAsync));
-
-            if (configureMethod != null)
-            {
-                await (Task) configureMethod.Invoke(null, [Context.Builder])!;
-            }
+        foreach (var method in methods)
+        {
+            await (Task) method!.Invoke(null, [Context.Builder])!;
         }
     }
 
-    protected virtual async Task PostConfigureApplicationAsync(IEnumerable<Assembly> assemblies)
+    protected virtual async Task PostConfigureApplicationAsync(List<Assembly> assemblies)
     {
         foreach (var assembly in assemblies)
         {
-            var configureMethod = assembly.GetTypes().SingleOrDefault(
-                    t => typeof(IPostConfigureApplication).IsAssignableFrom(t) &&
-                         t is {IsClass: true, IsAbstract: false})?
-                .GetMethod(nameof(IPostConfigureApplication.PostConfigureAsync));
+            var type = assembly
+                .GetTypes()
+                .SingleOrDefault(t => typeof(IPostConfigureApplication).IsAssignableFrom(t)
+                                      && t is {IsClass: true, IsAbstract: false});
 
-            if (configureMethod != null)
+            if (type == null)
             {
-                await (Task) configureMethod.Invoke(null, [Context.Builder])!;
+                continue;
             }
+
+            var method = type
+                .GetInterfaceMap(typeof(IPostConfigureApplication))
+                .TargetMethods
+                .Single(c => c.Name == nameof(IPostConfigureApplication.PostConfigureAsync));
+            await (Task) method.Invoke(null, [Context.Builder])!;
         }
     }
 }

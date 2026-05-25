@@ -8,10 +8,10 @@ namespace Allegory.Axiom.AspNetCore;
 
 internal sealed class AspNetCoreAbstractionsPackage : IConfigureApplication
 {
-    public static Task ConfigureAsync(IHostApplicationBuilder builder)
+    static AspNetCoreAbstractionsPackage()
     {
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(IEndpointFilter));
-
-        return Task.CompletedTask;
     }
+
+    public static Task ConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
 }
