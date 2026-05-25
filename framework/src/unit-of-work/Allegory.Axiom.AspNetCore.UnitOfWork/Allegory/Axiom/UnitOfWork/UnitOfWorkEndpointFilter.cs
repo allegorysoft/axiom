@@ -1,10 +1,11 @@
 using System;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkEndpointFilter(IUnitOfWorkManager manager) : IEndpointFilter
+public class UnitOfWorkEndpointFilter(IUnitOfWorkManager manager) : IEndpointFilter, ISingletonService
 {
     public async ValueTask<object?> InvokeAsync(
         EndpointFilterInvocationContext context,
