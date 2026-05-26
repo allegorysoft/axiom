@@ -6,9 +6,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.AspNetCore;
 
-internal sealed class AspNetCoreAbstractionsPackage : IConfigureApplication
+internal sealed class AspNetCorePackage : IConfigureApplication
 {
-    static AspNetCoreAbstractionsPackage()
+    static AspNetCorePackage()
     {
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(IEndpointFilter));
     }

@@ -5,8 +5,4 @@
         <RootNamespace/>
     </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
-    </ItemGroup>
-
 </Project>
