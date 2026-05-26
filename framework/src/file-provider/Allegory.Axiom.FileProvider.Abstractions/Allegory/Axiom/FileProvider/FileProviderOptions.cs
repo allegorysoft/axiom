@@ -3,7 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 
-namespace Allegory.Axiom.FileProviders;
+namespace Allegory.Axiom.FileProvider;
 
 public class FileProviderOptions
 {

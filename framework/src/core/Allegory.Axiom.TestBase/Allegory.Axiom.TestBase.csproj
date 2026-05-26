@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allegory.Axiom.FileProviders\Allegory.Axiom.FileProviders.csproj"/>
+        <ProjectReference Include="..\..\file-provider\Allegory.Axiom.FileProvider\Allegory.Axiom.FileProvider.csproj"/>
         <ProjectReference Include="..\..\interception\Allegory.Axiom.Interception.Castle.Core\Allegory.Axiom.Interception.Castle.Core.csproj"/>
         <ProjectReference Include="..\..\localization\Allegory.Axiom.Localization\Allegory.Axiom.Localization.csproj"/>
         <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>

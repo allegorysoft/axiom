@@ -4,7 +4,7 @@ using Microsoft.Extensions.FileProviders;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.FileProviders;
+namespace Allegory.Axiom.FileProvider;
 
 public class FileProviderOptionsTests
 {

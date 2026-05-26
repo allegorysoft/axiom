@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Allegory.Axiom.FileProviders;
+using Allegory.Axiom.FileProvider;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Localization;
 using Allegory.Axiom.Security.Localization;

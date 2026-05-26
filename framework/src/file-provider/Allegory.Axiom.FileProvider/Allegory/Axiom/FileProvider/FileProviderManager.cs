@@ -1,11 +1,11 @@
-using Allegory.Axiom.DependencyInjection;
+﻿using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace Allegory.Axiom.FileProviders;
+namespace Allegory.Axiom.FileProvider;
 
-public class FileProviderManager : IFileProvider, ISingletonService
+public class FileProviderManager : IFileProviderManager, ISingletonService
 {
     public FileProviderManager(IOptions<FileProviderOptions> options)
     {

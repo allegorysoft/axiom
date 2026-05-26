@@ -10,9 +10,12 @@
   </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
-    <Project Path="src/core/Allegory.Axiom.FileProviders/Allegory.Axiom.FileProviders.csproj" />
     <Project Path="src/core/Allegory.Axiom.Filter/Allegory.Axiom.Filter.csproj" />
     <Project Path="src/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
+  </Folder>
+  <Folder Name="/src/file-provider/">
+    <Project Path="src/file-provider/Allegory.Axiom.FileProvider.Abstractions/Allegory.Axiom.FileProvider.Abstractions.csproj" />
+    <Project Path="src/file-provider/Allegory.Axiom.FileProvider/Allegory.Axiom.FileProvider.csproj" />
   </Folder>
   <Folder Name="/src/integration/" />
   <Folder Name="/src/interception/">
@@ -50,8 +53,10 @@
   </Folder>
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Core.Tests/Allegory.Axiom.Core.Tests.csproj" />
-    <Project Path="test/core/Allegory.Axiom.FileProviders.Tests/Allegory.Axiom.FileProviders.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/file-provider/">
+    <Project Path="test/file-provider/Allegory.Axiom.FileProvider.Tests/Allegory.Axiom.FileProvider.Tests.csproj" />
   </Folder>
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />
