@@ -43,8 +43,6 @@ public static class HostExtensions
 
             if (hostProperties.DefaultRouteGroupBuilder == null)
             {
-                //https://github.com/allegorysoft/axiom/issues/60
-                //Race condition might occur
                 var builder = host.GetEndpointRouteBuilder();
                 hostProperties.DefaultRouteGroupBuilder = builder.MapGroup(string.Empty);
             }
