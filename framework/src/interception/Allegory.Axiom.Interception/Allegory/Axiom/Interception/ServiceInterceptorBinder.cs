@@ -8,7 +8,7 @@ namespace Allegory.Axiom.Interception;
 internal sealed class ServiceInterceptorBinder(IServiceCollection collection)
 {
     public IServiceCollection Collection { get; } = collection;
-    public IReadOnlyList<InterceptorDescriptor> Interceptors { get; } = collection.Interceptors;
+    public IReadOnlyList<InterceptorDescriptor> Interceptors { get; } = collection.GetInterceptors();
 
     public static void Apply(IServiceCollection collection)
         => new ServiceInterceptorBinder(collection).ApplyInterceptors();

@@ -5,9 +5,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Interception;
 
-internal sealed class InterceptionAbstractionsPackage : IConfigureApplication
+internal sealed class InterceptionPackage : IConfigureApplication
 {
-    static InterceptionAbstractionsPackage()
+    static InterceptionPackage()
     {
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(IInterceptor));
     }

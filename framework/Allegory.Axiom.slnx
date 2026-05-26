@@ -18,6 +18,7 @@
   <Folder Name="/src/interception/">
     <Project Path="src/interception/Allegory.Axiom.Interception.Abstractions/Allegory.Axiom.Interception.Abstractions.csproj" />
     <Project Path="src/interception/Allegory.Axiom.Interception.Castle.Core/Allegory.Axiom.Interception.Castle.Core.csproj" />
+    <Project Path="src/interception/Allegory.Axiom.Interception/Allegory.Axiom.Interception.csproj" />
   </Folder>
   <Folder Name="/src/localization/">
     <Project Path="src/localization/Allegory.Axiom.Localization.Abstractions/Allegory.Axiom.Localization.Abstractions.csproj" />
@@ -55,6 +56,7 @@
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />
     <Project Path="test/interception/Allegory.Axiom.Interception.Castle.Core.Tests/Allegory.Axiom.Interception.Castle.Core.Tests.csproj" />
+    <Project Path="test/interception/Allegory.Axiom.Interception.Tests/Allegory.Axiom.Interception.Tests.csproj" />
   </Folder>
   <Folder Name="/test/localization/">
     <Project Path="test/localization/Allegory.Axiom.Localization.Abstractions.Tests/Allegory.Axiom.Localization.Abstractions.Tests.csproj" />

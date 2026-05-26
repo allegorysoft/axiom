@@ -16,7 +16,7 @@ public class ServiceCollectionExtensionsTests
         services.AddInterceptor<Interceptor1>(_ => true);
         services.AddInterceptor(typeof(Interceptor1), _ => true);
 
-        ServiceCollectionExtensions.ExtraProperties.GetOrCreateValue(services).Interceptors.Count.ShouldBe(2);
+        ServiceCollectionExtensions.CollectionProperties.GetOrCreateValue(services).Interceptors.Count.ShouldBe(2);
     }
 
     [Fact]
