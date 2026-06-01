@@ -16,8 +16,6 @@ public static class HostExtensions
     {
         public async Task InitializeApplicationAsync()
         {
-            //TODO: Add concurrent parameter
-
             var application = host.Services.GetRequiredService<AxiomApplication>();
 
             foreach (var assembly in application.Assemblies)

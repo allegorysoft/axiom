@@ -5,14 +5,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using Allegory.Axiom.FileProviders;
+using Allegory.Axiom.FileProvider;
 using Microsoft.Extensions.Localization;
 
 namespace Allegory.Axiom.Localization;
 
 public class AxiomStringLocalizer : IAxiomStringLocalizer
 {
-    public AxiomStringLocalizer(LocalizationResourceOptions options, FileProviderManager fileProviderManager)
+    public AxiomStringLocalizer(LocalizationResourceOptions options, IFileProviderManager fileProviderManager)
     {
         Options = options;
         FileProviderManager = fileProviderManager;
@@ -21,7 +21,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
 
     public ConcurrentDictionary<string, ConcurrentDictionary<string, string>> Translations { get; } = new(StringComparer.OrdinalIgnoreCase);
     protected LocalizationResourceOptions Options { get; }
-    protected FileProviderManager FileProviderManager { get; }
+    protected IFileProviderManager FileProviderManager { get; }
 
     public virtual LocalizedString this[string name]
     {

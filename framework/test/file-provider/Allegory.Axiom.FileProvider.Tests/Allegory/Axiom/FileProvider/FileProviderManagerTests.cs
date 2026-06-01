@@ -4,20 +4,21 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.FileProviders;
+namespace Allegory.Axiom.FileProvider;
 
 public class FileProviderManagerTests(FileProviderManagerFixture fixture)
     : IClassFixture<FileProviderManagerFixture>
 {
-    protected FileProviderManager Manager { get; } = fixture.Service<FileProviderManager>();
+    protected IFileProviderManager Manager { get; } = fixture.Service<IFileProviderManager>();
 
     [Fact]
     public async Task ShouldReverseProvidersOrder()
     {
-        var provider = await fixture.CreateServiceProviderAsync(postConfigure: builder =>
+        var service = await fixture.CreateServiceProviderAsync(postConfigure: builder =>
         {
             builder.Services.Configure<FileProviderOptions>(o =>
             {
@@ -26,9 +27,10 @@ public class FileProviderManagerTests(FileProviderManagerFixture fixture)
                 o.AddPhysical(AppContext.BaseDirectory);
             });
         });
-        var compositeProvider = provider.GetRequiredService<FileProviderManager>().FileProvider;
 
-        var providers = compositeProvider.FileProviders.ToList();
+        var provider = new FileProviderManager(service.GetRequiredService<IOptions<FileProviderOptions>>());
+
+        var providers = provider.FileProvider.FileProviders.ToList();
 
         providers.Count.ShouldBe(2);
         providers[0].ShouldBeOfType<PhysicalFileProvider>();// Added last, so it should be first
