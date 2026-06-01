@@ -17,6 +17,9 @@
     <Project Path="src/file-provider/Allegory.Axiom.FileProvider.Abstractions/Allegory.Axiom.FileProvider.Abstractions.csproj" />
     <Project Path="src/file-provider/Allegory.Axiom.FileProvider/Allegory.Axiom.FileProvider.csproj" />
   </Folder>
+  <Folder Name="/src/event-bus/">
+    <Project Path="src/event-bus/Allegory.Axiom.EventBus.Abstractions/Allegory.Axiom.EventBus.Abstractions.csproj" />
+  </Folder>
   <Folder Name="/src/integration/" />
   <Folder Name="/src/interception/">
     <Project Path="src/interception/Allegory.Axiom.Interception.Abstractions/Allegory.Axiom.Interception.Abstractions.csproj" />
