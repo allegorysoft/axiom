@@ -11,10 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\..\..\framework\src\aspnetcore\Allegory.Axiom.AspNetCore.Mvc\Allegory.Axiom.AspNetCore.Mvc.csproj"/>
-
-        <ProjectReference Include="..\..\..\..\..\framework\src\file-provider\Allegory.Axiom.FileProvider\Allegory.Axiom.FileProvider.csproj"/>
-        <ProjectReference Include="..\..\..\..\..\framework\src\interception\Allegory.Axiom.Interception.Castle.Core\Allegory.Axiom.Interception.Castle.Core.csproj"/>
-        <ProjectReference Include="..\..\..\..\..\framework\src\localization\Allegory.Axiom.Localization\Allegory.Axiom.Localization.csproj"/>
+        <ProjectReference Include="..\..\..\..\..\framework\src\template\Allegory.Axiom.Template.Framework.Implementations\Allegory.Axiom.Template.Framework.Implementations.csproj"/>
     </ItemGroup>
 
 </Project>

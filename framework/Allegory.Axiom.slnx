@@ -42,6 +42,10 @@
     <Project Path="src/security/Allegory.Axiom.Security/Allegory.Axiom.Security.csproj" />
     <Project Path="src/security/Allegory.Axiom.AspNetCore.Security/Allegory.Axiom.AspNetCore.Security.csproj" />
   </Folder>
+  <Folder Name="/src/template/">
+    <Project Path="src/template/Allegory.Axiom.Template.Framework.Abstractions/Allegory.Axiom.Template.Framework.Abstractions.csproj" />
+    <Project Path="src/template/Allegory.Axiom.Template.Framework.Implementations/Allegory.Axiom.Template.Framework.Implementations.csproj" />
+  </Folder>
   <Folder Name="/src/unit-of-work/">
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
