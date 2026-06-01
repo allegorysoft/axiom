@@ -9,6 +9,7 @@ namespace Allegory.Axiom.UnitOfWork;
 internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 {
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
+    private readonly Dictionary<UnitOfWorkHookPoint, List<Func<Task>>> _hooks = new();
 
     public Guid Id { get; } = Guid.NewGuid();
     public IUnitOfWork? Parent { get; set; }
@@ -20,6 +21,37 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
 
+    public void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler)
+    {
+        if (!_hooks.TryGetValue(hook, out var handlers))
+        {
+            _hooks[hook] = handlers = [];
+        }
+
+        handlers.Add(handler);
+    }
+
+    private async Task InvokeHooksAsync(UnitOfWorkHookPoint hook)
+    {
+        if (!_hooks.TryGetValue(hook, out var handlers))
+        {
+            return;
+        }
+
+        var invokedCount = 0;
+        while (invokedCount < handlers.Count)
+        {
+            var count = handlers.Count;
+
+            for (var i = invokedCount; i < count; i++)
+            {
+                await handlers[i]();
+            }
+
+            invokedCount = count;
+        }
+    }
+
     public async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         if (State != UnitOfWorkState.Started)
@@ -28,10 +60,14 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
                 $"Cannot save UnitOfWork. Expected state '{UnitOfWorkState.Started}', but was '{State}'.");
         }
 
+        await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeSave);
+
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.SaveChangesAsync(cancellationToken);
         }
+
+        await InvokeHooksAsync(UnitOfWorkHookPoint.AfterSave);
     }
 
     public async Task CompleteAsync(CancellationToken cancellationToken = default)
@@ -43,11 +79,9 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
         }
 
         await SaveChangesAsync(cancellationToken);
-
-        // Publish events
+        await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeComplete);
 
         State = UnitOfWorkState.Committing;
-
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.CommitAsync(cancellationToken);
@@ -55,7 +89,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
 
         State = UnitOfWorkState.Committed;
 
-        // Invoke on completed delegates
+        await InvokeHooksAsync(UnitOfWorkHookPoint.AfterComplete);
     }
 
     public async Task RollbackAsync(CancellationToken cancellationToken = default)
@@ -66,14 +100,17 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
                 $"Cannot rollback UnitOfWork. Expected state '{UnitOfWorkState.Started}', but was '{State}'.");
         }
 
-        State = UnitOfWorkState.RollingBack;
+        await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeRollback);
 
+        State = UnitOfWorkState.RollingBack;
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.RollbackAsync(cancellationToken);
         }
 
         State = UnitOfWorkState.RolledBack;
+
+        await InvokeHooksAsync(UnitOfWorkHookPoint.AfterRollback);
     }
 
     public void Dispose()

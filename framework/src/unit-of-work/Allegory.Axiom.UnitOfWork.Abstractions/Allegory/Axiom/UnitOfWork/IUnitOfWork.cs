@@ -17,6 +17,7 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     UnitOfWorkState State { get; }
 
     void AddDatabase(string key, UnitOfWorkDatabaseHandle handle);
+    void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
     Task CompleteAsync(CancellationToken cancellationToken = default);
     Task RollbackAsync(CancellationToken cancellationToken = default);
