@@ -182,7 +182,7 @@ public class UnitOfWorkTests
         var uow = new UnitOfWork(new UnitOfWorkOptions());
         uow.Dispose();
         Should.NotThrow(() => uow.Dispose());
-        
+
         uow = new UnitOfWork(new UnitOfWorkOptions());
         await uow.DisposeAsync();
         await Should.NotThrowAsync(() => uow.DisposeAsync().AsTask());
@@ -239,6 +239,237 @@ public class UnitOfWorkTests
             saveChangesAsync: _ => Task.CompletedTask));
 
         uow.Databases["db1"].Database.ShouldBe(second);
+    }
+
+    [Fact]
+    public async Task ShouldInvokeHookWhenHookPointTriggered()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var invoked = false;
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            invoked = true;
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        invoked.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ShouldInvokeHooksInOrderWhenMultipleHooksAdded()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<int>();
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(1);
+            return Task.CompletedTask;
+        });
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(2);
+            return Task.CompletedTask;
+        });
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(3);
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe([1, 2, 3]);
+    }
+
+    [Fact]
+    public async Task ShouldInvokeHookRegisteredDuringInvocation()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<int>();
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(1);
+            uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+            {
+                log.Add(2);
+                return Task.CompletedTask;
+            });
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe([1, 2]);
+    }
+
+    [Fact]
+    public async Task ShouldNotInvokeHookForDifferentHookPoint()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var invoked = false;
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterRollback, () =>
+        {
+            invoked = true;
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        invoked.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ShouldInvokeBeforeCompleteHookBeforeCommit()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<string>();
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
+        {
+            log.Add("hook");
+            return Task.CompletedTask;
+        });
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ => Task.CompletedTask,
+            commitAsync: _ =>
+            {
+                log.Add("commit");
+                return Task.CompletedTask;
+            }));
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe(["hook", "commit"]);
+    }
+
+    [Fact]
+    public async Task ShouldInvokeAfterCompleteHookAfterCommit()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<string>();
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add("hook");
+            return Task.CompletedTask;
+        });
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ => Task.CompletedTask,
+            commitAsync: _ =>
+            {
+                log.Add("commit");
+                return Task.CompletedTask;
+            }));
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe(["commit", "hook"]);
+    }
+
+    [Fact]
+    public async Task ShouldInvokeBeforeRollbackHookBeforeRollback()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<string>();
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeRollback, () =>
+        {
+            log.Add("hook");
+            return Task.CompletedTask;
+        });
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ => Task.CompletedTask,
+            rollbackAsync: _ =>
+            {
+                log.Add("rollback");
+                return Task.CompletedTask;
+            }));
+
+        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe(["hook", "rollback"]);
+    }
+
+    [Fact]
+    public async Task ShouldInvokeAfterRollbackHookAfterRollback()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<string>();
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterRollback, () =>
+        {
+            log.Add("hook");
+            return Task.CompletedTask;
+        });
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ => Task.CompletedTask,
+            rollbackAsync: _ =>
+            {
+                log.Add("rollback");
+                return Task.CompletedTask;
+            }));
+
+        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe(["rollback", "hook"]);
+    }
+
+    [Fact]
+    public async Task ShouldInvokeBeforeSaveHookBeforeSave()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<string>();
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeSave, () =>
+        {
+            log.Add("hook");
+            return Task.CompletedTask;
+        });
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ =>
+            {
+                log.Add("save");
+                return Task.CompletedTask;
+            }));
+
+        await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe(["hook", "save"]);
+    }
+
+    [Fact]
+    public async Task ShouldInvokeAfterSaveHookAfterSave()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<string>();
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterSave, () =>
+        {
+            log.Add("hook");
+            return Task.CompletedTask;
+        });
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ =>
+            {
+                log.Add("save");
+                return Task.CompletedTask;
+            }));
+
+        await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe(["save", "hook"]);
     }
 }
 
