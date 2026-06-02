@@ -31,7 +31,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
         handlers.Add(handler);
     }
 
-    private async Task InvokeHooksAsync(UnitOfWorkHookPoint hook)
+    private async Task InvokeHooksAsync(UnitOfWorkHookPoint hook, bool saveChanges = false)
     {
         if (!_hooks.TryGetValue(hook, out var handlers))
         {
@@ -49,6 +49,11 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
             }
 
             invokedCount = count;
+
+            if (saveChanges)
+            {
+                await SaveChangesAsync();
+            }
         }
     }
 
@@ -79,7 +84,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
         }
 
         await SaveChangesAsync(cancellationToken);
-        await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeComplete);
+        await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeComplete, saveChanges: true);
 
         State = UnitOfWorkState.Committing;
         foreach (var databaseHandle in Databases.Values)

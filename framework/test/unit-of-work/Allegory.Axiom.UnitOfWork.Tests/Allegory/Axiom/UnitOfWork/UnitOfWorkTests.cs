@@ -350,6 +350,35 @@ public class UnitOfWorkTests
     }
 
     [Fact]
+    public async Task ShouldSaveChangesWhenInvokeBeforeCompleteHookBeforeCommit()
+    {
+        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var log = new List<string>();
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
+        {
+            log.Add("hook");
+            return Task.CompletedTask;
+        });
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ =>
+            {
+                log.Add("saved");
+                return Task.CompletedTask;
+            },
+            commitAsync: _ =>
+            {
+                log.Add("commit");
+                return Task.CompletedTask;
+            }));
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        log.ShouldBe(["saved", "hook", "saved", "commit"]);
+    }
+
+    [Fact]
     public async Task ShouldInvokeAfterCompleteHookAfterCommit()
     {
         var uow = new UnitOfWork(new UnitOfWorkOptions());
