@@ -7,7 +7,10 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.Template.Framework.Abstractions\Allegory.Axiom.Template.Framework.Abstractions.csproj"/>
+    </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\..\event-bus\Allegory.Axiom.EventBus\Allegory.Axiom.EventBus.csproj"/>
         <ProjectReference Include="..\..\file-provider\Allegory.Axiom.FileProvider\Allegory.Axiom.FileProvider.csproj"/>
         <ProjectReference Include="..\..\interception\Allegory.Axiom.Interception.Castle.Core\Allegory.Axiom.Interception.Castle.Core.csproj"/>
         <ProjectReference Include="..\..\localization\Allegory.Axiom.Localization\Allegory.Axiom.Localization.csproj"/>

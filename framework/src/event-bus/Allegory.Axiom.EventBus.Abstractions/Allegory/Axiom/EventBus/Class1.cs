@@ -3,12 +3,6 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.EventBus;
 
-public interface ILocalEventBus
-{
-    Task PublishAsync<TEvent>(TEvent payload, bool onUnitOfWorkComplete = true);
-    IDisposable Subscribe<TEvent>(Func<TEvent, Task> onEvent);
-    //Unsubscribe
-}
 
 public interface ILocalEventHandler<in T>
 {
