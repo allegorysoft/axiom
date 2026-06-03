@@ -16,11 +16,6 @@ public interface IDistributedEventBus
     //Unsubscribe
 }
 
-public interface IDistributedEventHandler<in T>
-{
-    Task HandleAsync(T payload);
-}
-
 public record OrderCreatedIntegrationEvent(int OrderId);
 
 // IDistributedEventBus.PublishAsync(OrderCreatedIntegrationEvent)
