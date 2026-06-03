@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -36,6 +37,14 @@ public static class HostApplicationBuilderExtensions
             builder.ExecuteBuilderActions();
 
             return application;
+        }
+
+        public AxiomApplication GetAxiomApplication()
+        {
+            var application = builder.Services.Single(service => service.ServiceType == typeof(AxiomApplication))
+                              ?? throw new InvalidOperationException("AxiomApplication is not registered.");
+
+            return (AxiomApplication) application.ImplementationInstance!;
         }
 
         public void AddDeferredAction(Action<IHostApplicationBuilder> action)
