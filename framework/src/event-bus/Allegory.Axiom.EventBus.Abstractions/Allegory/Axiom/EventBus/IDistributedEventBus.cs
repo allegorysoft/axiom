@@ -3,24 +3,6 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.EventBus;
 
-
-public interface ILocalEventHandler<in T>
-{
-    Task HandleAsync(T payload);
-}
-
-public record OrderCreated(int OrderId);
-
-// ILocalEventBus.PublishAsync(OrderCreated)
-
-public class OrderCreatedHandler : ILocalEventHandler<OrderCreated>
-{
-    public Task HandleAsync(OrderCreated payload)
-    {
-        throw new NotImplementedException();
-    }
-}
-
 /// <summary>
 /// Distributed section
 /// We should create parent uow, all event handlers for an event should run inside same uow
