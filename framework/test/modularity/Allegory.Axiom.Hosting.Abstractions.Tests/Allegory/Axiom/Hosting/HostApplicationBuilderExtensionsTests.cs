@@ -69,6 +69,24 @@ public class HostApplicationBuilderExtensionsTests
     }
 
     [Fact]
+    public async Task ShouldGetAxiomApplicationWhileConfiguringDependencies()
+    {
+        AxiomApplication application = null!;
+
+        Builder.AddDeferredAction(builder =>
+        {
+            application = builder.GetAxiomApplication();
+            application.Assemblies.Count.ShouldBeGreaterThan(0);
+        });
+
+        await Builder.ConfigureApplicationAsync();
+        var host = Builder.Build();
+        var serviceApplication = host.Services.GetRequiredService<AxiomApplication>();
+
+        application.ShouldBe(serviceApplication);
+    }
+
+    [Fact]
     public async Task ShouldInvokeDeferredAction()
     {
         var wasCalled = false;
