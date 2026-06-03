@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.EventBus;
@@ -30,7 +31,7 @@ internal sealed class EventBusPackage : IConfigureApplication
 
         foreach (var localHandler in localHandlers.Values.SelectMany(t => t))
         {
-            builder.Services.Add(ServiceDescriptor.Singleton(localHandler, localHandler));
+            builder.Services.TryAdd(ServiceDescriptor.Singleton(localHandler, localHandler));
         }
 
         builder.Services.Configure<LocalEventBusOptions>(options =>
