@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.Disposables;
 using Allegory.Axiom.UnitOfWork;
 
 namespace Allegory.Axiom.EventBus;
@@ -13,33 +9,12 @@ public class LocalEventBus(
     LocalEventHandlerFactory factory)
     : ILocalEventBus, ISingletonService
 {
-    protected ConcurrentDictionary<string, List<IEventHandler>> Handlers { get; } = factory.GetHandlers();
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    protected LocalEventHandlerFactory Factory { get; } = factory;
 
-    public virtual IDisposable Subscribe(string eventName, Func<object, Task> handler)
+    public virtual async Task PublishAsync<T>(T payload, bool onUnitOfWorkComplete = true) where T : notnull
     {
-        var eventHandler = new DelegateEventHandler(handler);
-
-        var handlers = Handlers.GetOrAdd(eventName, _ => []);
-        handlers.Add(eventHandler);
-
-        return new DisposableDelegate(() => handlers.Remove(eventHandler));
-    }
-
-    public IDisposable Subscribe<T>(Func<T, Task> handler) where T : notnull
-    {
-        var eventHandler = new DelegateEventHandler<T>(handler);
-        var eventName = EventNameAttribute.Get<T>();
-
-        var handlers = Handlers.GetOrAdd(eventName, _ => []);
-        handlers.Add(eventHandler);
-
-        return new DisposableDelegate(() => handlers.Remove(eventHandler));
-    }
-
-    public virtual async Task PublishAsync(string eventName, object payload, bool onUnitOfWorkComplete = true)
-    {
-        if (!Handlers.ContainsKey(eventName))
+        if (!Factory.Handlers.ContainsKey(typeof(T)))
         {
             return;
         }
@@ -48,28 +23,17 @@ public class LocalEventBus(
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.BeforeComplete,
-                () => InvokeHandlersAsync(eventName, payload));
+                () => InvokeHandlersAsync<T>(payload));
         }
         else
         {
-            await InvokeHandlersAsync(eventName, payload);
+            await InvokeHandlersAsync<T>(payload);
         }
     }
 
-    public virtual async Task PublishAsync<T>(T payload, bool onUnitOfWorkComplete = true) where T : notnull
+    protected virtual async Task InvokeHandlersAsync<T>(object payload)
     {
-        var eventName = EventNameAttribute.Get<T>();
-        await PublishAsync(eventName, payload, onUnitOfWorkComplete);
-    }
-
-    protected virtual async Task InvokeHandlersAsync(string eventName, object payload)
-    {
-        if (!Handlers.TryGetValue(eventName, out var handlers))
-        {
-            return;
-        }
-
-        foreach (var handler in handlers)
+        foreach (var handler in Factory.Handlers[typeof(T)])
         {
             await handler.HandleAsync(payload);
         }

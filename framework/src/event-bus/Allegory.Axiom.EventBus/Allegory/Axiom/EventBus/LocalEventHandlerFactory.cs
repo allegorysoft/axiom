@@ -1,6 +1,7 @@
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,38 +9,40 @@ using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EventBus;
 
-public class LocalEventHandlerFactory(
-    IOptions<LocalEventBusOptions> options,
-    IServiceProvider serviceProvider)
-    : ISingletonService
+public class LocalEventHandlerFactory : ISingletonService
 {
-    protected LocalEventBusOptions Options { get; } = options.Value;
-    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
-
-    public virtual ConcurrentDictionary<string, List<IEventHandler>> GetHandlers()
+    public LocalEventHandlerFactory(
+        IOptions<LocalEventBusOptions> options,
+        IServiceProvider serviceProvider)
     {
-        var list = new ConcurrentDictionary<string, List<IEventHandler>>();
+        Options = options.Value;
+        ServiceProvider = serviceProvider;
+        LazyHandlers = new Lazy<FrozenDictionary<Type, ImmutableArray<IEventHandler>>>(GetHandlers);
+    }
 
-        foreach (var handlers in Options.Handlers)
+    public FrozenDictionary<Type, ImmutableArray<IEventHandler>> Handlers => LazyHandlers.Value;
+    protected LocalEventBusOptions Options { get; }
+    protected IServiceProvider ServiceProvider { get; }
+    protected Lazy<FrozenDictionary<Type, ImmutableArray<IEventHandler>>> LazyHandlers { get; }
+
+    protected virtual FrozenDictionary<Type, ImmutableArray<IEventHandler>> GetHandlers()
+    {
+        var dictionary = new Dictionary<Type, ImmutableArray<IEventHandler>>(Options.Handlers.Count);
+
+        foreach (var (eventType, handlerTypes) in Options.Handlers)
         {
-            var eventName = EventNameAttribute.Get(handlers.Key);
-            var eventHandlers = new List<IEventHandler>();
-            var handlerType = typeof(ServiceEventHandler<>).MakeGenericType(handlers.Key);
-            
-            foreach (var handler in handlers.Value.OrderBy(EventOrderAttribute.Get))
+            var serviceType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
+            var handlers = ImmutableArray.CreateBuilder<IEventHandler>(handlerTypes.Count);
+
+            foreach (var handler in handlerTypes.OrderBy(EventOrderAttribute.Get))
             {
                 var service = ServiceProvider.GetRequiredService(handler);
-                var eventHandler = (IEventHandler) ActivatorUtilities.CreateInstance(
-                    ServiceProvider, handlerType, service);
-                eventHandlers.Add(eventHandler);
+                handlers.Add((IEventHandler) Activator.CreateInstance(serviceType, service)!);
             }
 
-            if (!list.TryAdd(eventName, eventHandlers))
-            {
-                throw new InvalidOperationException($"Event {eventName} already exists");
-            }
+            dictionary.Add(eventType, handlers.ToImmutable());
         }
 
-        return list;
+        return dictionary.ToFrozenDictionary();
     }
 }
