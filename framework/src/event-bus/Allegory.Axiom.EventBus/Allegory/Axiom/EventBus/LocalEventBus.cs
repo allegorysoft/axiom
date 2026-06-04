@@ -39,11 +39,16 @@ public class LocalEventBus(
 
     public virtual async Task PublishAsync(string eventName, object payload, bool onUnitOfWorkComplete = true)
     {
+        if (!Handlers.ContainsKey(eventName))
+        {
+            return;
+        }
+
         if (onUnitOfWorkComplete && UnitOfWorkManager.Current != null)
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.BeforeComplete,
-                async () => await InvokeHandlersAsync(eventName, payload));
+                () => InvokeHandlersAsync(eventName, payload));
         }
         else
         {
