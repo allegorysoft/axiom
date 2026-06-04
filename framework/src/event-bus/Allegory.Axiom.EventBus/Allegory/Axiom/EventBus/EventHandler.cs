@@ -20,8 +20,10 @@ public interface IEventHandler
 /// <typeparam name="T">The event payload type.</typeparam>
 public class ServiceEventHandler<T>(IEventHandler<T> service) : IEventHandler
 {
+    protected internal readonly IEventHandler<T> Service = service;
+
     public Task HandleAsync(object payload)
     {
-        return service.HandleAsync((T) payload);
+        return Service.HandleAsync((T) payload);
     }
 }

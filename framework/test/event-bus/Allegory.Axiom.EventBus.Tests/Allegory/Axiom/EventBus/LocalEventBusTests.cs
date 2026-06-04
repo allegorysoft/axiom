@@ -91,6 +91,20 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
 
         await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
+
+    [Fact]
+    public async Task ShouldInvokeHandlersInSpecifiedOrder()
+    {
+        var payload = new OrderedTestEvent();
+        await EventBus.PublishAsync(payload, onUnitOfWorkComplete: false);
+
+        payload.Items.ShouldBe(
+        [
+            typeof(OrderTestEventHandler1),
+            typeof(OrderTestEventHandler2),
+            typeof(OrderTestEventHandler3)
+        ]);
+    }
 }
 
 file record TestEvent(int Value);
@@ -98,6 +112,11 @@ file record TestEvent(int Value);
 file record UnhandledTestEvent;
 
 file record ThrowingTestEvent;
+
+file record OrderedTestEvent
+{
+    public List<Type> Items { get; } = [];
+}
 
 file class TestEventHandler : ILocalEventHandler<TestEvent>
 {
@@ -125,4 +144,34 @@ file class ThrowingTestEventHandler : ILocalEventHandler<ThrowingTestEvent>
 {
     public Task HandleAsync(ThrowingTestEvent payload) =>
         throw new InvalidOperationException("handler-failure");
+}
+
+[EventOrder(3)]
+file class OrderTestEventHandler3 : ILocalEventHandler<OrderedTestEvent>
+{
+    public Task HandleAsync(OrderedTestEvent payload)
+    {
+        payload.Items.Add(typeof(OrderTestEventHandler3));
+        return Task.CompletedTask;
+    }
+}
+
+[EventOrder(2)]
+file class OrderTestEventHandler2 : ILocalEventHandler<OrderedTestEvent>
+{
+    public Task HandleAsync(OrderedTestEvent payload)
+    {
+        payload.Items.Add(typeof(OrderTestEventHandler2));
+        return Task.CompletedTask;
+    }
+}
+
+[EventOrder(1)]
+file class OrderTestEventHandler1 : ILocalEventHandler<OrderedTestEvent>
+{
+    public Task HandleAsync(OrderedTestEvent payload)
+    {
+        payload.Items.Add(typeof(OrderTestEventHandler1));
+        return Task.CompletedTask;
+    }
 }
