@@ -24,6 +24,18 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     }
 
     [Fact]
+    public async Task ShouldPublishValueTypeEventToHandler()
+    {
+        var handler = fixture.Service<ValueTestEventHandler>();
+
+        handler.Received.ShouldNotContain(e => e.Value == 1);
+
+        await EventBus.PublishAsync(new ValueTestEvent(1), onUnitOfWorkComplete: false);
+
+        handler.Received.ShouldContain(e => e.Value == 1);
+    }
+
+    [Fact]
     public async Task ShouldPublishEventToAllHandlers()
     {
         var handler1 = fixture.Service<TestEventHandler>();
@@ -118,6 +130,8 @@ file record OrderedTestEvent
     public List<Type> Items { get; } = [];
 }
 
+file record struct ValueTestEvent(int Value);
+
 file class TestEventHandler : ILocalEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
@@ -134,6 +148,17 @@ file class TestEventHandler2 : ILocalEventHandler<TestEvent>
     public List<TestEvent> Received { get; } = [];
 
     public Task HandleAsync(TestEvent payload)
+    {
+        Received.Add(payload);
+        return Task.CompletedTask;
+    }
+}
+
+file class ValueTestEventHandler : ILocalEventHandler<ValueTestEvent>
+{
+    public List<ValueTestEvent> Received { get; } = [];
+
+    public Task HandleAsync(ValueTestEvent payload)
     {
         Received.Add(payload);
         return Task.CompletedTask;

@@ -18,6 +18,5 @@ public class EventOrderAttribute(int order) : Attribute
         var attribute = type.GetCustomAttribute<EventOrderAttribute>();
 
         return attribute?.Order ?? 0;
-
     }
 }
