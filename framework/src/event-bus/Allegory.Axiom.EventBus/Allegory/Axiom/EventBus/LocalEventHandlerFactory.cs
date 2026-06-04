@@ -32,7 +32,7 @@ public class LocalEventHandlerFactory : ISingletonService
         foreach (var (eventType, handlerTypes) in Options.Handlers)
         {
             var serviceType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
-            var handlers = ImmutableArray.CreateBuilder<IEventHandler>(handlerTypes.Count);
+            var handlers = ImmutableArray.CreateBuilder<IEventHandler>(handlerTypes.Length);
 
             foreach (var handler in handlerTypes.OrderBy(EventOrderAttribute.Get))
             {

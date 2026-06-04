@@ -1,9 +1,10 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Frozen;
+using System.Collections.Immutable;
 
 namespace Allegory.Axiom.EventBus;
 
 public class LocalEventBusOptions
 {
-    public required Dictionary<Type, List<Type>> Handlers { get; set; }
+    public required FrozenDictionary<Type, ImmutableArray<Type>> Handlers { get; set; }
 }

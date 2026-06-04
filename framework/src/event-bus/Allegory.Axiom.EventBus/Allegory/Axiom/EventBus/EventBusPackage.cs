@@ -1,3 +1,5 @@
+using System.Collections.Frozen;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
@@ -18,16 +20,21 @@ internal sealed class EventBusPackage : IConfigureApplication
 
     private static void RegisterHandlers(IHostApplicationBuilder builder)
     {
-        var assemblies = builder.GetAxiomApplication().Assemblies;
+        var targetAssembly = typeof(IEventHandler<>).Assembly;
+
+        var assemblies = builder.GetAxiomApplication().Assemblies
+            .Where(a => a.GetReferencedAssemblies().Any(r => r.FullName == targetAssembly.FullName)
+                        || a == targetAssembly)
+            .ToImmutableArray();
 
         var localHandlers = assemblies
             .SelectMany(a => a.GetTypes())
-            .Where(t => t is { IsClass: true, IsAbstract: false })
+            .Where(t => t is {IsClass: true, IsAbstract: false} && typeof(ILocalEventHandler).IsAssignableFrom(t))
             .SelectMany(t => t.GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ILocalEventHandler<>))
                 .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
             .GroupBy(x => x.EventType, x => x.HandlerType)
-            .ToDictionary(g => g.Key, g => g.ToList());
+            .ToFrozenDictionary(g => g.Key, g => g.ToImmutableArray());
 
         foreach (var localHandler in localHandlers.Values.SelectMany(t => t))
         {
