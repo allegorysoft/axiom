@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,23 +29,46 @@ internal sealed class EventBusPackage : IConfigureApplication
                         || a == targetAssembly)
             .ToImmutableArray();
 
-        var localHandlers = assemblies
-            .SelectMany(a => a.GetTypes())
-            .Where(t => t is {IsClass: true, IsAbstract: false} && typeof(ILocalEventHandler).IsAssignableFrom(t))
-            .SelectMany(t => t.GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ILocalEventHandler<>))
-                .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
-            .GroupBy(x => x.EventType, x => x.HandlerType)
-            .ToFrozenDictionary(g => g.Key, g => g.ToImmutableArray());
-
-        foreach (var localHandler in localHandlers.Values.SelectMany(t => t))
+        var local = GetHandlers<ILocalEventHandler>(assemblies);
+        foreach (var handler in local.Values.SelectMany(t => t))
         {
-            builder.Services.TryAdd(ServiceDescriptor.Singleton(localHandler, localHandler));
+            builder.Services.TryAdd(ServiceDescriptor.Singleton(handler, handler));
         }
 
         builder.Services.Configure<LocalEventBusOptions>(options =>
         {
-            options.Handlers = localHandlers;
+            options.Handlers = local;
         });
+
+        var distributed = GetHandlers<IDistributedEventHandler>(assemblies);
+        foreach (var handler in distributed.Values.SelectMany(t => t))
+        {
+            builder.Services.TryAdd(ServiceDescriptor.Singleton(handler, handler));
+        }
+
+        builder.Services.Configure<DistributedEventBusOptions>(options =>
+        {
+            options.Handlers = distributed;
+        });
+    }
+
+    private static FrozenDictionary<Type, ImmutableArray<Type>> GetHandlers<T>(ImmutableArray<Assembly> assemblies)
+    {
+        var eventType = typeof(T);
+        var genericEventType = eventType switch
+        {
+            _ when eventType == typeof(ILocalEventHandler) => typeof(ILocalEventHandler<>),
+            _ when eventType == typeof(IDistributedEventHandler) => typeof(IDistributedEventHandler<>),
+            _ => throw new ArgumentException($"Unsupported event handler type: {eventType}", nameof(eventType))
+        };
+
+        return assemblies
+            .SelectMany(a => a.GetTypes())
+            .Where(t => t is {IsClass: true, IsAbstract: false} && eventType.IsAssignableFrom(t))
+            .SelectMany(t => t.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericEventType)
+                .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
+            .GroupBy(x => x.EventType, x => x.HandlerType)
+            .ToFrozenDictionary(g => g.Key, g => g.ToImmutableArray());
     }
 }
