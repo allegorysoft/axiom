@@ -19,6 +19,7 @@
   </Folder>
   <Folder Name="/src/event-bus/">
     <Project Path="src/event-bus/Allegory.Axiom.EventBus.Abstractions/Allegory.Axiom.EventBus.Abstractions.csproj" />
+    <Project Path="src/event-bus/Allegory.Axiom.EventBus/Allegory.Axiom.EventBus.csproj" />
   </Folder>
   <Folder Name="/src/integration/" />
   <Folder Name="/src/interception/">
@@ -61,6 +62,9 @@
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Core.Tests/Allegory.Axiom.Core.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/event-bus/">
+    <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />
   </Folder>
   <Folder Name="/test/file-provider/">
     <Project Path="test/file-provider/Allegory.Axiom.FileProvider.Tests/Allegory.Axiom.FileProvider.Tests.csproj" />

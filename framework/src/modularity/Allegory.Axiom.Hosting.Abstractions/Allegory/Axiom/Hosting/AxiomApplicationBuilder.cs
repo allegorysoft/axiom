@@ -19,7 +19,6 @@ public class AxiomApplicationBuilder
     {
         Context = context;
         var application = await BuildAsync();
-        Context.Builder.Services.AddSingleton(application);
         return application;
     }
 
@@ -28,10 +27,12 @@ public class AxiomApplicationBuilder
         var assemblies = GetDependencies().ToList();
         assemblies.AddRange(GetPlugins());
 
+        var application = new AxiomApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
+        Context.Builder.Services.AddSingleton(application);
+
         await ConfigureApplicationAsync(assemblies);
         await PostConfigureApplicationAsync(assemblies);
 
-        var application = new AxiomApplication(Guid.NewGuid(), Context.StartupAssembly, assemblies);
         return application;
     }
 
@@ -55,13 +56,13 @@ public class AxiomApplicationBuilder
 
     protected virtual IEnumerable<Assembly> GetDependencies(DependencyContext context)
     {
-        const string dependencyInjectionAssemblyName = "Allegory.Axiom.DependencyInjection.Abstractions";
+        const string corePackage = "Allegory.Axiom.Core";
 
         var checkedLibraries = new Dictionary<string, bool>();
 
         foreach (var library in context.RuntimeLibraries)
         {
-            if (!HasTransitiveDependency(context, library, dependencyInjectionAssemblyName, checkedLibraries))
+            if (!HasTransitiveDependency(context, library, corePackage, checkedLibraries))
             {
                 continue;
             }

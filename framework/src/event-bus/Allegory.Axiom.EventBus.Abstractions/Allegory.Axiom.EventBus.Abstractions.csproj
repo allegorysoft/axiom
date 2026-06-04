@@ -5,4 +5,8 @@
         <RootNamespace/>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\..\core\Allegory.Axiom.Core\Allegory.Axiom.Core.csproj"/>
+    </ItemGroup>
+
 </Project>
