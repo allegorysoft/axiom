@@ -3,7 +3,7 @@ using System.Reflection;
 
 namespace Allegory.Axiom.EventBus;
 
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public class EventOrderAttribute(int order) : Attribute
 {
     public int Order { get; } = order;

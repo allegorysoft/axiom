@@ -87,6 +87,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
         await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeComplete, saveChanges: true);
 
         State = UnitOfWorkState.Committing;
+
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.CommitAsync(cancellationToken);
