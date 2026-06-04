@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Allegory.Axiom.UnitOfWork;
 using Shouldly;
@@ -42,6 +43,13 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     {
         await Should.NotThrowAsync(() =>
             EventBus.PublishAsync(new UnhandledTestEvent(), onUnitOfWorkComplete: false));
+    }
+
+    [Fact]
+    public async Task ShouldExposeExceptionFromHandler()
+    {
+        await Should.ThrowAsync<InvalidOperationException>(() =>
+            EventBus.PublishAsync(new ThrowingTestEvent(), onUnitOfWorkComplete: false));
     }
 
     [Fact]
@@ -89,6 +97,8 @@ file record TestEvent(int Value);
 
 file record UnhandledTestEvent;
 
+file record ThrowingTestEvent;
+
 file class TestEventHandler : ILocalEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
@@ -109,4 +119,10 @@ file class TestEventHandler2 : ILocalEventHandler<TestEvent>
         Received.Add(payload);
         return Task.CompletedTask;
     }
+}
+
+file class ThrowingTestEventHandler : ILocalEventHandler<ThrowingTestEvent>
+{
+    public Task HandleAsync(ThrowingTestEvent payload) =>
+        throw new InvalidOperationException("handler-failure");
 }
