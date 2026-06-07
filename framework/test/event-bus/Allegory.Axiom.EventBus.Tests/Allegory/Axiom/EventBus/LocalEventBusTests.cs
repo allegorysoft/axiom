@@ -18,7 +18,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
 
         handler.Received.ShouldNotContain(e => e.Value == 1);
 
-        await EventBus.PublishAsync(new TestEvent(1), onUnitOfWorkComplete: false);
+        await EventBus.PublishAsync(new TestEvent(1));
 
         handler.Received.ShouldContain(e => e.Value == 1);
     }
@@ -30,7 +30,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
 
         handler.Received.ShouldNotContain(e => e.Value == 1);
 
-        await EventBus.PublishAsync(new ValueTestEvent(1), onUnitOfWorkComplete: false);
+        await EventBus.PublishAsync(new ValueTestEvent(1));
 
         handler.Received.ShouldContain(e => e.Value == 1);
     }
@@ -44,7 +44,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         handler1.Received.ShouldNotContain(e => e.Value == 2);
         handler2.Received.ShouldNotContain(e => e.Value == 2);
 
-        await EventBus.PublishAsync(new TestEvent(2), onUnitOfWorkComplete: false);
+        await EventBus.PublishAsync(new TestEvent(2));
 
         handler1.Received.ShouldContain(e => e.Value == 2);
         handler2.Received.ShouldContain(e => e.Value == 2);
@@ -54,14 +54,14 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     public async Task ShouldNotThrowWhenNoHandlerRegistered()
     {
         await Should.NotThrowAsync(() =>
-            EventBus.PublishAsync(new UnhandledTestEvent(), onUnitOfWorkComplete: false));
+            EventBus.PublishAsync(new UnhandledTestEvent()));
     }
 
     [Fact]
     public async Task ShouldExposeExceptionFromHandler()
     {
         await Should.ThrowAsync<InvalidOperationException>(() =>
-            EventBus.PublishAsync(new ThrowingTestEvent(), onUnitOfWorkComplete: false));
+            EventBus.PublishAsync(new ThrowingTestEvent()));
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
-        await EventBus.PublishAsync(new TestEvent(3), onUnitOfWorkComplete: true);
+        await EventBus.PublishAsync(new TestEvent(3), dispatchMode: DispatchMode.OnUnitOfWorkComplete);
 
         handler.Received.ShouldNotContain(e => e.Value == 3);
 
@@ -85,7 +85,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     {
         var handler = fixture.Service<TestEventHandler>();
 
-        await EventBus.PublishAsync(new TestEvent(4), onUnitOfWorkComplete: true);
+        await EventBus.PublishAsync(new TestEvent(4), dispatchMode: DispatchMode.OnUnitOfWorkComplete);
 
         handler.Received.ShouldContain(e => e.Value == 4);
     }
@@ -97,7 +97,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
-        await EventBus.PublishAsync(new TestEvent(5), onUnitOfWorkComplete: false);
+        await EventBus.PublishAsync(new TestEvent(5), dispatchMode: DispatchMode.Immediate);
 
         handler.Received.ShouldContain(e => e.Value == 5);
 
@@ -108,7 +108,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     public async Task ShouldInvokeHandlersInSpecifiedOrder()
     {
         var payload = new OrderedTestEvent();
-        await EventBus.PublishAsync(payload, onUnitOfWorkComplete: false);
+        await EventBus.PublishAsync(payload);
 
         payload.Items.ShouldBe(
         [

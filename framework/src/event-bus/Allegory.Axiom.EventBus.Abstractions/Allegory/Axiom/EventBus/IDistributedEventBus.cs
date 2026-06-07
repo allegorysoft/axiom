@@ -4,5 +4,9 @@ namespace Allegory.Axiom.EventBus;
 
 public interface IDistributedEventBus
 {
-    Task PublishAsync<T>(T payload, bool onUnitOfWorkComplete = true, bool useOutbox = true) where T : notnull;
+    Task PublishAsync<T>(
+        T payload,
+        DispatchMode dispatchMode = DispatchMode.OnUnitOfWorkComplete,
+        DeliveryMode deliveryMode = DeliveryMode.Outbox)
+        where T : notnull;
 }

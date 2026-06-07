@@ -12,14 +12,16 @@ public class LocalEventBus(
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected LocalEventHandlerFactory Factory { get; } = factory;
 
-    public virtual async Task PublishAsync<T>(T payload, bool onUnitOfWorkComplete = true) where T : notnull
+    public virtual async Task PublishAsync<T>(
+        T payload,
+        DispatchMode dispatchMode = DispatchMode.OnUnitOfWorkComplete) where T : notnull
     {
         if (!Factory.Handlers.ContainsKey(typeof(T)))
         {
             return;
         }
 
-        if (onUnitOfWorkComplete && UnitOfWorkManager.Current != null)
+        if (dispatchMode == DispatchMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.BeforeComplete,

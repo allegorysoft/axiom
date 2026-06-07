@@ -13,16 +13,27 @@ public class DistributedEventBus(
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected DistributedEventHandlerFactory Factory { get; } = factory;
 
-    public virtual Task PublishAsync<T>(
+    public virtual async Task PublishAsync<T>(
         T payload,
-        bool onUnitOfWorkComplete = true,
-        bool useOutbox = true) where T : notnull
+        DispatchMode dispatchMode = DispatchMode.OnUnitOfWorkComplete,
+        DeliveryMode deliveryMode = DeliveryMode.Outbox) where T : notnull
     {
-        throw new System.NotImplementedException();
+        if (dispatchMode == DispatchMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
+        {
+            UnitOfWorkManager.Current.AddHook(
+                UnitOfWorkHookPoint.BeforeComplete,
+                () => PublishToMessageBrokerAsync<T>(payload));
+        }
+        else
+        {
+            await PublishToMessageBrokerAsync<T>(payload);
+        }
     }
 
-    protected virtual Task PublishToBrokerAsync<T>(T payload)
+    protected virtual Task PublishToMessageBrokerAsync<T>(T payload)
     {
+        //Send to rabbitmq, kafka, etc.
+
         return Task.CompletedTask;
     }
 
