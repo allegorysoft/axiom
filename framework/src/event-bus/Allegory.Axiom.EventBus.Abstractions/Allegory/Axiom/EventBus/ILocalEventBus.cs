@@ -6,6 +6,6 @@ public interface ILocalEventBus
 {
     Task PublishAsync<T>(
         T payload,
-        DispatchMode dispatchMode = DispatchMode.OnUnitOfWorkComplete) 
+        LocalMessagePublishMode publishMode = LocalMessagePublishMode.OnUnitOfWorkComplete)
         where T : notnull;
 }

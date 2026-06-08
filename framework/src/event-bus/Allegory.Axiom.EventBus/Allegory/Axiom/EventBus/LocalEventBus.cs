@@ -14,14 +14,15 @@ public class LocalEventBus(
 
     public virtual async Task PublishAsync<T>(
         T payload,
-        DispatchMode dispatchMode = DispatchMode.OnUnitOfWorkComplete) where T : notnull
+        LocalMessagePublishMode publishMode = LocalMessagePublishMode.OnUnitOfWorkComplete)
+        where T : notnull
     {
         if (!Factory.Handlers.ContainsKey(typeof(T)))
         {
             return;
         }
 
-        if (dispatchMode == DispatchMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
+        if (publishMode == LocalMessagePublishMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.BeforeComplete,

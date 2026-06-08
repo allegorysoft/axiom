@@ -6,7 +6,6 @@ public interface IDistributedEventBus
 {
     Task PublishAsync<T>(
         T payload,
-        DispatchMode dispatchMode = DispatchMode.OnUnitOfWorkComplete,
-        DeliveryMode deliveryMode = DeliveryMode.Outbox)
+        DistributedMessagePublishMode publishMode = DistributedMessagePublishMode.Outbox)
         where T : notnull;
 }

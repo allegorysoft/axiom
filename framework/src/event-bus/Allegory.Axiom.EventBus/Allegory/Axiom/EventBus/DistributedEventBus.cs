@@ -8,44 +8,16 @@ namespace Allegory.Axiom.EventBus;
 public class DistributedEventBus(
     IUnitOfWorkManager unitOfWorkManager,
     DistributedEventHandlerFactory factory)
-    : IDistributedEventBus, ISingletonService
+    : DistributedEventBusBase(unitOfWorkManager, factory)
 {
-    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
-    protected DistributedEventHandlerFactory Factory { get; } = factory;
-
-    public virtual async Task PublishAsync<T>(
-        T payload,
-        DispatchMode dispatchMode = DispatchMode.OnUnitOfWorkComplete,
-        DeliveryMode deliveryMode = DeliveryMode.Outbox) where T : notnull
+    protected override Task PublishToMessageBrokerAsync<T>(T payload)
     {
-        if (dispatchMode == DispatchMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
-        {
-            UnitOfWorkManager.Current.AddHook(
-                UnitOfWorkHookPoint.BeforeComplete,
-                () => PublishToMessageBrokerAsync<T>(payload));
-        }
-        else
-        {
-            await PublishToMessageBrokerAsync<T>(payload);
-        }
-    }
-
-    protected virtual Task PublishToMessageBrokerAsync<T>(T payload)
-    {
-        //Send to rabbitmq, kafka, etc.
-
         return Task.CompletedTask;
     }
 
-    protected virtual async Task InvokeHandlersAsync<T>(object payload)
+    protected override Task PublishToOutboxAsync<T>(T payload)
     {
-        // We should create parent uow, all event handlers for an event should run inside same uow
-        // We should create Activity, and use SetParent(traceparent) from coming event
-        // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
-
-        foreach (var handler in Factory.Handlers[typeof(T)])
-        {
-            await handler.HandleAsync(payload);
-        }
+        // We shouldn't use outbox for default implementation
+        return Task.CompletedTask;
     }
 }
