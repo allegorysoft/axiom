@@ -34,7 +34,9 @@ public class DistributedEventHandlerFactory : ISingletonService
             var serviceType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
             var handlers = ImmutableArray.CreateBuilder<IEventHandler>(handlerTypes.Length);
 
-            foreach (var handler in handlerTypes.OrderBy(EventOrderAttribute.Get))
+            //We can't use `OrderBy(EventOrderAttribute.Get)` in distributed events
+            //Each handler (for same event type) independent of each other
+            foreach (var handler in handlerTypes)
             {
                 var service = ServiceProvider.GetRequiredService(handler);
                 handlers.Add((IEventHandler) Activator.CreateInstance(serviceType, service)!);
