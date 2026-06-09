@@ -1,0 +1,69 @@
+using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.UnitOfWork;
+
+namespace Allegory.Axiom.EventBus;
+
+public abstract class DistributedEventBusBase(
+    IUnitOfWorkManager unitOfWorkManager,
+    DistributedEventHandlerFactory factory)
+    : IDistributedEventBus, ISingletonService
+{
+    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    protected DistributedEventHandlerFactory Factory { get; } = factory;
+
+    public virtual async Task PublishAsync<T>(
+        T payload,
+        DistributedMessagePublishMode publishMode = DistributedMessagePublishMode.Outbox)
+        where T : notnull
+    {
+        if (publishMode == DistributedMessagePublishMode.Immediate)
+        {
+            await PublishToMessageBrokerAsync(payload);
+            return;
+        }
+
+        if (UnitOfWorkManager.Current == null)
+        {
+            if (publishMode == DistributedMessagePublishMode.OnUnitOfWorkComplete)
+            {
+                await PublishToMessageBrokerAsync(payload);
+            }
+            else
+            {
+                await PublishToOutboxAsync(payload);
+            }
+
+            return;
+        }
+
+        // When unit of work exists
+        if (publishMode == DistributedMessagePublishMode.OnUnitOfWorkComplete)
+        {
+            UnitOfWorkManager.Current.AddHook(
+                UnitOfWorkHookPoint.AfterComplete,
+                () => PublishToMessageBrokerAsync(payload));
+        }
+        else
+        {
+            UnitOfWorkManager.Current.AddHook(
+                UnitOfWorkHookPoint.BeforeComplete,
+                () => PublishToOutboxAsync(payload));
+        }
+    }
+
+    protected virtual Task PublishToOutboxAsync<T>(T payload) where T : notnull
+    {
+        //Save to store
+
+        return Task.CompletedTask;
+    }
+
+    //Send to rabbitmq, kafka, etc.
+    protected abstract Task PublishToMessageBrokerAsync<T>(T payload) where T : notnull;
+
+    // We should create uow, before handler invoke
+    // We should create Activity, and use SetParent(traceparent) from coming event
+    // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
+    //public abstract Task InitializeAsync();
+}

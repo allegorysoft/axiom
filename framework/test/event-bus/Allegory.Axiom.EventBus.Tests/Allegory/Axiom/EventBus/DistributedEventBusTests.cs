@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Allegory.Axiom.UnitOfWork;
@@ -7,9 +7,9 @@ using Xunit;
 
 namespace Allegory.Axiom.EventBus;
 
-public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected ILocalEventBus EventBus => fixture.Service<ILocalEventBus>();
+    protected IDistributedEventBus EventBus => fixture.Service<IDistributedEventBus>();
 
     [Fact]
     public async Task ShouldPublishEventToHandler()
@@ -65,19 +65,17 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     }
 
     [Fact]
-    public async Task ShouldDeferHandlerUntilUnitOfWorkCompletes()
+    public async Task ShouldInvokeHandlerImmediatelyWhenPublishModeIsImmediate()
     {
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
-        await EventBus.PublishAsync(new TestEvent(3), publishMode: LocalMessagePublishMode.OnUnitOfWorkComplete);
-
-        handler.Received.ShouldNotContain(e => e.Value == 3);
-
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await EventBus.PublishAsync(new TestEvent(3), publishMode: DistributedMessagePublishMode.Immediate);
 
         handler.Received.ShouldContain(e => e.Value == 3);
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -85,37 +83,78 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     {
         var handler = fixture.Service<TestEventHandler>();
 
-        await EventBus.PublishAsync(new TestEvent(4), publishMode: LocalMessagePublishMode.OnUnitOfWorkComplete);
+        await EventBus.PublishAsync(
+            new TestEvent(4),
+            publishMode: DistributedMessagePublishMode.OnUnitOfWorkComplete);
+        await EventBus.PublishAsync(
+            new TestEvent(5),
+            publishMode: DistributedMessagePublishMode.Outbox);
 
         handler.Received.ShouldContain(e => e.Value == 4);
+        handler.Received.ShouldContain(e => e.Value == 5);
     }
 
     [Fact]
-    public async Task ShouldInvokeHandlerImmediatelyWhenPublishModeIsImmediate()
+    public async Task ShouldDeferHandlerUntilUnitOfWorkCompletes()
     {
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
-        await EventBus.PublishAsync(new TestEvent(5), publishMode: LocalMessagePublishMode.Immediate);
 
-        handler.Received.ShouldContain(e => e.Value == 5);
+        await EventBus.PublishAsync(
+            new TestEvent(6),
+            publishMode: DistributedMessagePublishMode.OnUnitOfWorkComplete);
+        await EventBus.PublishAsync(
+            new TestEvent(7),
+            publishMode: DistributedMessagePublishMode.Outbox);
+
+        handler.Received.ShouldNotContain(e => e.Value == 6);
+        handler.Received.ShouldNotContain(e => e.Value == 7);
 
         await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        handler.Received.ShouldContain(e => e.Value == 6);
+        handler.Received.ShouldContain(e => e.Value == 7);
     }
 
     [Fact]
-    public async Task ShouldInvokeHandlersInSpecifiedOrder()
+    public async Task ShouldHookOutboxBeforeCompleteAndBrokerAfterComplete()
     {
-        var payload = new OrderedTestEvent();
-        await EventBus.PublishAsync(payload);
+        // Outbox mode  → BeforeComplete (persist to store before tx commits)
+        // OnUnitOfWorkComplete → AfterComplete (publish to broker after tx commits)
 
-        payload.Items.ShouldBe(
-        [
-            typeof(OrderTestEventHandler1),
-            typeof(OrderTestEventHandler2),
-            typeof(OrderTestEventHandler3)
-        ]);
+        var handler = fixture.Service<TestEventHandler>();
+        var uowManager = fixture.Service<IUnitOfWorkManager>();
+
+        await using var uow = uowManager.Begin();
+
+        await EventBus.PublishAsync(
+            new TestEvent(8),
+            publishMode: DistributedMessagePublishMode.OnUnitOfWorkComplete);
+        await EventBus.PublishAsync(
+            new TestEvent(9),
+            publishMode: DistributedMessagePublishMode.Outbox);
+
+        handler.Received.ShouldNotContain(e => e.Value == 8);
+        handler.Received.ShouldNotContain(e => e.Value == 9);
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
+        {
+            // Outbox already saved; broker publish not yet fired
+            handler.Received.ShouldContain(e => e.Value == 9);
+            handler.Received.ShouldNotContain(e => e.Value == 8);
+            return Task.CompletedTask;
+        });
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            // Broker publish fired; both handled
+            handler.Received.ShouldContain(e => e.Value == 8);
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
 }
 
@@ -125,14 +164,9 @@ file record UnhandledTestEvent;
 
 file record ThrowingTestEvent;
 
-file record OrderedTestEvent
-{
-    public List<Type> Items { get; } = [];
-}
-
 file record struct ValueTestEvent(int Value);
 
-file class TestEventHandler : ILocalEventHandler<TestEvent>
+file class TestEventHandler : IDistributedEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
 
@@ -143,7 +177,7 @@ file class TestEventHandler : ILocalEventHandler<TestEvent>
     }
 }
 
-file class TestEventHandler2 : ILocalEventHandler<TestEvent>
+file class TestEventHandler2 : IDistributedEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
 
@@ -154,7 +188,7 @@ file class TestEventHandler2 : ILocalEventHandler<TestEvent>
     }
 }
 
-file class ValueTestEventHandler : ILocalEventHandler<ValueTestEvent>
+file class ValueTestEventHandler : IDistributedEventHandler<ValueTestEvent>
 {
     public List<ValueTestEvent> Received { get; } = [];
 
@@ -165,38 +199,8 @@ file class ValueTestEventHandler : ILocalEventHandler<ValueTestEvent>
     }
 }
 
-file class ThrowingTestEventHandler : ILocalEventHandler<ThrowingTestEvent>
+file class ThrowingTestEventHandler : IDistributedEventHandler<ThrowingTestEvent>
 {
     public Task HandleAsync(ThrowingTestEvent payload) =>
         throw new InvalidOperationException("handler-failure");
-}
-
-[EventOrder(3)]
-file class OrderTestEventHandler3 : ILocalEventHandler<OrderedTestEvent>
-{
-    public Task HandleAsync(OrderedTestEvent payload)
-    {
-        payload.Items.Add(typeof(OrderTestEventHandler3));
-        return Task.CompletedTask;
-    }
-}
-
-[EventOrder(2)]
-file class OrderTestEventHandler2 : ILocalEventHandler<OrderedTestEvent>
-{
-    public Task HandleAsync(OrderedTestEvent payload)
-    {
-        payload.Items.Add(typeof(OrderTestEventHandler2));
-        return Task.CompletedTask;
-    }
-}
-
-[EventOrder(1)]
-file class OrderTestEventHandler1 : ILocalEventHandler<OrderedTestEvent>
-{
-    public Task HandleAsync(OrderedTestEvent payload)
-    {
-        payload.Items.Add(typeof(OrderTestEventHandler1));
-        return Task.CompletedTask;
-    }
 }
