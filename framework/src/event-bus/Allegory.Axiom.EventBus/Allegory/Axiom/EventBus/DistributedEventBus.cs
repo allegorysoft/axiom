@@ -10,14 +10,25 @@ public class DistributedEventBus(
     DistributedEventHandlerFactory factory)
     : DistributedEventBusBase(unitOfWorkManager, factory)
 {
-    protected override Task PublishToMessageBrokerAsync<T>(T payload)
+    public override Task PublishAsync<T>(
+        T payload,
+        DistributedMessagePublishMode publishMode = DistributedMessagePublishMode.Outbox)
     {
-        return Task.CompletedTask;
+        return Factory.Handlers.ContainsKey(typeof(T))
+            ? base.PublishAsync(payload, publishMode)
+            : Task.CompletedTask;
     }
 
-    protected override Task PublishToOutboxAsync<T>(T payload)
+    protected override Task PublishToMessageBrokerAsync<T>(T payload) => InvokeHandlersAsync<T>(payload);
+
+    // We shouldn't use outbox for default implementation
+    protected override Task PublishToOutboxAsync<T>(T payload) => InvokeHandlersAsync<T>(payload);
+
+    protected virtual async Task InvokeHandlersAsync<T>(object payload)
     {
-        // We shouldn't use outbox for default implementation
-        return Task.CompletedTask;
+        foreach (var handler in Factory.Handlers[typeof(T)])
+        {
+            await handler.HandleAsync(payload);
+        }
     }
 }

@@ -91,7 +91,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     }
 
     [Fact]
-    public async Task ShouldInvokeHandlerImmediatelyWhenOnUnitOfWorkCompleteIsFalse()
+    public async Task ShouldInvokeHandlerImmediatelyWhenPublishModeIsImmediate()
     {
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();

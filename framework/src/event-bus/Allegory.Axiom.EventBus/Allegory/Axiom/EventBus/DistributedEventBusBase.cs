@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
@@ -38,6 +37,7 @@ public abstract class DistributedEventBusBase(
             return;
         }
 
+        // When unit of work exists
         if (publishMode == DistributedMessagePublishMode.OnUnitOfWorkComplete)
         {
             UnitOfWorkManager.Current.AddHook(
@@ -52,7 +52,7 @@ public abstract class DistributedEventBusBase(
         }
     }
 
-    protected virtual Task PublishToOutboxAsync<T>(T payload)
+    protected virtual Task PublishToOutboxAsync<T>(T payload) where T : notnull
     {
         //Save to store
 
@@ -60,23 +60,10 @@ public abstract class DistributedEventBusBase(
     }
 
     //Send to rabbitmq, kafka, etc.
-    protected abstract Task PublishToMessageBrokerAsync<T>(T payload);
+    protected abstract Task PublishToMessageBrokerAsync<T>(T payload) where T : notnull;
 
-    protected virtual async Task InvokeHandlersAsync<T>(object payload)
-    {
-        // We should create parent uow, all event handlers for an event should run inside same uow
-        // We should create Activity, and use SetParent(traceparent) from coming event
-        // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
-
-        foreach (var handler in Factory.Handlers[typeof(T)])
-        {
-            await handler.HandleAsync(payload);
-        }
-    }
-}
-
-public class DistributedEventContext<T>
-{
-    //TraceId?
-    public required T Payload { get; init; }
+    // We should create uow, before handler invoke
+    // We should create Activity, and use SetParent(traceparent) from coming event
+    // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
+    //public abstract Task InitializeAsync();
 }
