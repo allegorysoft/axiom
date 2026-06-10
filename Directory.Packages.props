@@ -6,12 +6,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageVersion Include="BenchmarkDotNet" Version="0.15.8"/>
 
+        <!-- General Section Begin -->
+        <PackageVersion Include="BenchmarkDotNet" Version="0.15.8"/>
         <PackageVersion Include="Castle.Core" Version="5.2.1"/>
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
+        <PackageVersion Include="RabbitMQ.Client" Version="7.2.1"/>
+        <!-- General Section End -->
 
+        <!-- Official Microsoft Section Begin -->
         <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(RuntimePackageVersion)"/>
+
+        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
 
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimePackageVersion)"/>
@@ -28,20 +36,23 @@
         <PackageVersion Include="Microsoft.Extensions.Options" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="System.Text.Json" Version="$(RuntimePackageVersion)"/>
+        <!-- Official Microsoft Section End -->
 
-        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
-
-        <PackageVersion Include="NSubstitute" Version="5.3.0"/>
+        <!-- Test Section Begin -->
+        <PackageVersion Include="coverlet.collector" Version="6.0.4"/>
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
         <PackageVersion Include="MSTest.TestAdapter" Version="4.0.1"/>
         <PackageVersion Include="MSTest.TestFramework" Version="4.0.1"/>
-        <PackageVersion Include="coverlet.collector" Version="6.0.4"/>
+        <PackageVersion Include="NSubstitute" Version="5.3.0"/>
+        <PackageVersion Include="Shouldly" Version="4.3.0"/>
         <PackageVersion Include="xunit.v3" Version="3.2.2"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
-        <PackageVersion Include="Shouldly" Version="4.3.0"/>
+
+        <PackageVersion Include="Testcontainers" Version="4.12.0"/>
+        <PackageVersion Include="Testcontainers.RabbitMq" Version="4.12.0"/>
+        <!-- Test Section End -->
+
     </ItemGroup>
 
 </Project>

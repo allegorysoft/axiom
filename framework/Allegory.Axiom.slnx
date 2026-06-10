@@ -19,9 +19,12 @@
   </Folder>
   <Folder Name="/src/event-bus/">
     <Project Path="src/event-bus/Allegory.Axiom.EventBus.Abstractions/Allegory.Axiom.EventBus.Abstractions.csproj" />
+    <Project Path="src/event-bus/Allegory.Axiom.EventBus.RabbitMQ/Allegory.Axiom.EventBus.RabbitMQ.csproj" />
     <Project Path="src/event-bus/Allegory.Axiom.EventBus/Allegory.Axiom.EventBus.csproj" />
   </Folder>
-  <Folder Name="/src/integration/" />
+  <Folder Name="/src/integration/">
+    <Project Path="src/integration/Allegory.Axiom.RabbitMQ/Allegory.Axiom.RabbitMQ.csproj" />
+  </Folder>
   <Folder Name="/src/interception/">
     <Project Path="src/interception/Allegory.Axiom.Interception.Abstractions/Allegory.Axiom.Interception.Abstractions.csproj" />
     <Project Path="src/interception/Allegory.Axiom.Interception.Castle.Core/Allegory.Axiom.Interception.Castle.Core.csproj" />

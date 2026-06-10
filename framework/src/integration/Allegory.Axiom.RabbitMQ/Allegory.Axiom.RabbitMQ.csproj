@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="RabbitMQ.Client"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
+    </ItemGroup>
+
+</Project>
