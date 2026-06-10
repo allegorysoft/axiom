@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 
 namespace Allegory.Axiom.RabbitMQ;
 
-public class RabbitMqClient(IConnection connection) : IAsyncDisposable, IDisposable
+public class RabbitMqClient(IConnection connection) : IDisposable, IAsyncDisposable
 {
     public IConnection Connection { get; } = connection;
     protected SemaphoreSlim Semaphore { get; } = new(1);

@@ -72,6 +72,9 @@
   <Folder Name="/test/file-provider/">
     <Project Path="test/file-provider/Allegory.Axiom.FileProvider.Tests/Allegory.Axiom.FileProvider.Tests.csproj" />
   </Folder>
+  <Folder Name="/test/integration/">
+    <Project Path="test/integration/Allegory.Axiom.RabbitMQ.Tests/Allegory.Axiom.RabbitMQ.Tests.csproj" />
+  </Folder>
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />
     <Project Path="test/interception/Allegory.Axiom.Interception.Castle.Core.Tests/Allegory.Axiom.Interception.Castle.Core.Tests.csproj" />

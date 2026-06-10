@@ -50,7 +50,7 @@ public class RabbitMqClientFactory(IOptions<RabbitMqOptions> options) : ISinglet
 
         if (option.Factory != null)
         {
-            return await option.Factory();
+            return await option.Factory(option);
         }
 
         ArgumentException.ThrowIfNullOrWhiteSpace(option.Username);

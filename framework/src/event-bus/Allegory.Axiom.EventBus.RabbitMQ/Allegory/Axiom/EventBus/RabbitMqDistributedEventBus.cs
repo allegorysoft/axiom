@@ -14,7 +14,6 @@ public class RabbitMqDistributedEventBus(
 
     protected override Task PublishToMessageBrokerAsync<T>(T payload)
     {
-
         throw new System.NotImplementedException();
     }
 
