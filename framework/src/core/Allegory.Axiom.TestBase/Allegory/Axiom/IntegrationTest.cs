@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,6 +96,10 @@ public abstract class IntegrationTest : IAsyncLifetime
     {
         foreach (var host in _hosts)
         {
+            var containers = host.Services.GetServices<TestContainer>();
+            var disposes = containers.Select(c => c.DisposeAsync().AsTask()).ToList();
+            await Task.WhenAll(disposes);
+
             switch (host)
             {
                 case IAsyncDisposable asyncDisposable:
