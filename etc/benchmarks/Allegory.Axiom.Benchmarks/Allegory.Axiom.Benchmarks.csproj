@@ -11,7 +11,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\framework\src\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\..\framework\src\template\Allegory.Axiom.Template.Framework.Implementations\Allegory.Axiom.Template.Framework.Implementations.csproj"/>
+        <ProjectReference Include="..\..\..\framework\src\integration\Allegory.Axiom.RabbitMQ\Allegory.Axiom.RabbitMQ.csproj"/>
         <ProjectReference Include="..\module-1\Allegory.Axiom.Module1.Assembly2\Allegory.Axiom.Module1.Assembly2.csproj" />
     </ItemGroup>
 

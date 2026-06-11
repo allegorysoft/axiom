@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.EventBus\Allegory.Axiom.EventBus.csproj"/>
+        <ProjectReference Include="..\..\integration\Allegory.Axiom.RabbitMQ\Allegory.Axiom.RabbitMQ.csproj"/>
+    </ItemGroup>
+
+</Project>

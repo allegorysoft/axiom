@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +12,7 @@ namespace Allegory.Axiom;
 
 public abstract class IntegrationTest : IAsyncLifetime
 {
-    private readonly Dictionary<Type, object> _services = new();
+    private readonly ConcurrentDictionary<Type, object> _services = new();
     private readonly List<IHost> _hosts = [];
 
     public IHost Host { get; protected set; } = null!;
@@ -81,20 +83,17 @@ public abstract class IntegrationTest : IAsyncLifetime
 
     public virtual T Service<T>() where T : notnull
     {
-        if (_services.TryGetValue(typeof(T), out var cached))
-        {
-            return (T) cached;
-        }
-
-        var service = Host.Services.GetRequiredService<T>();
-        _services.Add(typeof(T), service);
-        return service;
+        return (T) _services.GetOrAdd(typeof(T), t => Host.Services.GetRequiredService(t));
     }
 
     public virtual async ValueTask DisposeAsync()
     {
         foreach (var host in _hosts)
         {
+            var containers = host.Services.GetServices<TestContainer>();
+            var disposes = containers.Select(c => c.DisposeAsync().AsTask()).ToList();
+            await Task.WhenAll(disposes);
+
             switch (host)
             {
                 case IAsyncDisposable asyncDisposable:

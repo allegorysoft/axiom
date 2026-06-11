@@ -8,6 +8,7 @@
     <ItemGroup>
         <PackageReference Include="xunit.v3.extensibility.core"/>
         <PackageReference Include="Microsoft.Extensions.Hosting"/>
+        <PackageReference Include="Testcontainers"/>
     </ItemGroup>
 
     <ItemGroup>

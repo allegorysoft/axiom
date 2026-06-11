@@ -1,4 +1,5 @@
-﻿using Allegory.Axiom.Benchmarks.Modularity.DependencyInjection;
+﻿using Allegory.Axiom.Benchmarks.Integration.RabbitMQ;
+using Allegory.Axiom.Benchmarks.Modularity.DependencyInjection;
 using BenchmarkDotNet.Running;
 
-BenchmarkRunner.Run<AssemblyDependencyRegistrarBenchmark>();
+BenchmarkRunner.Run<RabbitMqClientFactoryBenchmark>();
