@@ -10,6 +10,8 @@ namespace Allegory.Axiom.RabbitMQ;
 
 internal sealed class RabbitMqTestsPackage : IConfigureApplication
 {
+    public const string SecondConnectionName = "second";
+
     public static async Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         var container = new RabbitMqBuilder("rabbitmq:latest")
@@ -33,7 +35,12 @@ internal sealed class RabbitMqTestsPackage : IConfigureApplication
                     return connectionFactory.CreateConnectionAsync();
                 }
             };
+
             o[RabbitMqOptions.DefaultConnectionName] = option;
+
+            // Multiple clients can connect to the same RabbitMQ server.
+            // Each client creates its own TCP connection.
+            o[SecondConnectionName] = option;
         });
     }
 }
