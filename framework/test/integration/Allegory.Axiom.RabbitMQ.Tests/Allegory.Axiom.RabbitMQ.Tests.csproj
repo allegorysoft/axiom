@@ -14,10 +14,4 @@
         <ProjectReference Include="..\..\..\src\integration\Allegory.Axiom.RabbitMQ\Allegory.Axiom.RabbitMQ.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-
 </Project>

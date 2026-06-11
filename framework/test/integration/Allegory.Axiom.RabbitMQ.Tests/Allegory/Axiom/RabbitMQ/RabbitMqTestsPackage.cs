@@ -12,24 +12,28 @@ internal sealed class RabbitMqTestsPackage : IConfigureApplication
 {
     public static async Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        // var container = new RabbitMqBuilder("rabbitmq:latest")
-        //     .WithUsername("guest")
-        //     .WithPassword("guest")
-        //     .Build();
-        //
-        // await builder.AddTestContainerAsync(container);
-        //
-        // builder.Services.PostConfigure<RabbitMqOptions>(o =>
-        // {
-        //     o[RabbitMqOptions.DefaultConnectionName].Factory = _ =>
-        //     {
-        //         var connectionFactory = new ConnectionFactory
-        //         {
-        //             Uri = new Uri(container.GetConnectionString())
-        //         };
-        //
-        //         return connectionFactory.CreateConnectionAsync();
-        //     };
-        // });
+        var container = new RabbitMqBuilder("rabbitmq:latest")
+            .WithUsername("guest")
+            .WithPassword("guest")
+            .Build();
+
+        await builder.AddTestContainerAsync(container);
+
+        builder.Services.Configure<RabbitMqOptions>(o =>
+        {
+            var option = new RabbitMqOption
+            {
+                Factory = _ =>
+                {
+                    var connectionFactory = new ConnectionFactory
+                    {
+                        Uri = new Uri(container.GetConnectionString())
+                    };
+
+                    return connectionFactory.CreateConnectionAsync();
+                }
+            };
+            o[RabbitMqOptions.DefaultConnectionName] = option;
+        });
     }
 }
