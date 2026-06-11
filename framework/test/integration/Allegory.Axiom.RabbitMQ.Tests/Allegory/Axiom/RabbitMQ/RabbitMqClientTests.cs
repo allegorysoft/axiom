@@ -58,7 +58,7 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
 
         for (var i = 1; i < 8; i++)
         {
-            results[i].ShouldBeSameAs(results[0]);
+            results[i].ShouldBe(results[0]);
         }
     }
 
@@ -76,27 +76,20 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
     [Fact]
     public async Task ShouldAllowOnlyOneActiveLeasePerChannelName()
     {
+        const int degree = 8;
+
         var client = await GetClientAsync();
         var enter = new List<int>();
         var outer = new List<int>();
 
-        var work = async () =>
+        await Parallel.ForAsync(0, degree, async (_, _) =>
         {
             var number = Random.Shared.Next();
             using var lease = await client.RentChannelAsync("ch-exclusive");
             enter.Add(number);
             await Task.Yield();
             outer.Add(number);
-        };
-
-        var tasks = new List<Task>();
-
-        for (var i = 0; i < 8; i++)
-        {
-            tasks.Add(work());
-        }
-
-        await Task.WhenAll(tasks);
+        });
 
         // Verifies that only one lease is active at a time by ensuring exit order matches enter order.
         enter.ShouldBe(outer);
