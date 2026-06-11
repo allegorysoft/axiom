@@ -1,36 +1,43 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using RabbitMQ.Client;
 
 namespace Allegory.Axiom.RabbitMQ;
 
-public class RabbitMqClient(IConnection connection) : IDisposable, IAsyncDisposable
+public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposable
 {
-    public IConnection Connection { get; } = connection;
-    protected SemaphoreSlim Semaphore { get; } = new(1);
-    protected Dictionary<string, IChannel> Channels { get; } = [];
-
-    public virtual async ValueTask<IChannel> GetChannelAsync(string name, CreateChannelOptions? options = null)
+    public IConnection Connection
     {
-        if (Channels.TryGetValue(name, out var connection))
+        get => IsCreated ? field : throw new InvalidOperationException("RabbitMQ connection is not created");
+        protected set;
+    } = null!;
+    protected RabbitMqOption Option { get; } = option;
+    protected bool IsCreated { get; set; }
+    protected SemaphoreSlim Semaphore { get; } = new(1, 1);
+    protected ConcurrentDictionary<string, RabbitMqChannel> Channels { get; } = [];
+
+    public virtual async Task TryCreateConnectionAsync()
+    {
+        if (IsCreated)
         {
-            return connection;
+            return;
         }
 
         await Semaphore.WaitAsync();
 
         try
         {
-            if (Channels.TryGetValue(name, out connection))
+            if (IsCreated)
             {
-                return connection;
+                return;
             }
 
-            Channels[name] = await CreateChannelAsync(options);
-
-            return Channels[name];
+            Connection = await CreateConnectionAsync();
+            IsCreated = true;
         }
         finally
         {
@@ -38,30 +45,80 @@ public class RabbitMqClient(IConnection connection) : IDisposable, IAsyncDisposa
         }
     }
 
-    protected virtual async Task<IChannel> CreateChannelAsync(CreateChannelOptions? options = null)
+    protected virtual async Task<IConnection> CreateConnectionAsync()
     {
-        return await Connection.CreateChannelAsync();
+        if (Option.Factory != null)
+        {
+            return await Option.Factory(Option);
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(Option.Username);
+        ArgumentException.ThrowIfNullOrWhiteSpace(Option.Password);
+
+        var factory = new ConnectionFactory
+        {
+            Port = Option.Port,
+            UserName = Option.Username,
+            Password = Option.Password,
+            VirtualHost = Option.VirtualHost,
+            ClientProvidedName = Option.ClientProvidedName ?? Assembly.GetEntryAssembly()?.GetName().Name,
+        };
+
+        if (Option.Hostnames != null)
+        {
+            return await factory.CreateConnectionAsync(Option.Hostnames);
+        }
+
+        ArgumentException.ThrowIfNullOrWhiteSpace(Option.Hostname);
+        factory.HostName = Option.Hostname;
+        return await factory.CreateConnectionAsync();
     }
 
-    public void Dispose()
+    public virtual async ValueTask<RabbitMqChannel> GetChannelAsync(
+        string name,
+        CreateChannelOptions? options = null)
+    {
+        var channel = Channels.GetOrAdd(name, _ => new RabbitMqChannel(this));
+        await channel.TryCreateChannelAsync(options);
+        return channel;
+    }
+
+    public virtual async ValueTask<RabbitMqChannelLease> RentChannelAsync(
+        string name,
+        CreateChannelOptions? options = null)
+    {
+        var channel = await GetChannelAsync(name, options);
+        await channel.Semaphore.WaitAsync();
+        return new RabbitMqChannelLease(channel);
+    }
+
+    public virtual void Dispose()
     {
         foreach (var channel in Channels.Values)
         {
             channel.Dispose();
         }
 
-        Connection.Dispose();
+        if (IsCreated)
+        {
+            Connection.Dispose();
+        }
+
         Semaphore.Dispose();
     }
 
-    public async ValueTask DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         foreach (var channel in Channels.Values)
         {
             await channel.DisposeAsync();
         }
 
-        await Connection.DisposeAsync();
+        if (IsCreated)
+        {
+            await Connection.DisposeAsync();
+        }
+
         Semaphore.Dispose();
     }
 }
