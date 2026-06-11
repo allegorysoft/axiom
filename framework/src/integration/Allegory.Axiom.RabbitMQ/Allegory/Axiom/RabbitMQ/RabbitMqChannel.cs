@@ -16,7 +16,7 @@ public class RabbitMqChannel(RabbitMqClient client) : IDisposable, IAsyncDisposa
     protected bool IsCreated { get; set; }
     protected internal SemaphoreSlim Semaphore { get; } = new(1, 1);
 
-    public virtual async Task TryCreateChannelAsync(CreateChannelOptions? options = null)
+    protected internal virtual async Task TryCreateChannelAsync(CreateChannelOptions? options = null)
     {
         if (IsCreated)
         {
@@ -45,7 +45,7 @@ public class RabbitMqChannel(RabbitMqClient client) : IDisposable, IAsyncDisposa
     {
         return await Client.Connection.CreateChannelAsync(options);
     }
-    
+
     public virtual void Dispose()
     {
         if (IsCreated)

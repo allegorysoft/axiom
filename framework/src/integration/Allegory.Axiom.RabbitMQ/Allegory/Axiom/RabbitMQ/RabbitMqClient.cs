@@ -20,7 +20,7 @@ public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposab
     protected SemaphoreSlim Semaphore { get; } = new(1, 1);
     protected ConcurrentDictionary<string, RabbitMqChannel> Channels { get; } = [];
 
-    public virtual async Task TryCreateConnectionAsync()
+    protected internal virtual async Task TryCreateConnectionAsync()
     {
         if (IsCreated)
         {

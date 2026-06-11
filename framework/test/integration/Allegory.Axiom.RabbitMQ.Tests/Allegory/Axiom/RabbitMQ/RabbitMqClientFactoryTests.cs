@@ -23,7 +23,7 @@ public class RabbitMqClientFactoryTests(IntegrationTestFixture fixture) : IClass
         var first = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
         var second = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
 
-        second.ShouldBeSameAs(first);
+        second.ShouldBe(first);
     }
 
     [Fact]
