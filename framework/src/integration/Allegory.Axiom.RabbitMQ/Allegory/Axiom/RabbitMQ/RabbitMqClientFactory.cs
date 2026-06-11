@@ -21,9 +21,13 @@ public class RabbitMqClientFactory(
     {
         var client = Clients.GetOrAdd(
             name,
-            key => Options.TryGetValue(key, out var option)
-                ? new RabbitMqClient(option)
-                : throw new InvalidOperationException($"There isn't rabbitmq options for {name}"));
+            static (key, options) =>
+            {
+                return options.TryGetValue(key, out var option)
+                    ? new RabbitMqClient(option)
+                    : throw new InvalidOperationException($"There isn't rabbitmq options for {key}");
+            },
+            Options);
 
         await client.TryCreateConnectionAsync();
         return client;

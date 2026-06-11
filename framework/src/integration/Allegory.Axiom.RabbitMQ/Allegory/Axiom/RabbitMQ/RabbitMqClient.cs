@@ -78,7 +78,7 @@ public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposab
         string name,
         CreateChannelOptions? options = null)
     {
-        var channel = Channels.GetOrAdd(name, _ => new RabbitMqChannel(this));
+        var channel = Channels.GetOrAdd(name, static (_, instance) => new RabbitMqChannel(instance), this);
         await channel.TryCreateChannelAsync(options);
         return channel;
     }
