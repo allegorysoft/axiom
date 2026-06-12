@@ -68,6 +68,7 @@
   </Folder>
   <Folder Name="/test/event-bus/">
     <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />
+    <Project Path="test\event-bus\Allegory.Axiom.EventBus.RabbitMQ.Tests\Allegory.Axiom.EventBus.RabbitMQ.Tests.csproj" />
   </Folder>
   <Folder Name="/test/file-provider/">
     <Project Path="test/file-provider/Allegory.Axiom.FileProvider.Tests/Allegory.Axiom.FileProvider.Tests.csproj" />
