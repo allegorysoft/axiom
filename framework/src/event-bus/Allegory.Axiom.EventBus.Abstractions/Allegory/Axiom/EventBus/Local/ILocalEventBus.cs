@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Local;
 
 public interface ILocalEventBus
 {

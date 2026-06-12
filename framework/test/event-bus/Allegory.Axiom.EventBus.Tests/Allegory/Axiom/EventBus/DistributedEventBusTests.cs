@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.UnitOfWork;
 using Shouldly;
 using Xunit;

@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Allegory.Axiom.EventBus.Distributed;
 using Xunit;
 
 namespace Allegory.Axiom.EventBus;

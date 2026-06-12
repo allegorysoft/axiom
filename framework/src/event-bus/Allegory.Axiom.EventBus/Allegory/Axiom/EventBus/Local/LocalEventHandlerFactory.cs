@@ -7,7 +7,7 @@ using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Local;
 
 public class LocalEventHandlerFactory : ISingletonService
 {

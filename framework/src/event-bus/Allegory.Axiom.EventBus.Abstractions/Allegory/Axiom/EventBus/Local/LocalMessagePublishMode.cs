@@ -1,4 +1,4 @@
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Local;
 
 public enum LocalMessagePublishMode
 {

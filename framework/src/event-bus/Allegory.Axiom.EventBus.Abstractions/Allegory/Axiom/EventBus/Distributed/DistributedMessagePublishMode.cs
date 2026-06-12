@@ -1,4 +1,4 @@
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public enum DistributedMessagePublishMode
 {

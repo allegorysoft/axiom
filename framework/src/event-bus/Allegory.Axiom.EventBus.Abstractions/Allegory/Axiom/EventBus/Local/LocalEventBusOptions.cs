@@ -2,9 +2,9 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Local;
 
-public class DistributedEventBusOptions
+public class LocalEventBusOptions
 {
     public required FrozenDictionary<Type, ImmutableArray<Type>> Handlers { get; set; }
 }

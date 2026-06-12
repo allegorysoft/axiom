@@ -4,6 +4,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Allegory.Axiom.EventBus.Distributed;
+using Allegory.Axiom.EventBus.Local;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;

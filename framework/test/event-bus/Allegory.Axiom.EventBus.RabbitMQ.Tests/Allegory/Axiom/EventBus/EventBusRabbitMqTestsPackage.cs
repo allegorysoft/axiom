@@ -9,7 +9,7 @@ using Testcontainers.RabbitMq;
 
 namespace Allegory.Axiom.EventBus;
 
-public class EventBusRabbitMqTestsPackage : IConfigureApplication
+internal sealed class EventBusRabbitMqTestsPackage : IConfigureApplication
 {
     public static async Task ConfigureAsync(IHostApplicationBuilder builder)
     {

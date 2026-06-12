@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Allegory.Axiom.EventBus.Local;
+using Allegory.Axiom.EventBus.Distributed;
 using Shouldly;
 using Xunit;
 
 namespace Allegory.Axiom.EventBus;
 
-public class LocalEventHandlerFactoryTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class DistributedEventHandlerFactoryTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected LocalEventHandlerFactory Factory => fixture.Service<LocalEventHandlerFactory>();
+    protected DistributedEventHandlerFactory Factory => fixture.Service<DistributedEventHandlerFactory>();
 
     [Fact]
     public void ShouldContainHandlersForRegisteredEvent()
@@ -53,18 +53,18 @@ file record OrderedTestEvent
     public List<Type> Items { get; } = [];
 }
 
-file class TestEventHandler1 : ILocalEventHandler<TestEvent>
+file class TestEventHandler1 : IDistributedEventHandler<TestEvent>
 {
     public Task HandleAsync(TestEvent payload) => Task.CompletedTask;
 }
 
-file class TestEventHandler2 : ILocalEventHandler<TestEvent>
+file class TestEventHandler2 : IDistributedEventHandler<TestEvent>
 {
     public Task HandleAsync(TestEvent payload) => Task.CompletedTask;
 }
 
 [EventOrder(2)]
-file class OrderedTestEventHandlerSecond : ILocalEventHandler<OrderedTestEvent>
+file class OrderedTestEventHandlerSecond : IDistributedEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload)
     {
@@ -74,7 +74,7 @@ file class OrderedTestEventHandlerSecond : ILocalEventHandler<OrderedTestEvent>
 }
 
 [EventOrder(1)]
-file class OrderedTestEventHandlerFirst : ILocalEventHandler<OrderedTestEvent>
+file class OrderedTestEventHandlerFirst : IDistributedEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload)
     {

@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class DistributedEventBus(

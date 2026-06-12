@@ -7,7 +7,7 @@ using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventHandlerFactory : ISingletonService
 {
@@ -34,9 +34,7 @@ public class DistributedEventHandlerFactory : ISingletonService
             var serviceType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
             var handlers = ImmutableArray.CreateBuilder<IEventHandler>(handlerTypes.Length);
 
-            //We can't use `OrderBy(EventOrderAttribute.Get)` in distributed events
-            //Each handler (for same event type) independent of each other
-            foreach (var handler in handlerTypes)
+            foreach (var handler in handlerTypes.OrderBy(EventOrderAttribute.Get))
             {
                 var service = ServiceProvider.GetRequiredService(handler);
                 handlers.Add((IEventHandler) Activator.CreateInstance(serviceType, service)!);
