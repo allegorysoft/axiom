@@ -8,4 +8,6 @@ public interface IDistributedEventBus
         T payload,
         DistributedMessagePublishMode publishMode = DistributedMessagePublishMode.Outbox)
         where T : notnull;
+
+    Task InitializeAsync();
 }

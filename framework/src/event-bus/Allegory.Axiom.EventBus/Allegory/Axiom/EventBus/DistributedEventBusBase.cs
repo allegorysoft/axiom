@@ -62,8 +62,5 @@ public abstract class DistributedEventBusBase(
     //Send to rabbitmq, kafka, etc.
     protected abstract Task PublishToMessageBrokerAsync<T>(T payload) where T : notnull;
 
-    // We should create uow, before handler invoke
-    // We should create Activity, and use SetParent(traceparent) from coming event
-    // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
-    //public abstract Task InitializeAsync();
+    public abstract Task InitializeAsync();
 }

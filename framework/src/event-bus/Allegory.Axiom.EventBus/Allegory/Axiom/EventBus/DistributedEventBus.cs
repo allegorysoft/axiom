@@ -21,7 +21,6 @@ public class DistributedEventBus(
 
     protected override Task PublishToMessageBrokerAsync<T>(T payload) => InvokeHandlersAsync<T>(payload);
 
-    // We shouldn't use outbox for default implementation
     protected override Task PublishToOutboxAsync<T>(T payload) => InvokeHandlersAsync<T>(payload);
 
     protected virtual async Task InvokeHandlersAsync<T>(object payload)
@@ -31,4 +30,6 @@ public class DistributedEventBus(
             await handler.HandleAsync(payload);
         }
     }
+
+    public override Task InitializeAsync() => Task.CompletedTask;
 }
