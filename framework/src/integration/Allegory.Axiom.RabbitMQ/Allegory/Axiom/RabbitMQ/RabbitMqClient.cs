@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +18,24 @@ public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposab
     protected bool IsCreated { get; set; }
     protected SemaphoreSlim Semaphore { get; } = new(1, 1);
     protected ConcurrentDictionary<string, RabbitMqChannel> Channels { get; } = [];
+
+    public virtual async ValueTask<RabbitMqChannel> GetChannelAsync(
+        string name,
+        CreateChannelOptions? options = null)
+    {
+        var channel = Channels.GetOrAdd(name, static (_, instance) => new RabbitMqChannel(instance), this);
+        await channel.TryCreateChannelAsync(options);
+        return channel;
+    }
+
+    public virtual async ValueTask<RabbitMqChannelLease> RentChannelAsync(
+        string name,
+        CreateChannelOptions? options = null)
+    {
+        var channel = await GetChannelAsync(name, options);
+        await channel.Semaphore.WaitAsync();
+        return new RabbitMqChannelLease(channel);
+    }
 
     protected internal virtual async Task TryCreateConnectionAsync()
     {
@@ -72,24 +89,6 @@ public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposab
         ArgumentException.ThrowIfNullOrWhiteSpace(Option.Hostname);
         factory.HostName = Option.Hostname;
         return await factory.CreateConnectionAsync();
-    }
-
-    public virtual async ValueTask<RabbitMqChannel> GetChannelAsync(
-        string name,
-        CreateChannelOptions? options = null)
-    {
-        var channel = Channels.GetOrAdd(name, static (_, instance) => new RabbitMqChannel(instance), this);
-        await channel.TryCreateChannelAsync(options);
-        return channel;
-    }
-
-    public virtual async ValueTask<RabbitMqChannelLease> RentChannelAsync(
-        string name,
-        CreateChannelOptions? options = null)
-    {
-        var channel = await GetChannelAsync(name, options);
-        await channel.Semaphore.WaitAsync();
-        return new RabbitMqChannelLease(channel);
     }
 
     public virtual void Dispose()
