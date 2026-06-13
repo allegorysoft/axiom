@@ -13,11 +13,25 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.EventBus;
 
-internal sealed class EventBusPackage : IConfigureApplication
+internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         RegisterHandlers(builder);
+
+        /*  configure in efcore store package
+           builder.Services.Configure<DistributedEventBusOptions>(options =>
+           {
+               options.Inbox.IsWorkerEnabled = true;
+               options.Inbox.UseFor ??= static _ => true;
+
+               options.Outbox.IsWorkerEnabled = true;
+               options.Outbox.UseFor ??= static _ => true;
+           });
+
+           builder.Services.AddHostedService<InboxWorker>();
+           builder.Services.AddHostedService<OutboxWorker>();
+         */
 
         return Task.CompletedTask;
     }
@@ -72,5 +86,12 @@ internal sealed class EventBusPackage : IConfigureApplication
                 .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
             .GroupBy(x => x.EventType, x => x.HandlerType)
             .ToFrozenDictionary(g => g.Key, g => g.ToImmutableArray());
+    }
+
+    public static async Task InitializeAsync(IHost host)
+    {
+        await host.Services
+            .GetRequiredService<IDistributedEventBus>()
+            .InitializeAsync();
     }
 }

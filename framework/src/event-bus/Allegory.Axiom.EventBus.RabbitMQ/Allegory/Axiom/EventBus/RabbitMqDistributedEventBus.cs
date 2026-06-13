@@ -13,9 +13,9 @@ namespace Allegory.Axiom.EventBus;
 
 public class RabbitMqDistributedEventBus(
     RabbitMqClientFactory clientFactory,
+    IOptions<RabbitMqEventBusOptions> options,
     IUnitOfWorkManager unitOfWorkManager,
-    DistributedEventHandlerFactory handlerFactory,
-    IOptions<RabbitMqEventBusOptions> options)
+    DistributedEventHandlerFactory handlerFactory)
     : DistributedEventBusBase(unitOfWorkManager, handlerFactory)
 {
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
@@ -55,12 +55,13 @@ public class RabbitMqDistributedEventBus(
         await lease.Channel.BasicPublishAsync("axiom", "a", false, props, buffer.WrittenMemory);
     }
 
-    // We should create uow, before handler invoke
-    // We should create Activity, and use SetParent(traceparent) from coming event
-    // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
     public override async Task InitializeAsync()
     {
-        var client = await ClientFactory.GetAsync("event-bus");
+        // We should create uow, before handler invoke
+        // We should create Activity, and use SetParent(traceparent) from coming event
+        // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
+
+        var client = await GetClientAsync();
         using var publisherChannel = await client.RentChannelAsync("publisher");
     }
 }

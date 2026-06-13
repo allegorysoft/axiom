@@ -7,4 +7,6 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public class DistributedEventBusOptions
 {
     public required FrozenDictionary<Type, ImmutableArray<Type>> Handlers { get; set; }
+    public InboxOptions Inbox { get; set; } = new();
+    public OutboxOptions Outbox { get; set; } = new();
 }

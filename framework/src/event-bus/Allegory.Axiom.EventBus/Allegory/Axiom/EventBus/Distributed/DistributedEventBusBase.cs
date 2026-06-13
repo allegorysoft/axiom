@@ -59,7 +59,6 @@ public abstract class DistributedEventBusBase(
         return Task.CompletedTask;
     }
 
-    //Send to rabbitmq, kafka, etc.
     protected abstract Task PublishToMessageBrokerAsync<T>(T payload) where T : notnull;
 
     public abstract Task InitializeAsync();
