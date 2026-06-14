@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.UnitOfWork;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {

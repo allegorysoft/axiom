@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Allegory.Axiom.EventBus.Local;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Local;
 
 public class LocalEventHandlerFactoryTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
