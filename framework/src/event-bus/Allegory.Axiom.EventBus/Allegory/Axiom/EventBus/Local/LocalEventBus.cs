@@ -14,7 +14,7 @@ public class LocalEventBus(
 
     public virtual async Task PublishAsync<T>(
         T payload,
-        LocalMessagePublishMode publishMode = LocalMessagePublishMode.OnUnitOfWorkComplete)
+        LocalEventPublishMode publishMode = LocalEventPublishMode.OnUnitOfWorkComplete)
         where T : notnull
     {
         if (!Factory.Handlers.ContainsKey(typeof(T)))
@@ -22,7 +22,7 @@ public class LocalEventBus(
             return;
         }
 
-        if (publishMode == LocalMessagePublishMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
+        if (publishMode == LocalEventPublishMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.BeforeComplete,

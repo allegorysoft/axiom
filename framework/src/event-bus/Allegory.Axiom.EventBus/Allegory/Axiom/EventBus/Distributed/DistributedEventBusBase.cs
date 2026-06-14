@@ -1,23 +1,26 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
 public abstract class DistributedEventBusBase(
     IUnitOfWorkManager unitOfWorkManager,
-    DistributedEventHandlerFactory factory)
+    DistributedEventHandlerFactory factory,
+    IOptions<DistributedEventBusOptions> options)
     : IDistributedEventBus, ISingletonService
 {
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected DistributedEventHandlerFactory Factory { get; } = factory;
+    public DistributedEventBusOptions Options { get; } = options.Value;
 
     public virtual async Task PublishAsync<T>(
         T payload,
-        DistributedMessagePublishMode publishMode = DistributedMessagePublishMode.Outbox)
+        DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
         where T : notnull
     {
-        if (publishMode == DistributedMessagePublishMode.Immediate)
+        if (publishMode == DistributedEventPublishMode.Immediate)
         {
             await PublishToMessageBrokerAsync(payload);
             return;
@@ -25,7 +28,7 @@ public abstract class DistributedEventBusBase(
 
         if (UnitOfWorkManager.Current == null)
         {
-            if (publishMode == DistributedMessagePublishMode.OnUnitOfWorkComplete)
+            if (publishMode == DistributedEventPublishMode.OnUnitOfWorkComplete)
             {
                 await PublishToMessageBrokerAsync(payload);
             }
@@ -38,7 +41,7 @@ public abstract class DistributedEventBusBase(
         }
 
         // When unit of work exists
-        if (publishMode == DistributedMessagePublishMode.OnUnitOfWorkComplete)
+        if (publishMode == DistributedEventPublishMode.OnUnitOfWorkComplete)
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.AfterComplete,

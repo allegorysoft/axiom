@@ -1,6 +1,6 @@
 namespace Allegory.Axiom.EventBus.Local;
 
-public enum LocalMessagePublishMode
+public enum LocalEventPublishMode
 {
     Immediate,
     OnUnitOfWorkComplete

@@ -18,7 +18,7 @@ public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : 
 
         await Parallel.ForAsync(0, 10_000, async (_,_)=>
         {
-            await EventBus.PublishAsync(order, DistributedMessagePublishMode.Immediate);
+            await EventBus.PublishAsync(order, DistributedEventPublishMode.Immediate);
         });
     }
 }

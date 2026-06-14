@@ -13,17 +13,18 @@ namespace Allegory.Axiom.EventBus;
 
 public class RabbitMqDistributedEventBus(
     RabbitMqClientFactory clientFactory,
-    IOptions<RabbitMqEventBusOptions> options,
+    IOptions<RabbitMqEventBusOptions> rabbitMqOptions,
     IUnitOfWorkManager unitOfWorkManager,
-    DistributedEventHandlerFactory handlerFactory)
-    : DistributedEventBusBase(unitOfWorkManager, handlerFactory)
+    DistributedEventHandlerFactory handlerFactory,
+    IOptions<DistributedEventBusOptions> options)
+    : DistributedEventBusBase(unitOfWorkManager, handlerFactory, options)
 {
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
-    protected RabbitMqEventBusOptions Options { get; } = options.Value;
+    protected RabbitMqEventBusOptions RabbitMqOptions { get; } = rabbitMqOptions.Value;
 
     protected virtual async ValueTask<RabbitMqClient> GetClientAsync()
     {
-        return await ClientFactory.GetAsync(Options.ConnectionName);
+        return await ClientFactory.GetAsync(RabbitMqOptions.ConnectionName);
     }
 
     protected override async Task PublishToMessageBrokerAsync<T>(T payload)

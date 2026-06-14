@@ -72,7 +72,7 @@ public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFi
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
-        await EventBus.PublishAsync(new TestEvent(3), publishMode: DistributedMessagePublishMode.Immediate);
+        await EventBus.PublishAsync(new TestEvent(3), publishMode: DistributedEventPublishMode.Immediate);
 
         handler.Received.ShouldContain(e => e.Value == 3);
 
@@ -86,10 +86,10 @@ public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFi
 
         await EventBus.PublishAsync(
             new TestEvent(4),
-            publishMode: DistributedMessagePublishMode.OnUnitOfWorkComplete);
+            publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
         await EventBus.PublishAsync(
             new TestEvent(5),
-            publishMode: DistributedMessagePublishMode.Outbox);
+            publishMode: DistributedEventPublishMode.Outbox);
 
         handler.Received.ShouldContain(e => e.Value == 4);
         handler.Received.ShouldContain(e => e.Value == 5);
@@ -105,10 +105,10 @@ public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFi
 
         await EventBus.PublishAsync(
             new TestEvent(6),
-            publishMode: DistributedMessagePublishMode.OnUnitOfWorkComplete);
+            publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
         await EventBus.PublishAsync(
             new TestEvent(7),
-            publishMode: DistributedMessagePublishMode.Outbox);
+            publishMode: DistributedEventPublishMode.Outbox);
 
         handler.Received.ShouldNotContain(e => e.Value == 6);
         handler.Received.ShouldNotContain(e => e.Value == 7);
@@ -132,10 +132,10 @@ public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFi
 
         await EventBus.PublishAsync(
             new TestEvent(8),
-            publishMode: DistributedMessagePublishMode.OnUnitOfWorkComplete);
+            publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
         await EventBus.PublishAsync(
             new TestEvent(9),
-            publishMode: DistributedMessagePublishMode.Outbox);
+            publishMode: DistributedEventPublishMode.Outbox);
 
         handler.Received.ShouldNotContain(e => e.Value == 8);
         handler.Received.ShouldNotContain(e => e.Value == 9);

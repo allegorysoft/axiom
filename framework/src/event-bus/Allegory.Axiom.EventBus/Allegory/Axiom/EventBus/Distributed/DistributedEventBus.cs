@@ -1,18 +1,20 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class DistributedEventBus(
     IUnitOfWorkManager unitOfWorkManager,
-    DistributedEventHandlerFactory factory)
-    : DistributedEventBusBase(unitOfWorkManager, factory)
+    DistributedEventHandlerFactory factory,
+    IOptions<DistributedEventBusOptions> options)
+    : DistributedEventBusBase(unitOfWorkManager, factory, options)
 {
     public override Task PublishAsync<T>(
         T payload,
-        DistributedMessagePublishMode publishMode = DistributedMessagePublishMode.Outbox)
+        DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
     {
         return Factory.Handlers.ContainsKey(typeof(T))
             ? base.PublishAsync(payload, publishMode)

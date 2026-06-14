@@ -1,8 +1,9 @@
 namespace Allegory.Axiom.EventBus.Distributed;
 
-public enum DistributedMessagePublishMode
+public enum DistributedEventPublishMode
 {
     Immediate,
     OnUnitOfWorkComplete,
-    Outbox
+    Outbox,
+    Auto
 }
