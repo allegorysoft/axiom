@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
+using Allegory.Axiom.EventBus.Distributed.Inbox;
+using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.RabbitMQ;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Options;
@@ -16,8 +18,10 @@ public class RabbitMqDistributedEventBus(
     IOptions<RabbitMqEventBusOptions> rabbitMqOptions,
     IUnitOfWorkManager unitOfWorkManager,
     DistributedEventHandlerFactory handlerFactory,
-    IOptions<DistributedEventBusOptions> options)
-    : DistributedEventBusBase(unitOfWorkManager, handlerFactory, options)
+    IOptions<DistributedEventBusOptions> options,
+    IInboxStore inboxStore,
+    IOutboxStore outboxStore)
+    : DistributedEventBusBase(unitOfWorkManager, handlerFactory, options, inboxStore, outboxStore)
 {
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
     protected RabbitMqEventBusOptions RabbitMqOptions { get; } = rabbitMqOptions.Value;

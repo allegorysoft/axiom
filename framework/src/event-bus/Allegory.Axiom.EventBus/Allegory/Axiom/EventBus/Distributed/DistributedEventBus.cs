@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.EventBus.Distributed.Inbox;
+using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Options;
 
@@ -8,15 +10,17 @@ namespace Allegory.Axiom.EventBus.Distributed;
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class DistributedEventBus(
     IUnitOfWorkManager unitOfWorkManager,
-    DistributedEventHandlerFactory factory,
-    IOptions<DistributedEventBusOptions> options)
-    : DistributedEventBusBase(unitOfWorkManager, factory, options)
+    DistributedEventHandlerFactory handlerFactory,
+    IOptions<DistributedEventBusOptions> options,
+    IInboxStore inboxStore,
+    IOutboxStore outboxStore)
+    : DistributedEventBusBase(unitOfWorkManager, handlerFactory, options, inboxStore, outboxStore)
 {
     public override Task PublishAsync<T>(
         T payload,
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
     {
-        return Factory.Handlers.ContainsKey(typeof(T))
+        return HandlerFactory.Handlers.ContainsKey(typeof(T))
             ? base.PublishAsync(payload, publishMode)
             : Task.CompletedTask;
     }
@@ -27,7 +31,7 @@ public class DistributedEventBus(
 
     protected virtual async Task InvokeHandlersAsync<T>(object payload)
     {
-        foreach (var handler in Factory.Handlers[typeof(T)])
+        foreach (var handler in HandlerFactory.Handlers[typeof(T)])
         {
             await handler.HandleAsync(payload);
         }
