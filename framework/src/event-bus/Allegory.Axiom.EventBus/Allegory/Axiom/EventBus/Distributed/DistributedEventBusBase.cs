@@ -52,7 +52,6 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
                 if (UnitOfWorkManager.Current is null)
                 {
                     await PublishToMessageBrokerAsync(payload);
-
                 }
                 else
                 {
@@ -77,6 +76,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
 
                 return;
 
+            case DistributedEventPublishMode.Auto:
             default:
                 throw new ArgumentOutOfRangeException(nameof(publishMode), publishMode, null);
         }
@@ -86,7 +86,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     {
         return publishMode switch
         {
-            DistributedEventPublishMode.Auto => IsOutboxEnabled && Options.Outbox.UseFor!.Invoke(typeof(T))
+            DistributedEventPublishMode.Auto => IsOutboxEnabled && Options.Outbox.UseFor!(typeof(T))
                 ? DistributedEventPublishMode.Outbox
                 : DistributedEventPublishMode.OnUnitOfWorkComplete,
 
