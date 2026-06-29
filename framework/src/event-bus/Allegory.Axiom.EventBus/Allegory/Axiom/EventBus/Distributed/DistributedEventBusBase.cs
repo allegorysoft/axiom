@@ -40,6 +40,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
         where T : notnull
     {
+        //Id, Type, TraceParent, Payload
         publishMode = GetPublishMode<T>(publishMode);
 
         switch (publishMode)

@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
@@ -10,6 +10,7 @@ using Allegory.Axiom.RabbitMQ;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace Allegory.Axiom.EventBus;
 
@@ -35,14 +36,12 @@ public class RabbitMqDistributedEventBus(
     {
         const string channelName = "event-bus.publisher";
 
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(payload);
+
         var client = await GetClientAsync();
         using var lease = await client.RentChannelAsync(channelName);
 
-        var buffer = new ArrayBufferWriter<byte>(initialCapacity: 512);
-        await using var writer = new Utf8JsonWriter(buffer);
-        JsonSerializer.Serialize(writer, payload);
-
-        var props = new BasicProperties
+        var properties = new BasicProperties
         {
             ContentType = "application/json",
             DeliveryMode = DeliveryModes.Persistent,
@@ -50,14 +49,16 @@ public class RabbitMqDistributedEventBus(
             Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
             Headers = new Dictionary<string, object?>
             {
-                ["x-source"] = "order-service",
-                ["x-version"] = "1.0",
-                ["x-correlation-id"] = Guid.NewGuid().ToString(),
-                //["x-retry-count"]  = 0
+                ["trace-parent"] = Activity.Current?.Id,
             }
         };
 
-        await lease.Channel.BasicPublishAsync("axiom", "a", false, props, buffer.WrittenMemory);
+        await lease.Channel.BasicPublishAsync(
+            RabbitMqOptions.ExchangeName,
+            EventNameAttribute.Get<T>(),
+            false,
+            properties,
+            bytes);
     }
 
     public override async Task InitializeAsync()
@@ -67,6 +68,35 @@ public class RabbitMqDistributedEventBus(
         // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
 
         var client = await GetClientAsync();
-        using var publisherChannel = await client.RentChannelAsync("publisher");
+        using var lease = await client.RentChannelAsync("consumer");
+        await lease.Channel.ExchangeDeclareAsync(RabbitMqOptions.ExchangeName, ExchangeType.Direct, true);
+
+        // We should rent channel for each consumer
+        var consumer = new AsyncEventingBasicConsumer(lease.Channel);
+        consumer.ReceivedAsync += async (sender, eventArgs) =>
+        {
+            var x = (AsyncEventingBasicConsumer) sender;
+            var eventType = eventArgs.RoutingKey;
+            var body = eventArgs.Body.ToArray();
+
+            JsonSerializer.Deserialize(body, typeof(int));
+
+            await x.Channel.BasicAckAsync(eventArgs.DeliveryTag, false);
+
+            // We should spawn thread pool task for each receive,
+            // Otherwise it uses ConsumerDispatchConcurrency value doesn't respect Qos.Prefetch value
+            // await Task.Factory.StartNew(async () =>
+            // {
+            //     Console.WriteLine(eventType + ": processing");
+            //     await Task.Delay(TimeSpan.FromSeconds(10));
+            //     Console.WriteLine(eventType + ": processed");
+            //     await channel.BasicAckAsync(eventArgs.DeliveryTag, false);
+            // });
+        };
+
+        await lease.Channel.BasicConsumeAsync(
+            queue: "queue-1",
+            autoAck: false,
+            consumer: consumer);
     }
 }
