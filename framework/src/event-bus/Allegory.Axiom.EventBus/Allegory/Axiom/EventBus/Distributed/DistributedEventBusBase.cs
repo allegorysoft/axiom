@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
@@ -40,25 +41,30 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
         where T : notnull
     {
-        //Id, Type, TraceParent, Payload
         publishMode = GetPublishMode<T>(publishMode);
+        var envelope = new EventEnvelope<T>
+        {
+            Id = Guid.NewGuid(),
+            TraceParent = Activity.Current?.Id,
+            Payload = payload,
+        };
 
         switch (publishMode)
         {
             case DistributedEventPublishMode.Immediate:
-                await PublishToMessageBrokerAsync(payload);
+                await PublishToMessageBrokerAsync(envelope);
                 return;
 
             case DistributedEventPublishMode.OnUnitOfWorkComplete:
                 if (UnitOfWorkManager.Current is null)
                 {
-                    await PublishToMessageBrokerAsync(payload);
+                    await PublishToMessageBrokerAsync(envelope);
                 }
                 else
                 {
                     UnitOfWorkManager.Current.AddHook(
                         UnitOfWorkHookPoint.AfterComplete,
-                        () => PublishToMessageBrokerAsync(payload));
+                        () => PublishToMessageBrokerAsync(envelope));
                 }
 
                 return;
@@ -66,13 +72,13 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
             case DistributedEventPublishMode.Outbox:
                 if (UnitOfWorkManager.Current is null)
                 {
-                    await PublishToOutboxAsync(payload);
+                    await PublishToOutboxAsync(envelope);
                 }
                 else
                 {
                     UnitOfWorkManager.Current.AddHook(
                         UnitOfWorkHookPoint.BeforeComplete,
-                        () => PublishToOutboxAsync(payload));
+                        () => PublishToOutboxAsync(envelope));
                 }
 
                 return;
@@ -99,14 +105,14 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         };
     }
 
-    protected virtual Task PublishToOutboxAsync<T>(T payload) where T : notnull
+    protected virtual Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope) where T : notnull
     {
         //Save to store
 
         return Task.CompletedTask;
     }
 
-    protected abstract Task PublishToMessageBrokerAsync<T>(T payload) where T : notnull;
+    protected abstract Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope) where T : notnull;
 
     public abstract Task InitializeAsync();
 }

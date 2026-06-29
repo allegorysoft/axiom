@@ -49,5 +49,10 @@ internal sealed class EventBusRabbitMqTestsPackage : IConfigureApplication
 
             o[RabbitMqOptions.DefaultConnectionName] = option;
         });
+
+        builder.Services.Configure<RabbitMqEventBusOptions>(o =>
+        {
+            o.ExchangeName = "app-1";
+        });
     }
 }

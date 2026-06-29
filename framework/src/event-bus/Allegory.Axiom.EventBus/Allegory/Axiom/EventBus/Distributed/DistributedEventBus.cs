@@ -25,9 +25,11 @@ public class DistributedEventBus(
             : Task.CompletedTask;
     }
 
-    protected override Task PublishToMessageBrokerAsync<T>(T payload) => InvokeHandlersAsync<T>(payload);
+    protected override Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
+        => InvokeHandlersAsync<T>(envelope.Payload);
 
-    protected override Task PublishToOutboxAsync<T>(T payload) => InvokeHandlersAsync<T>(payload);
+    protected override Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope) 
+        => InvokeHandlersAsync<T>(envelope.Payload);
 
     protected virtual async Task InvokeHandlersAsync<T>(object payload)
     {

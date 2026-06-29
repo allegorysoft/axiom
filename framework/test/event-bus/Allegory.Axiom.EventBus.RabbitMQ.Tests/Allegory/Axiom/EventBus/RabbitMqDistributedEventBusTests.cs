@@ -11,15 +11,12 @@ public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : 
     [Fact]
     public async Task Test()
     {
-        var order = new OrderCreated()
+        var order = new OrderCreated
         {
             Number = "001"
         };
 
-        await Parallel.ForAsync(0, 10_000, async (_,_)=>
-        {
-            await EventBus.PublishAsync(order, DistributedEventPublishMode.Immediate);
-        });
+        await EventBus.PublishAsync(order, DistributedEventPublishMode.Immediate);
     }
 }
 

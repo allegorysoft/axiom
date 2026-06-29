@@ -45,4 +45,9 @@ public class DistributedEventHandlerFactory : ISingletonService
 
         return dictionary.ToFrozenDictionary();
     }
+    
+    // We should create uow, before handler invoke
+    // We should create Activity, and use SetParent(traceparent) from coming event
+    // Use "IntegrationEvent" suffix; `public record OrderCreatedIntegrationEvent(int OrderId);`
+    // We might create TriggerHandler method for this. (EventBus.Initialize and InboxWorker can use)
 }
