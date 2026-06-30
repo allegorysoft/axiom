@@ -6,5 +6,5 @@ namespace Allegory.Axiom.EventBus.Local;
 
 public class LocalEventBusOptions
 {
-    public required FrozenDictionary<Type, ImmutableArray<Type>> Handlers { get; set; }
+    public required FrozenDictionary<Type, ImmutableArray<Type>> Events { get; set; }
 }

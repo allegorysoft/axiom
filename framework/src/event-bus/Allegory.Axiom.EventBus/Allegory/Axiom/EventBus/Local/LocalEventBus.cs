@@ -6,18 +6,18 @@ namespace Allegory.Axiom.EventBus.Local;
 
 public class LocalEventBus(
     IUnitOfWorkManager unitOfWorkManager,
-    LocalEventHandlerFactory factory)
+    LocalEventHandlerManager manager)
     : ILocalEventBus, ISingletonService
 {
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
-    protected LocalEventHandlerFactory Factory { get; } = factory;
+    protected LocalEventHandlerManager Manager { get; } = manager;
 
     public virtual async Task PublishAsync<T>(
         T payload,
         LocalEventPublishMode publishMode = LocalEventPublishMode.OnUnitOfWorkComplete)
         where T : notnull
     {
-        if (!Factory.Handlers.ContainsKey(typeof(T)))
+        if (!Manager.Handlers.ContainsKey(typeof(T)))
         {
             return;
         }
@@ -36,7 +36,7 @@ public class LocalEventBus(
 
     protected virtual async Task InvokeHandlersAsync<T>(object payload)
     {
-        foreach (var handler in Factory.Handlers[typeof(T)])
+        foreach (var handler in Manager.Handlers[typeof(T)])
         {
             await handler.HandleAsync(payload);
         }

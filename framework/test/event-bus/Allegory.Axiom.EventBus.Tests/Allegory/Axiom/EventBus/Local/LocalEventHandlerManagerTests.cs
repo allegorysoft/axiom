@@ -6,34 +6,34 @@ using Xunit;
 
 namespace Allegory.Axiom.EventBus.Local;
 
-public class LocalEventHandlerFactoryTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class LocalEventHandlerManagerTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected LocalEventHandlerFactory Factory => fixture.Service<LocalEventHandlerFactory>();
+    protected LocalEventHandlerManager Manager => fixture.Service<LocalEventHandlerManager>();
 
     [Fact]
     public void ShouldContainHandlersForRegisteredEvent()
     {
-        Factory.Handlers.ContainsKey(typeof(TestEvent)).ShouldBeTrue();
-        Factory.Handlers.ContainsKey(typeof(OrderedTestEvent)).ShouldBeTrue();
+        Manager.Handlers.ContainsKey(typeof(TestEvent)).ShouldBeTrue();
+        Manager.Handlers.ContainsKey(typeof(OrderedTestEvent)).ShouldBeTrue();
     }
 
     [Fact]
     public void ShouldNotContainHandlerForUnregisteredEvent()
     {
-        Factory.Handlers.ContainsKey(typeof(UnhandledTestEvent)).ShouldBeFalse();
+        Manager.Handlers.ContainsKey(typeof(UnhandledTestEvent)).ShouldBeFalse();
     }
 
     [Fact]
     public void ShouldContainAllHandlersForEvent()
     {
-        Factory.Handlers[typeof(TestEvent)].Length.ShouldBe(2);
-        Factory.Handlers[typeof(OrderedTestEvent)].Length.ShouldBe(2);
+        Manager.Handlers[typeof(TestEvent)].Length.ShouldBe(2);
+        Manager.Handlers[typeof(OrderedTestEvent)].Length.ShouldBe(2);
     }
 
     [Fact]
     public void ShouldOrderHandlersByEventOrderAttribute()
     {
-        var handlers = Factory.Handlers[typeof(OrderedTestEvent)];
+        var handlers = Manager.Handlers[typeof(OrderedTestEvent)];
 
         handlers.Length.ShouldBe(2);
         handlers[0].ShouldBeOfType<ServiceEventHandler<OrderedTestEvent>>()

@@ -42,7 +42,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
 
         var assemblies = builder.GetAxiomApplication().Assemblies
             .Where(a => a.GetReferencedAssemblies()
-                         .Any(r => r.FullName == targetAssembly.FullName) || a == targetAssembly)
+                .Any(r => r.FullName == targetAssembly.FullName) || a == targetAssembly)
             .ToImmutableArray();
 
         RegisterLocalEvents(builder, assemblies);
@@ -53,16 +53,16 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
         IHostApplicationBuilder builder,
         ImmutableArray<Assembly> assemblies)
     {
-        var handlers = GetEvents<ILocalEventHandler>(assemblies);
+        var events = GetEvents<ILocalEventHandler>(assemblies);
 
-        foreach (var handler in handlers.Values.SelectMany(t => t))
+        foreach (var handler in events.Values.SelectMany(t => t).Distinct())
         {
             builder.Services.TryAdd(ServiceDescriptor.Singleton(handler, handler));
         }
 
         builder.Services.Configure<LocalEventBusOptions>(options =>
         {
-            options.Handlers = handlers;
+            options.Events = events;
         });
     }
 
