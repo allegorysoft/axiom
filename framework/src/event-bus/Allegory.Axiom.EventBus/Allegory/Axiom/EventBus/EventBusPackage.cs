@@ -17,7 +17,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        RegisterHandlers(builder);
+        RegisterEvents(builder);
 
         /*  configure in efcore store package
            builder.Services.Configure<DistributedEventBusOptions>(options =>
@@ -36,39 +36,68 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
         return Task.CompletedTask;
     }
 
-    private static void RegisterHandlers(IHostApplicationBuilder builder)
+    private static void RegisterEvents(IHostApplicationBuilder builder)
     {
         var targetAssembly = typeof(IEventHandler<>).Assembly;
 
         var assemblies = builder.GetAxiomApplication().Assemblies
-            .Where(a => a.GetReferencedAssemblies().Any(r => r.FullName == targetAssembly.FullName)
-                        || a == targetAssembly)
+            .Where(a => a.GetReferencedAssemblies()
+                         .Any(r => r.FullName == targetAssembly.FullName) || a == targetAssembly)
             .ToImmutableArray();
 
-        var local = GetHandlers<ILocalEventHandler>(assemblies);
-        foreach (var handler in local.Values.SelectMany(t => t))
+        RegisterLocalEvents(builder, assemblies);
+        RegisterDistributedEvents(builder, assemblies);
+    }
+
+    private static void RegisterLocalEvents(
+        IHostApplicationBuilder builder,
+        ImmutableArray<Assembly> assemblies)
+    {
+        var handlers = GetEvents<ILocalEventHandler>(assemblies);
+
+        foreach (var handler in handlers.Values.SelectMany(t => t))
         {
             builder.Services.TryAdd(ServiceDescriptor.Singleton(handler, handler));
         }
 
         builder.Services.Configure<LocalEventBusOptions>(options =>
         {
-            options.Handlers = local;
+            options.Handlers = handlers;
         });
+    }
 
-        var distributed = GetHandlers<IDistributedEventHandler>(assemblies);
-        foreach (var handler in distributed.Values.SelectMany(t => t))
+    private static void RegisterDistributedEvents(
+        IHostApplicationBuilder builder,
+        ImmutableArray<Assembly> assemblies)
+    {
+        var events = ImmutableArray.CreateBuilder<DistributedEvent>();
+
+        foreach (var (eventType, handlers) in GetEvents<IDistributedEventHandler>(assemblies))
+        {
+            var distributedEvent = new DistributedEvent
+            {
+                Type = eventType,
+                Name = eventType.FullName ?? throw new InvalidOperationException("Event name cannot be null"),
+                Topic = EventNameAttribute.Get(eventType),
+                Handlers = handlers,
+            };
+
+            events.Add(distributedEvent);
+        }
+
+        foreach (var handler in events.SelectMany(t => t.Handlers).Distinct())
         {
             builder.Services.TryAdd(ServiceDescriptor.Singleton(handler, handler));
         }
 
         builder.Services.Configure<DistributedEventBusOptions>(options =>
         {
-            options.Handlers = distributed;
+            options.Events = events.ToImmutable();
         });
     }
 
-    private static FrozenDictionary<Type, ImmutableArray<Type>> GetHandlers<T>(ImmutableArray<Assembly> assemblies)
+    private static FrozenDictionary<Type, ImmutableArray<Type>> GetEvents<T>(
+        ImmutableArray<Assembly> assemblies)
     {
         var eventType = typeof(T);
         var genericEventType = eventType switch

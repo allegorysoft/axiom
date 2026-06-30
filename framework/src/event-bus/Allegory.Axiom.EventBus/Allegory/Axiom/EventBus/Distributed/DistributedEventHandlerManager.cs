@@ -27,13 +27,13 @@ public class DistributedEventHandlerManager : ISingletonService
     protected virtual FrozenDictionary<string, EventQueue> BuildQueues()
     {
         // Create event queues based on option (Single, ForEachHandler, ForEachNamespace, etc.)
-        var queues = new Dictionary<string, EventQueue>(Options.Handlers.Count);
-        var handlers = Options.Handlers.Values.SelectMany(x => x).Distinct().ToList();
+        var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
+        var handlers = Options.Events.SelectMany(x => x.Handlers).Distinct().ToList();
 
         foreach (var handler in handlers)
         {
-            var service = ServiceProvider.GetRequiredService(handler);
             var queue = new EventQueue();
+            var service = ServiceProvider.GetRequiredService(handler);
 
             var events = handler
                 .GetInterfaces()
@@ -59,10 +59,5 @@ public class DistributedEventHandlerManager : ISingletonService
 
         return queues.ToFrozenDictionary();
     }
-
-    // Check inbox is enabled and save to store
-    // Create uow, before handler invoke
-    // Create Activity, and use SetParent(traceparent)
-    // Use "IntegrationEvent" suffix; `OrderCreatedIntegrationEvent`
-    // We might create TriggerHandler method for this. (EventBus.Initialize and InboxWorker can use)
 }
+

@@ -116,4 +116,10 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
 
     // What if this package initialize after other package use "EventBus.Publish" ?
     public abstract Task InitializeAsync();
+    
+    // Check inbox is enabled and save to store
+    // Create uow, before handler invoke
+    // Create Activity, and use SetParent(traceparent)
+    // Use "IntegrationEvent" suffix; `OrderCreatedIntegrationEvent`
+    // We might create TriggerHandler method for this. (EventBus.Initialize and InboxWorker can use)
 }

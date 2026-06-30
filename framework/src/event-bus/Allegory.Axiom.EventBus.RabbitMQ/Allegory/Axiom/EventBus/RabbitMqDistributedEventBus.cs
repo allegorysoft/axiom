@@ -24,6 +24,7 @@ public class RabbitMqDistributedEventBus(
     IOptions<RabbitMqEventBusOptions> rabbitMqOptions)
     : DistributedEventBusBase(options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
 {
+    protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
     protected RabbitMqEventBusOptions RabbitMqOptions { get; } = rabbitMqOptions.Value;
 
@@ -34,8 +35,6 @@ public class RabbitMqDistributedEventBus(
 
     protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
     {
-        const string channelName = "event-bus.publisher";
-
         var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload);
         var properties = new BasicProperties
         {
@@ -49,11 +48,11 @@ public class RabbitMqDistributedEventBus(
         };
 
         var client = await GetClientAsync();
-        using var lease = await client.RentChannelAsync(channelName);
+        using var lease = await client.RentChannelAsync(PublisherChannelName);
 
         await lease.Channel.BasicPublishAsync(
             RabbitMqOptions.ExchangeName,
-            EventNameAttribute.Get<T>(),
+            Options.GetEvent<T>().Topic,
             false,
             properties,
             bytes);
@@ -62,47 +61,64 @@ public class RabbitMqDistributedEventBus(
     public override async Task InitializeAsync()
     {
         var client = await GetClientAsync();
-        var lease = await client.RentChannelAsync("consumer");
 
-        await lease.Channel.ExchangeDeclareAsync(
-            RabbitMqOptions.ExchangeName,
-            ExchangeType.Direct,
-            durable: true,
-            autoDelete: false);
-
-        await lease.Channel.QueueDeclareAsync(
-            "queue-1",
-            durable: true,
-            exclusive: false,
-            autoDelete: false);
-
-        await lease.Channel.QueueBindAsync(
-            "queue-1",
-            RabbitMqOptions.ExchangeName,
-            "Allegory.Axiom.EventBus.OrderCreated");
-
-        var consumer = new AsyncEventingBasicConsumer(lease.Channel);
-
-        consumer.ReceivedAsync += async (sender, eventArgs) =>
+        using (var lease = await client.RentChannelAsync(PublisherChannelName))
         {
-            var routingKey = eventArgs.RoutingKey;
-            var properties = eventArgs.BasicProperties;
-            var body = eventArgs.Body.ToArray();
+            await lease.Channel.ExchangeDeclareAsync(
+                RabbitMqOptions.ExchangeName,
+                ExchangeType.Direct,
+                durable: true,
+                autoDelete: false);
+        }
 
-            // if (!Options.Types.TryGetValue(properties.Type!, out var type))
-            // {
-            //     return;
-            // }
-            //
-            // var payload = JsonSerializer.Deserialize(body, type);
+        foreach (var (qeueuName, eventQueue) in EventHandlerManager.Queues)
+        {
+            var lease = await client.RentChannelAsync(qeueuName);
 
-            //(AsyncEventingBasicConsumer) sender = consumer
-            await ((AsyncEventingBasicConsumer) sender).Channel.BasicAckAsync(eventArgs.DeliveryTag, false);
-        };
+            await lease.Channel.QueueDeclareAsync(
+                qeueuName,
+                durable: true,
+                exclusive: false,
+                autoDelete: false);
 
-        await lease.Channel.BasicConsumeAsync(
-            queue: "queue-1",
-            autoAck: false,
-            consumer: consumer);
+            foreach (var topic in eventQueue.Topics)
+            {
+                await lease.Channel.QueueBindAsync(
+                    qeueuName,
+                    RabbitMqOptions.ExchangeName,
+                    topic);
+            }
+
+            var consumer = new AsyncEventingBasicConsumer(lease.Channel);
+
+            consumer.ReceivedAsync += async (sender, eventArgs) =>
+            {
+                var routingKey = eventArgs.RoutingKey;
+                var properties = eventArgs.BasicProperties;
+                var body = eventArgs.Body.ToArray();
+                var eventType = properties.Type ?? throw new InvalidOperationException("Event type is null");
+
+                if (!eventQueue.Handlers.TryGetValue(eventType, out var handlers))
+                {
+                    //Exception
+                    return;
+                }
+
+                var payload = JsonSerializer.Deserialize(body, Options.GetEvent(eventType).Type)!;
+
+                foreach (var handler in handlers)
+                {
+                    await handler.HandleAsync(payload);
+                }
+
+                var eventConsumer = ((AsyncEventingBasicConsumer) sender);// = consumer
+                await eventConsumer.Channel.BasicAckAsync(eventArgs.DeliveryTag, false);
+            };
+
+            await lease.Channel.BasicConsumeAsync(
+                queue: qeueuName,
+                autoAck: false,
+                consumer: consumer);
+        }
     }
 }
