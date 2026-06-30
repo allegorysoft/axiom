@@ -24,3 +24,11 @@ public class OrderCreated
 {
     public string Number { get; set; }
 }
+
+public class OrderCreatedHandler : IDistributedEventHandler<OrderCreated>
+{
+    public Task HandleAsync(OrderCreated payload)
+    {
+        return Task.CompletedTask;
+    }
+}

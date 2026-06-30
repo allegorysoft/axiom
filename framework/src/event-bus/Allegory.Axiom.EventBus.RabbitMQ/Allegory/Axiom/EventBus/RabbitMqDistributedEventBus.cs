@@ -15,14 +15,14 @@ using RabbitMQ.Client.Events;
 namespace Allegory.Axiom.EventBus;
 
 public class RabbitMqDistributedEventBus(
-    RabbitMqClientFactory clientFactory,
-    IOptions<RabbitMqEventBusOptions> rabbitMqOptions,
-    IUnitOfWorkManager unitOfWorkManager,
-    DistributedEventHandlerFactory handlerFactory,
     IOptions<DistributedEventBusOptions> options,
+    DistributedEventHandlerManager eventHandlerManager,
+    IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
-    IOutboxStore outboxStore)
-    : DistributedEventBusBase(unitOfWorkManager, handlerFactory, options, inboxStore, outboxStore)
+    IOutboxStore outboxStore,
+    RabbitMqClientFactory clientFactory,
+    IOptions<RabbitMqEventBusOptions> rabbitMqOptions)
+    : DistributedEventBusBase(options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
     protected RabbitMqEventBusOptions RabbitMqOptions { get; } = rabbitMqOptions.Value;
@@ -37,15 +37,9 @@ public class RabbitMqDistributedEventBus(
         const string channelName = "event-bus.publisher";
 
         var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload);
-
-        var client = await GetClientAsync();
-        using var lease = await client.RentChannelAsync(channelName);
-
         var properties = new BasicProperties
         {
-            ContentType = "application/json",
             DeliveryMode = DeliveryModes.Persistent,
-            Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
             MessageId = envelope.Id.ToString(),
             Type = typeof(T).FullName!,
             Headers = new Dictionary<string, object?>
@@ -53,6 +47,9 @@ public class RabbitMqDistributedEventBus(
                 ["traceparent"] = envelope.TraceParent,
             }
         };
+
+        var client = await GetClientAsync();
+        using var lease = await client.RentChannelAsync(channelName);
 
         await lease.Channel.BasicPublishAsync(
             RabbitMqOptions.ExchangeName,
@@ -70,19 +67,34 @@ public class RabbitMqDistributedEventBus(
         await lease.Channel.ExchangeDeclareAsync(
             RabbitMqOptions.ExchangeName,
             ExchangeType.Direct,
-            durable: true);
-        await lease.Channel.QueueDeclareAsync("queue-1", durable: true, exclusive: false);
+            durable: true,
+            autoDelete: false);
+
+        await lease.Channel.QueueDeclareAsync(
+            "queue-1",
+            durable: true,
+            exclusive: false,
+            autoDelete: false);
+
         await lease.Channel.QueueBindAsync(
             "queue-1",
             RabbitMqOptions.ExchangeName,
             "Allegory.Axiom.EventBus.OrderCreated");
 
         var consumer = new AsyncEventingBasicConsumer(lease.Channel);
+
         consumer.ReceivedAsync += async (sender, eventArgs) =>
         {
             var routingKey = eventArgs.RoutingKey;
             var properties = eventArgs.BasicProperties;
             var body = eventArgs.Body.ToArray();
+
+            // if (!Options.Types.TryGetValue(properties.Type!, out var type))
+            // {
+            //     return;
+            // }
+            //
+            // var payload = JsonSerializer.Deserialize(body, type);
 
             //(AsyncEventingBasicConsumer) sender = consumer
             await ((AsyncEventingBasicConsumer) sender).Channel.BasicAckAsync(eventArgs.DeliveryTag, false);

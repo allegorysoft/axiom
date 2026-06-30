@@ -12,15 +12,15 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public abstract class DistributedEventBusBase : IDistributedEventBus, ISingletonService
 {
     protected DistributedEventBusBase(
-        IUnitOfWorkManager unitOfWorkManager,
-        DistributedEventHandlerFactory handlerFactory,
         IOptions<DistributedEventBusOptions> options,
+        DistributedEventHandlerManager eventHandlerManager,
+        IUnitOfWorkManager unitOfWorkManager,
         IInboxStore inboxStore,
         IOutboxStore outboxStore)
     {
-        UnitOfWorkManager = unitOfWorkManager;
-        HandlerFactory = handlerFactory;
         Options = options.Value;
+        EventHandlerManager = eventHandlerManager;
+        UnitOfWorkManager = unitOfWorkManager;
         OutboxStore = outboxStore;
         InboxStore = inboxStore;
 
@@ -28,9 +28,9 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         IsOutboxEnabled = !(OutboxStore is NullOutboxStore || Options.Outbox.UseFor == null);
     }
 
-    protected IUnitOfWorkManager UnitOfWorkManager { get; }
-    protected DistributedEventHandlerFactory HandlerFactory { get; }
     protected DistributedEventBusOptions Options { get; }
+    protected DistributedEventHandlerManager EventHandlerManager { get; }
+    protected IUnitOfWorkManager UnitOfWorkManager { get; }
     protected IOutboxStore OutboxStore { get; }
     protected IInboxStore InboxStore { get; }
     protected bool IsOutboxEnabled { get; }
@@ -114,5 +114,6 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
 
     protected abstract Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope) where T : notnull;
 
+    // What if this package initialize after other package use "EventBus.Publish" ?
     public abstract Task InitializeAsync();
 }
