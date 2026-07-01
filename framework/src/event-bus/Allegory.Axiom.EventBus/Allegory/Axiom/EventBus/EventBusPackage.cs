@@ -13,25 +13,24 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.EventBus;
 
-internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplication
+internal sealed class EventBusPackage : IConfigureApplication, IPostConfigureApplication, IInitializeApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         RegisterEvents(builder);
 
-        /*  configure in efcore store package
-           builder.Services.Configure<DistributedEventBusOptions>(options =>
-           {
-               options.Inbox.IsWorkerEnabled = true;
-               options.Inbox.UseFor ??= static _ => true;
-
-               options.Outbox.IsWorkerEnabled = true;
-               options.Outbox.UseFor ??= static _ => true;
-           });
-
-           builder.Services.AddHostedService<InboxWorker>();
-           builder.Services.AddHostedService<OutboxWorker>();
-         */
+        // Configure in Inbox/Outbox package
+        // builder.Services.Configure<DistributedEventBusOptions>(options =>
+        // {
+        //     options.Inbox.IsWorkerEnabled = true;
+        //     options.Inbox.UseFor ??= static _ => true;
+        //
+        //     options.Outbox.IsWorkerEnabled = true;
+        //     options.Outbox.UseFor ??= static _ => true;
+        // });
+        //
+        // builder.Services.AddHostedService<InboxWorker>();
+        // builder.Services.AddHostedService<OutboxWorker>();
 
         return Task.CompletedTask;
     }
@@ -96,8 +95,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
         });
     }
 
-    private static FrozenDictionary<Type, ImmutableArray<Type>> GetEvents<T>(
-        ImmutableArray<Assembly> assemblies)
+    private static FrozenDictionary<Type, ImmutableArray<Type>> GetEvents<T>(ImmutableArray<Assembly> assemblies)
     {
         var eventType = typeof(T);
         var genericEventType = eventType switch
@@ -115,6 +113,14 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
                 .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
             .GroupBy(x => x.EventType, x => x.HandlerType)
             .ToFrozenDictionary(g => g.Key, g => g.ToImmutableArray());
+    }
+
+    public static Task PostConfigureAsync(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<DistributedEventBusOptions>(
+            builder.Configuration.GetSection("Axiom:EventBus:Distributed"));
+
+        return Task.CompletedTask;
     }
 
     public static async Task InitializeAsync(IHost host)

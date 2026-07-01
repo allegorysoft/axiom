@@ -9,6 +9,12 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public class DistributedEventHandlerManagerTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     protected DistributedEventHandlerManager Manager => fixture.Service<DistributedEventHandlerManager>();
+
+    [Fact]
+    public void Test()
+    {
+        
+    }
 }
 
 file record TestEvent;

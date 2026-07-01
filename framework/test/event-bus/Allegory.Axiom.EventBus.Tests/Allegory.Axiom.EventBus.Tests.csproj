@@ -10,4 +10,10 @@
         <ProjectReference Include="..\..\..\src\event-bus\Allegory.Axiom.EventBus\Allegory.Axiom.EventBus.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

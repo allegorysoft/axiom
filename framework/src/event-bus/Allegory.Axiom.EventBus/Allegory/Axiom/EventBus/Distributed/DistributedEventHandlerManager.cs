@@ -27,7 +27,6 @@ public class DistributedEventHandlerManager : ISingletonService
 
     protected virtual FrozenDictionary<string, EventQueue> BuildQueues()
     {
-        // Create event queues based on option (Single, ForEachHandler, ForEachNamespace, etc.)
         var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
         var handlers = Options.Events.SelectMany(x => x.Handlers).Distinct().ToList();
 

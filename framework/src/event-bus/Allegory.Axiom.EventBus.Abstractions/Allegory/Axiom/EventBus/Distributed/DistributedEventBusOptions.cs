@@ -9,16 +9,21 @@ public class DistributedEventBusOptions
     private FrozenDictionary<string, DistributedEventDescriptor> _namedEvents = null!;
     private FrozenDictionary<Type, DistributedEventDescriptor> _typedEvents = null!;
 
-    public required ImmutableArray<DistributedEventDescriptor> Events
+    public ImmutableArray<DistributedEventDescriptor> Events
     {
         get;
         set
         {
-            _namedEvents = value.ToFrozenDictionary(key => key.Name, value => value);
-            _typedEvents = value.ToFrozenDictionary(key => key.Type, value => value);
+            if (value != default)
+            {
+                _namedEvents = value.ToFrozenDictionary(key => key.Name, value => value);
+                _typedEvents = value.ToFrozenDictionary(key => key.Type, value => value);
+            }
             field = value;
         }
     }
+
+    public QueueOptions Queue { get; set; } = new();
     public InboxOptions Inbox { get; set; } = new();
     public OutboxOptions Outbox { get; set; } = new();
 
