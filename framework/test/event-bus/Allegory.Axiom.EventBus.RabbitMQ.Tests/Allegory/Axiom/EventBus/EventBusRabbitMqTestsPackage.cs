@@ -38,21 +38,21 @@ internal sealed class EventBusRabbitMqTestsPackage : IConfigureApplication
         //     o[RabbitMqOptions.DefaultConnectionName] = option;
         // });
 
-        builder.Services.Configure<RabbitMqOptions>(o =>
-        {
-            var option = new RabbitMqOption
-            {
-                Hostname = "localhost",
-                Username = "guest",
-                Password = "guest",
-            };
-
-            o[RabbitMqOptions.DefaultConnectionName] = option;
-        });
-
-        builder.Services.Configure<RabbitMqEventBusOptions>(o =>
-        {
-            o.ExchangeName = "app-1";
-        });
+        // builder.Services.Configure<RabbitMqOptions>(o =>
+        // {
+        //     var option = new RabbitMqOption
+        //     {
+        //         Hostname = "localhost",
+        //         Username = "guest",
+        //         Password = "guest",
+        //     };
+        //
+        //     o[RabbitMqOptions.DefaultConnectionName] = option;
+        // });
+        //
+        // builder.Services.Configure<RabbitMqEventBusOptions>(o =>
+        // {
+        //     o.ExchangeName = "app-1";
+        // });
     }
 }
