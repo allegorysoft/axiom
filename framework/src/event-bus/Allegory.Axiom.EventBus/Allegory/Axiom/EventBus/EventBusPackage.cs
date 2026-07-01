@@ -70,11 +70,11 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
         IHostApplicationBuilder builder,
         ImmutableArray<Assembly> assemblies)
     {
-        var events = ImmutableArray.CreateBuilder<DistributedEvent>();
+        var events = ImmutableArray.CreateBuilder<DistributedEventDescriptor>();
 
         foreach (var (eventType, handlers) in GetEvents<IDistributedEventHandler>(assemblies))
         {
-            var distributedEvent = new DistributedEvent
+            var descriptor = new DistributedEventDescriptor
             {
                 Type = eventType,
                 Name = eventType.FullName ?? throw new InvalidOperationException("Event name cannot be null"),
@@ -82,7 +82,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
                 Handlers = handlers,
             };
 
-            events.Add(distributedEvent);
+            events.Add(descriptor);
         }
 
         foreach (var handler in events.SelectMany(t => t.Handlers).Distinct())

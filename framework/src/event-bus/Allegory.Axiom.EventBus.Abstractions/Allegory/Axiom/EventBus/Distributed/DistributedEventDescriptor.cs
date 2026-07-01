@@ -3,7 +3,7 @@ using System.Collections.Immutable;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
-public class DistributedEvent
+public class DistributedEventDescriptor
 {
     public required Type Type { get; init; }
     public required string Name { get; init; }

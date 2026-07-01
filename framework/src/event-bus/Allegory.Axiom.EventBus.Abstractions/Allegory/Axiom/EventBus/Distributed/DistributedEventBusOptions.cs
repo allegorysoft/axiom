@@ -6,10 +6,10 @@ namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventBusOptions
 {
-    private FrozenDictionary<string, DistributedEvent> _namedEvents = null!;
-    private FrozenDictionary<Type, DistributedEvent> _typedEvents = null!;
+    private FrozenDictionary<string, DistributedEventDescriptor> _namedEvents = null!;
+    private FrozenDictionary<Type, DistributedEventDescriptor> _typedEvents = null!;
 
-    public required ImmutableArray<DistributedEvent> Events
+    public required ImmutableArray<DistributedEventDescriptor> Events
     {
         get;
         set
@@ -22,17 +22,17 @@ public class DistributedEventBusOptions
     public InboxOptions Inbox { get; set; } = new();
     public OutboxOptions Outbox { get; set; } = new();
 
-    public DistributedEvent GetEvent(string name)
+    public DistributedEventDescriptor GetEvent(string name)
     {
         return _namedEvents[name];
     }
 
-    public DistributedEvent GetEvent(Type type)
+    public DistributedEventDescriptor GetEvent(Type type)
     {
         return _typedEvents[type];
     }
 
-    public DistributedEvent GetEvent<T>()
+    public DistributedEventDescriptor GetEvent<T>()
     {
         return _typedEvents[typeof(T)];
     }

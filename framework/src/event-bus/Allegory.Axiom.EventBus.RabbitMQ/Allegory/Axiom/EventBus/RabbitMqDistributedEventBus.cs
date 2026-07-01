@@ -81,7 +81,7 @@ public class RabbitMqDistributedEventBus(
                 exclusive: false,
                 autoDelete: false);
 
-            foreach (var topic in eventQueue.Events.Select(x => x.Value.Event.Topic))
+            foreach (var topic in eventQueue.Events.Select(x => x.Value.Descriptor.Topic))
             {
                 await lease.Channel.QueueBindAsync(
                     queueName,
@@ -104,7 +104,7 @@ public class RabbitMqDistributedEventBus(
                     return;
                 }
 
-                var payload = JsonSerializer.Deserialize(body, eventItem.Event.Type)!;
+                var payload = JsonSerializer.Deserialize(body, eventItem.Descriptor.Type)!;
 
                 foreach (var handler in eventItem.Handlers)
                 {

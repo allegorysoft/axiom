@@ -36,8 +36,8 @@ public class DistributedEventHandlerManager : ISingletonService
             var service = ServiceProvider.GetRequiredService(handler);
             var queueName = handler.FullName ?? throw new InvalidOperationException("Handler name cannot be null");
             var eventQueue = new Dictionary<
-                string,// eventType
-                (DistributedEvent Event, ImmutableArray<IEventHandler>.Builder Handlers)>();
+                string,// EventType.FullName
+                (DistributedEventDescriptor Descriptor, ImmutableArray<IEventHandler>.Builder Handlers)>();
 
             var events = handler
                 .GetInterfaces()
@@ -49,7 +49,7 @@ public class DistributedEventHandlerManager : ISingletonService
 
                 if (!eventQueue.TryGetValue(eventType.FullName!, out var eventItem))
                 {
-                    eventItem = new ValueTuple<DistributedEvent, ImmutableArray<IEventHandler>.Builder>(
+                    eventItem = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
                         Options.GetEvent(eventType),
                         ImmutableArray.CreateBuilder<IEventHandler>());
                     eventQueue[eventType.FullName!] = eventItem;
@@ -62,7 +62,7 @@ public class DistributedEventHandlerManager : ISingletonService
             queues[queueName] = new EventQueue(
                 eventQueue.ToFrozenDictionary(
                     kvp => kvp.Key,
-                    kvp => new EventRegistration(kvp.Value.Event, kvp.Value.Handlers.ToImmutable())));
+                    kvp => new EventRegistration(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())));
         }
 
         return queues.ToFrozenDictionary();
