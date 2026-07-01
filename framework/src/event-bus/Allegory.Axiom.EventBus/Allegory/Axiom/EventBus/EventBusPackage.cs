@@ -112,7 +112,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IPostConfigureApp
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericEventType)
                 .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
             .GroupBy(x => x.EventType, x => x.HandlerType)
-            .ToFrozenDictionary(g => g.Key, g => g.ToImmutableArray());
+            .ToFrozenDictionary(g => g.Key, g => g.OrderBy(EventOrderAttribute.Get).ToImmutableArray());
     }
 
     public static Task PostConfigureAsync(IHostApplicationBuilder builder)

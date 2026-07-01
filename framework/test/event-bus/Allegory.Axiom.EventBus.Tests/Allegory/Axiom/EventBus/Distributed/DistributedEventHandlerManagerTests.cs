@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute.Extensions;
 using Shouldly;
 using Xunit;
 
@@ -11,9 +14,18 @@ public class DistributedEventHandlerManagerTests(IntegrationTestFixture fixture)
     protected DistributedEventHandlerManager Manager => fixture.Service<DistributedEventHandlerManager>();
 
     [Fact]
-    public void Test()
+    public async Task Test()
     {
-        
+        var provider = await fixture.CreateServiceProviderAsync(c =>
+        {
+            c.Services.Configure<DistributedEventBusOptions>(options =>
+            {
+                options.Queue.Topology = QueueTopology.PerHandler;
+            });
+        });
+
+        var manager = provider.GetRequiredService<DistributedEventHandlerManager>();
+
     }
 }
 
@@ -21,7 +33,7 @@ file record TestEvent;
 
 file record UnhandledTestEvent;
 
-file record OrderedTestEvent
+public record OrderedTestEvent
 {
     public List<Type> Items { get; } = [];
 }
@@ -37,7 +49,7 @@ file class TestEventHandler2 : IDistributedEventHandler<TestEvent>
 }
 
 [EventOrder(2)]
-file class OrderedTestEventHandlerSecond : IDistributedEventHandler<OrderedTestEvent>
+public class OrderedTestEventHandlerSecond : IDistributedEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload)
     {
@@ -47,7 +59,7 @@ file class OrderedTestEventHandlerSecond : IDistributedEventHandler<OrderedTestE
 }
 
 [EventOrder(1)]
-file class OrderedTestEventHandlerFirst : IDistributedEventHandler<OrderedTestEvent>
+public class OrderedTestEventHandlerFirst : IDistributedEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload)
     {

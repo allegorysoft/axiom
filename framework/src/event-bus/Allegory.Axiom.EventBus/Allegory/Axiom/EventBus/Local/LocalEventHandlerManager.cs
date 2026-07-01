@@ -2,7 +2,6 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -34,7 +33,7 @@ public class LocalEventHandlerManager : ISingletonService
             var serviceType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
             var handlers = ImmutableArray.CreateBuilder<IEventHandler>(handlerTypes.Length);
 
-            foreach (var handler in handlerTypes.OrderBy(EventOrderAttribute.Get))
+            foreach (var handler in handlerTypes)
             {
                 var service = ServiceProvider.GetRequiredService(handler);
                 handlers.Add((IEventHandler) Activator.CreateInstance(serviceType, service)!);
