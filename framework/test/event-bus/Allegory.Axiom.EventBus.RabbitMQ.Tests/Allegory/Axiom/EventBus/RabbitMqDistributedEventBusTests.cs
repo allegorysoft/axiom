@@ -18,10 +18,10 @@ public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : 
     }
 }
 
-[EventName("abc.event-1")]
+[TopicName("abc.event-1")]
 public record Event1 {}
 
-[EventName("abc.event-2")]
+[TopicName("abc.event-2")]
 public record Event2 {}
 
 public class EventHandler1 : IDistributedEventHandler<Event1>

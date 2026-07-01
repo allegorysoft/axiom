@@ -78,7 +78,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
             {
                 Type = eventType,
                 Name = eventType.FullName ?? throw new InvalidOperationException("Event name cannot be null"),
-                Topic = EventNameAttribute.Get(eventType),
+                Topic = TopicNameAttribute.Get(eventType),
                 Handlers = handlers,
             };
 
