@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shouldly;
 using Xunit;
@@ -14,7 +12,7 @@ public class LocalEventHandlerManagerTests(IntegrationTestFixture fixture) : ICl
     public void ShouldContainHandlersForRegisteredEvent()
     {
         Manager.Handlers.ContainsKey(typeof(TestEvent)).ShouldBeTrue();
-        Manager.Handlers.ContainsKey(typeof(OrderedTestEvent)).ShouldBeTrue();
+        Manager.Handlers.ContainsKey(typeof(TestEvent2)).ShouldBeTrue();
     }
 
     [Fact]
@@ -27,57 +25,23 @@ public class LocalEventHandlerManagerTests(IntegrationTestFixture fixture) : ICl
     public void ShouldContainAllHandlersForEvent()
     {
         Manager.Handlers[typeof(TestEvent)].Length.ShouldBe(2);
-        Manager.Handlers[typeof(OrderedTestEvent)].Length.ShouldBe(2);
-    }
-
-    [Fact]
-    public void ShouldOrderHandlersByEventOrderAttribute()
-    {
-        var handlers = Manager.Handlers[typeof(OrderedTestEvent)];
-
-        handlers.Length.ShouldBe(2);
-        handlers[0].ShouldBeOfType<ServiceEventHandler<OrderedTestEvent>>()
-            .Service.GetType().ShouldBe(typeof(OrderedTestEventHandlerFirst));
-        handlers[1].ShouldBeOfType<ServiceEventHandler<OrderedTestEvent>>()
-            .Service.GetType().ShouldBe(typeof(OrderedTestEventHandlerSecond));
+        Manager.Handlers[typeof(TestEvent2)].Length.ShouldBe(1);
     }
 }
 
 file record TestEvent;
 
+file record TestEvent2;
+
 file record UnhandledTestEvent;
 
-file record OrderedTestEvent
-{
-    public List<Type> Items { get; } = [];
-}
-
-file class TestEventHandler1 : ILocalEventHandler<TestEvent>
+file class EventHandler1 : ILocalEventHandler<TestEvent>
 {
     public Task HandleAsync(TestEvent payload) => Task.CompletedTask;
 }
 
-file class TestEventHandler2 : ILocalEventHandler<TestEvent>
+file class EventHandler2 : ILocalEventHandler<TestEvent>, ILocalEventHandler<TestEvent2>
 {
     public Task HandleAsync(TestEvent payload) => Task.CompletedTask;
-}
-
-[EventOrder(2)]
-file class OrderedTestEventHandlerSecond : ILocalEventHandler<OrderedTestEvent>
-{
-    public Task HandleAsync(OrderedTestEvent payload)
-    {
-        payload.Items.Add(typeof(OrderedTestEventHandlerSecond));
-        return Task.CompletedTask;
-    }
-}
-
-[EventOrder(1)]
-file class OrderedTestEventHandlerFirst : ILocalEventHandler<OrderedTestEvent>
-{
-    public Task HandleAsync(OrderedTestEvent payload)
-    {
-        payload.Items.Add(typeof(OrderedTestEventHandlerFirst));
-        return Task.CompletedTask;
-    }
+    public Task HandleAsync(TestEvent2 payload) => Task.CompletedTask;
 }
