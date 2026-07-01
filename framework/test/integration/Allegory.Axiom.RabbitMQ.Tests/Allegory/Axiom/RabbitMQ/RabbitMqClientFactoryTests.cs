@@ -23,7 +23,7 @@ public class RabbitMqClientFactoryTests(IntegrationTestFixture fixture) : IClass
         var first = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
         var second = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
 
-        second.ShouldBe(first);
+        second.ShouldBeSameAs(first);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class RabbitMqClientFactoryTests(IntegrationTestFixture fixture) : IClass
         var client1 = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
         var client2 = await Factory.GetAsync(RabbitMqTestsPackage.SecondConnectionName);
 
-        client1.ShouldNotBe(client2);
+        client1.ShouldNotBeSameAs(client2);
     }
 
     [Fact]

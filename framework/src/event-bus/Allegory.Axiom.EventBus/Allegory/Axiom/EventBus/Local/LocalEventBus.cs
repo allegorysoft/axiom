@@ -2,27 +2,27 @@
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Local;
 
 public class LocalEventBus(
     IUnitOfWorkManager unitOfWorkManager,
-    LocalEventHandlerFactory factory)
+    LocalEventHandlerManager eventHandlerManager)
     : ILocalEventBus, ISingletonService
 {
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
-    protected LocalEventHandlerFactory Factory { get; } = factory;
+    protected LocalEventHandlerManager EventHandlerManager { get; } = eventHandlerManager;
 
     public virtual async Task PublishAsync<T>(
         T payload,
-        LocalMessagePublishMode publishMode = LocalMessagePublishMode.OnUnitOfWorkComplete)
+        LocalEventPublishMode publishMode = LocalEventPublishMode.OnUnitOfWorkComplete)
         where T : notnull
     {
-        if (!Factory.Handlers.ContainsKey(typeof(T)))
+        if (!EventHandlerManager.Handlers.ContainsKey(typeof(T)))
         {
             return;
         }
 
-        if (publishMode == LocalMessagePublishMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
+        if (publishMode == LocalEventPublishMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.BeforeComplete,
@@ -36,7 +36,7 @@ public class LocalEventBus(
 
     protected virtual async Task InvokeHandlersAsync<T>(object payload)
     {
-        foreach (var handler in Factory.Handlers[typeof(T)])
+        foreach (var handler in EventHandlerManager.Handlers[typeof(T)])
         {
             await handler.HandleAsync(payload);
         }

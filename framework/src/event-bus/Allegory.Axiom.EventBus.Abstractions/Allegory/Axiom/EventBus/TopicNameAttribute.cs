@@ -4,7 +4,7 @@ using System.Reflection;
 namespace Allegory.Axiom.EventBus;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public class EventNameAttribute(string name) : Attribute
+public class TopicNameAttribute(string name) : Attribute
 {
     public string Name { get; } = name;
 
@@ -15,7 +15,7 @@ public class EventNameAttribute(string name) : Attribute
 
     public static string Get(Type type)
     {
-        var attribute = type.GetCustomAttribute<EventNameAttribute>();
+        var attribute = type.GetCustomAttribute<TopicNameAttribute>();
 
         if (attribute == null)
         {

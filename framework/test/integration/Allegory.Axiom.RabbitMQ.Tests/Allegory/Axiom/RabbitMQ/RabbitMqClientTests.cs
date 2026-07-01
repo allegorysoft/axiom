@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Shouldly;
@@ -42,7 +41,7 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
         var ch1 = await client.GetChannelAsync("ch-distinct-1");
         var ch2 = await client.GetChannelAsync("ch-distinct-2");
 
-        ch2.ShouldNotBe(ch1);
+        ch2.ShouldNotBeSameAs(ch1);
     }
 
     [Fact]
@@ -58,7 +57,7 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
 
         for (var i = 1; i < 8; i++)
         {
-            results[i].ShouldBe(results[0]);
+            results[i].ShouldBeSameAs(results[0]);
         }
     }
 
