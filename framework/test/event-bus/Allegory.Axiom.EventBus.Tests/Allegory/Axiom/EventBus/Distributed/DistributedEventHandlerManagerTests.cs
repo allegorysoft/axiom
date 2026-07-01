@@ -20,13 +20,27 @@ public class DistributedEventHandlerManagerTests(IntegrationTestFixture fixture)
         {
             c.Services.Configure<DistributedEventBusOptions>(options =>
             {
-                options.Queue.Topology = QueueTopology.PerHandler;
+                options.Queue.Topology = QueueTopology.PerMessageType;
             });
         });
 
         var manager = provider.GetRequiredService<DistributedEventHandlerManager>();
-
     }
+}
+
+public class Event1{}
+public class Event2 {}
+
+public class EventHandler1 : IDistributedEventHandler<Event1>
+{
+    public Task HandleAsync(Event1 payload) =>  Task.CompletedTask;
+}
+
+[EventOrder(-1)]
+public class EventHandler2 : IDistributedEventHandler<Event2>, IDistributedEventHandler<Event1>
+{
+    public Task HandleAsync(Event2 payload) =>  Task.CompletedTask;
+    public Task HandleAsync(Event1 payload) =>   Task.CompletedTask;
 }
 
 file record TestEvent;

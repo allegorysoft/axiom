@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -25,23 +26,24 @@ public class DistributedEventHandlerManager : ISingletonService
     protected DistributedEventBusOptions Options { get; }
     protected IServiceProvider ServiceProvider { get; }
     protected Lazy<FrozenDictionary<string, EventQueue>> LazyQueues { get; }
+    protected JsonNamingPolicy NamingPolicy { get; set; } = JsonNamingPolicy.KebabCaseLower;
 
     protected virtual FrozenDictionary<string, EventQueue> BuildQueues()
     {
-        // Use kebab case
-        // JsonNamingPolicy.KebabCaseLower.ConvertName("SomeText");
-
         Options.Queue.Name ??= Assembly.GetEntryAssembly()?.GetName().Name
                                ?? throw new InvalidOperationException("Queue name cannot be null");
+        Options.Queue.Name = NamingPolicy.ConvertName(Options.Queue.Name);
 
         switch (Options.Queue.Topology)
         {
             case QueueTopology.Single:
                 return BuildSingleQueue();
+            case QueueTopology.PerMessageType:
+                return BuildPerMessageTypeQueue();
             case QueueTopology.PerHandler:
                 return BuildPerHandlerQueue();
-            case QueueTopology.PerMessageType:
             case QueueTopology.PerAssembly:
+                return BuildPerAssemblyQueue();
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -89,6 +91,34 @@ public class DistributedEventHandlerManager : ISingletonService
         return queues.ToFrozenDictionary();
     }
 
+    protected virtual FrozenDictionary<string, EventQueue> BuildPerMessageTypeQueue()
+    {
+        var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
+
+        foreach (var descriptor in Options.Events)
+        {
+            var queueName = string.Concat(Options.Queue.Name, ".", NamingPolicy.ConvertName(
+                descriptor.Topic == descriptor.Type.FullName ? descriptor.Type.Name : descriptor.Topic));
+            var eventHandlers = ImmutableArray.CreateBuilder<IEventHandler>(descriptor.Handlers.Length);
+
+            foreach (var handler in descriptor.Handlers)
+            {
+                var service = ServiceProvider.GetRequiredService(handler);
+                var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(descriptor.Type);
+                eventHandlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+            }
+
+            var registrations = new Dictionary<string, EventRegistration>
+            {
+                [descriptor.Name] = new(descriptor, eventHandlers.ToImmutable())
+            };
+
+            queues[queueName] = new EventQueue(registrations.ToFrozenDictionary());
+        }
+
+        return queues.ToFrozenDictionary();
+    }
+
     protected virtual FrozenDictionary<string, EventQueue> BuildPerHandlerQueue()
     {
         var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
@@ -97,8 +127,7 @@ public class DistributedEventHandlerManager : ISingletonService
         foreach (var handler in handlers)
         {
             var service = ServiceProvider.GetRequiredService(handler);
-            var queueName = Options.Queue.Name + "." +
-                            (handler.FullName ?? throw new InvalidOperationException("Handler name cannot be null"));
+            var queueName = string.Concat(Options.Queue.Name, ".", NamingPolicy.ConvertName(handler.Name));
             var eventQueue = new Dictionary<
                 string,// EventType.FullName
                 (DistributedEventDescriptor Descriptor, ImmutableArray<IEventHandler>.Builder Handlers)>();
@@ -121,6 +150,56 @@ public class DistributedEventHandlerManager : ISingletonService
 
                 var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
                 eventItem.Handlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+            }
+
+            queues[queueName] = new EventQueue(
+                eventQueue.ToFrozenDictionary(
+                    kvp => kvp.Key,
+                    kvp => new EventRegistration(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())));
+        }
+
+        return queues.ToFrozenDictionary();
+    }
+
+    protected virtual FrozenDictionary<string, EventQueue> BuildPerAssemblyQueue()
+    {
+        var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
+        var assemblies = Options.Events
+            .SelectMany(x => x.Handlers)
+            .Distinct()
+            .GroupBy(g => g.Assembly, t => t)
+            .ToList();
+
+        foreach (var handlers in assemblies)
+        {
+            var queueName = string.Concat(Options.Queue.Name, ".", NamingPolicy.ConvertName(
+                handlers.Key.GetName().Name ?? throw new InvalidOperationException("Assembly name cannot be null")));
+            var eventQueue = new Dictionary<
+                string,
+                (DistributedEventDescriptor Descriptor, ImmutableArray<IEventHandler>.Builder Handlers)>();
+
+            foreach (var handler in handlers)
+            {
+                var service = ServiceProvider.GetRequiredService(handler);
+                var events = handler
+                    .GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IDistributedEventHandler<>));
+
+                foreach (var type in events)
+                {
+                    var eventType = type.GenericTypeArguments.Single();
+
+                    if (!eventQueue.TryGetValue(eventType.FullName!, out var eventItem))
+                    {
+                        eventItem = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
+                            Options.GetEvent(eventType),
+                            ImmutableArray.CreateBuilder<IEventHandler>());
+                        eventQueue[eventType.FullName!] = eventItem;
+                    }
+
+                    var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
+                    eventItem.Handlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+                }
             }
 
             queues[queueName] = new EventQueue(
