@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -32,8 +33,11 @@ public class DistributedEventHandlerManager : ISingletonService
 
         foreach (var handler in handlers)
         {
-            var queue = new EventQueue();
             var service = ServiceProvider.GetRequiredService(handler);
+            var queueName = handler.FullName ?? throw new InvalidOperationException("Handler name cannot be null");
+            var eventQueue = new Dictionary<
+                string,// eventType
+                (DistributedEvent Event, ImmutableArray<IEventHandler>.Builder Handlers)>();
 
             var events = handler
                 .GetInterfaces()
@@ -43,17 +47,22 @@ public class DistributedEventHandlerManager : ISingletonService
             {
                 var eventType = type.GenericTypeArguments.Single();
 
-                if (!queue.Handlers.TryGetValue(eventType.FullName!, out var eventHandlers))
+                if (!eventQueue.TryGetValue(eventType.FullName!, out var eventItem))
                 {
-                    eventHandlers = [];
-                    queue.Handlers[eventType.FullName!] = eventHandlers;
+                    eventItem = new ValueTuple<DistributedEvent, ImmutableArray<IEventHandler>.Builder>(
+                        Options.GetEvent(eventType),
+                        ImmutableArray.CreateBuilder<IEventHandler>());
+                    eventQueue[eventType.FullName!] = eventItem;
                 }
 
                 var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
-                eventHandlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+                eventItem.Handlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
             }
 
-            queues[handler.FullName!] = queue;
+            queues[queueName] = new EventQueue(
+                eventQueue.ToFrozenDictionary(
+                    kvp => kvp.Key,
+                    kvp => new EventRegistration(kvp.Value.Event, kvp.Value.Handlers.ToImmutable())));
         }
 
         return queues.ToFrozenDictionary();

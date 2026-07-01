@@ -1,12 +1,8 @@
-using System.Collections.Generic;
-using System.Collections.Immutable;
+using System.Collections.Frozen;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
-public class EventQueue
+public class EventQueue(FrozenDictionary<string, EventRegistration> events)
 {
-    // We wanna use Events, Handlers in one property?
-    public Dictionary<string, List<IEventHandler>> Handlers { get; } = new();
-
-    public ImmutableArray<DistributedEvent> Events { get; set; }
+    public FrozenDictionary<string, EventRegistration> Events { get; } = events;
 }

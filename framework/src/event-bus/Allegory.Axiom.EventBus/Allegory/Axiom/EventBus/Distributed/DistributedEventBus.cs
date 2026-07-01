@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -19,13 +20,13 @@ public class DistributedEventBus(
     IOutboxStore outboxStore)
     : DistributedEventBusBase(options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
 {
-    protected FrozenDictionary<string, ImmutableArray<IEventHandler>> Handlers { get; set; } = null!;
+    protected FrozenDictionary<Type, ImmutableArray<IEventHandler>> Handlers { get; set; } = null!;
 
     public override Task PublishAsync<T>(
         T payload,
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
     {
-        return Handlers.ContainsKey(typeof(T).FullName!)
+        return Handlers.ContainsKey(typeof(T))
             ? base.PublishAsync(payload, publishMode)
             : Task.CompletedTask;
     }
@@ -38,7 +39,7 @@ public class DistributedEventBus(
 
     protected virtual async Task InvokeHandlersAsync<T>(object payload)
     {
-        foreach (var handler in Handlers[typeof(T).FullName!])
+        foreach (var handler in Handlers[typeof(T)])
         {
             await handler.HandleAsync(payload);
         }
@@ -46,19 +47,19 @@ public class DistributedEventBus(
 
     public override Task InitializeAsync()
     {
-        var handlers = new Dictionary<string, ImmutableArray<IEventHandler>.Builder>();
+        var handlers = new Dictionary<Type, ImmutableArray<IEventHandler>.Builder>();
 
         foreach (var queue in EventHandlerManager.Queues.Values)
         {
-            foreach (var (key, eventHandlers) in queue.Handlers)
+            foreach (var (_, eventItem) in queue.Events)
             {
-                if (!handlers.TryGetValue(key, out var builder))
+                if (!handlers.TryGetValue(eventItem.Event.Type, out var builder))
                 {
                     builder = ImmutableArray.CreateBuilder<IEventHandler>();
-                    handlers[key] = builder;
+                    handlers[eventItem.Event.Type] = builder;
                 }
 
-                builder.AddRange(eventHandlers);
+                builder.AddRange(eventItem.Handlers);
             }
         }
 

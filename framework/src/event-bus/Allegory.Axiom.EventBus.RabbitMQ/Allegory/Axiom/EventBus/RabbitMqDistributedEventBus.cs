@@ -81,7 +81,7 @@ public class RabbitMqDistributedEventBus(
                 exclusive: false,
                 autoDelete: false);
 
-            foreach (var topic in eventQueue.Events.Select(x => x.Topic))
+            foreach (var topic in eventQueue.Events.Select(x => x.Value.Event.Topic))
             {
                 await lease.Channel.QueueBindAsync(
                     queueName,
@@ -98,15 +98,15 @@ public class RabbitMqDistributedEventBus(
                 var body = eventArgs.Body.ToArray();
                 var eventType = properties.Type ?? throw new InvalidOperationException("Event type is null");
 
-                if (!eventQueue.Handlers.TryGetValue(eventType, out var handlers))
+                if (!eventQueue.Events.TryGetValue(eventType, out var eventItem))
                 {
                     //Exception
                     return;
                 }
 
-                var payload = JsonSerializer.Deserialize(body, Options.GetEvent(eventType).Type)!;
+                var payload = JsonSerializer.Deserialize(body, eventItem.Event.Type)!;
 
-                foreach (var handler in handlers)
+                foreach (var handler in eventItem.Handlers)
                 {
                     await handler.HandleAsync(payload);
                 }
