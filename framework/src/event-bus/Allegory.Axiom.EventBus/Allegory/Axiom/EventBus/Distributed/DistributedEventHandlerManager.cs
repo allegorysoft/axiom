@@ -78,8 +78,7 @@ public class DistributedEventHandlerManager : ISingletonService
                     eventQueue[eventType.FullName!] = eventItem;
                 }
 
-                var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
-                eventItem.Handlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+                eventItem.Handlers.Add(CreateEventHandler(eventType, service));
             }
         }
 
@@ -104,8 +103,7 @@ public class DistributedEventHandlerManager : ISingletonService
             foreach (var handler in descriptor.Handlers)
             {
                 var service = ServiceProvider.GetRequiredService(handler);
-                var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(descriptor.Type);
-                eventHandlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+                eventHandlers.Add(CreateEventHandler(descriptor.Type, service));
             }
 
             var registrations = new Dictionary<string, EventRegistration>
@@ -129,7 +127,7 @@ public class DistributedEventHandlerManager : ISingletonService
             var service = ServiceProvider.GetRequiredService(handler);
             var queueName = string.Concat(Options.Queue.Name, ".", NamingPolicy.ConvertName(handler.Name));
             var eventQueue = new Dictionary<
-                string,// EventType.FullName
+                string,
                 (DistributedEventDescriptor Descriptor, ImmutableArray<IEventHandler>.Builder Handlers)>();
 
             var events = handler
@@ -148,8 +146,7 @@ public class DistributedEventHandlerManager : ISingletonService
                     eventQueue[eventType.FullName!] = eventItem;
                 }
 
-                var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
-                eventItem.Handlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+                eventItem.Handlers.Add(CreateEventHandler(eventType, service));
             }
 
             queues[queueName] = new EventQueue(
@@ -197,8 +194,7 @@ public class DistributedEventHandlerManager : ISingletonService
                         eventQueue[eventType.FullName!] = eventItem;
                     }
 
-                    var eventHandler = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
-                    eventItem.Handlers.Add((IEventHandler) Activator.CreateInstance(eventHandler, service)!);
+                    eventItem.Handlers.Add(CreateEventHandler(eventType, service));
                 }
             }
 
@@ -209,5 +205,11 @@ public class DistributedEventHandlerManager : ISingletonService
         }
 
         return queues.ToFrozenDictionary();
+    }
+
+    protected virtual IEventHandler CreateEventHandler(Type eventType, object service)
+    {
+        var handlerType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
+        return (IEventHandler) Activator.CreateInstance(handlerType, service)!;
     }
 }
