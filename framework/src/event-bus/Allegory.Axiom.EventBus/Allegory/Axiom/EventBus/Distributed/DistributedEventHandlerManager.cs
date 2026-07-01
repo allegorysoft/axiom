@@ -119,8 +119,8 @@ public class DistributedEventHandlerManager : ISingletonService
 
     protected virtual FrozenDictionary<string, EventQueue> BuildPerHandlerQueue()
     {
-        var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
         var handlers = Options.Events.SelectMany(x => x.Handlers).Distinct().ToList();
+        var queues = new Dictionary<string, EventQueue>(handlers.Count);
 
         foreach (var handler in handlers)
         {
@@ -160,12 +160,12 @@ public class DistributedEventHandlerManager : ISingletonService
 
     protected virtual FrozenDictionary<string, EventQueue> BuildPerAssemblyQueue()
     {
-        var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
         var assemblies = Options.Events
             .SelectMany(x => x.Handlers)
             .Distinct()
             .GroupBy(g => g.Assembly, t => t)
             .ToList();
+        var queues = new Dictionary<string, EventQueue>(assemblies.Count);
 
         foreach (var handlers in assemblies)
         {
