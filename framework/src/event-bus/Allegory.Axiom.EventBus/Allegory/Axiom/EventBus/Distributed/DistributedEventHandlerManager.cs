@@ -42,7 +42,6 @@ public class DistributedEventHandlerManager : ISingletonService
             foreach (var type in events)
             {
                 var eventType = type.GenericTypeArguments.Single();
-                queue.Topics.Add(EventNameAttribute.Get(eventType));
 
                 if (!queue.Handlers.TryGetValue(eventType.FullName!, out var eventHandlers))
                 {
@@ -60,4 +59,3 @@ public class DistributedEventHandlerManager : ISingletonService
         return queues.ToFrozenDictionary();
     }
 }
-

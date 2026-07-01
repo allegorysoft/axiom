@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
@@ -71,20 +71,20 @@ public class RabbitMqDistributedEventBus(
                 autoDelete: false);
         }
 
-        foreach (var (qeueuName, eventQueue) in EventHandlerManager.Queues)
+        foreach (var (queueName, eventQueue) in EventHandlerManager.Queues)
         {
-            var lease = await client.RentChannelAsync(qeueuName);
+            var lease = await client.RentChannelAsync(queueName);
 
             await lease.Channel.QueueDeclareAsync(
-                qeueuName,
+                queueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false);
 
-            foreach (var topic in eventQueue.Topics)
+            foreach (var topic in eventQueue.Events.Select(x => x.Topic))
             {
                 await lease.Channel.QueueBindAsync(
-                    qeueuName,
+                    queueName,
                     RabbitMqOptions.ExchangeName,
                     topic);
             }
@@ -116,7 +116,7 @@ public class RabbitMqDistributedEventBus(
             };
 
             await lease.Channel.BasicConsumeAsync(
-                queue: qeueuName,
+                queue: queueName,
                 autoAck: false,
                 consumer: consumer);
         }
