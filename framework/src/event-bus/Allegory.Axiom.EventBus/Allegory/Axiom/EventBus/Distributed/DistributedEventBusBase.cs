@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
@@ -35,6 +36,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     protected IInboxStore InboxStore { get; }
     protected bool IsOutboxEnabled { get; }
     protected bool IsInboxEnabled { get; }
+    protected ConcurrentDictionary<Type, string> EventTopicCache { get; } = [];
 
     public virtual async Task PublishAsync<T>(
         T payload,
@@ -114,9 +116,16 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
 
     protected abstract Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope) where T : notnull;
 
+    protected virtual string GetEventTopic<T>()
+    {
+        // We can't use `Options.GetEvent<T>().Topic` here,
+        // because `T` may not have any registered handlers.
+        return EventTopicCache.GetOrAdd(typeof(T), TopicNameAttribute.Get);
+    }
+
     // What if this package initialize after other package use "EventBus.Publish" ?
     public abstract Task InitializeAsync();
-    
+
     // Check inbox is enabled and save to store
     // Create uow, before handler invoke
     // Create Activity, and use SetParent(traceparent)

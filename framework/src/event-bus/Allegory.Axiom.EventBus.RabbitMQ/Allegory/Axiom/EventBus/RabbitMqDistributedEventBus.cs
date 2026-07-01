@@ -52,7 +52,7 @@ public class RabbitMqDistributedEventBus(
 
         await lease.Channel.BasicPublishAsync(
             RabbitMqOptions.ExchangeName,
-            Options.GetEvent<T>().Topic,
+            GetEventTopic<T>(),
             false,
             properties,
             bytes);
