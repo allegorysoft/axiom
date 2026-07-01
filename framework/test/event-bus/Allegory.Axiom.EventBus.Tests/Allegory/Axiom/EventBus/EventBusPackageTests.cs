@@ -16,13 +16,23 @@ public class EventBusPackageTests(IntegrationTestFixture fixture) : IClassFixtur
     [Fact]
     public void ShouldRegisterLocalEvents()
     {
-        LocalOptions.Events.ShouldContain(x => x.Key == typeof(LocalTestEvent));
+        var eventItem = LocalOptions.Events.Single(x => x.Key == typeof(LocalTestEvent));
+        eventItem.Value.ShouldBe([typeof(LocalTestEventHandler)]);
+
+        var handler = fixture.Service<LocalTestEventHandler>();
+        handler.ShouldNotBeNull();
     }
 
     [Fact]
     public void ShouldRegisterDistributedEvents()
     {
-        DistributedOptions.Events.ShouldContain(x => x.Type == typeof(DistributedTestEvent));
+        var eventItem = DistributedOptions.Events.Single(x => x.Type == typeof(DistributedTestEvent));
+        eventItem.Name.ShouldBe(typeof(DistributedTestEvent).FullName);
+        eventItem.Topic.ShouldBe("test.distributed-event-1");
+        eventItem.Handlers.ShouldBe([typeof(DistributedTestEventHandler)]);
+
+        var handler = fixture.Service<DistributedTestEventHandler>();
+        handler.ShouldNotBeNull();
     }
 
     [Fact]
@@ -51,6 +61,7 @@ file class LocalTestEventHandler : ILocalEventHandler<LocalTestEvent>
     public Task HandleAsync(LocalTestEvent payload) => Task.CompletedTask;
 }
 
+[TopicName("test.distributed-event-1")]
 file record DistributedTestEvent {}
 
 file class DistributedTestEventHandler : IDistributedEventHandler<DistributedTestEvent>
