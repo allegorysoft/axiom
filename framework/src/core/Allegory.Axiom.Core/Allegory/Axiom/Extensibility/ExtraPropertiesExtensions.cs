@@ -65,6 +65,19 @@ public static class ExtraPropertiesExtensions
 
             return defaultValue;
         }
+        
+        public T GetOrAddProperty<T>(string name, T defaultValue)
+        {
+            var property = entity.GetProperty<T>(name);
+
+            if (property != null)
+            {
+                return property;
+            }
+
+            entity.ExtraProperties[name] = defaultValue;
+            return defaultValue;
+        }
 
         public void SetProperty(string name, object? value)
         {
