@@ -18,26 +18,28 @@ public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : 
     }
 }
 
-[TopicName("abc.event-1")]
 public record Event1 {}
 
-[TopicName("abc.event-2")]
 public record Event2 {}
 
+[EventOrder(2)]
 public class EventHandler1 : IDistributedEventHandler<Event1>
 {
     public async Task HandleAsync(Event1 payload)
     {
-        await Task.Delay(10_000);
+        await Task.Delay(60_000);
     }
 }
 
-public class EventHandler2 : IDistributedEventHandler<Event1>, IDistributedEventHandler<Event2>
+[EventOrder(1)]
+public class EventHandler2 : IDistributedEventHandler<Event2>//, IDistributedEventHandler<Event1>
 {
     public Guid Id { get; } = Guid.NewGuid();
+
     public async Task HandleAsync(Event1 payload)
     {
-        await Task.Delay(10_000);
+        await Task.Delay(60_000);
     }
+
     public Task HandleAsync(Event2 payload) => Task.CompletedTask;
 }

@@ -7,18 +7,20 @@ using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class DistributedEventBus(
+    ILogger<DistributedEventBus> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
     IOutboxStore outboxStore)
-    : DistributedEventBusBase(options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
+    : DistributedEventBusBase(logger, options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected FrozenDictionary<Type, ImmutableArray<IEventHandler>> Handlers { get; set; } = null!;
 

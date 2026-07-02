@@ -8,6 +8,7 @@ using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.RabbitMQ;
 using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -15,13 +16,14 @@ using RabbitMQ.Client.Events;
 namespace Allegory.Axiom.EventBus;
 
 public class RabbitMqDistributedEventBus(
+    ILogger<RabbitMqDistributedEventBus> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
     RabbitMqClientFactory clientFactory)
-    : DistributedEventBusBase(options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
+    : DistributedEventBusBase(logger, options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
@@ -33,24 +35,29 @@ public class RabbitMqDistributedEventBus(
 
     protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
     {
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload);
+        var descriptor = GetEventDescriptor<T>();
         var properties = new BasicProperties
         {
             DeliveryMode = DeliveryModes.Persistent,
             MessageId = envelope.Id.ToString(),
-            Type = typeof(T).FullName!,
-            Headers = new Dictionary<string, object?>
-            {
-                ["traceparent"] = envelope.TraceParent,
-            }
+            Type = descriptor.Name,
         };
 
+        if (!string.IsNullOrWhiteSpace(envelope.TraceParent))
+        {
+            properties.Headers = new Dictionary<string, object?>
+            {
+                ["traceparent"] = envelope.TraceParent,
+            };
+        }
+
         var client = await GetClientAsync();
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload, descriptor.Type);
         using var lease = await client.RentChannelAsync(PublisherChannelName);
 
         await lease.Channel.BasicPublishAsync(
             Options.RabbitMq.ExchangeName!,
-            GetEventTopic<T>(),
+            descriptor.Topic,
             false,
             properties,
             bytes);
@@ -92,14 +99,20 @@ public class RabbitMqDistributedEventBus(
 
             consumer.ReceivedAsync += async (sender, eventArgs) =>
             {
+                var eventConsumer = (AsyncEventingBasicConsumer) sender;// = consumer
                 var routingKey = eventArgs.RoutingKey;
                 var properties = eventArgs.BasicProperties;
                 var body = eventArgs.Body.ToArray();
-                var eventType = properties.Type ?? throw new InvalidOperationException("Event type is null");
+                var eventType = properties.Type ?? throw new InvalidOperationException("Event type cannot be null");
 
                 if (!eventQueue.Events.TryGetValue(eventType, out var eventEntry))
                 {
-                    //Exception
+                    await eventConsumer.Channel.BasicRejectAsync(eventArgs.DeliveryTag, false);
+                    Logger.LogWarning(
+                        "Rejected message from queue '{Queue}' because no event handler is registered for event type '{EventType}'. Routing key: '{RoutingKey}'. This usually indicates the queue is still bound to a routing key that is no longer configured",
+                        queueName,
+                        eventType,
+                        routingKey);
                     return;
                 }
 
@@ -110,7 +123,6 @@ public class RabbitMqDistributedEventBus(
                     await handler.HandleAsync(payload);
                 }
 
-                var eventConsumer = ((AsyncEventingBasicConsumer) sender);// = consumer
                 await eventConsumer.Channel.BasicAckAsync(eventArgs.DeliveryTag, false);
             };
 

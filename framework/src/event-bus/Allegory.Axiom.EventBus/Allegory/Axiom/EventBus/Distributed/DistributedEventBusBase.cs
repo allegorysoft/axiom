@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EventBus.Distributed;
@@ -13,12 +16,14 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public abstract class DistributedEventBusBase : IDistributedEventBus, ISingletonService
 {
     protected DistributedEventBusBase(
+        ILogger<DistributedEventBusBase> logger,
         IOptions<DistributedEventBusOptions> options,
         DistributedEventHandlerManager eventHandlerManager,
         IUnitOfWorkManager unitOfWorkManager,
         IInboxStore inboxStore,
         IOutboxStore outboxStore)
     {
+        Logger = logger;
         Options = options.Value;
         EventHandlerManager = eventHandlerManager;
         UnitOfWorkManager = unitOfWorkManager;
@@ -29,6 +34,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         IsOutboxEnabled = !(OutboxStore is NullOutboxStore || Options.Outbox.UseFor == null);
     }
 
+    protected ILogger<DistributedEventBusBase> Logger { get; }
     protected DistributedEventBusOptions Options { get; }
     protected DistributedEventHandlerManager EventHandlerManager { get; }
     protected IUnitOfWorkManager UnitOfWorkManager { get; }
@@ -37,6 +43,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     protected bool IsInboxEnabled { get; }
     protected bool IsOutboxEnabled { get; }
     protected ConcurrentDictionary<Type, string> EventTopicCache { get; } = [];
+    protected ConcurrentDictionary<Type, DistributedEventDescriptor> EventDescriptorCache { get; } = [];
 
     public virtual async Task PublishAsync<T>(
         T payload,
@@ -116,11 +123,28 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
 
     protected abstract Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope) where T : notnull;
 
-    protected virtual string GetEventTopic<T>()
+    protected virtual DistributedEventDescriptor GetEventDescriptor<T>()
     {
-        // We can't use `Options.GetEvent<T>().Topic` here,
+        // We can't use `Options.GetEvent<T>()` to retrieve the descriptor here,
         // because `T` may not have any registered handlers.
-        return EventTopicCache.GetOrAdd(typeof(T), TopicNameAttribute.Get);
+        // When publishing an event, having a registered handler is not required.
+
+        return EventDescriptorCache.GetOrAdd(
+            typeof(T),
+            static (type, options) =>
+            {
+                var descriptor = options.Events.FirstOrDefault(f => f.Type == type)
+                                 ?? new DistributedEventDescriptor
+                                 {
+                                     Name = typeof(T).FullName
+                                            ?? throw new InvalidOperationException("Event name cannot be null"),
+                                     Topic = TopicNameAttribute.Get(type),
+                                     Type = type,
+                                     Handlers = ImmutableArray<Type>.Empty
+                                 };
+
+                return descriptor;
+            }, Options);
     }
 
     public abstract Task InitializeAsync();
