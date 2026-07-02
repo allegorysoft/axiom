@@ -63,15 +63,15 @@ public class DistributedEventHandlerManager : ISingletonService
             {
                 var eventType = eventHandlerType.GenericTypeArguments.Single();
 
-                if (!events.TryGetValue(eventType.FullName!, out var eventItem))
+                if (!events.TryGetValue(eventType.FullName!, out var eventEntry))
                 {
-                    eventItem = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
+                    eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
                         Options.GetEvent(eventType),
                         ImmutableArray.CreateBuilder<IEventHandler>());
-                    events[eventType.FullName!] = eventItem;
+                    events[eventType.FullName!] = eventEntry;
                 }
 
-                eventItem.Handlers.Add(CreateEventHandler(eventType, service));
+                eventEntry.Handlers.Add(CreateEventHandler(eventType, service));
             }
         }
 
@@ -80,7 +80,7 @@ public class DistributedEventHandlerManager : ISingletonService
             [Options.Queue.Name!] = new(
                 events.ToFrozenDictionary(
                     kvp => kvp.Key,
-                    kvp => new EventRegistration(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())))
+                    kvp => new EventQueueEntry(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())))
         };
 
         return queues.ToFrozenDictionary();
@@ -101,7 +101,7 @@ public class DistributedEventHandlerManager : ISingletonService
                 eventHandlers.Add(CreateEventHandler(descriptor.Type, service));
             }
 
-            var events = new Dictionary<string, EventRegistration>
+            var events = new Dictionary<string, EventQueueEntry>
             {
                 [descriptor.Name] = new(descriptor, eventHandlers.ToImmutable())
             };
@@ -133,21 +133,21 @@ public class DistributedEventHandlerManager : ISingletonService
             {
                 var eventType = eventHandlerType.GenericTypeArguments.Single();
 
-                if (!events.TryGetValue(eventType.FullName!, out var eventItem))
+                if (!events.TryGetValue(eventType.FullName!, out var eventEntry))
                 {
-                    eventItem = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
+                    eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
                         Options.GetEvent(eventType),
                         ImmutableArray.CreateBuilder<IEventHandler>());
-                    events[eventType.FullName!] = eventItem;
+                    events[eventType.FullName!] = eventEntry;
                 }
 
-                eventItem.Handlers.Add(CreateEventHandler(eventType, service));
+                eventEntry.Handlers.Add(CreateEventHandler(eventType, service));
             }
 
             queues[queueName] = new EventQueue(
                 events.ToFrozenDictionary(
                     kvp => kvp.Key,
-                    kvp => new EventRegistration(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())));
+                    kvp => new EventQueueEntry(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())));
         }
 
         return queues.ToFrozenDictionary();
@@ -181,22 +181,22 @@ public class DistributedEventHandlerManager : ISingletonService
                 {
                     var eventType = eventHandlerType.GenericTypeArguments.Single();
 
-                    if (!events.TryGetValue(eventType.FullName!, out var eventItem))
+                    if (!events.TryGetValue(eventType.FullName!, out var eventEntry))
                     {
-                        eventItem = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
+                        eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
                             Options.GetEvent(eventType),
                             ImmutableArray.CreateBuilder<IEventHandler>());
-                        events[eventType.FullName!] = eventItem;
+                        events[eventType.FullName!] = eventEntry;
                     }
 
-                    eventItem.Handlers.Add(CreateEventHandler(eventType, service));
+                    eventEntry.Handlers.Add(CreateEventHandler(eventType, service));
                 }
             }
 
             queues[queueName] = new EventQueue(
                 events.ToFrozenDictionary(
                     kvp => kvp.Key,
-                    kvp => new EventRegistration(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())));
+                    kvp => new EventQueueEntry(kvp.Value.Descriptor, kvp.Value.Handlers.ToImmutable())));
         }
 
         return queues.ToFrozenDictionary();

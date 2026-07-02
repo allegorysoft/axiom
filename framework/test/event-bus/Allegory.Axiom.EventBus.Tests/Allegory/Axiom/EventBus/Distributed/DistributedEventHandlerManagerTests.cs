@@ -49,10 +49,10 @@ public class DistributedEventHandlerManagerTests(IntegrationTestFixture fixture)
         }
 
         // Event1 has two handlers, so its queue must have both handlers within specified order
-        var eventItem = manager.Queues.Values
+        var eventEntry = manager.Queues.Values
             .Single(x => x.Events.ContainsKey(typeof(Event1).FullName!))
             .Events.Single().Value;
-        eventItem.Descriptor.Handlers.ShouldBe([typeof(EventHandler2), typeof(EventHandler1)]);
+        eventEntry.Descriptor.Handlers.ShouldBe([typeof(EventHandler2), typeof(EventHandler1)]);
     }
 
     [Fact]
@@ -79,9 +79,9 @@ public class DistributedEventHandlerManagerTests(IntegrationTestFixture fixture)
         var eventQueue = manager.Queues.Values.Single(q => q.Events.ContainsKey(typeof(Event1).FullName!)
                                                            && q.Events.ContainsKey(typeof(Event2).FullName!));
         eventQueue.Events.Count.ShouldBe(2);
-        foreach (var (_, eventItem) in eventQueue.Events)
+        foreach (var (_, eventEntry) in eventQueue.Events)
         {
-            eventItem.Descriptor.Handlers.ShouldContain(typeof(EventHandler2));
+            eventEntry.Descriptor.Handlers.ShouldContain(typeof(EventHandler2));
         }
     }
 

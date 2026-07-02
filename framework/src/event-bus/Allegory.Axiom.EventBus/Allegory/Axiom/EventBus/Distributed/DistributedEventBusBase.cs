@@ -32,10 +32,10 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     protected DistributedEventBusOptions Options { get; }
     protected DistributedEventHandlerManager EventHandlerManager { get; }
     protected IUnitOfWorkManager UnitOfWorkManager { get; }
-    protected IOutboxStore OutboxStore { get; }
     protected IInboxStore InboxStore { get; }
-    protected bool IsOutboxEnabled { get; }
+    protected IOutboxStore OutboxStore { get; }
     protected bool IsInboxEnabled { get; }
+    protected bool IsOutboxEnabled { get; }
     protected ConcurrentDictionary<Type, string> EventTopicCache { get; } = [];
 
     public virtual async Task PublishAsync<T>(
@@ -123,7 +123,6 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         return EventTopicCache.GetOrAdd(typeof(T), TopicNameAttribute.Get);
     }
 
-    // What if this package initialize after other package use "EventBus.Publish" ?
     public abstract Task InitializeAsync();
 
     // Check inbox is enabled and save to store

@@ -97,15 +97,15 @@ public class RabbitMqDistributedEventBus(
                 var body = eventArgs.Body.ToArray();
                 var eventType = properties.Type ?? throw new InvalidOperationException("Event type is null");
 
-                if (!eventQueue.Events.TryGetValue(eventType, out var eventItem))
+                if (!eventQueue.Events.TryGetValue(eventType, out var eventEntry))
                 {
                     //Exception
                     return;
                 }
 
-                var payload = JsonSerializer.Deserialize(body, eventItem.Descriptor.Type)!;
+                var payload = JsonSerializer.Deserialize(body, eventEntry.Descriptor.Type)!;
 
-                foreach (var handler in eventItem.Handlers)
+                foreach (var handler in eventEntry.Handlers)
                 {
                     await handler.HandleAsync(payload);
                 }

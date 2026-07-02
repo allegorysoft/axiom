@@ -51,15 +51,15 @@ public class DistributedEventBus(
 
         foreach (var queue in EventHandlerManager.Queues.Values)
         {
-            foreach (var (_, eventItem) in queue.Events)
+            foreach (var (_, eventEntry) in queue.Events)
             {
-                if (!handlers.TryGetValue(eventItem.Descriptor.Type, out var builder))
+                if (!handlers.TryGetValue(eventEntry.Descriptor.Type, out var builder))
                 {
                     builder = ImmutableArray.CreateBuilder<IEventHandler>();
-                    handlers[eventItem.Descriptor.Type] = builder;
+                    handlers[eventEntry.Descriptor.Type] = builder;
                 }
 
-                builder.AddRange(eventItem.Handlers);
+                builder.AddRange(eventEntry.Handlers);
             }
         }
 
