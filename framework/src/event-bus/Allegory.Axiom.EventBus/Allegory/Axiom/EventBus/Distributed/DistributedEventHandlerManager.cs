@@ -34,19 +34,14 @@ public class DistributedEventHandlerManager : ISingletonService
             Assembly.GetEntryAssembly()?.GetName().Name
             ?? throw new InvalidOperationException("Event bus queue name cannot be null"));
 
-        switch (Options.Queue.Topology)
+        return Options.Queue.Topology switch
         {
-            case QueueTopology.Single:
-                return BuildSingleQueue();
-            case QueueTopology.PerMessageType:
-                return BuildPerMessageTypeQueue();
-            case QueueTopology.PerHandler:
-                return BuildPerHandlerQueue();
-            case QueueTopology.PerAssembly:
-                return BuildPerAssemblyQueue();
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            QueueTopology.Single => BuildSingleQueue(),
+            QueueTopology.PerMessageType => BuildPerMessageTypeQueue(),
+            QueueTopology.PerHandler => BuildPerHandlerQueue(),
+            QueueTopology.PerAssembly => BuildPerAssemblyQueue(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     protected virtual FrozenDictionary<string, EventQueue> BuildSingleQueue()
