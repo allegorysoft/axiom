@@ -17,8 +17,6 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "paths": {
-      "@axiomframework/react-core": ["libs/core/src/index.ts"]
-    }
+    "paths": {}
   }
 }
