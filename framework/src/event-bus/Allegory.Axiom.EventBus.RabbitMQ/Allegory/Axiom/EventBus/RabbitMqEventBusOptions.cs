@@ -5,5 +5,5 @@ namespace Allegory.Axiom.EventBus;
 public class RabbitMqEventBusOptions
 {
     public string ConnectionName { get; set; } = RabbitMqOptions.DefaultConnectionName;
-    public string ExchangeName { get; set; } = null!;
+    public string? ExchangeName { get; set; }
 }

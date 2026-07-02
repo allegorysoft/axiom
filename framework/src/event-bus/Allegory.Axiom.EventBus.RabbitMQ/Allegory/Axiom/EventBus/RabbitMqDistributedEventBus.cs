@@ -20,17 +20,15 @@ public class RabbitMqDistributedEventBus(
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
-    RabbitMqClientFactory clientFactory,
-    IOptions<RabbitMqEventBusOptions> rabbitMqOptions)
+    RabbitMqClientFactory clientFactory)
     : DistributedEventBusBase(options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
-    protected RabbitMqEventBusOptions RabbitMqOptions { get; } = rabbitMqOptions.Value;
 
     protected virtual async ValueTask<RabbitMqClient> GetClientAsync()
     {
-        return await ClientFactory.GetAsync(RabbitMqOptions.ConnectionName);
+        return await ClientFactory.GetAsync(Options.RabbitMq.ConnectionName);
     }
 
     protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
@@ -51,7 +49,7 @@ public class RabbitMqDistributedEventBus(
         using var lease = await client.RentChannelAsync(PublisherChannelName);
 
         await lease.Channel.BasicPublishAsync(
-            RabbitMqOptions.ExchangeName,
+            Options.RabbitMq.ExchangeName!,
             GetEventTopic<T>(),
             false,
             properties,
@@ -65,7 +63,8 @@ public class RabbitMqDistributedEventBus(
         using (var lease = await client.RentChannelAsync(PublisherChannelName))
         {
             await lease.Channel.ExchangeDeclareAsync(
-                RabbitMqOptions.ExchangeName,
+                Options.RabbitMq.ExchangeName
+                ?? throw new InvalidOperationException("RabbitMQ exchange name cannot be null"),
                 ExchangeType.Direct,
                 durable: true,
                 autoDelete: false);
@@ -85,7 +84,7 @@ public class RabbitMqDistributedEventBus(
             {
                 await lease.Channel.QueueBindAsync(
                     queueName,
-                    RabbitMqOptions.ExchangeName,
+                    Options.RabbitMq.ExchangeName!,
                     topic);
             }
 

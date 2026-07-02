@@ -66,7 +66,7 @@ public static class ExtraPropertiesExtensions
             return defaultValue;
         }
         
-        public T GetOrAddProperty<T>(string name, T defaultValue)
+        public T GetOrAddProperty<T>(string name, Func<T> factory)
         {
             var property = entity.GetProperty<T>(name);
 
@@ -75,8 +75,22 @@ public static class ExtraPropertiesExtensions
                 return property;
             }
 
-            entity.ExtraProperties[name] = defaultValue;
-            return defaultValue;
+            property = factory();
+            entity.ExtraProperties[name] = property;
+            return property;
+        }
+
+        public T GetOrAddProperty<T>(string name, T value)
+        {
+            var property = entity.GetProperty<T>(name);
+
+            if (property != null)
+            {
+                return property;
+            }
+
+            entity.ExtraProperties[name] = value;
+            return value;
         }
 
         public void SetProperty(string name, object? value)
