@@ -3,7 +3,7 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public enum QueueTopology
 {
     Single,
-    PerMessageType,
+    PerEventType,
     PerHandler,
     PerAssembly
 }

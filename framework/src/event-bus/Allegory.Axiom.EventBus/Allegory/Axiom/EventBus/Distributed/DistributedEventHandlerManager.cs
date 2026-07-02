@@ -37,7 +37,7 @@ public class DistributedEventHandlerManager : ISingletonService
         return Options.Queue.Topology switch
         {
             QueueTopology.Single => BuildSingleQueue(),
-            QueueTopology.PerMessageType => BuildPerMessageTypeQueue(),
+            QueueTopology.PerEventType => BuildPerEventTypeQueue(),
             QueueTopology.PerHandler => BuildPerHandlerQueue(),
             QueueTopology.PerAssembly => BuildPerAssemblyQueue(),
             _ => throw new ArgumentOutOfRangeException()
@@ -86,7 +86,7 @@ public class DistributedEventHandlerManager : ISingletonService
         return queues.ToFrozenDictionary();
     }
 
-    protected virtual FrozenDictionary<string, EventQueue> BuildPerMessageTypeQueue()
+    protected virtual FrozenDictionary<string, EventQueue> BuildPerEventTypeQueue()
     {
         var queues = new Dictionary<string, EventQueue>(Options.Events.Length);
 

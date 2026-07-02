@@ -26,14 +26,14 @@ public class DistributedEventHandlerManagerTests(IntegrationTestFixture fixture)
     }
 
     [Fact]
-    public async Task ShouldBuildQueuePerMessageTypeWhenTopologyIsPerMessageType()
+    public async Task ShouldBuildQueuePerEventTypeWhenTopologyIsPerEventType()
     {
         var provider = await fixture.CreateServiceProviderAsync(c =>
         {
             c.Services.Configure<DistributedEventBusOptions>(options =>
             {
                 options.Queue.Name = "orders";
-                options.Queue.Topology = QueueTopology.PerMessageType;
+                options.Queue.Topology = QueueTopology.PerEventType;
             });
         });
 
