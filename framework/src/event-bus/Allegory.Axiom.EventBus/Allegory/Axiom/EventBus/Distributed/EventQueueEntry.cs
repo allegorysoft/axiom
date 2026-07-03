@@ -4,4 +4,4 @@ namespace Allegory.Axiom.EventBus.Distributed;
 
 public readonly record struct EventQueueEntry(
     DistributedEventDescriptor Descriptor,
-    ImmutableArray<IEventHandler> Handlers);
+    ImmutableArray<IDistributedEventHandlerAdapter> Handlers);

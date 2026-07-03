@@ -22,7 +22,7 @@ public class DistributedEventBus(
     IOutboxStore outboxStore)
     : DistributedEventBusBase(logger, options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
 {
-    protected FrozenDictionary<Type, ImmutableArray<IEventHandler>> Handlers { get; set; } = null!;
+    protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
 
     public override Task PublishAsync<T>(
         T payload,
@@ -49,7 +49,7 @@ public class DistributedEventBus(
 
     public override Task InitializeAsync()
     {
-        var handlers = new Dictionary<Type, ImmutableArray<IEventHandler>.Builder>();
+        var handlers = new Dictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>.Builder>();
 
         foreach (var queue in EventHandlerManager.Queues.Values)
         {
@@ -57,7 +57,7 @@ public class DistributedEventBus(
             {
                 if (!handlers.TryGetValue(eventEntry.Descriptor.Type, out var builder))
                 {
-                    builder = ImmutableArray.CreateBuilder<IEventHandler>();
+                    builder = ImmutableArray.CreateBuilder<IDistributedEventHandlerAdapter>();
                     handlers[eventEntry.Descriptor.Type] = builder;
                 }
 

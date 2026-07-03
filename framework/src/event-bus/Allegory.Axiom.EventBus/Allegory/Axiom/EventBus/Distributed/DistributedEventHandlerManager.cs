@@ -49,7 +49,7 @@ public class DistributedEventHandlerManager : ISingletonService
         var handlers = Options.Events.SelectMany(x => x.Handlers).Distinct().ToList();
         var events = new Dictionary<
             string,
-            (DistributedEventDescriptor Descriptor, ImmutableArray<IEventHandler>.Builder Handlers)>();
+            (DistributedEventDescriptor Descriptor, ImmutableArray<IDistributedEventHandlerAdapter>.Builder Handlers)>();
 
         foreach (var handler in handlers)
         {
@@ -65,9 +65,9 @@ public class DistributedEventHandlerManager : ISingletonService
 
                 if (!events.TryGetValue(eventType.FullName!, out var eventEntry))
                 {
-                    eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
+                    eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IDistributedEventHandlerAdapter>.Builder>(
                         Options.GetEvent(eventType),
-                        ImmutableArray.CreateBuilder<IEventHandler>());
+                        ImmutableArray.CreateBuilder<IDistributedEventHandlerAdapter>());
                     events[eventType.FullName!] = eventEntry;
                 }
 
@@ -93,7 +93,7 @@ public class DistributedEventHandlerManager : ISingletonService
         foreach (var descriptor in Options.Events)
         {
             var queueName = string.Concat(Options.Queue.Name, ".", NamingPolicy.ConvertName(descriptor.Type.Name));
-            var eventHandlers = ImmutableArray.CreateBuilder<IEventHandler>(descriptor.Handlers.Length);
+            var eventHandlers = ImmutableArray.CreateBuilder<IDistributedEventHandlerAdapter>(descriptor.Handlers.Length);
 
             foreach (var handler in descriptor.Handlers)
             {
@@ -123,7 +123,7 @@ public class DistributedEventHandlerManager : ISingletonService
             var queueName = string.Concat(Options.Queue.Name, ".", NamingPolicy.ConvertName(handler.Name));
             var events = new Dictionary<
                 string,
-                (DistributedEventDescriptor Descriptor, ImmutableArray<IEventHandler>.Builder Handlers)>();
+                (DistributedEventDescriptor Descriptor, ImmutableArray<IDistributedEventHandlerAdapter>.Builder Handlers)>();
 
             var eventHandlerTypes = handler
                 .GetInterfaces()
@@ -135,9 +135,9 @@ public class DistributedEventHandlerManager : ISingletonService
 
                 if (!events.TryGetValue(eventType.FullName!, out var eventEntry))
                 {
-                    eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
+                    eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IDistributedEventHandlerAdapter>.Builder>(
                         Options.GetEvent(eventType),
-                        ImmutableArray.CreateBuilder<IEventHandler>());
+                        ImmutableArray.CreateBuilder<IDistributedEventHandlerAdapter>());
                     events[eventType.FullName!] = eventEntry;
                 }
 
@@ -168,7 +168,7 @@ public class DistributedEventHandlerManager : ISingletonService
                 handlers.Key.GetName().Name ?? throw new InvalidOperationException("Assembly name cannot be null")));
             var events = new Dictionary<
                 string,
-                (DistributedEventDescriptor Descriptor, ImmutableArray<IEventHandler>.Builder Handlers)>();
+                (DistributedEventDescriptor Descriptor, ImmutableArray<IDistributedEventHandlerAdapter>.Builder Handlers)>();
 
             foreach (var handler in handlers)
             {
@@ -183,9 +183,9 @@ public class DistributedEventHandlerManager : ISingletonService
 
                     if (!events.TryGetValue(eventType.FullName!, out var eventEntry))
                     {
-                        eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IEventHandler>.Builder>(
+                        eventEntry = new ValueTuple<DistributedEventDescriptor, ImmutableArray<IDistributedEventHandlerAdapter>.Builder>(
                             Options.GetEvent(eventType),
-                            ImmutableArray.CreateBuilder<IEventHandler>());
+                            ImmutableArray.CreateBuilder<IDistributedEventHandlerAdapter>());
                         events[eventType.FullName!] = eventEntry;
                     }
 
@@ -202,9 +202,9 @@ public class DistributedEventHandlerManager : ISingletonService
         return queues.ToFrozenDictionary();
     }
 
-    protected virtual IEventHandler CreateEventHandler(Type eventType, object service)
+    protected virtual IDistributedEventHandlerAdapter CreateEventHandler(Type eventType, object service)
     {
-        var handlerType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
-        return (IEventHandler) Activator.CreateInstance(handlerType, service)!;
+        var handlerType = typeof(DistributedEventHandlerAdapter<>).MakeGenericType(eventType);
+        return (IDistributedEventHandlerAdapter) Activator.CreateInstance(handlerType, service)!;
     }
 }

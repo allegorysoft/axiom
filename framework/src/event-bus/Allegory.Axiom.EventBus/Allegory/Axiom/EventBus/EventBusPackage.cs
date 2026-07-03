@@ -49,7 +49,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
 
     private static void RegisterEvents(IHostApplicationBuilder builder)
     {
-        var targetAssembly = typeof(IEventHandler<>).Assembly;
+        var targetAssembly = typeof(EventOrderAttribute).Assembly;
 
         var assemblies = builder.GetAxiomApplication().Assemblies
             .Where(a => a.GetReferencedAssemblies()
