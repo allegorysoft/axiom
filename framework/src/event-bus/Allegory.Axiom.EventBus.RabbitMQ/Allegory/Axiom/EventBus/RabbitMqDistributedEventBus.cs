@@ -103,7 +103,15 @@ public class RabbitMqDistributedEventBus(
                 var routingKey = eventArgs.RoutingKey;
                 var properties = eventArgs.BasicProperties;
                 var body = eventArgs.Body.ToArray();
+
+                if (!Guid.TryParse(properties.MessageId, out var eventId))
+                {
+                    throw new InvalidOperationException("Event id must be a valid GUID");
+                }
                 var eventType = properties.Type ?? throw new InvalidOperationException("Event type cannot be null");
+                properties.Headers?.TryGetValue("traceparent", out var traceparent);
+                var cancellationToken = eventArgs.CancellationToken; // Link with lifetime.ApplicationStopping
+                //ServiceProvider
 
                 if (!eventQueue.Events.TryGetValue(eventType, out var eventEntry))
                 {
