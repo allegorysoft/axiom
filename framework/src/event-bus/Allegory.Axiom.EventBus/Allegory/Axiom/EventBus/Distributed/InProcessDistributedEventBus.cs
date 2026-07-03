@@ -17,10 +17,12 @@ public class DistributedEventBus(
     ILogger<DistributedEventBus> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
+    DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
     IOutboxStore outboxStore)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
+    : DistributedEventBusBase(
+        logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
 

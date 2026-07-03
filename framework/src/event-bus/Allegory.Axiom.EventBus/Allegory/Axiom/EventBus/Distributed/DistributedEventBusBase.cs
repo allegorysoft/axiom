@@ -19,6 +19,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         ILogger<DistributedEventBusBase> logger,
         IOptions<DistributedEventBusOptions> options,
         DistributedEventHandlerManager eventHandlerManager,
+        DistributedEventProcessor eventProcessor,
         IUnitOfWorkManager unitOfWorkManager,
         IInboxStore inboxStore,
         IOutboxStore outboxStore)
@@ -26,6 +27,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         Logger = logger;
         Options = options.Value;
         EventHandlerManager = eventHandlerManager;
+        EventProcessor = eventProcessor;
         UnitOfWorkManager = unitOfWorkManager;
         OutboxStore = outboxStore;
         InboxStore = inboxStore;
@@ -37,12 +39,12 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     protected ILogger<DistributedEventBusBase> Logger { get; }
     protected DistributedEventBusOptions Options { get; }
     protected DistributedEventHandlerManager EventHandlerManager { get; }
+    protected DistributedEventProcessor EventProcessor { get; }
     protected IUnitOfWorkManager UnitOfWorkManager { get; }
     protected IInboxStore InboxStore { get; }
     protected IOutboxStore OutboxStore { get; }
     protected bool IsInboxEnabled { get; }
     protected bool IsOutboxEnabled { get; }
-    protected ConcurrentDictionary<Type, string> EventTopicCache { get; } = [];
     protected ConcurrentDictionary<Type, DistributedEventDescriptor> EventDescriptorCache { get; } = [];
 
     public virtual async Task PublishAsync<T>(
@@ -150,8 +152,5 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     public abstract Task InitializeAsync();
 
     // Check inbox is enabled and save to store
-    // Create uow, before handler invoke
-    // Create Activity, and use SetParent(traceparent)
     // Use "IntegrationEvent" suffix; `OrderCreatedIntegrationEvent`
-    // We might create TriggerHandler method for this. (EventBus.Initialize and InboxWorker can use)
 }

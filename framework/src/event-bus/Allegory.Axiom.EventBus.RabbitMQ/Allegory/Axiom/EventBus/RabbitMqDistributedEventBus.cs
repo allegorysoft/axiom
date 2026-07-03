@@ -19,11 +19,12 @@ public class RabbitMqDistributedEventBus(
     ILogger<RabbitMqDistributedEventBus> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
+    DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
     RabbitMqClientFactory clientFactory)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, unitOfWorkManager, inboxStore, outboxStore)
+    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
@@ -104,14 +105,13 @@ public class RabbitMqDistributedEventBus(
                 var properties = eventArgs.BasicProperties;
                 var body = eventArgs.Body.ToArray();
 
-                if (!Guid.TryParse(properties.MessageId, out var eventId))
-                {
-                    throw new InvalidOperationException("Event id must be a valid GUID");
-                }
+                Guid.TryParse(properties.MessageId, out var eventId);
                 var eventType = properties.Type ?? throw new InvalidOperationException("Event type cannot be null");
-                properties.Headers?.TryGetValue("traceparent", out var traceparent);
-                var cancellationToken = eventArgs.CancellationToken; // Link with lifetime.ApplicationStopping
-                //ServiceProvider
+                string? traceparent = null;
+                if (properties.Headers != null && properties.Headers.TryGetValue("traceparent", out var traceParentId))
+                {
+                    traceparent = traceParentId!.ToString();
+                }
 
                 if (!eventQueue.Events.TryGetValue(eventType, out var eventEntry))
                 {
@@ -126,10 +126,12 @@ public class RabbitMqDistributedEventBus(
 
                 var payload = JsonSerializer.Deserialize(body, eventEntry.Descriptor.Type)!;
 
-                foreach (var handler in eventEntry.Handlers)
-                {
-                    await handler.HandleAsync(payload);
-                }
+                await EventProcessor.ProcessAsync(
+                    eventEntry.Handlers,
+                    eventId,
+                    payload,
+                    traceparent: traceparent,
+                    cancellationToken: eventArgs.CancellationToken);
 
                 await eventConsumer.Channel.BasicAckAsync(eventArgs.DeliveryTag, false);
             };
