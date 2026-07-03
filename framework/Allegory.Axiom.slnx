@@ -56,7 +56,7 @@
   <Folder Name="/src/unit-of-work/">
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
     <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
-    <Project Path="src\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork\Allegory.Axiom.AspNetCore.UnitOfWork.csproj" />
+    <Project Path="src/unit-of-work/Allegory.Axiom.AspNetCore.UnitOfWork/Allegory.Axiom.AspNetCore.UnitOfWork.csproj" />
   </Folder>
   <Folder Name="/test/" />
   <Folder Name="/test/aspnetcore/">
@@ -68,7 +68,7 @@
   </Folder>
   <Folder Name="/test/event-bus/">
     <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />
-    <Project Path="test\event-bus\Allegory.Axiom.EventBus.RabbitMQ.Tests\Allegory.Axiom.EventBus.RabbitMQ.Tests.csproj" />
+    <Project Path="test/event-bus/Allegory.Axiom.EventBus.RabbitMQ.Tests/Allegory.Axiom.EventBus.RabbitMQ.Tests.csproj" />
   </Folder>
   <Folder Name="/test/file-provider/">
     <Project Path="test/file-provider/Allegory.Axiom.FileProvider.Tests/Allegory.Axiom.FileProvider.Tests.csproj" />
@@ -97,6 +97,7 @@
     <Project Path="test/playground/Allegory.Axiom.Assembly1/Allegory.Axiom.Assembly1.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly2/Allegory.Axiom.Assembly2.csproj" />
     <Project Path="test/playground/Allegory.Axiom.Assembly3/Allegory.Axiom.Assembly3.csproj" />
+    <Project Path="test/playground/Allegory.Axiom.ConsoleApp/Allegory.Axiom.ConsoleApp.csproj" />
   </Folder>
   <Folder Name="/test/security/">
     <Project Path="test/security/Allegory.Axiom.AspNetCore.Security.Tests/Allegory.Axiom.AspNetCore.Security.Tests.csproj" />
@@ -104,6 +105,6 @@
   </Folder>
   <Folder Name="/test/unit-of-work/">
     <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
-    <Project Path="test\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork.Tests\Allegory.Axiom.AspNetCore.UnitOfWork.Tests.csproj" />
+    <Project Path="test/unit-of-work/Allegory.Axiom.AspNetCore.UnitOfWork.Tests/Allegory.Axiom.AspNetCore.UnitOfWork.Tests.csproj" />
   </Folder>
 </Solution>
