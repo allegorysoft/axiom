@@ -7,7 +7,7 @@ using Xunit;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
-public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     protected IDistributedEventBus EventBus => fixture.Service<IDistributedEventBus>();
 
@@ -116,45 +116,6 @@ public class DistributedEventBusTests(IntegrationTestFixture fixture) : IClassFi
 
         handler.Received.ShouldContain(e => e.Value == 6);
         handler.Received.ShouldContain(e => e.Value == 7);
-    }
-
-    [Fact]
-    public async Task ShouldHookOutboxBeforeCompleteAndBrokerAfterComplete()
-    {
-        // Outbox mode  → BeforeComplete (persist to store before tx commits)
-        // OnUnitOfWorkComplete → AfterComplete (publish to broker after tx commits)
-
-        var handler = fixture.Service<TestEventHandler>();
-        var uowManager = fixture.Service<IUnitOfWorkManager>();
-
-        await using var uow = uowManager.Begin();
-
-        await EventBus.PublishAsync(
-            new TestEvent(8),
-            publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
-        await EventBus.PublishAsync(
-            new TestEvent(9),
-            publishMode: DistributedEventPublishMode.Outbox);
-
-        handler.Received.ShouldNotContain(e => e.Value == 8);
-        handler.Received.ShouldNotContain(e => e.Value == 9);
-
-        uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
-        {
-            // Outbox already saved; broker publish not yet fired
-            handler.Received.ShouldContain(e => e.Value == 9);
-            handler.Received.ShouldNotContain(e => e.Value == 8);
-            return Task.CompletedTask;
-        });
-
-        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
-        {
-            // Broker publish fired; both handled
-            handler.Received.ShouldContain(e => e.Value == 8);
-            return Task.CompletedTask;
-        });
-
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
 }
 

@@ -13,8 +13,8 @@ using Microsoft.Extensions.Options;
 namespace Allegory.Axiom.EventBus.Distributed;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
-public class DistributedEventBus(
-    ILogger<DistributedEventBus> logger,
+public class InProcessDistributedEventBus(
+    ILogger<InProcessDistributedEventBus> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
     DistributedEventProcessor eventProcessor,
@@ -26,26 +26,56 @@ public class DistributedEventBus(
 {
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
 
-    public override Task PublishAsync<T>(
+    public override async Task PublishAsync<T>(
         T payload,
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
     {
-        return Handlers.ContainsKey(typeof(T))
-            ? base.PublishAsync(payload, publishMode)
-            : Task.CompletedTask;
+        if (!Handlers.ContainsKey(typeof(T)))
+        {
+            return;
+        }
+
+        publishMode = GetPublishMode<T>(publishMode);
+        var envelope = new EventEnvelope<T>
+        {
+            Id = Guid.NewGuid(),
+            Payload = payload,
+        };
+
+        switch (publishMode)
+        {
+            case DistributedEventPublishMode.Immediate:
+                await PublishToMessageBrokerAsync(envelope);
+                return;
+
+            case DistributedEventPublishMode.OnUnitOfWorkComplete:
+                UnitOfWorkManager.Current!.AddHook(
+                    UnitOfWorkHookPoint.BeforeComplete,
+                    () => PublishToMessageBrokerAsync(envelope));
+                return;
+
+            case DistributedEventPublishMode.Outbox:
+            case DistributedEventPublishMode.Auto:
+            default:
+                throw new ArgumentOutOfRangeException(nameof(publishMode), publishMode, null);
+        }
     }
 
-    protected override Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
-        => InvokeHandlersAsync<T>(envelope.Payload);
+    protected override DistributedEventPublishMode GetPublishMode<T>(DistributedEventPublishMode publishMode)
+    {
+        if (publishMode == DistributedEventPublishMode.Immediate || UnitOfWorkManager.Current == null)
+        {
+            return DistributedEventPublishMode.Immediate;
+        }
 
-    protected override Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope)
-        => InvokeHandlersAsync<T>(envelope.Payload);
+        return DistributedEventPublishMode.OnUnitOfWorkComplete;
+    }
 
-    protected virtual async Task InvokeHandlersAsync<T>(object payload)
+    protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
     {
         foreach (var handler in Handlers[typeof(T)])
         {
-            await handler.HandleAsync(payload);
+            await handler.HandleAsync(envelope.Payload, new EventContext());
         }
     }
 
