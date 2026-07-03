@@ -2,11 +2,14 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,10 +23,11 @@ public class InProcessDistributedEventBus(
     DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
-    IOutboxStore outboxStore)
-    : DistributedEventBusBase(
-        logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
+    IOutboxStore outboxStore,
+    IServiceScopeFactory serviceScopeFactory)
+    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
 {
+    protected IServiceScopeFactory ServiceScopeFactory { get; } = serviceScopeFactory;
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
 
     public override async Task PublishAsync<T>(
@@ -71,11 +75,25 @@ public class InProcessDistributedEventBus(
         return DistributedEventPublishMode.OnUnitOfWorkComplete;
     }
 
+    protected override Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope)
+    {
+        throw new UnreachableException("Outbox publishing cannot be used with the in-process event bus.");
+    }
+
     protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
     {
+        using var scope = ServiceScopeFactory.CreateScope();
+
+        var context = new EventContext
+        {
+            Id = envelope.Id,
+            CancellationToken = CancellationToken.None,
+            ServiceProvider = scope.ServiceProvider
+        };
+
         foreach (var handler in Handlers[typeof(T)])
         {
-            await handler.HandleAsync(envelope.Payload, new EventContext());
+            await handler.HandleAsync(envelope.Payload, context);
         }
     }
 
