@@ -170,7 +170,7 @@ file class TestEventHandler : IDistributedEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
 
-    public Task HandleAsync(TestEvent payload)
+    public Task HandleAsync(TestEvent payload, EventContext context)
     {
         Received.Add(payload);
         return Task.CompletedTask;
@@ -181,7 +181,7 @@ file class TestEventHandler2 : IDistributedEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
 
-    public Task HandleAsync(TestEvent payload)
+    public Task HandleAsync(TestEvent payload, EventContext context)
     {
         Received.Add(payload);
         return Task.CompletedTask;
@@ -192,7 +192,7 @@ file class ValueTestEventHandler : IDistributedEventHandler<ValueTestEvent>
 {
     public List<ValueTestEvent> Received { get; } = [];
 
-    public Task HandleAsync(ValueTestEvent payload)
+    public Task HandleAsync(ValueTestEvent payload, EventContext context)
     {
         Received.Add(payload);
         return Task.CompletedTask;
@@ -201,6 +201,6 @@ file class ValueTestEventHandler : IDistributedEventHandler<ValueTestEvent>
 
 file class ThrowingTestEventHandler : IDistributedEventHandler<ThrowingTestEvent>
 {
-    public Task HandleAsync(ThrowingTestEvent payload) =>
+    public Task HandleAsync(ThrowingTestEvent payload, EventContext context) =>
         throw new InvalidOperationException("handler-failure");
 }

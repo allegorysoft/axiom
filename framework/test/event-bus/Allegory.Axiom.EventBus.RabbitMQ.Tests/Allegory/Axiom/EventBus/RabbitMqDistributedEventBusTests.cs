@@ -24,7 +24,7 @@ public record Event1 {}
 
 public class EventHandler1 : IDistributedEventHandler<Event1>
 {
-    public async Task HandleAsync(Event1 payload)
+    public async Task HandleAsync(Event1 payload, EventContext context)
     {
         await Task.Delay(10_000);
     }

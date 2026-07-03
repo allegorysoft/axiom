@@ -113,24 +113,24 @@ file class Event2 {}
 
 file class EventHandler1 : IDistributedEventHandler<Event1>
 {
-    public Task HandleAsync(Event1 payload) => Task.CompletedTask;
+    public Task HandleAsync(Event1 payload, EventContext context) => Task.CompletedTask;
 }
 
 [EventOrder(-1)]
 file class EventHandler2 : IDistributedEventHandler<Event2>, IDistributedEventHandler<Event1>
 {
-    public Task HandleAsync(Event2 payload) => Task.CompletedTask;
-    public Task HandleAsync(Event1 payload) => Task.CompletedTask;
+    public Task HandleAsync(Event2 payload, EventContext context) => Task.CompletedTask;
+    public Task HandleAsync(Event1 payload, EventContext context) => Task.CompletedTask;
 }
 
 file record TestEvent;
 
 file class TestEventHandler1 : IDistributedEventHandler<TestEvent>
 {
-    public Task HandleAsync(TestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(TestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
 file class TestEventHandler2 : IDistributedEventHandler<TestEvent>
 {
-    public Task HandleAsync(TestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(TestEvent payload, EventContext context) => Task.CompletedTask;
 }

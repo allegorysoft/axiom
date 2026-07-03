@@ -14,5 +14,5 @@ public interface IDistributedEventHandler {}
 /// <typeparam name="T">The event payload type.</typeparam>
 public interface IDistributedEventHandler<in T> : IDistributedEventHandler
 {
-    Task HandleAsync(T payload);
+    Task HandleAsync(T payload, EventContext context);
 }

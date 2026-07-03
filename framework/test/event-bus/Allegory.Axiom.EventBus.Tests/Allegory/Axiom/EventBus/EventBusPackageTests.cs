@@ -66,7 +66,7 @@ file record DistributedTestEvent {}
 
 file class DistributedTestEventHandler : IDistributedEventHandler<DistributedTestEvent>
 {
-    public Task HandleAsync(DistributedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(DistributedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
 file record OrderedTestEvent {}
@@ -92,17 +92,17 @@ file class OrderedTestEventHandler1 : ILocalEventHandler<OrderedTestEvent>
 [EventOrder(2)]
 file class DistributedOrderedTestEventHandler2 : IDistributedEventHandler<OrderedTestEvent>
 {
-    public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
 [EventOrder(3)]
 file class DistributedOrderedTestEventHandler3 : IDistributedEventHandler<OrderedTestEvent>
 {
-    public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
 [EventOrder(1)]
 file class DistributedOrderedTestEventHandler1 : IDistributedEventHandler<OrderedTestEvent>
 {
-    public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
