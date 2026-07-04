@@ -5,14 +5,14 @@ using RabbitMQ.Client;
 
 namespace Allegory.Axiom.RabbitMQ;
 
-public class RabbitMqChannel(RabbitMqClient client) : IDisposable, IAsyncDisposable
+public class RabbitMqChannel(RabbitMqConnection connection) : IDisposable, IAsyncDisposable
 {
     public IChannel Channel
     {
         get => IsCreated ? field : throw new InvalidOperationException("RabbitMQ channel is not created");
         protected set;
     } = null!;
-    protected RabbitMqClient Client { get; } = client;
+    protected RabbitMqConnection Connection { get; } = connection;
     protected bool IsCreated { get; set; }
     protected internal SemaphoreSlim Semaphore { get; } = new(1, 1);
 
@@ -43,7 +43,7 @@ public class RabbitMqChannel(RabbitMqClient client) : IDisposable, IAsyncDisposa
 
     protected virtual async Task<IChannel> CreateChannelAsync(CreateChannelOptions? options = null)
     {
-        return await Client.Connection.CreateChannelAsync(options);
+        return await Connection.Connection.CreateChannelAsync(options);
     }
 
     public virtual void Dispose()

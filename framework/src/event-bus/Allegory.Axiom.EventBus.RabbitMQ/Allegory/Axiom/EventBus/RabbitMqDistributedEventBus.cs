@@ -23,15 +23,15 @@ public class RabbitMqDistributedEventBus(
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
-    RabbitMqClientFactory clientFactory)
+    RabbitMqConnectionFactory connectionFactory)
     : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
-    protected RabbitMqClientFactory ClientFactory { get; } = clientFactory;
+    protected RabbitMqConnectionFactory ConnectionFactory { get; } = connectionFactory;
 
-    protected virtual async ValueTask<RabbitMqClient> GetClientAsync()
+    protected virtual async ValueTask<RabbitMqConnection> GetConnectionAsync()
     {
-        return await ClientFactory.GetAsync(Options.RabbitMq.ConnectionName);
+        return await ConnectionFactory.GetAsync(Options.RabbitMq.ConnectionName);
     }
 
     protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
@@ -52,9 +52,9 @@ public class RabbitMqDistributedEventBus(
             };
         }
 
-        var client = await GetClientAsync();
+        var connection = await GetConnectionAsync();
         var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload, descriptor.Type);
-        using var lease = await client.RentChannelAsync(PublisherChannelName);
+        using var lease = await connection.RentChannelAsync(PublisherChannelName);
 
         await lease.Channel.BasicPublishAsync(
             Options.RabbitMq.ExchangeName!,
@@ -66,9 +66,9 @@ public class RabbitMqDistributedEventBus(
 
     public override async Task InitializeAsync()
     {
-        var client = await GetClientAsync();
+        var connection = await GetConnectionAsync();
 
-        using (var lease = await client.RentChannelAsync(PublisherChannelName))
+        using (var lease = await connection.RentChannelAsync(PublisherChannelName))
         {
             await lease.Channel.ExchangeDeclareAsync(
                 Options.RabbitMq.ExchangeName
@@ -80,7 +80,7 @@ public class RabbitMqDistributedEventBus(
 
         foreach (var (queueName, eventQueue) in EventHandlerManager.Queues)
         {
-            var lease = await client.RentChannelAsync(queueName);
+            var lease = await connection.RentChannelAsync(queueName);
             var queueOption = Options.RabbitMq.Queue.Get(queueName);
 
             await lease.Channel.QueueDeclareAsync(

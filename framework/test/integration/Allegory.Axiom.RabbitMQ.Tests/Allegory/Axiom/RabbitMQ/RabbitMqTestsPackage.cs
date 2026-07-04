@@ -38,8 +38,8 @@ internal sealed class RabbitMqTestsPackage : IConfigureApplication
 
             o[RabbitMqOptions.DefaultConnectionName] = option;
 
-            // Multiple clients can connect to the same RabbitMQ server.
-            // Each client creates its own TCP connection.
+            // Multiple connections can connect to the same RabbitMQ server.
+            // Each connection creates its own TCP connection.
             o[SecondConnectionName] = option;
         });
     }

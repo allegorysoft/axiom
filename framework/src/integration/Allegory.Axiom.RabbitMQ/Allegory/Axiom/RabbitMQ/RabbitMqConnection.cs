@@ -7,7 +7,7 @@ using RabbitMQ.Client;
 
 namespace Allegory.Axiom.RabbitMQ;
 
-public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposable
+public class RabbitMqConnection(RabbitMqOption option) : IDisposable, IAsyncDisposable
 {
     public IConnection Connection
     {
