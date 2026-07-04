@@ -107,8 +107,8 @@ public class RabbitMqDistributedEventBus(
             consumer.ReceivedAsync += async (sender, eventArgs) =>
             {
                 //Enqueue task to thread pool
-                //Handle try-catch (dead-letter-queue)
                 //Handle dispose during mid-flight event process
+                //Handle try-catch (dead-letter-queue)
 
                 var eventConsumer = (AsyncEventingBasicConsumer) sender;// = consumer
                 var routingKey = eventArgs.RoutingKey;
@@ -137,7 +137,7 @@ public class RabbitMqDistributedEventBus(
                 var payload = JsonSerializer.Deserialize(body, eventEntry.Descriptor.Type)!;
 
                 await EventProcessor.ProcessAsync(
-                    eventEntry.Handlers,
+                    eventEntry,
                     eventId,
                     payload,
                     traceparent: traceparent,

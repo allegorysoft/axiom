@@ -20,7 +20,7 @@ public class DistributedEventProcessor(
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
 
     public virtual async Task ProcessAsync(
-        IEnumerable<IDistributedEventHandlerAdapter> handlers,
+        EventQueueEntry entry,
         Guid id,
         object payload,
         string? traceparent = null,
@@ -39,7 +39,7 @@ public class DistributedEventProcessor(
 
         try
         {
-            foreach (var handler in handlers)
+            foreach (var handler in entry.Handlers)
             {
                 await handler.HandleAsync(payload, context);
             }
