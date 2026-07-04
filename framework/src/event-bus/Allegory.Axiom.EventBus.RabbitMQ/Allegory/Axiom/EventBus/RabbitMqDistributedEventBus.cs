@@ -81,12 +81,18 @@ public class RabbitMqDistributedEventBus(
         foreach (var (queueName, eventQueue) in EventHandlerManager.Queues)
         {
             var lease = await client.RentChannelAsync(queueName);
+            var queueOption = Options.RabbitMq.Queue.Get(queueName);
 
             await lease.Channel.QueueDeclareAsync(
                 queueName,
                 durable: true,
                 exclusive: false,
                 autoDelete: false);
+
+            await lease.Channel.BasicQosAsync(
+                queueOption.PrefetchSize,
+                queueOption.PrefetchCount,
+                queueOption.Global);
 
             foreach (var topic in eventQueue.Events.Select(x => x.Value.Descriptor.Topic))
             {
@@ -100,6 +106,10 @@ public class RabbitMqDistributedEventBus(
 
             consumer.ReceivedAsync += async (sender, eventArgs) =>
             {
+                //Enqueue task to thread pool
+                //Handle try-catch (dead-letter-queue)
+                //Handle dispose during mid-flight event process
+
                 var eventConsumer = (AsyncEventingBasicConsumer) sender;// = consumer
                 var routingKey = eventArgs.RoutingKey;
                 var properties = eventArgs.BasicProperties;
