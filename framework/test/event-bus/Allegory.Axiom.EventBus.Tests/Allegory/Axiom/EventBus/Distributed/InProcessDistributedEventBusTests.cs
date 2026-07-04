@@ -91,42 +91,23 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
         await EventBus.PublishAsync(
             new TestEvent(5),
             publishMode: DistributedEventPublishMode.Outbox);
+        await EventBus.PublishAsync(
+            new TestEvent(6),
+            publishMode: DistributedEventPublishMode.Auto);
 
         handler.Received.ShouldContain(e => e.Value == 4);
         handler.Received.ShouldContain(e => e.Value == 5);
-    }
-
-    [Fact]
-    public async Task ShouldDeferHandlerUntilUnitOfWorkCompletes()
-    {
-        var handler = fixture.Service<TestEventHandler>();
-        var uowManager = fixture.Service<IUnitOfWorkManager>();
-
-        await using var uow = uowManager.Begin();
-
-        await EventBus.PublishAsync(
-            new TestEvent(6),
-            publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
-        await EventBus.PublishAsync(
-            new TestEvent(7),
-            publishMode: DistributedEventPublishMode.Outbox);
-
-        handler.Received.ShouldNotContain(e => e.Value == 6);
-        handler.Received.ShouldNotContain(e => e.Value == 7);
-
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
-
         handler.Received.ShouldContain(e => e.Value == 6);
-        handler.Received.ShouldContain(e => e.Value == 7);
     }
 
     [Fact]
-    public async Task ShouldHookOutboxAndBrokerBeforeComplete()
+    public async Task ShouldInvokeHandlerOnUnitOfWorkHookBeforeCompleteWhenPublishModeIsNotImmediateAndActiveUnitOfWork()
     {
         // The in-process event bus does not support the Outbox pattern.
         // Outbox mode is treated as OnUnitOfWorkComplete.
-        // Outbox               -> BeforeComplete
         // OnUnitOfWorkComplete -> BeforeComplete
+        // Outbox               -> BeforeComplete
+        // Auto                 -> BeforeComplete
 
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
@@ -134,17 +115,22 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
         await using var uow = uowManager.Begin();
 
         await EventBus.PublishAsync(
-            new TestEvent(8),
+            new TestEvent(7),
             publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
         await EventBus.PublishAsync(
-            new TestEvent(9),
+            new TestEvent(8),
             publishMode: DistributedEventPublishMode.Outbox);
+        await EventBus.PublishAsync(
+            new TestEvent(9),
+            publishMode: DistributedEventPublishMode.Auto);
 
+        handler.Received.ShouldNotContain(e => e.Value == 7);
         handler.Received.ShouldNotContain(e => e.Value == 8);
         handler.Received.ShouldNotContain(e => e.Value == 9);
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
         {
+            handler.Received.ShouldContain(e => e.Value == 7);
             handler.Received.ShouldContain(e => e.Value == 8);
             handler.Received.ShouldContain(e => e.Value == 9);
             return Task.CompletedTask;

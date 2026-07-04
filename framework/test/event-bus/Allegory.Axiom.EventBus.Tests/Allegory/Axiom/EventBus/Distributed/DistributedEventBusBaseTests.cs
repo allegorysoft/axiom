@@ -39,9 +39,43 @@ public class DistributedEventBusBaseTests : IntegrationTest
     }
 
     [Fact]
-    public async Task ShouldHookOutboxBeforeCompleteAndBrokerAfterComplete()
+    public async Task ShouldPublishImmediatelyWhenPublishModeIsImmediate()
     {
-        // Outbox mode  → BeforeComplete (persist to store before tx commits)
+        var handler = Service<TestEventHandler>();
+        var uowManager = Service<IUnitOfWorkManager>();
+
+        await using var uow = uowManager.Begin();
+        await EventBus.PublishAsync(new TestEvent(1), publishMode: DistributedEventPublishMode.Immediate);
+
+        // Immediate skips unit of work entirely, no hook wait needed
+        handler.Received.ShouldContain(e => e.Value == 1);
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task ShouldPublishImmediatelyWhenNoActiveUnitOfWork()
+    {
+        var handler = Service<TestEventHandler>();
+
+        await EventBus.PublishAsync(
+            new TestEvent(2),
+            publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
+        await EventBus.PublishAsync(
+            new TestEvent(3),
+            publishMode: DistributedEventPublishMode.Outbox);
+        await EventBus.PublishAsync(
+            new TestEvent(4),
+            publishMode: DistributedEventPublishMode.Auto);
+
+        handler.Received.ShouldContain(e => e.Value == 2);
+        handler.Received.ShouldContain(e => e.Value == 3);
+        handler.Received.ShouldContain(e => e.Value == 4);
+    }
+
+    [Fact]
+    public async Task ShouldPublishOnUnitOfWorkHookAfterCompleteWhenPublishModeIsOnUnitOfWorkComplete()
+    {
         // OnUnitOfWorkComplete → AfterComplete (publish to broker after tx commits)
 
         var handler = Service<TestEventHandler>();
@@ -50,26 +84,106 @@ public class DistributedEventBusBaseTests : IntegrationTest
         await using var uow = uowManager.Begin();
 
         await EventBus.PublishAsync(
-            new TestEvent(8),
+            new TestEvent(5),
             publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
-        await EventBus.PublishAsync(
-            new TestEvent(9),
-            publishMode: DistributedEventPublishMode.Outbox);
 
-        handler.Received.ShouldNotContain(e => e.Value == 8);
-        handler.Received.ShouldNotContain(e => e.Value == 9);
+        handler.Received.ShouldNotContain(e => e.Value == 5);
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
         {
-            // Outbox already saved; broker publish not yet fired
-            handler.Received.ShouldContain(e => e.Value == 9);
+            handler.Received.ShouldNotContain(e => e.Value == 5);
+            return Task.CompletedTask;
+        });
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            handler.Received.ShouldContain(e => e.Value == 5);
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task ShouldPublishOnUnitOfWorkHookBeforeCompleteWhenPublishModeIsOutbox()
+    {
+        // Outbox mode  → BeforeComplete (persist to store before tx commits)
+
+        var handler = Service<TestEventHandler>();
+        var uowManager = Service<IUnitOfWorkManager>();
+
+        await using var uow = uowManager.Begin();
+
+        await EventBus.PublishAsync(
+            new TestEvent(6),
+            publishMode: DistributedEventPublishMode.Outbox);
+
+        handler.Received.ShouldNotContain(e => e.Value == 6);
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
+        {
+            handler.Received.ShouldContain(e => e.Value == 6);
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task ShouldPublishOnUnitOfWorkHookBeforeCompleteWhenPublishModeIsAutoAndOutboxEnabled()
+    {
+        // Outbox.UseFor matches all types and IsOutboxEnabled is true (see ConfigureAsync)
+        var handler = Service<TestEventHandler>();
+        var uowManager = Service<IUnitOfWorkManager>();
+
+        await using var uow = uowManager.Begin();
+        await EventBus.PublishAsync(new TestEvent(7), publishMode: DistributedEventPublishMode.Auto);
+
+        handler.Received.ShouldNotContain(e => e.Value == 7);
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
+        {
+            // Outbox hooks BeforeComplete
+            handler.Received.ShouldContain(e => e.Value == 7);
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+    }
+
+    [Fact]
+    public async Task ShouldPublishOnUnitOfWorkHookAfterCompleteWhenPublishModeIsAutoAndOutboxDisabled()
+    {
+        var provider = await CreateServiceProviderAsync(async (builder) =>
+        {
+            await ConfigureAsync(builder);
+            builder.Services.Configure<DistributedEventBusOptions>(o =>
+            {
+                // DistributedEventBusBase.IsOutboxEnabled is false
+                o.Outbox.UseFor = static _ => false;
+            });
+        });
+
+
+        var eventBus = provider.GetRequiredService<IDistributedEventBus>();
+        var handler = provider.GetRequiredService<TestEventHandler>();
+        var uowManager = provider.GetRequiredService<IUnitOfWorkManager>();
+
+        await using var uow = uowManager.Begin();
+        await eventBus.PublishAsync(new TestEvent(8), publishMode: DistributedEventPublishMode.Auto);
+
+        handler.Received.ShouldNotContain(e => e.Value == 8);
+
+        uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
+        {
+            // Outbox hooks BeforeComplete
             handler.Received.ShouldNotContain(e => e.Value == 8);
             return Task.CompletedTask;
         });
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
         {
-            // Broker publish fired; both handled
+            // Outbox hooks BeforeComplete
             handler.Received.ShouldContain(e => e.Value == 8);
             return Task.CompletedTask;
         });
