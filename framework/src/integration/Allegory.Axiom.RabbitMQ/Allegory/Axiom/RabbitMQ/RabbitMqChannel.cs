@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using RabbitMQ.Client;
@@ -15,6 +16,7 @@ public class RabbitMqChannel(RabbitMqConnection connection) : IDisposable, IAsyn
     protected RabbitMqConnection Connection { get; } = connection;
     protected bool IsCreated { get; set; }
     protected internal SemaphoreSlim Semaphore { get; } = new(1, 1);
+    protected HashSet<string> ConsumerTags { get; } = [];
 
     protected internal virtual async Task TryCreateChannelAsync(CreateChannelOptions? options = null)
     {
@@ -44,6 +46,23 @@ public class RabbitMqChannel(RabbitMqConnection connection) : IDisposable, IAsyn
     protected virtual async Task<IChannel> CreateChannelAsync(CreateChannelOptions? options = null)
     {
         return await Connection.Connection.CreateChannelAsync(options);
+    }
+
+    public virtual async Task BasicConsumeAsync(string queue, bool autoAck, IAsyncBasicConsumer consumer)
+    {
+        var consumerTag = await Channel.BasicConsumeAsync(
+            queue: queue,
+            autoAck: false,
+            consumer: consumer);
+        ConsumerTags.Add(consumerTag);
+    }
+
+    protected internal virtual async Task GracefulShutdownAsync()
+    {
+        foreach (var consumerTag in ConsumerTags)
+        {
+            await Channel.BasicCancelAsync(consumerTag);
+        }
     }
 
     public virtual void Dispose()
