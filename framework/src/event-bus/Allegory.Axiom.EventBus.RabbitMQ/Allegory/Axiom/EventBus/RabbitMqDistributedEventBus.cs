@@ -11,7 +11,6 @@ using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace Allegory.Axiom.EventBus;
 
@@ -67,84 +66,63 @@ public class RabbitMqDistributedEventBus(
     public override async Task InitializeAsync()
     {
         var connection = await GetConnectionAsync();
-
-        using (var lease = await connection.RentChannelAsync(PublisherChannelName))
-        {
-            await lease.Channel.ExchangeDeclareAsync(
-                Options.RabbitMq.ExchangeName
-                ?? throw new InvalidOperationException("RabbitMQ exchange name cannot be null"),
-                ExchangeType.Direct,
-                durable: true,
-                autoDelete: false);
-        }
+        await DefineExchangeAsync(connection);
 
         foreach (var (queueName, eventQueue) in EventHandlerManager.Queues)
         {
             var lease = await connection.RentChannelAsync(queueName);
-            var queueOption = Options.RabbitMq.Queue.Get(queueName);
-
-            await lease.Channel.QueueDeclareAsync(
-                queueName,
-                durable: true,
-                exclusive: false,
-                autoDelete: false);
-
-            await lease.Channel.BasicQosAsync(
-                queueOption.PrefetchSize,
-                queueOption.PrefetchCount,
-                queueOption.Global);
-
-            foreach (var topic in eventQueue.Events.Select(x => x.Value.Descriptor.Topic))
-            {
-                await lease.Channel.QueueBindAsync(
-                    queueName,
-                    Options.RabbitMq.ExchangeName!,
-                    topic);
-            }
-
-            var consumer = new AsyncEventingBasicConsumer(lease.Channel);
-
-            consumer.ReceivedAsync += async (sender, eventArgs) =>
-            {
-                //Enqueue task to thread pool
-                //Handle dispose during mid-flight event process
-                //Handle try-catch (dead-letter-queue)
-
-                var eventConsumer = (AsyncEventingBasicConsumer) sender;// = consumer
-                var routingKey = eventArgs.RoutingKey;
-                var properties = eventArgs.BasicProperties;
-
-                Guid.TryParse(properties.MessageId, out var eventId);
-                var eventType = properties.Type ?? throw new InvalidOperationException("Event type cannot be null");
-                string? traceparent = null;
-                if (properties.Headers != null && properties.Headers.TryGetValue("traceparent", out var traceParentId))
-                {
-                    traceparent = traceParentId!.ToString();
-                }
-
-                if (!eventQueue.Events.TryGetValue(eventType, out var eventEntry))
-                {
-                    await eventConsumer.Channel.BasicRejectAsync(eventArgs.DeliveryTag, false);
-                    Logger.LogMissingHandler(queueName, eventType, eventArgs.RoutingKey);
-                    return;
-                }
-
-                var payload = JsonSerializer.Deserialize(eventArgs.Body.Span, eventEntry.Descriptor.Type)!;
-
-                await EventProcessor.ProcessAsync(
-                    eventEntry,
-                    eventId,
-                    payload,
-                    traceparent: traceparent,
-                    cancellationToken: eventArgs.CancellationToken);
-
-                await eventConsumer.Channel.BasicAckAsync(eventArgs.DeliveryTag, false);
-            };
-
-            await lease.Channel.BasicConsumeAsync(
-                queue: queueName,
-                autoAck: false,
-                consumer: consumer);
+            await DefineQueueAsync(lease.RabbitMqChannel, queueName, eventQueue);
+            await DefineConsumerAsync(lease.RabbitMqChannel, queueName, eventQueue);
         }
+    }
+
+    protected virtual async Task DefineExchangeAsync(RabbitMqConnection connection)
+    {
+        using var lease = await connection.RentChannelAsync(PublisherChannelName);
+
+        await lease.Channel.ExchangeDeclareAsync(
+            Options.RabbitMq.ExchangeName ?? throw new InvalidOperationException("RabbitMQ exchange name cannot be null"),
+            ExchangeType.Direct,
+            durable: true,
+            autoDelete: false);
+    }
+
+    protected virtual async Task DefineQueueAsync(
+        RabbitMqChannel channel,
+        string queueName,
+        EventQueue eventQueue)
+    {
+        await channel.Channel.QueueDeclareAsync(
+            queueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false);
+
+        foreach (var topic in eventQueue.Events.Select(x => x.Value.Descriptor.Topic))
+        {
+            await channel.Channel.QueueBindAsync(
+                queueName,
+                Options.RabbitMq.ExchangeName!,
+                topic);
+        }
+
+        var queueOption = Options.RabbitMq.Queue.Get(queueName);
+        await channel.Channel.BasicQosAsync(
+            queueOption.PrefetchSize,
+            queueOption.PrefetchCount,
+            queueOption.Global);
+    }
+
+    protected virtual async Task DefineConsumerAsync(
+        RabbitMqChannel channel,
+        string queueName,
+        EventQueue eventQueue)
+    {
+        var eventConsumer = new RabbitMqEventConsumer(channel, queueName, eventQueue, Logger, EventProcessor);
+
+        await channel.BasicConsumeAsync(
+            queue: queueName,
+            autoAck: false,
+            consumer: eventConsumer.Consumer);
     }
 }
