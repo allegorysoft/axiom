@@ -11,11 +11,11 @@ public class RabbitMqConnectionFactory(
     : ISingletonService, IDisposable, IAsyncDisposable
 {
     protected RabbitMqOptions Options { get; } = options.Value;
-    protected ConcurrentDictionary<string, RabbitMqConnection> Clients { get; } = [];
+    protected ConcurrentDictionary<string, RabbitMqConnection> Connections { get; } = [];
 
     public virtual async ValueTask<RabbitMqConnection> GetAsync(string name)
     {
-        var client = Clients.GetOrAdd(
+        var connection = Connections.GetOrAdd(
             name,
             static (key, options) =>
             {
@@ -25,23 +25,23 @@ public class RabbitMqConnectionFactory(
             },
             Options);
 
-        await client.TryCreateConnectionAsync();
-        return client;
+        await connection.TryCreateConnectionAsync();
+        return connection;
     }
 
     public void Dispose()
     {
-        foreach (var client in Clients.Values)
+        foreach (var connection in Connections.Values)
         {
-            client.Dispose();
+            connection.Dispose();
         }
     }
 
     public async ValueTask DisposeAsync()
     {
-        foreach (var client in Clients.Values)
+        foreach (var connection in Connections.Values)
         {
-            await client.DisposeAsync();
+            await connection.DisposeAsync();
         }
     }
 }
