@@ -79,7 +79,6 @@ public class RabbitMqConnection(RabbitMqOption option) : IDisposable, IAsyncDisp
             Password = Option.Password,
             VirtualHost = Option.VirtualHost,
             ClientProvidedName = Option.ClientProvidedName ?? Assembly.GetEntryAssembly()?.GetName().Name,
-            ConsumerDispatchConcurrency = Option.ConsumerDispatchConcurrency
         };
 
         if (Option.Hostnames != null)
@@ -92,14 +91,6 @@ public class RabbitMqConnection(RabbitMqOption option) : IDisposable, IAsyncDisp
         return await factory.CreateConnectionAsync();
     }
 
-    protected internal virtual async Task GracefulShutdownAsync()
-    {
-        await Parallel.ForEachAsync(Channels.Values, async (rabbitMqChannel, ct) =>
-        {
-            await rabbitMqChannel.GracefulShutdownAsync();
-        });
-    }
-    
     public virtual void Dispose()
     {
         foreach (var channel in Channels.Values)
