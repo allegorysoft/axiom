@@ -79,6 +79,7 @@ public class RabbitMqConnection(RabbitMqOption option) : IDisposable, IAsyncDisp
             Password = Option.Password,
             VirtualHost = Option.VirtualHost,
             ClientProvidedName = Option.ClientProvidedName ?? Assembly.GetEntryAssembly()?.GetName().Name,
+            ConsumerDispatchConcurrency = Option.ConsumerDispatchConcurrency
         };
 
         if (Option.Hostnames != null)
