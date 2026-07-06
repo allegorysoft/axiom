@@ -113,7 +113,6 @@ public class RabbitMqDistributedEventBus(
                 var eventConsumer = (AsyncEventingBasicConsumer) sender;// = consumer
                 var routingKey = eventArgs.RoutingKey;
                 var properties = eventArgs.BasicProperties;
-                var body = eventArgs.Body.ToArray();
 
                 Guid.TryParse(properties.MessageId, out var eventId);
                 var eventType = properties.Type ?? throw new InvalidOperationException("Event type cannot be null");
@@ -126,15 +125,11 @@ public class RabbitMqDistributedEventBus(
                 if (!eventQueue.Events.TryGetValue(eventType, out var eventEntry))
                 {
                     await eventConsumer.Channel.BasicRejectAsync(eventArgs.DeliveryTag, false);
-                    Logger.LogWarning(
-                        "Rejected message from queue '{Queue}' because no event handler is registered for event type '{EventType}'. Routing key: '{RoutingKey}'. This usually indicates the queue is still bound to a routing key that is no longer configured",
-                        queueName,
-                        eventType,
-                        routingKey);
+                    Logger.LogMissingHandler(queueName, eventType, eventArgs.RoutingKey);
                     return;
                 }
 
-                var payload = JsonSerializer.Deserialize(body, eventEntry.Descriptor.Type)!;
+                var payload = JsonSerializer.Deserialize(eventArgs.Body.Span, eventEntry.Descriptor.Type)!;
 
                 await EventProcessor.ProcessAsync(
                     eventEntry,
