@@ -14,46 +14,35 @@ internal sealed class EventBusRabbitMqTestsPackage : IPostConfigureApplication
 {
     public static async Task PostConfigureAsync(IHostApplicationBuilder builder)
     {
-        // var container = new RabbitMqBuilder("rabbitmq:latest")
-        //     .WithUsername("guest")
-        //     .WithPassword("guest")
-        //     .Build();
-        //
-        // await builder.AddTestContainerAsync(container);
-        //
-        // builder.Services.Configure<RabbitMqOptions>(o =>
-        // {
-        //     var option = new RabbitMqOption
-        //     {
-        //         Factory = _ =>
-        //         {
-        //             var connectionFactory = new ConnectionFactory
-        //             {
-        //                 Uri = new Uri(container.GetConnectionString())
-        //             };
-        //
-        //             return connectionFactory.CreateConnectionAsync();
-        //         }
-        //     };
-        //
-        //     o[RabbitMqOptions.DefaultConnectionName] = option;
-        // });
+        var container = new RabbitMqBuilder("rabbitmq:latest")
+            .WithUsername("guest")
+            .WithPassword("guest")
+            .Build();
+
+        await builder.AddTestContainerAsync(container);
 
         builder.Services.Configure<RabbitMqOptions>(o =>
         {
             var option = new RabbitMqOption
             {
-                Hostname = "localhost",
-                Username = "guest",
-                Password = "guest",
+                Factory = _ =>
+                {
+                    var connectionFactory = new ConnectionFactory
+                    {
+                        Uri = new Uri(container.GetConnectionString()),
+                        //Uri = new Uri("amqp://guest:guest@127.0.0.1:5672/")
+                    };
+
+                    return connectionFactory.CreateConnectionAsync();
+                }
             };
-        
+
             o[RabbitMqOptions.DefaultConnectionName] = option;
         });
 
         builder.Services.Configure<DistributedEventBusOptions>(options =>
         {
-            options.RabbitMq.ExchangeName = "app-pool-1";
+            options.RabbitMq.ExchangeName = "event-bus-tests";
         });
     }
 }
