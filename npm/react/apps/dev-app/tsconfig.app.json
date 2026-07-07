@@ -19,7 +19,8 @@
     "**/.server/**/*.ts",
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
-    "**/.client/**/*.tsx"
+    "**/.client/**/*.tsx",
+    "../../libs/theme/src/components/index.ts"
   ],
   "exclude": [
     "out-tsc",
