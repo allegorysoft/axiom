@@ -20,9 +20,10 @@ public class DistributedEventProcessor(
     protected IServiceScopeFactory ServiceScopeFactory { get; set; } = serviceScopeFactory;
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
     protected IHostApplicationLifetime ApplicationLifetime { get; } = applicationLifetime;
-    protected int PendingProcesses = 0;
-    
-    public virtual async Task ProcessAsync(
+    protected internal int PendingProcesses;
+    protected internal TaskCompletionSource? TaskCompletionSource;
+
+    public virtual async Task<DistributedEventProcessCounter> ProcessAsync(
         EventQueueEntry entry,
         Guid id,
         object payload,
@@ -31,8 +32,9 @@ public class DistributedEventProcessor(
     {
         ApplicationLifetime.ApplicationStopping.ThrowIfCancellationRequested();
 
+        var processCounter = new DistributedEventProcessCounter(this);
         using var activity = GetActivity(traceparent, id);
-        await using var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions());
+        await using var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
         using var scope = ServiceScopeFactory.CreateScope();
         var context = new EventContext
         {
@@ -51,11 +53,13 @@ public class DistributedEventProcessor(
         }
         catch (Exception e)
         {
+            processCounter.Dispose();
             await uow.TryRollbackAsync(e, cancellationToken: cancellationToken);
             throw;
         }
 
         await uow.TryCompleteAsync(cancellationToken);
+        return processCounter;
     }
 
     protected virtual Activity? GetActivity(string? traceparent, Guid id)
@@ -76,19 +80,19 @@ public class DistributedEventProcessor(
 
         return activity;
     }
-}
 
-readonly file ref struct TaskCounter : IDisposable
-{
-    public readonly ref int PendingProcesses;
-    public TaskCounter(ref int pendingProcesses) 
+    public virtual async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
     {
-        PendingProcesses = ref pendingProcesses;
-        Interlocked.Increment(ref pendingProcesses);
-    }
-    public void Dispose()
-    {
-        Interlocked.Decrement(ref PendingProcesses);
-        // TODO release managed resources here
+        if (Interlocked.CompareExchange(ref TaskCompletionSource, new TaskCompletionSource(), null) != null)
+        {
+            return;
+        }
+
+        if (Volatile.Read(ref PendingProcesses) == 0)
+        {
+            return;
+        }
+
+        await TaskCompletionSource.Task.WaitAsync(cancellationToken);
     }
 }

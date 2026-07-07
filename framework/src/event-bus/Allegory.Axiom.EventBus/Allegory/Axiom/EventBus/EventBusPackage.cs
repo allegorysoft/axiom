@@ -17,6 +17,9 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
+        // We don't need for InProcessDistributedEventBus
+        builder.Services.AddHostedService<DistributedEventProcessorCompletionService>();
+
         builder.Services.Configure<DistributedEventBusOptions>(
             builder.Configuration.GetSection("Axiom:EventBus:Distributed"));
 
