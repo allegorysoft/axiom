@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.RabbitMQ;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client.Events;
 
@@ -14,8 +15,9 @@ public class RabbitMqEventConsumer
         RabbitMqChannel channel,
         string queueName,
         EventQueue eventQueue,
-        ILogger logger,
-        DistributedEventProcessor processor)
+        ILogger<RabbitMqEventConsumer> logger,
+        DistributedEventProcessor processor,
+        IHostApplicationLifetime applicationLifetime)
     {
         QueueName = queueName;
         Channel = channel;
@@ -25,23 +27,22 @@ public class RabbitMqEventConsumer
 
         Consumer = new AsyncEventingBasicConsumer(channel.Channel);
         Consumer.ReceivedAsync += OnReceivedAsync;
+        applicationLifetime.ApplicationStopping.Register(() => Consumer.ReceivedAsync -= OnReceivedAsync);
     }
 
     public AsyncEventingBasicConsumer Consumer { get; }
     protected string QueueName { get; }
     protected RabbitMqChannel Channel { get; }
     protected EventQueue EventQueue { get; }
-    protected ILogger Logger { get; }
+    protected ILogger<RabbitMqEventConsumer> Logger { get; }
     protected DistributedEventProcessor Processor { get; }
 
     protected virtual async Task OnReceivedAsync(object sender, BasicDeliverEventArgs eventArgs)
     {
         var properties = eventArgs.BasicProperties;
 
-        try 
+        try
         {
-            eventArgs.CancellationToken.ThrowIfCancellationRequested();
-
             if (!Guid.TryParse(properties.MessageId, out var eventId))
             {
                 throw new InvalidOperationException("Event id cannot be parsed");

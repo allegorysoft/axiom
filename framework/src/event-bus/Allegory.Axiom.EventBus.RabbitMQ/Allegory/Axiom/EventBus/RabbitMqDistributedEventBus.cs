@@ -8,6 +8,7 @@ using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.RabbitMQ;
 using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
@@ -22,11 +23,13 @@ public class RabbitMqDistributedEventBus(
     IUnitOfWorkManager unitOfWorkManager,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
-    RabbitMqConnectionFactory connectionFactory)
+    RabbitMqConnectionFactory connectionFactory,
+    IServiceProvider serviceProvider)
     : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqConnectionFactory ConnectionFactory { get; } = connectionFactory;
+    public IServiceProvider ServiceProvider { get; } = serviceProvider;
 
     protected virtual async ValueTask<RabbitMqConnection> GetConnectionAsync()
     {
@@ -118,9 +121,15 @@ public class RabbitMqDistributedEventBus(
         string queueName,
         EventQueue eventQueue)
     {
-        var eventConsumer = new RabbitMqEventConsumer(channel, queueName, eventQueue, Logger, EventProcessor);
+        // Use only singleton services
+        // Otherwise we should create service scope 
+        var eventConsumer = ActivatorUtilities.CreateInstance<RabbitMqEventConsumer>(
+            ServiceProvider,
+            channel,
+            queueName,
+            eventQueue);
 
-        await channel.BasicConsumeAsync(
+        await channel.Channel.BasicConsumeAsync(
             queue: queueName,
             autoAck: false,
             consumer: eventConsumer.Consumer);

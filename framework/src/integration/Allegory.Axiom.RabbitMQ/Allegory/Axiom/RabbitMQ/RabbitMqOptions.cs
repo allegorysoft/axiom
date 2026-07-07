@@ -21,5 +21,5 @@ public class RabbitMqOption
     public string? Password { get; set; }
     public string VirtualHost { get; set; } = "/";
     public string? ClientProvidedName { get; set; }
-    public ushort ConsumerDispatchConcurrency { get; set; } = 1;
+    public ushort ConsumerDispatchConcurrency { get; set; } = (ushort)Environment.ProcessorCount;
 }
