@@ -29,7 +29,7 @@ public class RabbitMqDistributedEventBus(
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqConnectionFactory ConnectionFactory { get; } = connectionFactory;
-    public IServiceProvider ServiceProvider { get; } = serviceProvider;
+    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
 
     protected virtual async ValueTask<RabbitMqConnection> GetConnectionAsync()
     {
@@ -69,11 +69,15 @@ public class RabbitMqDistributedEventBus(
     public override async Task InitializeAsync()
     {
         var connection = await GetConnectionAsync();
+
         await DefineExchangeAsync(connection);
 
         foreach (var (queueName, eventQueue) in EventHandlerManager.Queues)
         {
-            var lease = await connection.RentChannelAsync(queueName);
+            // We explicitly don't dispose leased consumer channel here, since they must remain
+            // open for the lifetime of the consumer.
+            var lease = await connection.RentChannelAsync($"event-bus.{queueName}");
+
             await DefineQueueAsync(lease.RabbitMqChannel, queueName, eventQueue);
             await DefineConsumerAsync(lease.RabbitMqChannel, queueName, eventQueue);
         }
@@ -121,8 +125,10 @@ public class RabbitMqDistributedEventBus(
         string queueName,
         EventQueue eventQueue)
     {
-        // Use only singleton services
-        // Otherwise we should create service scope 
+        // RabbitMqEventConsumer is created using the root ServiceProvider, so only singleton
+        // services can be safely injected into it. Scoped or transient dependencies must not be
+        // resolved here directly instead, create an IServiceScope (e.g. via IServiceScopeFactory)
+        // within the consumer to resolve them per-message/per-invocation.
         var eventConsumer = ActivatorUtilities.CreateInstance<RabbitMqEventConsumer>(
             ServiceProvider,
             channel,
