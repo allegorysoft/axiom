@@ -356,3 +356,5 @@ MigrationBackup/
 # VitePress
 **/.vitepress/cache
 **/.vitepress/dist
+
+npm/**/dist

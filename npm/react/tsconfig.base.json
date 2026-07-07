@@ -17,6 +17,11 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "paths": {}
+    "paths": {
+      "@axiomframework/react-theme": ["./libs/theme/src/index.ts"],
+      "@axiomframework/react-theme/components": [
+        "./libs/theme/src/components/index.ts"
+      ]
+    }
   }
 }

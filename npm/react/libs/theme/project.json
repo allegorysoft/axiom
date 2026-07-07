@@ -1,0 +1,16 @@
+{
+  "name": "theme",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/theme",
+  "sourceRoot": "libs/theme/src",
+  "projectType": "library",
+  "tags": ["scope:theme"],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "options": {
+        "outputPath": "dist/libs/theme"
+      }
+    }
+  }
+}
