@@ -13,10 +13,16 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.EventBus;
 
-internal sealed class EventBusPackage : IConfigureApplication, IPostConfigureApplication, IInitializeApplication
+internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
+        // We don't need for InProcessDistributedEventBus
+        builder.Services.AddHostedService<DistributedEventProcessorCompletionService>();
+
+        builder.Services.Configure<DistributedEventBusOptions>(
+            builder.Configuration.GetSection("Axiom:EventBus:Distributed"));
+
         RegisterEvents(builder);
 
         // Configure in Inbox/Outbox package
@@ -24,9 +30,18 @@ internal sealed class EventBusPackage : IConfigureApplication, IPostConfigureApp
         // {
         //     options.Inbox.IsWorkerEnabled = true;
         //     options.Inbox.UseFor ??= static _ => true;
-        //
+
         //     options.Outbox.IsWorkerEnabled = true;
         //     options.Outbox.UseFor ??= static _ => true;
+
+        // We should give configuration (appsettings.json) to priority 
+        // builder.Configuration.GetSection(
+        //         "Axiom:EventBus:Distributed:Inbox")
+        //     .Bind(options.Inbox);
+        // builder.Configuration.GetSection(
+        //         "Axiom:EventBus:Distributed:Outbox")
+        //     .Bind(options.Outbox);
+
         // });
         //
         // builder.Services.AddHostedService<InboxWorker>();
@@ -37,7 +52,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IPostConfigureApp
 
     private static void RegisterEvents(IHostApplicationBuilder builder)
     {
-        var targetAssembly = typeof(IEventHandler<>).Assembly;
+        var targetAssembly = typeof(EventOrderAttribute).Assembly;
 
         var assemblies = builder.GetAxiomApplication().Assemblies
             .Where(a => a.GetReferencedAssemblies()
@@ -113,14 +128,6 @@ internal sealed class EventBusPackage : IConfigureApplication, IPostConfigureApp
                 .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
             .GroupBy(x => x.EventType, x => x.HandlerType)
             .ToFrozenDictionary(g => g.Key, g => g.OrderBy(EventOrderAttribute.Get).ToImmutableArray());
-    }
-
-    public static Task PostConfigureAsync(IHostApplicationBuilder builder)
-    {
-        builder.Services.Configure<DistributedEventBusOptions>(
-            builder.Configuration.GetSection("Axiom:EventBus:Distributed"));
-
-        return Task.CompletedTask;
     }
 
     public static async Task InitializeAsync(IHost host)

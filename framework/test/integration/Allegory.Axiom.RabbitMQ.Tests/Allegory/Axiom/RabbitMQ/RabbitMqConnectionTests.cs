@@ -6,17 +6,17 @@ using Xunit;
 
 namespace Allegory.Axiom.RabbitMQ;
 
-public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class RabbitMqConnectionTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected async Task<RabbitMqClient> GetClientAsync()
-        => await fixture.Service<RabbitMqClientFactory>()
+    protected async Task<RabbitMqConnection> GetConnectionAsync()
+        => await fixture.Service<RabbitMqConnectionFactory>()
             .GetAsync(RabbitMqOptions.DefaultConnectionName);
 
     [Fact]
     public async Task ShouldGetChannel()
     {
-        var client = await GetClientAsync();
-        var channel = await client.GetChannelAsync("ch-open");
+        var connection = await GetConnectionAsync();
+        var channel = await connection.GetChannelAsync("ch-open");
 
         channel.ShouldNotBeNull();
         channel.Channel.IsOpen.ShouldBeTrue();
@@ -25,10 +25,10 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
     [Fact]
     public async Task ShouldReturnSameChannelInstanceForSameName()
     {
-        var client = await GetClientAsync();
+        var connection = await GetConnectionAsync();
 
-        var first = await client.GetChannelAsync("ch-cache");
-        var second = await client.GetChannelAsync("ch-cache");
+        var first = await connection.GetChannelAsync("ch-cache");
+        var second = await connection.GetChannelAsync("ch-cache");
 
         second.ShouldBeSameAs(first);
     }
@@ -36,10 +36,10 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
     [Fact]
     public async Task ShouldReturnDistinctChannelsForDistinctNames()
     {
-        var client = await GetClientAsync();
+        var connection = await GetConnectionAsync();
 
-        var ch1 = await client.GetChannelAsync("ch-distinct-1");
-        var ch2 = await client.GetChannelAsync("ch-distinct-2");
+        var ch1 = await connection.GetChannelAsync("ch-distinct-1");
+        var ch2 = await connection.GetChannelAsync("ch-distinct-2");
 
         ch2.ShouldNotBeSameAs(ch1);
     }
@@ -47,12 +47,12 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
     [Fact]
     public async Task ShouldHandleConcurrentGetChannelAsyncCallsSafely()
     {
-        var client = await GetClientAsync();
+        var connection = await GetConnectionAsync();
         var results = new RabbitMqChannel[8];
 
         await Parallel.ForAsync(0, 8, async (i, _) =>
         {
-            results[i] = await client.GetChannelAsync("ch-concurrent");
+            results[i] = await connection.GetChannelAsync("ch-concurrent");
         });
 
         for (var i = 1; i < 8; i++)
@@ -64,9 +64,9 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
     [Fact]
     public async Task ShouldRentChannel()
     {
-        var client = await GetClientAsync();
+        var connection = await GetConnectionAsync();
 
-        using var lease = await client.RentChannelAsync("ch-rent");
+        using var lease = await connection.RentChannelAsync("ch-rent");
 
         lease.Channel.ShouldNotBeNull();
         lease.Channel.IsOpen.ShouldBeTrue();
@@ -77,14 +77,14 @@ public class RabbitMqClientTests(IntegrationTestFixture fixture) : IClassFixture
     {
         const int degree = 8;
 
-        var client = await GetClientAsync();
+        var connection = await GetConnectionAsync();
         var enter = new List<int>();
         var outer = new List<int>();
 
         await Parallel.ForAsync(0, degree, async (_, _) =>
         {
             var number = Random.Shared.Next();
-            using var lease = await client.RentChannelAsync("ch-exclusive");
+            using var lease = await connection.RentChannelAsync("ch-exclusive");
             enter.Add(number);
             await Task.Yield();
             outer.Add(number);

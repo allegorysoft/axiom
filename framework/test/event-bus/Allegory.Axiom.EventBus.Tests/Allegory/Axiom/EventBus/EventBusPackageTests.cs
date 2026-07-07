@@ -16,8 +16,8 @@ public class EventBusPackageTests(IntegrationTestFixture fixture) : IClassFixtur
     [Fact]
     public void ShouldRegisterLocalEvents()
     {
-        var eventItem = LocalOptions.Events.Single(x => x.Key == typeof(LocalTestEvent));
-        eventItem.Value.ShouldBe([typeof(LocalTestEventHandler)]);
+        var eventEntry = LocalOptions.Events.Single(x => x.Key == typeof(LocalTestEvent));
+        eventEntry.Value.ShouldBe([typeof(LocalTestEventHandler)]);
 
         var handler = fixture.Service<LocalTestEventHandler>();
         handler.ShouldNotBeNull();
@@ -26,10 +26,10 @@ public class EventBusPackageTests(IntegrationTestFixture fixture) : IClassFixtur
     [Fact]
     public void ShouldRegisterDistributedEvents()
     {
-        var eventItem = DistributedOptions.Events.Single(x => x.Type == typeof(DistributedTestEvent));
-        eventItem.Name.ShouldBe(typeof(DistributedTestEvent).FullName);
-        eventItem.Topic.ShouldBe("test.distributed-event-1");
-        eventItem.Handlers.ShouldBe([typeof(DistributedTestEventHandler)]);
+        var eventEntry = DistributedOptions.Events.Single(x => x.Type == typeof(DistributedTestEvent));
+        eventEntry.Name.ShouldBe(typeof(DistributedTestEvent).FullName);
+        eventEntry.Topic.ShouldBe("test.distributed-event-1");
+        eventEntry.Handlers.ShouldBe([typeof(DistributedTestEventHandler)]);
 
         var handler = fixture.Service<DistributedTestEventHandler>();
         handler.ShouldNotBeNull();
@@ -66,7 +66,7 @@ file record DistributedTestEvent {}
 
 file class DistributedTestEventHandler : IDistributedEventHandler<DistributedTestEvent>
 {
-    public Task HandleAsync(DistributedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(DistributedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
 file record OrderedTestEvent {}
@@ -92,17 +92,17 @@ file class OrderedTestEventHandler1 : ILocalEventHandler<OrderedTestEvent>
 [EventOrder(2)]
 file class DistributedOrderedTestEventHandler2 : IDistributedEventHandler<OrderedTestEvent>
 {
-    public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
 [EventOrder(3)]
 file class DistributedOrderedTestEventHandler3 : IDistributedEventHandler<OrderedTestEvent>
 {
-    public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
 [EventOrder(1)]
 file class DistributedOrderedTestEventHandler1 : IDistributedEventHandler<OrderedTestEvent>
 {
-    public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
+    public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }

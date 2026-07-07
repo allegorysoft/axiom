@@ -5,20 +5,20 @@ using Xunit;
 
 namespace Allegory.Axiom.RabbitMQ;
 
-public class RabbitMqClientFactoryTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class RabbitMqConnectionFactoryTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    protected RabbitMqClientFactory Factory => fixture.Service<RabbitMqClientFactory>();
+    protected RabbitMqConnectionFactory Factory => fixture.Service<RabbitMqConnectionFactory>();
 
     [Fact]
-    public async Task ShouldGetClient()
+    public async Task ShouldGetConnection()
     {
-        var client = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
-        client.ShouldNotBeNull();
-        client.Connection.IsOpen.ShouldBeTrue();
+        var connection = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
+        connection.ShouldNotBeNull();
+        connection.Connection.IsOpen.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task ShouldReturnSameClientInstanceForSameName()
+    public async Task ShouldReturnSameConnectionInstanceForSameName()
     {
         var first = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
         var second = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
@@ -34,19 +34,19 @@ public class RabbitMqClientFactoryTests(IntegrationTestFixture fixture) : IClass
     }
 
     [Fact]
-    public async Task ShouldCreateDistinctClientsForDistinctNames()
+    public async Task ShouldCreateDistinctConnectionsForDistinctNames()
     {
-        var client1 = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
-        var client2 = await Factory.GetAsync(RabbitMqTestsPackage.SecondConnectionName);
+        var connection1 = await Factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
+        var connection2 = await Factory.GetAsync(RabbitMqTestsPackage.SecondConnectionName);
 
-        client1.ShouldNotBeSameAs(client2);
+        connection1.ShouldNotBeSameAs(connection2);
     }
 
     [Fact]
     public async Task ShouldHandleConcurrentGetAsyncCallsSafely()
     {
         const int degree = 8;
-        var results = new RabbitMqClient[degree];
+        var results = new RabbitMqConnection[degree];
 
         await Parallel.ForAsync(0, degree, async (i, _) =>
         {

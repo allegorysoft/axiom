@@ -16,27 +16,27 @@ public class LocalEventHandlerManager : ISingletonService
     {
         Options = options.Value;
         ServiceProvider = serviceProvider;
-        LazyHandlers = new Lazy<FrozenDictionary<Type, ImmutableArray<IEventHandler>>>(BuildHandlers);
+        LazyHandlers = new Lazy<FrozenDictionary<Type, ImmutableArray<ILocalEventHandlerAdapter>>>(BuildHandlers);
     }
 
-    public FrozenDictionary<Type, ImmutableArray<IEventHandler>> Handlers => LazyHandlers.Value;
+    public FrozenDictionary<Type, ImmutableArray<ILocalEventHandlerAdapter>> Handlers => LazyHandlers.Value;
     protected LocalEventBusOptions Options { get; }
     protected IServiceProvider ServiceProvider { get; }
-    protected Lazy<FrozenDictionary<Type, ImmutableArray<IEventHandler>>> LazyHandlers { get; }
+    protected Lazy<FrozenDictionary<Type, ImmutableArray<ILocalEventHandlerAdapter>>> LazyHandlers { get; }
 
-    protected virtual FrozenDictionary<Type, ImmutableArray<IEventHandler>> BuildHandlers()
+    protected virtual FrozenDictionary<Type, ImmutableArray<ILocalEventHandlerAdapter>> BuildHandlers()
     {
-        var dictionary = new Dictionary<Type, ImmutableArray<IEventHandler>>(Options.Events.Count);
+        var dictionary = new Dictionary<Type, ImmutableArray<ILocalEventHandlerAdapter>>(Options.Events.Count);
 
         foreach (var (eventType, handlerTypes) in Options.Events)
         {
-            var serviceType = typeof(ServiceEventHandler<>).MakeGenericType(eventType);
-            var handlers = ImmutableArray.CreateBuilder<IEventHandler>(handlerTypes.Length);
+            var serviceType = typeof(LocalEventHandlerAdapter<>).MakeGenericType(eventType);
+            var handlers = ImmutableArray.CreateBuilder<ILocalEventHandlerAdapter>(handlerTypes.Length);
 
             foreach (var handler in handlerTypes)
             {
                 var service = ServiceProvider.GetRequiredService(handler);
-                handlers.Add((IEventHandler) Activator.CreateInstance(serviceType, service)!);
+                handlers.Add((ILocalEventHandlerAdapter) Activator.CreateInstance(serviceType, service)!);
             }
 
             dictionary.Add(eventType, handlers.ToImmutable());

@@ -7,7 +7,7 @@ using RabbitMQ.Client;
 
 namespace Allegory.Axiom.RabbitMQ;
 
-public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposable
+public class RabbitMqConnection(RabbitMqOption option) : IDisposable, IAsyncDisposable
 {
     public IConnection Connection
     {
@@ -79,6 +79,7 @@ public class RabbitMqClient(RabbitMqOption option) : IDisposable, IAsyncDisposab
             Password = Option.Password,
             VirtualHost = Option.VirtualHost,
             ClientProvidedName = Option.ClientProvidedName ?? Assembly.GetEntryAssembly()?.GetName().Name,
+            ConsumerDispatchConcurrency = Option.ConsumerDispatchConcurrency
         };
 
         if (Option.Hostnames != null)
