@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
@@ -97,11 +98,19 @@ public class RabbitMqEventConsumer
 
     protected virtual string? TryGetTraceParent(IReadOnlyBasicProperties properties)
     {
-        if (properties.Headers != null && properties.Headers.TryGetValue("traceparent", out var traceParentId))
+        if (properties.Headers == null)
         {
-            return traceParentId?.ToString();
+            return null;
         }
 
-        return null;
+        return !properties.Headers.TryGetValue("traceparent", out var traceParentId)
+            ? null
+            : traceParentId switch
+            {
+                byte[] bytes => Encoding.UTF8.GetString(bytes),
+                string s => s,
+                null => null,
+                _ => throw new InvalidOperationException("Trace parent cannot be parsed")
+            };
     }
 }
