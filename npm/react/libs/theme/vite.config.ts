@@ -12,7 +12,7 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/libs/theme',
   plugins: [
     react(),
-    nxCopyAssetsPlugin(['*.md', 'src/styles/**/*.css']),
+    nxCopyAssetsPlugin(['*.md']),
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
@@ -21,20 +21,26 @@ export default defineConfig(() => ({
     tailwindcss(),
   ],
   build: {
+    target: 'esnext',
+    cssCodeSplit: true,
     outDir: '../../dist/libs/theme',
     emptyOutDir: true,
     lib: {
       entry: {
         index: 'src/index',
         'components/index': 'src/components/index',
+        'index.css': 'src/styles/index.css',
       },
       name: 'theme',
       formats: ['es' as const],
     },
     rolldownOptions: {
       external: [
-        /^react/,
-        'radix-ui',
+        /^react$/,
+        /^react-dom(\/.*)?$/,
+        /^react\/jsx-runtime$/,
+        /^@floating-ui/,
+        /^@base-ui/,
         'clsx',
         'class-variance-authority',
         'tailwind-merge',
@@ -42,6 +48,8 @@ export default defineConfig(() => ({
       ],
       output: {
         preserveModules: true,
+        preserveModulesRoot: path.join(import.meta.dirname, 'src'),
+        assetFileNames: '[name].[ext]',
       },
     },
   },

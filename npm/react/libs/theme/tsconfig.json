@@ -9,10 +9,9 @@
     "strict": true,
     "types": ["vite/client"],
     "moduleResolution": "bundler",
-    "resolvePackageJsonImports": true,
     "allowImportingTsExtensions": true,
     "paths": {
-      "@axiomframework/theme/*": ["./src/*"]
+      "@axiomframework/react-theme/*": ["./src/*"]
     }
   }
 }
