@@ -15,7 +15,7 @@ public class DistributedEventProcessor(
     IHostApplicationLifetime applicationLifetime)
     : ISingletonService
 {
-    private static readonly ActivitySource ActivitySource = new("Allegory.Axiom.EventBus");
+    protected static readonly ActivitySource ActivitySource = new("Allegory.Axiom.EventBus");
 
     protected IServiceScopeFactory ServiceScopeFactory { get; set; } = serviceScopeFactory;
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
@@ -69,14 +69,13 @@ public class DistributedEventProcessor(
             return null;
         }
 
-        var activity = ActivitySource.StartActivity();
+        var activity = ActivitySource.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceparent);
         if (activity == null)
         {
             return null;
         }
 
         activity.AddTag("event.id", id);
-        activity.SetParentId(traceparent);
 
         return activity;
     }
