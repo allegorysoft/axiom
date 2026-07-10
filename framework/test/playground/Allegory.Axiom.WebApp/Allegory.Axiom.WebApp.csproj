@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\aspnetcore\Allegory.Axiom.AspNetCore.Mvc\Allegory.Axiom.AspNetCore.Mvc.csproj"/>
+        <ProjectReference Include="..\..\..\src\event-bus\Allegory.Axiom.EventBus.RabbitMQ\Allegory.Axiom.EventBus.RabbitMQ.csproj"/>
         <ProjectReference Include="..\..\..\src\template\Allegory.Axiom.Template.Framework.Implementations\Allegory.Axiom.Template.Framework.Implementations.csproj"/>
     </ItemGroup>
 
