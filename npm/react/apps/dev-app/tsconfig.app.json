@@ -1,0 +1,33 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "outDir": "dist",
+    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "types": ["@react-router/node", "vite/client", "node"],
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "declaration": true
+  },
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "**/.server/**/*.ts",
+    "**/.server/**/*.tsx",
+    "**/.client/**/*.ts",
+    "**/.client/**/*.tsx",
+    "../../libs/theme/src/components/index.ts"
+  ],
+  "exclude": [
+    "out-tsc",
+    "dist",
+    "tests/**/*.spec.ts",
+    "tests/**/*.test.ts",
+    "tests/**/*.spec.tsx",
+    "tests/**/*.test.tsx"
+  ]
+}

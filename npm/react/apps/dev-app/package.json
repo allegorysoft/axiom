@@ -1,0 +1,27 @@
+{
+  "name": "dev-app",
+  "type": "module",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "react-router dev",
+    "build": "react-router build"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router": "catalog:",
+    "@react-router/node": "catalog:",
+    "@react-router/serve": "catalog:",
+    "isbot": "^5"
+  },
+  "devDependencies": {
+    "@react-router/dev": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "@tailwindcss/vite": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

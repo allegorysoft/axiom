@@ -1,0 +1,16 @@
+{
+  "name": "dev-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/dev-app",
+  "sourceRoot": "apps/dev-app/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "dev": {
+      "command": "react-router dev"
+    },
+    "build": {
+      "command": "react-router build"
+    }
+  }
+}
