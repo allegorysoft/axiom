@@ -1,3 +1,5 @@
+import { Button } from '@axiomframework/react-theme/components';
+
 export default function Home() {
-  return <h1>Home</h1>;
+  return <Button variant="ghost">Home</Button>;
 }

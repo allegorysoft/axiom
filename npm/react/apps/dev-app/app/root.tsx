@@ -8,7 +8,7 @@ import {
   type LinksFunction,
 } from 'react-router';
 
-import './root.css'
+import './root.css';
 
 export const meta: MetaFunction = () => [
   {
