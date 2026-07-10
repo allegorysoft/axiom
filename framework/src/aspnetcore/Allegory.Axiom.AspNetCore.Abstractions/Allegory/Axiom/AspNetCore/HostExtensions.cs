@@ -12,6 +12,17 @@ public static class HostExtensions
 
     extension(IHost host)
     {
+        public WebApplication GetWebApplication()
+        {
+            if (host is not WebApplication app)
+            {
+                throw new InvalidOperationException(
+                    $"Host type '{host.GetType().FullName}' cannot be cast to WebApplication.");
+            }
+
+            return app;
+        }
+
         public IApplicationBuilder GetApplicationBuilder()
         {
             if (host is not IApplicationBuilder builder)
