@@ -33,7 +33,7 @@ public class DistributedEventProcessor(
         ApplicationLifetime.ApplicationStopping.ThrowIfCancellationRequested();
 
         var processCounter = new DistributedEventProcessCounter(this);
-        using var activity = GetActivity(traceparent, id);
+        using var activity = GetActivity(traceparent, entry, id);
         await using var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
         using var scope = ServiceScopeFactory.CreateScope();
         var context = new EventContext
@@ -62,7 +62,7 @@ public class DistributedEventProcessor(
         return processCounter;
     }
 
-    protected virtual Activity? GetActivity(string? traceparent, Guid id)
+    protected virtual Activity? GetActivity(string? traceparent, EventQueueEntry entry, Guid id)
     {
         if (traceparent == null)
         {
@@ -76,6 +76,7 @@ public class DistributedEventProcessor(
         }
 
         activity.AddTag("event.id", id);
+        activity.AddTag("event.type", entry.Descriptor.Type.FullName);
 
         return activity;
     }
