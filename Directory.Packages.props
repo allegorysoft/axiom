@@ -16,6 +16,7 @@
 
         <!-- Official Microsoft Section Begin -->
         <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(RuntimePackageVersion)"/>
 
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
