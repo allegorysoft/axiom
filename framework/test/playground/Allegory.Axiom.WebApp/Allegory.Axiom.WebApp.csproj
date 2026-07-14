@@ -16,8 +16,12 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\aspnetcore\Allegory.Axiom.AspNetCore.Mvc\Allegory.Axiom.AspNetCore.Mvc.csproj"/>
-        <ProjectReference Include="..\..\..\src\event-bus\Allegory.Axiom.EventBus.RabbitMQ\Allegory.Axiom.EventBus.RabbitMQ.csproj"/>
         <ProjectReference Include="..\..\..\src\template\Allegory.Axiom.Template.Framework.Implementations\Allegory.Axiom.Template.Framework.Implementations.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.OpenTelemetry\Allegory.Axiom.OpenTelemetry.csproj"/>
+        <ProjectReference Include="..\..\..\src\event-bus\Allegory.Axiom.EventBus.RabbitMQ\Allegory.Axiom.EventBus.RabbitMQ.csproj"/>
     </ItemGroup>
 
 </Project>

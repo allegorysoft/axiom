@@ -15,7 +15,7 @@ public class DistributedEventProcessor(
     IHostApplicationLifetime applicationLifetime)
     : ISingletonService
 {
-    protected static readonly ActivitySource ActivitySource = new("Allegory.Axiom.EventBus");
+    protected static readonly ActivitySource ActivitySource = new(EventBusActivity.Name);
 
     protected IServiceScopeFactory ServiceScopeFactory { get; set; } = serviceScopeFactory;
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;

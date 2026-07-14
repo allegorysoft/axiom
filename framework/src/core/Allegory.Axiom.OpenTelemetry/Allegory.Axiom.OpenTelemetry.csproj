@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="OpenTelemetry.Api"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\event-bus\Allegory.Axiom.EventBus.Abstractions\Allegory.Axiom.EventBus.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.UnitOfWork.Abstractions\Allegory.Axiom.UnitOfWork.Abstractions.csproj"/>
+    </ItemGroup>
+
+</Project>

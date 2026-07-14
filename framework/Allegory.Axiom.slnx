@@ -11,6 +11,7 @@
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
     <Project Path="src/core/Allegory.Axiom.Filter/Allegory.Axiom.Filter.csproj" />
+    <Project Path="src/core/Allegory.Axiom.OpenTelemetry/Allegory.Axiom.OpenTelemetry.csproj" />
     <Project Path="src/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
   </Folder>
   <Folder Name="/src/file-provider/">

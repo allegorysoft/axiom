@@ -3,6 +3,7 @@
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <RuntimePackageVersion>10.0.0</RuntimePackageVersion>
+        <OpenTelemetryVersion>1.9.0</OpenTelemetryVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,10 +14,11 @@
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
         <PackageVersion Include="RabbitMQ.Client" Version="7.2.1"/>
 
-        <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0"/>
-        <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0"/>
-        <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0"/>
-        <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0"/>
+        <PackageVersion Include="OpenTelemetry.Api" Version="$(OpenTelemetryVersion)"/>
+        <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)"/>
+        <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)"/>
+        <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryVersion)"/>
+        <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryVersion)"/>
         <!-- General Section End -->
 
         <!-- Official Microsoft Section Begin -->
@@ -51,12 +53,11 @@
         <PackageVersion Include="MSTest.TestFramework" Version="4.0.1"/>
         <PackageVersion Include="NSubstitute" Version="5.3.0"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
-        <PackageVersion Include="xunit.v3" Version="3.2.2"/>
-        <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>
-        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
-
         <PackageVersion Include="Testcontainers" Version="4.12.0"/>
         <PackageVersion Include="Testcontainers.RabbitMq" Version="4.12.0"/>
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
+        <PackageVersion Include="xunit.v3" Version="3.2.2"/>
+        <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>
         <!-- Test Section End -->
 
     </ItemGroup>
