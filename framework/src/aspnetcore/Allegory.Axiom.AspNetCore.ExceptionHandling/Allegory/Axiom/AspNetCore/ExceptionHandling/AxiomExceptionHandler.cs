@@ -60,8 +60,7 @@ public class AxiomExceptionHandler(
         {
             if (Options.ExceptionLogLevels.TryGetValue(type, out var logLevel))
             {
-                LoggerExtensions.LogException(
-                    Logger,
+                Logger.LogException(
                     logLevel,
                     exception,
                     exception.Code);

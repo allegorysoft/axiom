@@ -7,7 +7,7 @@ internal static partial class LoggerExtensions
 {
     [LoggerMessage(Message = "Exception occurred. Code: {ExceptionCode}")]
     public static partial void LogException(
-        ILogger logger,
+        this ILogger logger,
         LogLevel level,
         Exception exception,
         string? exceptionCode);
