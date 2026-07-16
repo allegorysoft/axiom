@@ -16,13 +16,11 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(
         Message = "RabbitMqDistributedEventBus couldn't handle event.",
-        Level = LogLevel.Error
-    )]
+        Level = LogLevel.Error)]
     public static partial void LogException(this ILogger logger, Exception exception);
-    
+
     [LoggerMessage(
         Message = "Event operation cancelled for {EventId}",
-        Level = LogLevel.Warning
-    )]
+        Level = LogLevel.Warning)]
     public static partial void LogOperationCancelled(this ILogger logger, string? eventId);
 }

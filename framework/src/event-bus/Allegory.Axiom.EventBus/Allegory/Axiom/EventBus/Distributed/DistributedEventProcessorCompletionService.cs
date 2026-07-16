@@ -8,7 +8,8 @@ namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventProcessorCompletionService(
     DistributedEventProcessor eventProcessor,
-    ILogger<DistributedEventProcessorCompletionService> logger) : IHostedService
+    ILogger<DistributedEventProcessorCompletionService> logger)
+    : IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
@@ -16,13 +17,17 @@ public class DistributedEventProcessorCompletionService(
     {
         try
         {
-            logger.LogInformation("Waiting for distributed events to complete...");
+            logger.LogWaitingForPendingEvents(eventProcessor.PendingProcesses);
             await eventProcessor.WaitForCompletionAsync(cancellationToken);
-            logger.LogInformation("Distributed events completed");
+            logger.LogPendingEventsCompleted();
+        }
+        catch (OperationCanceledException)
+        {
+            logger.LogDrainCancelled();
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Graceful shutdown for distributed events failed");
+            logger.LogGracefulShutdownFailed(e);
         }
     }
 }
