@@ -10,6 +10,7 @@ public static class HostExtensions
     {
         public IHost EnsureTracingStarted()
         {
+            // https://github.com/allegorysoft/axiom/issues/83
             host.Services.GetRequiredService<TracerProvider>();
             return host;
         }

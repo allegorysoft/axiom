@@ -5,6 +5,6 @@ using Microsoft.AspNetCore.Builder;
 var builder = WebApplication.CreateBuilder(args);
 await builder.ConfigureApplicationAsync();
 var app = builder.Build();
-app.EnsureTracingStarted(); // https://github.com/allegorysoft/axiom/issues/83
+app.EnsureTracingStarted();
 await app.InitializeApplicationAsync();
 await app.RunAsync();

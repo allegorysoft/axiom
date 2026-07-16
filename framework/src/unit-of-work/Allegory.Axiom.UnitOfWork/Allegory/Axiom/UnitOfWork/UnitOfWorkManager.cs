@@ -75,7 +75,13 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
         var unitOfWork = new UnitOfWork(options);
         unitOfWork.Parent = Current;
         unitOfWork.Activity = ActivitySource.StartActivity(name: "UnitOfWork");
-        unitOfWork.Activity?.AddTag("uow.id", unitOfWork.Id);
+
+        if (unitOfWork.Activity is not null)
+        {
+            unitOfWork.Activity.SetTag("uow.id", unitOfWork.Id);
+            unitOfWork.Activity.SetTag("uow.transaction_behaviour", options.TransactionBehavior.ToString());
+        }
+
         return unitOfWork;
     }
 }
