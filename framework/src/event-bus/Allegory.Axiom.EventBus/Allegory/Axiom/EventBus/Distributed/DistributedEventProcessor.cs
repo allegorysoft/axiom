@@ -46,10 +46,7 @@ public class DistributedEventProcessor(
 
         try
         {
-            foreach (var handler in entry.Handlers)
-            {
-                await handler.HandleAsync(payload, context);
-            }
+            await InvokeHandlersAsync(entry, payload, context);
         }
         catch (Exception e)
         {
@@ -79,6 +76,28 @@ public class DistributedEventProcessor(
         activity.AddTag("event.type", entry.Descriptor.Type.FullName);
 
         return activity;
+    }
+
+    protected virtual async Task InvokeHandlersAsync(EventQueueEntry entry, object payload, EventContext context)
+    {
+        foreach (var handler in entry.Handlers)
+        {
+            using var handlerActivity = ActivitySource.StartActivity($"Handle.{handler.ServiceType.Name}");
+            try
+            {
+                await handler.HandleAsync(payload, context);
+            }
+            catch (Exception ex)
+            {
+                if (handlerActivity is not null)
+                {
+                    handlerActivity.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    handlerActivity.AddException(ex);
+                }
+
+                throw;
+            }
+        }
     }
 
     public virtual async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)

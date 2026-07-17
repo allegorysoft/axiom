@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Allegory.Axiom.EventBus.Distributed;
@@ -9,11 +10,16 @@ namespace Allegory.Axiom.EventBus.Distributed;
 /// </summary>
 public interface IDistributedEventHandlerAdapter
 {
+    Type ServiceType { get; }
     Task HandleAsync(object payload, EventContext context);
 }
 
-public class DistributedEventHandlerAdapter<T>(IDistributedEventHandler<T> service) : IDistributedEventHandlerAdapter
+public class DistributedEventHandlerAdapter<T>(
+    IDistributedEventHandler<T> service)
+    : IDistributedEventHandlerAdapter
 {
+    public Type ServiceType => Service.GetType();
+
     protected internal readonly IDistributedEventHandler<T> Service = service;
 
     public Task HandleAsync(object payload, EventContext context)
