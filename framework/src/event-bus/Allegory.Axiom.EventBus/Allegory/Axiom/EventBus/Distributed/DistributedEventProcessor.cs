@@ -24,17 +24,20 @@ public class DistributedEventProcessor(
     protected internal TaskCompletionSource? TaskCompletionSource;
 
     public virtual async Task<DistributedEventProcessCounter> ProcessAsync(
+        string queueName,
         EventQueueEntry entry,
         Guid id,
         object payload,
         string? traceparent = null,
+        string? messagingSystem = null,
         CancellationToken cancellationToken = default)
     {
         ApplicationLifetime.ApplicationStopping.ThrowIfCancellationRequested();
 
-        var processCounter = new DistributedEventProcessCounter(this);
-        using var activity = GetActivity(traceparent, entry, id);
-        await using var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
+        var counter = new DistributedEventProcessCounter(this);
+        using var activity = GetActivity(queueName, entry, id, traceparent, messagingSystem);
+        await using var uow = UnitOfWorkManager.Begin(
+            new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
         using var scope = ServiceScopeFactory.CreateScope();
         var context = new EventContext
         {
@@ -50,16 +53,21 @@ public class DistributedEventProcessor(
         }
         catch (Exception e)
         {
-            processCounter.Dispose();
+            counter.Dispose();
             await uow.TryRollbackAsync(e, cancellationToken: cancellationToken);
             throw;
         }
 
         await uow.TryCompleteAsync(cancellationToken);
-        return processCounter;
+        return counter;
     }
 
-    protected virtual Activity? GetActivity(string? traceparent, EventQueueEntry entry, Guid id)
+    protected virtual Activity? GetActivity(
+        string queueName,
+        EventQueueEntry entry,
+        Guid id,
+        string? traceparent,
+        string? messagingSystem = null)
     {
         if (traceparent == null)
         {
@@ -67,13 +75,14 @@ public class DistributedEventProcessor(
         }
 
         var activity = ActivitySource.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceparent);
-        if (activity == null)
-        {
-            return null;
-        }
 
-        activity.AddTag("event.id", id);
-        activity.AddTag("event.type", entry.Descriptor.Type.FullName);
+        if (activity is not null)
+        {
+            activity.SetTag("messaging.message.id", id);
+            activity.SetTag("messaging.message.type", entry.Descriptor.Name);
+            activity.SetTag("messaging.destination.name", $"{queueName}; {entry.Descriptor.Topic}");
+            activity.SetTag("messaging.system", messagingSystem);
+        }
 
         return activity;
     }

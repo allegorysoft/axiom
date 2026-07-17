@@ -62,10 +62,12 @@ public class RabbitMqEventConsumer
             var payload = JsonSerializer.Deserialize(args.Body.Span, eventQueueEntry.Descriptor.Type)!;
 
             using var processCounter = await EventProcessor.ProcessAsync(
+                QueueName,
                 eventQueueEntry,
                 id,
                 payload,
                 traceparent: traceparent,
+                messagingSystem: "rabbitmq",
                 cancellationToken: args.CancellationToken);
 
             await Consumer.Channel.BasicAckAsync(args.DeliveryTag, false);
