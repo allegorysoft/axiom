@@ -9,7 +9,6 @@ namespace Allegory.Axiom.UnitOfWork;
 public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWorkManager, ISingletonService
 {
     protected internal static readonly AsyncLocal<AsyncLocalContext<IUnitOfWork>?> CurrentUnitOfWork = new();
-    protected static readonly ActivitySource ActivitySource = new(UnitOfWorkActivity.Name);
 
     public virtual IUnitOfWork? Current => CurrentUnitOfWork.Value?.Context;
     protected virtual UnitOfWorkOptions Options { get; } = options.Value;
@@ -74,7 +73,7 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
     {
         var unitOfWork = new UnitOfWork(options);
         unitOfWork.Parent = Current;
-        unitOfWork.Activity = ActivitySource.StartActivity(name: "UnitOfWork");
+        unitOfWork.Activity = UnitOfWorkActivity.Source.StartActivity(name: "UnitOfWork");
 
         if (unitOfWork.Activity is not null)
         {

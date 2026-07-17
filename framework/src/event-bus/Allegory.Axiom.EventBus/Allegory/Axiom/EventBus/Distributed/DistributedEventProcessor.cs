@@ -15,8 +15,6 @@ public class DistributedEventProcessor(
     IHostApplicationLifetime applicationLifetime)
     : ISingletonService
 {
-    protected static readonly ActivitySource ActivitySource = new(EventBusActivity.Name);
-
     protected IServiceScopeFactory ServiceScopeFactory { get; set; } = serviceScopeFactory;
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
     protected IHostApplicationLifetime ApplicationLifetime { get; } = applicationLifetime;
@@ -74,7 +72,7 @@ public class DistributedEventProcessor(
             return null;
         }
 
-        var activity = ActivitySource.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceparent);
+        var activity = EventBusActivity.Source.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceparent);
 
         if (activity is not null)
         {
@@ -91,17 +89,17 @@ public class DistributedEventProcessor(
     {
         foreach (var handler in entry.Handlers)
         {
-            using var handlerActivity = ActivitySource.StartActivity($"Handle.{handler.ServiceType.Name}");
+            using var activity = EventBusActivity.Source.StartActivity($"Handle.{handler.ServiceType.Name}");
             try
             {
                 await handler.HandleAsync(payload, context);
             }
             catch (Exception ex)
             {
-                if (handlerActivity is not null)
+                if (activity is not null)
                 {
-                    handlerActivity.SetStatus(ActivityStatusCode.Error, ex.Message);
-                    handlerActivity.AddException(ex);
+                    activity.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    activity.AddException(ex);
                 }
 
                 throw;

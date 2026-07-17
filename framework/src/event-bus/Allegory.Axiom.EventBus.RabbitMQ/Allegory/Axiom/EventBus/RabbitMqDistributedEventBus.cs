@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -46,11 +47,23 @@ public class RabbitMqDistributedEventBus(
             Type = descriptor.Name,
         };
 
-        if (!string.IsNullOrWhiteSpace(envelope.TraceParent))
+        using var activity = EventBusActivity.Source.StartActivity(
+            "EventBus.Publish",
+            ActivityKind.Producer,
+            parentId: envelope.TraceParent);
+        if (activity is not null)
+        {
+            activity.SetTag("messaging.message.id", envelope.Id);
+            activity.SetTag("messaging.message.type", descriptor.Name);
+            activity.SetTag("messaging.system", "rabbitmq");
+        }
+
+        var traceParent = activity?.Id ?? envelope.TraceParent;
+        if (!string.IsNullOrWhiteSpace(traceParent))
         {
             properties.Headers = new Dictionary<string, object?>
             {
-                ["traceparent"] = envelope.TraceParent,
+                ["traceparent"] = traceParent,
             };
         }
 
