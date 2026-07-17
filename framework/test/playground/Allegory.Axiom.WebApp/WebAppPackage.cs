@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.AspNetCore;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.MultiTenancy;
+using Allegory.Axiom.OpenTelemetry;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,8 +47,7 @@ internal sealed class WebAppPackage : IConfigureApplication, IInitializeApplicat
             .AddOpenTelemetry()
             .WithTracing(tracing => tracing
                 .SetResourceBuilder(resource)
-                .AddSource("Allegory.Axiom.EventBus")
-                .AddSource("Allegory.Axiom.UnitOfWork")
+                .AddAxiomInstrumentation()
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddOtlpExporter(exporterOptionsAction))

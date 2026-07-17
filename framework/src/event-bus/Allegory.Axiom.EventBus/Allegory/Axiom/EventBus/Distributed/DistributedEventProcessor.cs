@@ -15,7 +15,7 @@ public class DistributedEventProcessor(
     IHostApplicationLifetime applicationLifetime)
     : ISingletonService
 {
-    protected static readonly ActivitySource ActivitySource = new("Allegory.Axiom.EventBus");
+    protected static readonly ActivitySource ActivitySource = new(EventBusActivity.Name);
 
     protected IServiceScopeFactory ServiceScopeFactory { get; set; } = serviceScopeFactory;
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
@@ -24,17 +24,20 @@ public class DistributedEventProcessor(
     protected internal TaskCompletionSource? TaskCompletionSource;
 
     public virtual async Task<DistributedEventProcessCounter> ProcessAsync(
+        string queueName,
         EventQueueEntry entry,
         Guid id,
         object payload,
         string? traceparent = null,
+        string? messagingSystem = null,
         CancellationToken cancellationToken = default)
     {
         ApplicationLifetime.ApplicationStopping.ThrowIfCancellationRequested();
 
-        var processCounter = new DistributedEventProcessCounter(this);
-        using var activity = GetActivity(traceparent, entry, id);
-        await using var uow = UnitOfWorkManager.Begin(new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
+        var counter = new DistributedEventProcessCounter(this);
+        using var activity = GetActivity(queueName, entry, id, traceparent, messagingSystem);
+        await using var uow = UnitOfWorkManager.Begin(
+            new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
         using var scope = ServiceScopeFactory.CreateScope();
         var context = new EventContext
         {
@@ -46,23 +49,25 @@ public class DistributedEventProcessor(
 
         try
         {
-            foreach (var handler in entry.Handlers)
-            {
-                await handler.HandleAsync(payload, context);
-            }
+            await InvokeHandlersAsync(entry, payload, context);
         }
         catch (Exception e)
         {
-            processCounter.Dispose();
+            counter.Dispose();
             await uow.TryRollbackAsync(e, cancellationToken: cancellationToken);
             throw;
         }
 
         await uow.TryCompleteAsync(cancellationToken);
-        return processCounter;
+        return counter;
     }
 
-    protected virtual Activity? GetActivity(string? traceparent, EventQueueEntry entry, Guid id)
+    protected virtual Activity? GetActivity(
+        string queueName,
+        EventQueueEntry entry,
+        Guid id,
+        string? traceparent,
+        string? messagingSystem = null)
     {
         if (traceparent == null)
         {
@@ -70,15 +75,38 @@ public class DistributedEventProcessor(
         }
 
         var activity = ActivitySource.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceparent);
-        if (activity == null)
+
+        if (activity is not null)
         {
-            return null;
+            activity.SetTag("messaging.message.id", id);
+            activity.SetTag("messaging.message.type", entry.Descriptor.Name);
+            activity.SetTag("messaging.destination.name", $"{queueName}; {entry.Descriptor.Topic}");
+            activity.SetTag("messaging.system", messagingSystem);
         }
 
-        activity.AddTag("event.id", id);
-        activity.AddTag("event.type", entry.Descriptor.Type.FullName);
-
         return activity;
+    }
+
+    protected virtual async Task InvokeHandlersAsync(EventQueueEntry entry, object payload, EventContext context)
+    {
+        foreach (var handler in entry.Handlers)
+        {
+            using var handlerActivity = ActivitySource.StartActivity($"Handle.{handler.ServiceType.Name}");
+            try
+            {
+                await handler.HandleAsync(payload, context);
+            }
+            catch (Exception ex)
+            {
+                if (handlerActivity is not null)
+                {
+                    handlerActivity.SetStatus(ActivityStatusCode.Error, ex.Message);
+                    handlerActivity.AddException(ex);
+                }
+
+                throw;
+            }
+        }
     }
 
     public virtual async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)

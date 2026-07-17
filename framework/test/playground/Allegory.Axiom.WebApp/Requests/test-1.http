@@ -1,8 +1,8 @@
 @host = http://localhost:5248
 @api = {{host}}/api
 
-@name = Ahmet
-GET {{api}}/test-1/{{name}}
+@number = 1
+GET {{api}}/test-1/{{number}}
 Accept: application/json
 
 ###

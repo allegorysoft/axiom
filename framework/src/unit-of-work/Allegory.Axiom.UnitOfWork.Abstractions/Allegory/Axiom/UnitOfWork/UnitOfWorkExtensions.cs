@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,9 +29,21 @@ public static class UnitOfWorkExtensions
             try
             {
                 await uow.RollbackAsync(cancellationToken);
+                if (uow.Activity is not null)
+                {
+                    uow.Activity.SetStatus(ActivityStatusCode.Error, innerException.Message);
+                    uow.Activity.AddException(innerException);
+                }
             }
             catch (Exception exception)
             {
+                if (uow.Activity is not null)
+                {
+                    uow.Activity.SetStatus(ActivityStatusCode.Error, "Rollback failed");
+                    uow.Activity.AddException(innerException);
+                    uow.Activity.AddException(exception);
+                }
+
                 throw new AggregateException(exception, innerException);
             }
         }
