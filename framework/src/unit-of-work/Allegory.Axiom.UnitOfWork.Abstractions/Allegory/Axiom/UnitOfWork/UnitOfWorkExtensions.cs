@@ -18,13 +18,6 @@ public static class UnitOfWorkExtensions
             catch (Exception exception)
             {
                 await uow.TryRollbackAsync(exception, cancellationToken);
-
-                if (uow.Activity is not null)
-                {
-                    uow.Activity.SetStatus(ActivityStatusCode.Error, exception.Message);
-                    uow.Activity.AddException(exception);
-                }
-
                 throw;
             }
         }
@@ -36,6 +29,11 @@ public static class UnitOfWorkExtensions
             try
             {
                 await uow.RollbackAsync(cancellationToken);
+                if (uow.Activity is not null)
+                {
+                    uow.Activity.SetStatus(ActivityStatusCode.Error, innerException.Message);
+                    uow.Activity.AddException(innerException);
+                }
             }
             catch (Exception exception)
             {
