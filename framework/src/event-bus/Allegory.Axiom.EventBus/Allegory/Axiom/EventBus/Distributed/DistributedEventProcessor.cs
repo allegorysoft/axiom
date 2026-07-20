@@ -31,32 +31,40 @@ public class DistributedEventProcessor(
         CancellationToken cancellationToken = default)
     {
         ApplicationLifetime.ApplicationStopping.ThrowIfCancellationRequested();
-
         var counter = new DistributedEventProcessCounter(this);
-        using var activity = GetActivity(queueName, entry, id, traceparent, messagingSystem);
-        await using var uow = UnitOfWorkManager.Begin(
-            new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
-        using var scope = ServiceScopeFactory.CreateScope();
-        var context = new EventContext
-        {
-            Id = id,
-            CancellationToken = cancellationToken,
-            Activity = activity,
-            ServiceProvider = scope.ServiceProvider
-        };
 
         try
         {
-            await InvokeHandlersAsync(entry, payload, context);
+            using var activity = GetActivity(queueName, entry, id, traceparent, messagingSystem);
+            await using var uow = UnitOfWorkManager.Begin(
+                new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
+            using var scope = ServiceScopeFactory.CreateScope();
+            var context = new EventContext
+            {
+                Id = id,
+                CancellationToken = cancellationToken,
+                Activity = activity,
+                ServiceProvider = scope.ServiceProvider
+            };
+
+            try
+            {
+                await InvokeHandlersAsync(entry, payload, context);
+            }
+            catch (Exception e)
+            {
+                await uow.TryRollbackAsync(e, cancellationToken: cancellationToken);
+                throw;
+            }
+
+            await uow.TryCompleteAsync(cancellationToken);
         }
-        catch (Exception e)
+        catch
         {
             counter.Dispose();
-            await uow.TryRollbackAsync(e, cancellationToken: cancellationToken);
             throw;
         }
 
-        await uow.TryCompleteAsync(cancellationToken);
         return counter;
     }
 
