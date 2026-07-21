@@ -2,8 +2,8 @@
 
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <RuntimePackageVersion>10.0.0</RuntimePackageVersion>
-        <OpenTelemetryVersion>1.9.0</OpenTelemetryVersion>
+        <RuntimePackageVersion>10.0.10</RuntimePackageVersion>
+        <OpenTelemetryVersion>1.17.0</OpenTelemetryVersion>
     </PropertyGroup>
 
     <ItemGroup>
