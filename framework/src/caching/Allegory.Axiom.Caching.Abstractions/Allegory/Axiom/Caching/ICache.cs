@@ -15,4 +15,26 @@ public interface ICache
         HybridCacheEntryOptions? options = null,
         IEnumerable<string>? tags = null,
         CancellationToken cancellationToken = default);
+
+    ValueTask<T> GetOrCreateAsync<T>(
+        string key,
+        Func<CancellationToken, ValueTask<T>> factory,
+        HybridCacheEntryOptions? options = null,
+        IEnumerable<string>? tags = null,
+        CancellationToken cancellationToken = default);
+
+    ValueTask SetAsync<T>(
+        string key,
+        T value,
+        HybridCacheEntryOptions? options = null,
+        IEnumerable<string>? tags = null,
+        CancellationToken cancellationToken = default);
+
+    ValueTask RemoveAsync<T>(string key, CancellationToken cancellationToken = default);
+
+    ValueTask RemoveAsync<T>(IEnumerable<string> keys, CancellationToken cancellationToken = default);
+
+    ValueTask RemoveByTagAsync(string tag, CancellationToken cancellationToken = default);
+
+    ValueTask RemoveByTagAsync(IEnumerable<string> tags, CancellationToken cancellationToken = default);
 }
