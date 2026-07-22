@@ -8,6 +8,10 @@
     <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Mvc/Allegory.Axiom.AspNetCore.Mvc.csproj" />
     <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore/Allegory.Axiom.AspNetCore.csproj" />
   </Folder>
+  <Folder Name="/src/caching/">
+    <Project Path="src/caching/Allegory.Axiom.Caching.Abstractions/Allegory.Axiom.Caching.Abstractions.csproj" />
+    <Project Path="src/caching/Allegory.Axiom.Caching/Allegory.Axiom.Caching.csproj" />
+  </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
     <Project Path="src/core/Allegory.Axiom.Filter/Allegory.Axiom.Filter.csproj" />
@@ -62,6 +66,9 @@
   <Folder Name="/test/" />
   <Folder Name="/test/aspnetcore/">
     <Project Path="test/aspnetcore/Allegory.Axiom.AspNetCore.ExceptionHandling.Tests/Allegory.Axiom.AspNetCore.ExceptionHandling.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/caching/">
+    <Project Path="test/caching/Allegory.Axiom.Caching.Tests/Allegory.Axiom.Caching.Tests.csproj" />
   </Folder>
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Core.Tests/Allegory.Axiom.Core.Tests.csproj" />
