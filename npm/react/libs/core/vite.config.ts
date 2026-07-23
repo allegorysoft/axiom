@@ -31,9 +31,10 @@ export default defineConfig(() => ({
       formats: ['es' as const],
     },
     rolldownOptions: {
-      external: [],
+      external: ['react', 'zustand'],
       output: {
         preserveModules: true,
+        preserveModulesRoot: path.join(import.meta.dirname, 'src'),
       },
     },
   },
