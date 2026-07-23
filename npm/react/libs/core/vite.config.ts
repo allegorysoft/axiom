@@ -18,6 +18,13 @@ export default defineConfig(() => ({
       pathsToAliases: false,
     }),
   ],
+  test: {
+    name: 'core',
+    environment: 'node',
+    globals: false,
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    watch: false,
+  },
   build: {
     target: 'esnext',
     cssCodeSplit: true,

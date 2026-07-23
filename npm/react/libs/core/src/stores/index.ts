@@ -1,1 +1,1 @@
-export * from './environment.store';
+export { useEnvironmentStore } from './environment.store';
