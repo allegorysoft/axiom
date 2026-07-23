@@ -1,39 +1,81 @@
 ﻿using System;
-using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.Extensions.Caching.Hybrid;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Shouldly;
 using Xunit;
 
 namespace Allegory.Axiom.Caching;
 
 public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
-    [Fact]
-    public async Task Test1()
-    {
-        var cache = fixture.Service<ICache>();
+    protected static readonly TenantContext Tenant =
+        new(Guid.Parse("11111111-2222-3333-4444-555555555555"), "acme", "ACME");
 
-        var y = await cache.GetOrCreateAsync(
-            "abc",
-            _ => ValueTask.FromResult(new SomeCacheItem()),
-            cancellationToken: TestContext.Current.CancellationToken);
+    protected TestableCache Cache { get; } = fixture.Service<TestableCache>();
+
+    [Fact]
+    public void ShouldApplyKeyPrefix()
+    {
+        const string prefix = "app:";
+
+        var cache = new TestableCache(
+            fixture.Service<HybridCache>(),
+            Options.Create(new CacheOptions {KeyPrefix = prefix}),
+            fixture.Service<ITenantContextAccessor>());
+
+        cache.Normalize<SomeCacheItem>("abc").ShouldStartWith(prefix);
     }
 
-    private void Comments()
+    [Fact]
+    public void ShouldNormalizeHostKey()
     {
-        // IMemoryCache, IDistributedCache, HybridCache
-        // GetOrCreate; [string, ReadOnlySpan, DefaultInterpolatedStringHandler], [null, TState]
-        // Set, Remove, RemoveByTag
+        Cache.Normalize<SomeCacheItem>("abc").ShouldBe("allegory:axiom:caching:some:abc");
+    }
 
-        // Microsoft.Extensions.Caching.Abstractions -> Microsoft.Extensions.Caching.Memory -> Microsoft.Extensions.Caching.Hybrid
-        // Microsoft.Extensions.Caching.StackExchangeRedis -> Imp of IDistributedCache for redis
+    [Fact]
+    public void ShouldNormalizeTenantKey()
+    {
+        using (fixture.Service<ITenantContextAccessor>().Change(Tenant))
+        {
+            Cache.Normalize<SomeCacheItem>("abc")
+                .ShouldBe($"tenant:{Tenant.Id:D}:allegory:axiom:caching:some:abc");
+        }
+    }
 
-        // ZiggyCreatures.FusionCache => Create additional package (use backplane)
-        // ZiggyCreatures.FusionCache.Serialization.SystemTextJson
-        // ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis
+    [Fact]
+    public void ShouldIgnoreTenantForTenantAgnosticType()
+    {
+        using (fixture.Service<ITenantContextAccessor>().Change(Tenant))
+        {
+            Cache.Normalize<AgnosticCacheItem>("abc")
+                .ShouldBe("allegory:axiom:caching:agnostic:abc");
+        }
+    }
+
+    [Fact]
+    public void ShouldUseCacheNameAttribute()
+    {
+        Cache.Normalize<NamedCacheItem>("abc").ShouldBe("custom:name:abc");
     }
 }
 
+[Dependency(SelfRegister = true)]
+public class TestableCache(
+    HybridCache hybridCache,
+    IOptions<CacheOptions> options,
+    ITenantContextAccessor accessor)
+    : Cache(hybridCache, options, accessor)
+{
+    public string Normalize<T>(string key) =>
+        NormalizeKey(key, CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options));
+}
+
+public class SomeCacheItem;
+
 [TenantAgnostic]
-public class SomeCacheItem {}
+public class AgnosticCacheItem;
+
+[CacheName("Custom.Name")]
+public class NamedCacheItem;
