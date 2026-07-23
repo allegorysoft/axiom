@@ -9,8 +9,6 @@ namespace Allegory.Axiom.Caching;
 
 internal sealed class CachingPackage : IConfigureApplication
 {
-    internal const string HybridOptionsKey = "Hybrid";
-
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         var cacheBuilder = builder.Services.AddHybridCache();
@@ -29,7 +27,7 @@ internal sealed class CachingPackage : IConfigureApplication
             .AddOptions<HybridCacheOptions>()
             .Configure<IOptions<CacheOptions>>((options, configuration) =>
             {
-                configuration.Value.Hybrid?.Invoke(options);
+                configuration.Value.ConfigureHybrid?.Invoke(options);
             });
 
         return Task.CompletedTask;

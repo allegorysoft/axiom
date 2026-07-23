@@ -5,16 +5,17 @@ namespace Allegory.Axiom.Caching;
 
 public static class CacheOptionsExtensions
 {
+    internal const string ConfigureHybridKey = "Hybrid";
+
     extension(CacheOptions options)
     {
-        public Action<HybridCacheOptions>? Hybrid
+        public Action<HybridCacheOptions>? ConfigureHybrid
         {
-            get => options.ExtraProperties.TryGetValue(
-                CachingPackage.HybridOptionsKey, out var value)
+            get => options.ExtraProperties.TryGetValue(ConfigureHybridKey, out var value)
                 ? (Action<HybridCacheOptions>?) value
                 : null;
 
-            set => options.ExtraProperties[CachingPackage.HybridOptionsKey] = value;
+            set => options.ExtraProperties[ConfigureHybridKey] = value;
         }
     }
 }
