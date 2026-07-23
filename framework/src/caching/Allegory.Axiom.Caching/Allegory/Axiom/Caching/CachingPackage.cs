@@ -25,9 +25,9 @@ internal sealed class CachingPackage : IConfigureApplication
 
         builder.Services
             .AddOptions<HybridCacheOptions>()
-            .Configure<IOptions<CacheOptions>>((options, configuration) =>
+            .Configure<IOptions<CacheOptions>>((options, cacheOptions) =>
             {
-                configuration.Value.ConfigureHybrid?.Invoke(options);
+                cacheOptions.Value.ConfigureHybrid?.Invoke(options);
             });
 
         return Task.CompletedTask;

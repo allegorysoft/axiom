@@ -31,7 +31,8 @@
 
         <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(RuntimePackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.8.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyModel" Version="$(RuntimePackageVersion)"/>

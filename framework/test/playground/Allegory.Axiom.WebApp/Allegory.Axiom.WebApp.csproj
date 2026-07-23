@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\src\caching\Allegory.Axiom.Caching.StackExchangeRedis\Allegory.Axiom.Caching.StackExchangeRedis.csproj"/>
         <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.OpenTelemetry\Allegory.Axiom.OpenTelemetry.csproj"/>
         <ProjectReference Include="..\..\..\src\event-bus\Allegory.Axiom.EventBus.RabbitMQ\Allegory.Axiom.EventBus.RabbitMQ.csproj"/>
     </ItemGroup>

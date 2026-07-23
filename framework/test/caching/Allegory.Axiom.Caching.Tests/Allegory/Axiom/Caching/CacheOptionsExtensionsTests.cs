@@ -52,7 +52,7 @@ public class CacheOptionsExtensionsTests
         options.ConfigureHybrid += o => o.DisableCompression = true;
 
         var hybridOptions = new HybridCacheOptions();
-        options.ConfigureHybrid(hybridOptions);
+        options.ConfigureHybrid!.Invoke(hybridOptions);
 
         hybridOptions.MaximumKeyLength.ShouldBe(1);
         hybridOptions.MaximumPayloadBytes.ShouldBe(2);
