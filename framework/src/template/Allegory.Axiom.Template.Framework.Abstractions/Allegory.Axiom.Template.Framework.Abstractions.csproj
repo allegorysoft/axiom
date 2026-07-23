@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\caching\Allegory.Axiom.Caching.Abstractions\Allegory.Axiom.Caching.Abstractions.csproj"/>
         <ProjectReference Include="..\..\core\Allegory.Axiom.Core\Allegory.Axiom.Core.csproj"/>
         <ProjectReference Include="..\..\event-bus\Allegory.Axiom.EventBus.Abstractions\Allegory.Axiom.EventBus.Abstractions.csproj"/>
         <ProjectReference Include="..\..\file-provider\Allegory.Axiom.FileProvider.Abstractions\Allegory.Axiom.FileProvider.Abstractions.csproj"/>
