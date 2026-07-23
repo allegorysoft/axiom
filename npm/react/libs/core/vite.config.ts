@@ -18,6 +18,13 @@ export default defineConfig(() => ({
       pathsToAliases: false,
     }),
   ],
+  test: {
+    name: 'core',
+    environment: 'node',
+    globals: false,
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    watch: false,
+  },
   build: {
     target: 'esnext',
     cssCodeSplit: true,
@@ -31,9 +38,10 @@ export default defineConfig(() => ({
       formats: ['es' as const],
     },
     rolldownOptions: {
-      external: [],
+      external: ['react', 'zustand'],
       output: {
         preserveModules: true,
+        preserveModulesRoot: path.join(import.meta.dirname, 'src'),
       },
     },
   },

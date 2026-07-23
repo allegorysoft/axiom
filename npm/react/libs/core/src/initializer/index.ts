@@ -1,5 +1,3 @@
-export type { Initializer } from './types';
-export { InitializerError } from './types';
 export {
   provideInitializer,
   getInitializers,

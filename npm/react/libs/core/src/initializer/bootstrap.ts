@@ -1,6 +1,6 @@
 import { getInitializers } from './registry';
 import { runInitializers } from './run';
-import type { Initializer, Side } from './types';
+import type { Initializer, Side } from '../models/initializer';
 
 let inflight: Promise<void> | null = null;
 

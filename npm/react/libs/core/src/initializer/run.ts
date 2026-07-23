@@ -3,7 +3,7 @@ import {
   InitializerError,
   type Initializer,
   type Side,
-} from './types';
+} from '../models/initializer';
 
 const currentSide = (): Side =>
   typeof document === 'undefined' ? 'server' : 'client';

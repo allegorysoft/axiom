@@ -1,4 +1,4 @@
-import type { Initializer } from './types';
+import type { Initializer } from '../models/initializer';
 
 const registry = new Map<string, Initializer>();
 
