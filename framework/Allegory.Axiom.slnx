@@ -10,6 +10,7 @@
   </Folder>
   <Folder Name="/src/caching/">
     <Project Path="src/caching/Allegory.Axiom.Caching.Abstractions/Allegory.Axiom.Caching.Abstractions.csproj" />
+    <Project Path="src/caching/Allegory.Axiom.Caching.FusionCache/Allegory.Axiom.Caching.FusionCache.csproj" />
     <Project Path="src/caching/Allegory.Axiom.Caching.StackExchangeRedis/Allegory.Axiom.Caching.StackExchangeRedis.csproj" />
     <Project Path="src/caching/Allegory.Axiom.Caching/Allegory.Axiom.Caching.csproj" />
   </Folder>

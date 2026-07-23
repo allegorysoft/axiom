@@ -4,6 +4,7 @@
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <RuntimePackageVersion>10.0.10</RuntimePackageVersion>
         <OpenTelemetryVersion>1.17.0</OpenTelemetryVersion>
+        <FusionCacheVersion>2.6.0</FusionCacheVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -19,6 +20,10 @@
         <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryVersion)"/>
+
+        <PackageVersion Include="ZiggyCreatures.FusionCache" Version="$(FusionCacheVersion)"/>
+        <PackageVersion Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="$(FusionCacheVersion)"/>
+        <PackageVersion Include="ZiggyCreatures.FusionCache.Serialization.SystemTextJson" Version="$(FusionCacheVersion)"/>
         <!-- General Section End -->
 
         <!-- Official Microsoft Section Begin -->
