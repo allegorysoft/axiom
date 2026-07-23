@@ -1,12 +1,16 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.Caching;
 
 internal sealed class CachingPackage : IConfigureApplication
 {
+    internal const string HybridOptionsKey = "Hybrid";
+
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         var cacheBuilder = builder.Services.AddHybridCache();
@@ -15,12 +19,19 @@ internal sealed class CachingPackage : IConfigureApplication
         builder.Services.Configure<CacheOptions>(builder.Configuration.GetSection("Axiom:Cache"));
         builder.Services.PostConfigure<CacheOptions>(o =>
         {
-            if(string.IsNullOrEmpty(o.KeyPrefix)) return;
+            if (string.IsNullOrEmpty(o.KeyPrefix)) return;
 
             var prefix = o.KeyPrefix.Trim();
             o.KeyPrefix = prefix.EndsWith(':') ? prefix : prefix + ':';
         });
-        
+
+        builder.Services
+            .AddOptions<HybridCacheOptions>()
+            .Configure<IOptions<CacheOptions>>((options, configuration) =>
+            {
+                configuration.Value.Hybrid?.Invoke(options);
+            });
+
         return Task.CompletedTask;
     }
 }

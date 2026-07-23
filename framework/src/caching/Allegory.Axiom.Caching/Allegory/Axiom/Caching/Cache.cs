@@ -15,13 +15,13 @@ namespace Allegory.Axiom.Caching;
 public class Cache(
     HybridCache hybridCache,
     IOptions<CacheOptions> options,
-    ITenantContextAccessor tenantAccessor)
+    ITenantContextAccessor tenantContextAccessor)
     : ICache, ISingletonService
 {
     // How should interact with unit of work ?
     protected HybridCache HybridCache { get; } = hybridCache;
     protected CacheOptions Options { get; } = options.Value;
-    protected ITenantContextAccessor TenantAccessor { get; } = tenantAccessor;
+    protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
     protected ConcurrentDictionary<Type, CacheTypeDescriptor> CacheTypeDescriptors { get; } = new();
 
     public virtual ValueTask<T> GetOrCreateAsync<TState, T>(
@@ -77,14 +77,18 @@ public class Cache(
             cancellationToken: cancellationToken);
     }
 
-    public virtual ValueTask RemoveAsync<T>(string key, CancellationToken cancellationToken = default)
+    public virtual ValueTask RemoveAsync<T>(
+        string key,
+        CancellationToken cancellationToken = default)
     {
         var descriptor = CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
 
         return HybridCache.RemoveAsync(NormalizeKey(key, descriptor), cancellationToken: cancellationToken);
     }
 
-    public virtual ValueTask RemoveAsync<T>(IEnumerable<string> keys, CancellationToken cancellationToken = default)
+    public virtual ValueTask RemoveAsync<T>(
+        IEnumerable<string> keys,
+        CancellationToken cancellationToken = default)
     {
         var descriptor = CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
 
@@ -93,26 +97,30 @@ public class Cache(
             cancellationToken: cancellationToken);
     }
 
-    public virtual ValueTask RemoveByTagAsync(string tag, CancellationToken cancellationToken = default)
+    public virtual ValueTask RemoveByTagAsync(
+        string tag,
+        CancellationToken cancellationToken = default)
     {
         return HybridCache.RemoveByTagAsync(tag, cancellationToken: cancellationToken);
     }
 
-    public virtual ValueTask RemoveByTagAsync(IEnumerable<string> tags, CancellationToken cancellationToken = default)
+    public virtual ValueTask RemoveByTagAsync(
+        IEnumerable<string> tags,
+        CancellationToken cancellationToken = default)
     {
         return HybridCache.RemoveByTagAsync(tags, cancellationToken: cancellationToken);
     }
 
     protected virtual string NormalizeKey(string key, CacheTypeDescriptor descriptor)
     {
-        if (descriptor.IsTenantAgnostic || TenantAccessor.Current is null)
+        if (descriptor.IsTenantAgnostic || TenantContextAccessor.Current is null)
         {
             //Host: prefix:{context}:{key}
             return $"{Options.KeyPrefix}{descriptor.Name}:{key}";
         }
 
         //Tenant: prefix:tenant:{tenant-id}:{context}:{key}
-        return $"{Options.KeyPrefix}tenant:{TenantAccessor.Current.Id:D}:{descriptor.Name}:{key}";
+        return $"{Options.KeyPrefix}tenant:{TenantContextAccessor.Current.Id:D}:{descriptor.Name}:{key}";
     }
 
     protected static CacheTypeDescriptor GetCacheTypeDescriptor(Type type, CacheOptions options)
@@ -131,7 +139,7 @@ public class Cache(
                 Strip(CacheNameAttribute.Get(t).Replace('.', ':')));
 
         static string Strip(string name) =>
-            name.EndsWith("CacheItem", StringComparison.Ordinal)
+            name.EndsWith("CacheItem", StringComparison.OrdinalIgnoreCase)
                 ? name[..^9]
                 : name;
     }
