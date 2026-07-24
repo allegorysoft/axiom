@@ -28,13 +28,26 @@ public interface ICache
         T value,
         HybridCacheEntryOptions? options = null,
         IEnumerable<string>? tags = null,
+        CacheMutationMode mutationMode = CacheMutationMode.Immediate,
         CancellationToken cancellationToken = default);
 
-    ValueTask RemoveAsync<T>(string key, CancellationToken cancellationToken = default);
+    ValueTask RemoveAsync<T>(
+        string key,
+        CacheMutationMode mutationMode = CacheMutationMode.Immediate,
+        CancellationToken cancellationToken = default);
 
-    ValueTask RemoveAsync<T>(IEnumerable<string> keys, CancellationToken cancellationToken = default);
+    ValueTask RemoveAsync<T>(
+        IEnumerable<string> keys,
+        CacheMutationMode mutationMode = CacheMutationMode.Immediate,
+        CancellationToken cancellationToken = default);
 
-    ValueTask RemoveByTagAsync(string tag, CancellationToken cancellationToken = default);
+    ValueTask RemoveByTagAsync(
+        string tag,
+        CacheMutationMode mutationMode = CacheMutationMode.Immediate,
+        CancellationToken cancellationToken = default);
 
-    ValueTask RemoveByTagAsync(IEnumerable<string> tags, CancellationToken cancellationToken = default);
+    ValueTask RemoveByTagAsync(
+        IEnumerable<string> tags,
+        CacheMutationMode mutationMode = CacheMutationMode.Immediate,
+        CancellationToken cancellationToken = default);
 }
