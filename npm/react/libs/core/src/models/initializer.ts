@@ -1,7 +1,7 @@
-export type Side = 'server' | 'client';
+import type { Platform } from '../utils/platform-utils';
 
 export interface InitializerContext {
-  readonly side: Side;
+  readonly platform: Platform;
   /** Aborted when this initializer's `timeout` elapses. */
   readonly signal: AbortSignal;
 }
@@ -9,9 +9,10 @@ export interface InitializerContext {
 export interface Initializer {
   /** Unique id. Re-providing the same name replaces the previous one. */
   name: string;
-  run: (context: InitializerContext) => void | Promise<void>;
+  configure: (context: InitializerContext) => void | Promise<void>;
+  postConfigure?: (context: InitializerContext) => void | Promise<void>;
   /** Where it may run. Default: 'both'. */
-  side?: Side | 'both';
+  platform?: Platform | 'both';
   /** Failure is logged instead of aborting the boot. */
   optional?: boolean;
   /** Milliseconds. */

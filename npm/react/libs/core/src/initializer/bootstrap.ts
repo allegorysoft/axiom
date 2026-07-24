@@ -1,15 +1,16 @@
 import { getInitializers } from './registry';
 import { runInitializers } from './run';
-import type { Initializer, Side } from '../models/initializer';
+import type { Initializer } from '../models/initializer';
+import type { Platform } from '../utils/platform-utils';
 
 let inflight: Promise<void> | null = null;
 
 export function bootstrapApplication(
-  options: { initializers?: Initializer[]; side?: Side } = {},
+  options: { initializers?: Initializer[]; platform?: Platform } = {},
 ): Promise<void> {
   inflight ??= runInitializers(
     options.initializers ?? getInitializers(),
-    options.side,
+    options.platform,
   )
     .then(() => undefined)
     .catch((error) => {
