@@ -12,7 +12,7 @@ using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
 
 namespace Allegory.Axiom.Caching;
 
-public class CachingFusionCachePackage : IConfigureApplication
+internal sealed class CachingFusionCachePackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
