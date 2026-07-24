@@ -2,7 +2,7 @@
   "name": "@axiomframework/react-theme",
   "type": "module",
   "version": "0.0.1-alpha.0",
-  "description": "Axiom framework react-ui theme package",
+  "description": "Axiom framework react theme package",
   "license": "MIT",
   "repository": {
     "type": "git",
