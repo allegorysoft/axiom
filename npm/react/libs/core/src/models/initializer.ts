@@ -1,4 +1,4 @@
-import type { Platform } from '../utils/platform-utils';
+import type { Platform } from '../models/application';
 
 export interface InitializerContext {
   readonly platform: Platform;
@@ -6,16 +6,18 @@ export interface InitializerContext {
   readonly signal: AbortSignal;
 }
 
-export interface Initializer {
-  /** Unique id. Re-providing the same name replaces the previous one. */
+export type ConfigureFn = (context: InitializerContext) => void | Promise<void>;
+
+export interface ApplicationInitializer {
+  /** Unique name. Re-providing the same name replaces the previous one. */
   name: string;
-  configure: (context: InitializerContext) => void | Promise<void>;
-  postConfigure?: (context: InitializerContext) => void | Promise<void>;
+  configure: ConfigureFn;
+  postConfigure?: ConfigureFn;
   /** Where it may run. Default: 'both'. */
   platform?: Platform | 'both';
   /** Failure is logged instead of aborting the boot. */
   optional?: boolean;
-  /** Milliseconds. */
+  /** Timeout in milliseconds. */
   timeout?: number;
 }
 
