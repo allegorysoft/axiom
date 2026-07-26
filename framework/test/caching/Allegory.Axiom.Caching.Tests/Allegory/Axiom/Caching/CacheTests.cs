@@ -1,6 +1,7 @@
 ﻿using System;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
+using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 using Shouldly;
@@ -23,7 +24,8 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
         var cache = new TestableCache(
             fixture.Service<HybridCache>(),
             Options.Create(new CacheOptions {KeyPrefix = prefix}),
-            fixture.Service<ITenantContextAccessor>());
+            fixture.Service<ITenantContextAccessor>(),
+            fixture.Service<IUnitOfWorkManager>());
 
         cache.Normalize<SomeCacheItem>("abc").ShouldStartWith(prefix);
     }
@@ -65,8 +67,9 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 public class TestableCache(
     HybridCache hybridCache,
     IOptions<CacheOptions> options,
-    ITenantContextAccessor accessor)
-    : Cache(hybridCache, options, accessor)
+    ITenantContextAccessor accessor,
+    IUnitOfWorkManager uowManager)
+    : Cache(hybridCache, options, accessor, uowManager)
 {
     public string Normalize<T>(string key) =>
         NormalizeKey(key, CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options));
