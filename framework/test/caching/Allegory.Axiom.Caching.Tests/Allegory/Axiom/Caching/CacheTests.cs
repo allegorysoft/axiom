@@ -19,6 +19,45 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
     protected ITenantContextAccessor TenantContextAccessor { get; } = fixture.Service<ITenantContextAccessor>();
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = fixture.Service<IUnitOfWorkManager>();
 
+    // Descriptor
+
+    [Fact]
+    public void ShouldDeriveContextNameFromType() =>
+        Cache.Descriptor<SomeCacheItem>().Name.ShouldBe("allegory:axiom:caching:some");
+
+    [Fact]
+    public void ShouldUseCacheNameAttributeForContextName() =>
+        Cache.Descriptor<NamedCacheItem>().Name.ShouldBe("custom:name");
+
+    [Fact]
+    public void ShouldMarkTenantAgnosticType() =>
+        Cache.Descriptor<AgnosticCacheItem>().IsTenantAgnostic.ShouldBeTrue();
+
+    [Fact]
+    public void ShouldNotMarkTenantAgnosticByDefault() =>
+        Cache.Descriptor<SomeCacheItem>().IsTenantAgnostic.ShouldBeFalse();
+
+    [Fact]
+    public void ShouldHaveNullEntryOptionsWhenUnconfigured() =>
+        Cache.Descriptor<SomeCacheItem>().EntryOptions.ShouldBeNull();
+
+    [Fact]
+    public void ShouldCarryConfiguredEntryOptions()
+    {
+        var entryOptions = new HybridCacheEntryOptions {Expiration = TimeSpan.FromMinutes(5)};
+
+        var cache = new TestableCache(
+            fixture.Service<HybridCache>(),
+            Options.Create(new CacheOptions
+            {
+                Types = {[typeof(SomeCacheItem)] = new CacheTypeOptions {EntryOptions = entryOptions}}
+            }),
+            fixture.Service<ITenantContextAccessor>(),
+            fixture.Service<IUnitOfWorkManager>());
+
+        cache.Descriptor<SomeCacheItem>().EntryOptions.ShouldBeSameAs(entryOptions);
+    }
+
     // Key normalization 
 
     [Fact]
@@ -154,6 +193,8 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
                     new SomeCacheItem(),
                     mutationMode: CacheMutationMode.OnUnitOfWorkComplete,
                     cancellationToken: TestContext.Current.CancellationToken);
+
+                (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeFalse();
             }
 
             await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
@@ -374,6 +415,8 @@ public class TestableCache(
 
         return hit;
     }
+
+    public CacheTypeDescriptor Descriptor<T>() => CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
 }
 
 public class SomeCacheItem;
