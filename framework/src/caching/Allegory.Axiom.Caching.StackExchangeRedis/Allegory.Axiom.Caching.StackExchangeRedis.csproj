@@ -11,7 +11,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.Caching\Allegory.Axiom.Caching.csproj"/>
-        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>

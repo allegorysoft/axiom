@@ -13,7 +13,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.Caching.StackExchangeRedis\Allegory.Axiom.Caching.StackExchangeRedis.csproj"/>
-        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>
