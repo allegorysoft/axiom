@@ -9,9 +9,9 @@ namespace Allegory.Axiom.Benchmarks.Integration.RabbitMQ;
 
 [MemoryDiagnoser]
 [SimpleJob(3, 3, 3, 3)]
-public class RabbitMqClientFactoryBenchmark
+public class RabbitMqConnectionFactoryBenchmark
 {
-    private RabbitMqClientFactory _factory = null!;
+    private RabbitMqConnectionFactory _factory = null!;
 
     [GlobalSetup]
     public async Task Setup()
@@ -29,7 +29,7 @@ public class RabbitMqClientFactoryBenchmark
         });
 
         var host = builder.Build();
-        _factory = host.Services.GetRequiredService<RabbitMqClientFactory>();
+        _factory = host.Services.GetRequiredService<RabbitMqConnectionFactory>();
         await _factory.GetAsync(RabbitMqOptions.DefaultConnectionName);
     }
 

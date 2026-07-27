@@ -10,6 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\caching\Allegory.Axiom.Caching\Allegory.Axiom.Caching.csproj"/>
         <ProjectReference Include="..\..\event-bus\Allegory.Axiom.EventBus\Allegory.Axiom.EventBus.csproj"/>
         <ProjectReference Include="..\..\file-provider\Allegory.Axiom.FileProvider\Allegory.Axiom.FileProvider.csproj"/>
         <ProjectReference Include="..\..\interception\Allegory.Axiom.Interception.Castle.Core\Allegory.Axiom.Interception.Castle.Core.csproj"/>
