@@ -42,9 +42,9 @@ public class DistributedEventProcessor(
         try
         {
             using var activity = TryGetActivity(queueName, entry, id, traceParent, messagingSystem);
-            TenantContextAccessor.Set(await TryGetTenantContextAsync(tenantId));
             await using var uow = UnitOfWorkManager.Begin(
                 new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
+            TenantContextAccessor.Set(await TryGetTenantContextAsync(tenantId));
             using var scope = ServiceScopeFactory.CreateScope();
             var context = new EventContext
             {
