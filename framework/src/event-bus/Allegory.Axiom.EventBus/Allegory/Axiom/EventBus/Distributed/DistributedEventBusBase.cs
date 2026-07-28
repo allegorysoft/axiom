@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,6 +22,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         DistributedEventHandlerManager eventHandlerManager,
         DistributedEventProcessor eventProcessor,
         IUnitOfWorkManager unitOfWorkManager,
+        ITenantContextAccessor tenantContextAccessor,
         IInboxStore inboxStore,
         IOutboxStore outboxStore)
     {
@@ -29,6 +31,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         EventHandlerManager = eventHandlerManager;
         EventProcessor = eventProcessor;
         UnitOfWorkManager = unitOfWorkManager;
+        TenantContextAccessor = tenantContextAccessor;
         OutboxStore = outboxStore;
         InboxStore = inboxStore;
 
@@ -41,6 +44,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     protected DistributedEventHandlerManager EventHandlerManager { get; }
     protected DistributedEventProcessor EventProcessor { get; }
     protected IUnitOfWorkManager UnitOfWorkManager { get; }
+    protected ITenantContextAccessor TenantContextAccessor { get; }
     protected IInboxStore InboxStore { get; }
     protected IOutboxStore OutboxStore { get; }
     protected bool IsInboxEnabled { get; }
@@ -57,6 +61,7 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         {
             Id = Guid.NewGuid(),
             TraceParent = Activity.Current?.Id,
+            TenantId = TenantContextAccessor.Current?.Id,
             Payload = payload,
         };
 

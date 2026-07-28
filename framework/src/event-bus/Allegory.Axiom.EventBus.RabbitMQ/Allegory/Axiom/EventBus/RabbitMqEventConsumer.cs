@@ -58,7 +58,8 @@ public class RabbitMqEventConsumer
             }
 
             var id = GetId(properties);
-            var traceparent = TryGetTraceParent(properties);
+            var traceParent = TryGetTraceParent(properties);
+            var tenantId = TryGetTenantId(properties);
             var payload = JsonSerializer.Deserialize(args.Body.Span, eventQueueEntry.Descriptor.Type)!;
 
             using var processCounter = await EventProcessor.ProcessAsync(
@@ -66,7 +67,8 @@ public class RabbitMqEventConsumer
                 eventQueueEntry,
                 id,
                 payload,
-                traceparent: traceparent,
+                traceParent: traceParent,
+                tenantId: tenantId,
                 messagingSystem: "rabbitmq",
                 cancellationToken: args.CancellationToken);
 
@@ -114,5 +116,24 @@ public class RabbitMqEventConsumer
                 null => null,
                 _ => throw new InvalidOperationException("Trace parent cannot be parsed")
             };
+    }
+    
+    protected virtual Guid? TryGetTenantId(IReadOnlyBasicProperties properties)
+    {
+        if (properties.Headers == null ||
+            !properties.Headers.TryGetValue("tenant-id", out var value))
+        {
+            return null;
+        }
+
+        var str = value switch
+        {
+            byte[] bytes => Encoding.UTF8.GetString(bytes),
+            string s => s,
+            null => null,
+            _ => throw new InvalidOperationException("Tenant id cannot be parsed")
+        };
+
+        return string.IsNullOrEmpty(str) ? null : Guid.Parse(str);
     }
 }

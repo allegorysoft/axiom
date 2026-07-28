@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -12,11 +13,15 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public class DistributedEventProcessor(
     IServiceScopeFactory serviceScopeFactory,
     IUnitOfWorkManager unitOfWorkManager,
+    ITenantContextAccessor tenantContextAccessor,
+    ITenantStore tenantStore,
     IHostApplicationLifetime applicationLifetime)
     : ISingletonService
 {
     protected IServiceScopeFactory ServiceScopeFactory { get; set; } = serviceScopeFactory;
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
+    protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+    protected ITenantStore TenantStore { get; } = tenantStore;
     protected IHostApplicationLifetime ApplicationLifetime { get; } = applicationLifetime;
     protected internal int PendingProcesses;
     protected internal TaskCompletionSource? TaskCompletionSource;
@@ -26,7 +31,8 @@ public class DistributedEventProcessor(
         EventQueueEntry entry,
         Guid id,
         object payload,
-        string? traceparent = null,
+        string? traceParent = null,
+        Guid? tenantId = null,
         string? messagingSystem = null,
         CancellationToken cancellationToken = default)
     {
@@ -35,7 +41,8 @@ public class DistributedEventProcessor(
 
         try
         {
-            using var activity = GetActivity(queueName, entry, id, traceparent, messagingSystem);
+            using var activity = TryGetActivity(queueName, entry, id, traceParent, messagingSystem);
+            TenantContextAccessor.Set(await TryGetTenantContextAsync(tenantId));
             await using var uow = UnitOfWorkManager.Begin(
                 new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
             using var scope = ServiceScopeFactory.CreateScope();
@@ -68,19 +75,19 @@ public class DistributedEventProcessor(
         return counter;
     }
 
-    protected virtual Activity? GetActivity(
+    protected virtual Activity? TryGetActivity(
         string queueName,
         EventQueueEntry entry,
         Guid id,
-        string? traceparent,
+        string? traceParent,
         string? messagingSystem = null)
     {
-        if (traceparent == null)
+        if (traceParent == null)
         {
             return null;
         }
 
-        var activity = EventBusActivity.Source.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceparent);
+        var activity = EventBusActivity.Source.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceParent);
 
         if (activity is not null)
         {
@@ -91,6 +98,13 @@ public class DistributedEventProcessor(
         }
 
         return activity;
+    }
+
+    protected virtual ValueTask<TenantContext?> TryGetTenantContextAsync(Guid? tenantId)
+    {
+        return !tenantId.HasValue ?
+            ValueTask.FromResult<TenantContext?>(null) :
+            TenantStore.GetAsync(tenantId.Value);
     }
 
     protected virtual async Task InvokeHandlersAsync(EventQueueEntry entry, object payload, EventContext context)

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,10 +23,11 @@ public class InProcessDistributedEventBus(
     DistributedEventHandlerManager eventHandlerManager,
     DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
+    ITenantContextAccessor tenantContextAccessor,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
     IServiceScopeFactory serviceScopeFactory)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
+    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
 {
     protected IServiceScopeFactory ServiceScopeFactory { get; } = serviceScopeFactory;
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
@@ -34,6 +36,8 @@ public class InProcessDistributedEventBus(
         T payload,
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
     {
+        // We should handle multiple tenant event publishes on same uow
+        // Same problem exists on local events too
         if (!Handlers.ContainsKey(typeof(T)))
         {
             return;
