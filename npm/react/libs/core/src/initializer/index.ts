@@ -1,6 +1,2 @@
-export {
-  provideInitializer,
-  getInitializers,
-  clearInitializers,
-} from './registry';
-export { bootstrapApplication, resetBootstrap } from './bootstrap';
+export { provideInitializers } from './registry';
+export { bootstrapApplication } from './bootstrap';

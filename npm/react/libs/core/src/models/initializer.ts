@@ -1,24 +1,16 @@
 import type { Platform } from '../models/application';
 
 export interface InitializerContext {
-  readonly platform: Platform;
-  /** Aborted when this initializer's `timeout` elapses. */
-  readonly signal: AbortSignal;
+  platform: Platform;
 }
 
 export type ConfigureFn = (context: InitializerContext) => void | Promise<void>;
 
 export interface ApplicationInitializer {
-  /** Unique name. Re-providing the same name replaces the previous one. */
-  name: string;
-  configure: ConfigureFn;
+  configure?: ConfigureFn;
   postConfigure?: ConfigureFn;
-  /** Where it may run. Default: 'both'. */
+  /** Where it may run. Default: 'client'. */
   platform?: Platform | 'both';
-  /** Failure is logged instead of aborting the boot. */
-  optional?: boolean;
-  /** Timeout in milliseconds. */
-  timeout?: number;
 }
 
 export class InitializerError extends Error {

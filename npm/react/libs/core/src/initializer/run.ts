@@ -1,62 +1,72 @@
+import type { Platform } from '../models/application';
 import {
-  InitializerContext,
+  type ConfigureFn,
+  type ApplicationInitializer,
+  type InitializerContext,
   InitializerError,
-  type Initializer,
-  type Side,
 } from '../models/initializer';
 
-const currentSide = (): Side =>
-  typeof document === 'undefined' ? 'server' : 'client';
+type TaskSelector = (
+  initializer: ApplicationInitializer,
+) => ConfigureFn | undefined;
 
 export async function runInitializers(
-  initializers: Initializer[],
-  side: Side = currentSide(),
-): Promise<string[]> {
-  const completed: string[] = [];
+  initializers: ApplicationInitializer[],
+  context: InitializerContext,
+): Promise<void> {
+  const errors: InitializerError[] = [];
+
+  const _initializers = initializers.filter((initializer) =>
+    platformFilter(initializer, context.platform),
+  );
+
+  await run(_initializers, context, errors, ({ configure }) => configure);
+
+  await run(
+    _initializers,
+    context,
+    errors,
+    ({ postConfigure }) => postConfigure,
+  );
+
+  if (errors.length > 0) {
+    // throw new AggregateError(
+    //   errors,
+    //   'One or more application initializers failed.',
+    // );
+  }
+}
+
+async function run(
+  initializers: ApplicationInitializer[],
+  context: InitializerContext,
+  errors: InitializerError[],
+  selector: TaskSelector,
+): Promise<void> {
+  const tasks: Array<{ task: ConfigureFn }> = [];
 
   for (const initializer of initializers) {
-    const target = initializer.side ?? 'both';
-    if (target !== 'both' && target !== side) continue;
-
-    try {
-      await runOne(initializer, side);
-      completed.push(initializer.name);
-    } catch (error) {
-      const wrapped = new InitializerError(initializer.name, error);
-      if (!initializer.optional) {
-        throw wrapped;
-      }
-      console.warn(wrapped);
+    const task = selector(initializer);
+    if (task) {
+      tasks.push({ task });
     }
   }
 
-  return completed;
+  const results = await Promise.allSettled(
+    tasks.map(({ task }) => task(context)),
+  );
+
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      errors.push(new InitializerError('' + index, result.reason));
+    }
+  });
 }
 
-function runOne(initializer: Initializer, side: Side): Promise<void> {
-  const controller = new AbortController();
-  const context: InitializerContext = { side, signal: controller.signal };
-  const { timeout } = initializer;
-
-  if (timeout === undefined || timeout <= 0) {
-    return Promise.resolve(initializer.run(context));
-  }
-
-  return new Promise<void>((resolve, reject) => {
-    const timer: ReturnType<typeof setTimeout> = setTimeout(() => {
-      const error = new Error(`timed out after ${timeout}ms`);
-      controller.abort(error);
-      reject(error);
-    }, timeout);
-
-    const settle = (finish: () => void) => {
-      clearTimeout(timer);
-      finish();
-    };
-
-    Promise.resolve(initializer.run(context)).then(
-      () => settle(resolve),
-      (error: unknown) => settle(() => reject(error)),
-    );
-  });
+function platformFilter(
+  initializer: ApplicationInitializer,
+  current: Platform,
+): boolean {
+  const target = initializer.platform ?? 'client';
+  return target === 'both' || target === current;
 }
