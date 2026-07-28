@@ -20,6 +20,7 @@
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx",
+    "../../libs/core/src/index.ts",
     "../../libs/theme/src/components/index.ts"
   ],
   "exclude": [

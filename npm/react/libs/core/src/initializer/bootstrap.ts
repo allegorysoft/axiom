@@ -1,18 +1,10 @@
-import { getPlatform } from 'src/utils';
-import type { AxiomApplicationOptions, Platform } from '../models/application';
+import type { AxiomApplicationOptions } from '../models/application';
 import { getInitializers } from './registry';
 import { runInitializers } from './run';
 
-export interface BootstrapContext {
-  platform: Platform;
-}
-
 export async function bootstrapApplication(
-  context?: BootstrapContext,
   options?: AxiomApplicationOptions,
 ): Promise<void> {
-  context ??= { platform: getPlatform() };
-
   const isDev = import.meta.env.DEV;
   if (isDev) {
     console.info('[Axiom] Application initialization started.');
@@ -24,7 +16,7 @@ export async function bootstrapApplication(
       ...(options?.initializers ?? []),
     ];
 
-    await runInitializers(initializers, { platform: context.platform });
+    await runInitializers(initializers);
 
     if (isDev) {
       console.info(`[Axiom] Application initialized successfully`);

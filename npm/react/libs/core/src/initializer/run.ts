@@ -1,10 +1,9 @@
-import type { Platform } from '../models/application';
 import {
   type ConfigureFn,
   type ApplicationInitializer,
-  type InitializerContext,
   InitializerError,
 } from '../models/initializer';
+import { getPlatform } from '../utils/platform-utils';
 
 type TaskSelector = (
   initializer: ApplicationInitializer,
@@ -12,34 +11,26 @@ type TaskSelector = (
 
 export async function runInitializers(
   initializers: ApplicationInitializer[],
-  context: InitializerContext,
 ): Promise<void> {
-  const errors: InitializerError[] = [];
+  const _initializers = initializers.filter(platformFilter);
+  const errors = new Array<InitializerError>();
 
-  const _initializers = initializers.filter((initializer) =>
-    platformFilter(initializer, context.platform),
-  );
+  await run(_initializers, errors, ({ configure }) => configure);
 
-  await run(_initializers, context, errors, ({ configure }) => configure);
-
-  await run(
-    _initializers,
-    context,
-    errors,
-    ({ postConfigure }) => postConfigure,
-  );
+  if (errors.length === 0) {
+    await run(_initializers, errors, ({ postConfigure }) => postConfigure);
+  }
 
   if (errors.length > 0) {
-    // throw new AggregateError(
-    //   errors,
-    //   'One or more application initializers failed.',
-    // );
+    throw new AggregateError(
+      errors,
+      'One or more application initializers failed.',
+    );
   }
 }
 
 async function run(
   initializers: ApplicationInitializer[],
-  context: InitializerContext,
   errors: InitializerError[],
   selector: TaskSelector,
 ): Promise<void> {
@@ -52,8 +43,9 @@ async function run(
     }
   }
 
+  const context = { platform: getPlatform() };
   const results = await Promise.allSettled(
-    tasks.map(({ task }) => task(context)),
+    tasks.map(async ({ task }) => task(context)),
   );
 
   results.forEach((result, index) => {
@@ -63,10 +55,9 @@ async function run(
   });
 }
 
-function platformFilter(
-  initializer: ApplicationInitializer,
-  current: Platform,
-): boolean {
+function platformFilter(initializer: ApplicationInitializer): boolean {
+  const current = getPlatform();
   const target = initializer.platform ?? 'client';
+
   return target === 'both' || target === current;
 }

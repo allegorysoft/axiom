@@ -1,10 +1,7 @@
 import type { Platform } from '../models/application';
 
-export interface InitializerContext {
-  platform: Platform;
-}
-
-export type ConfigureFn = (context: InitializerContext) => void | Promise<void>;
+type Context = { platform: Platform };
+export type ConfigureFn = (context?: Context) => void | Promise<void>;
 
 export interface ApplicationInitializer {
   configure?: ConfigureFn;
