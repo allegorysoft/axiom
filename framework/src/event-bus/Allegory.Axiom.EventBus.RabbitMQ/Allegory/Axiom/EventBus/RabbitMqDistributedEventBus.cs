@@ -69,7 +69,7 @@ public class RabbitMqDistributedEventBus(
 
         if (envelope.TenantId.HasValue)
         {
-            properties.Headers["tenant-id"] = envelope.TenantId;
+            properties.Headers["tenant-id"] = envelope.TenantId.ToString();
         }
 
         var connection = await GetConnectionAsync();
