@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using NSubstitute;
 using Shouldly;
 using Xunit;
@@ -12,45 +13,53 @@ public class UnitOfWorkEndpointFilterTests
 {
     public UnitOfWorkEndpointFilterTests()
     {
-        Manager = Substitute.For<IUnitOfWorkManager>();
         UnitOfWork = Substitute.For<IUnitOfWork>();
-        Filter = new UnitOfWorkEndpointFilter(Manager);
+        Manager = Substitute.For<IUnitOfWorkManager>();
+        Manager.Begin(Arg.Any<UnitOfWorkOptions>()).Returns(UnitOfWork);
+        Options = Microsoft.Extensions.Options.Options.Create(new AspNetCoreUnitOfWorkOptions());
+
+        Filter = new UnitOfWorkEndpointFilter(Manager, Options);
     }
 
     protected IUnitOfWorkManager Manager { get; }
     protected IUnitOfWork UnitOfWork { get; }
+    protected IOptions<AspNetCoreUnitOfWorkOptions> Options { get; }
     protected UnitOfWorkEndpointFilter Filter { get; }
 
     private EndpointFilterInvocationContext CreateContext() =>
         new DefaultEndpointFilterInvocationContext(new DefaultHttpContext());
 
     [Fact]
-    public async Task ShouldSkipUnitOfWorkWhenCurrentUnitOfWorkNotExists()
+    public async Task ShouldCallNext()
     {
-        Manager.Current.Returns((IUnitOfWork?) null);
-        var nextCalled = false;
-        var ctx = CreateContext();
+        var called = false;
+        await Filter.InvokeAsync(CreateContext(), _ =>
+        {
+            called = true;
+            return ValueTask.FromResult<object?>(null);
+        });
 
-        await Filter.InvokeAsync(ctx,
-            _ =>
-            {
-                nextCalled = true;
-                return ValueTask.FromResult<object?>(null);
-            });
+        called.ShouldBeTrue();
+    }
 
-        nextCalled.ShouldBeTrue();
-        await UnitOfWork.DidNotReceive().CompleteAsync(Arg.Any<CancellationToken>());
-        await UnitOfWork.DidNotReceive().RollbackAsync(Arg.Any<CancellationToken>());
+    [Fact]
+    public async Task ShouldBeginUnitOfWork()
+    {
+        await Filter.InvokeAsync(
+            CreateContext(),
+            _ => ValueTask.FromResult<object?>(null));
+
+        Manager.Received(1).Begin(Arg.Any<UnitOfWorkOptions?>());
     }
 
     [Fact]
     public async Task ShouldCompleteAndReturnResultOnSuccess()
     {
-        Manager.Current.Returns(UnitOfWork);
         var expected = new object();
         var ctx = CreateContext();
 
-        var result = await Filter.InvokeAsync(ctx,
+        var result = await Filter.InvokeAsync(
+            ctx,
             _ => ValueTask.FromResult<object?>(expected));
 
         result.ShouldBe(expected);
@@ -61,7 +70,6 @@ public class UnitOfWorkEndpointFilterTests
     [Fact]
     public async Task ShouldRollbackAndRethrowOnException()
     {
-        Manager.Current.Returns(UnitOfWork);
         var ex = new InvalidOperationException("boom");
         var ctx = CreateContext();
 
@@ -76,7 +84,6 @@ public class UnitOfWorkEndpointFilterTests
     [Fact]
     public async Task ShouldDisposeUnitOfWork()
     {
-        Manager.Current.Returns(UnitOfWork);
         var ctx = CreateContext();
 
         await Filter.InvokeAsync(ctx, _ => ValueTask.FromResult<object?>(null));
@@ -85,9 +92,58 @@ public class UnitOfWorkEndpointFilterTests
     }
 
     [Fact]
+    public async Task ShouldDisposeUnitOfWorkEvenWhenNextThrows()
+    {
+        var ctx = CreateContext();
+
+        await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await Filter.InvokeAsync(ctx, _ => throw new InvalidOperationException()));
+
+        await UnitOfWork.Received(1).DisposeAsync();
+    }
+
+    [Fact]
+    public async Task ShouldUseSuppressedTransactionForGetOrQueryRequests()
+    {
+        var getRequest = new DefaultEndpointFilterInvocationContext(new DefaultHttpContext()
+        {
+            Request = {Method = HttpMethods.Get}
+        });
+        await Filter.InvokeAsync(getRequest, _ => ValueTask.FromResult<object?>(null));
+
+        var queryRequest = new DefaultEndpointFilterInvocationContext(new DefaultHttpContext()
+        {
+            Request = {Method = HttpMethods.Get}
+        });
+        await Filter.InvokeAsync(queryRequest, _ => ValueTask.FromResult<object?>(null));
+
+        Manager.Received(2).Begin(Arg.Is<UnitOfWorkOptions?>(o =>
+            o != null && o.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress));
+    }
+
+    [Fact]
+    public async Task ShouldUseNullOptionsForNonGetOrQueryRequests()
+    {
+        await Filter.InvokeAsync(CreateContext(), _ => ValueTask.FromResult<object?>(null));
+
+        Manager.Received(1).Begin(options: null);
+    }
+
+    [Fact]
+    public async Task ShouldUseCustomOptionsSelectorWhenProvided()
+    {
+        var custom = new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew);
+        Options.Value.OptionsSelector = _ => custom;
+
+        await Filter.InvokeAsync(CreateContext(), _ => ValueTask.FromResult<object?>(null));
+
+        Manager.Received(1).Begin(custom);
+    }
+
+    [Fact]
     public async Task ShouldUseRequestAbortedTokenForComplete()
     {
-        Manager.Current.Returns(UnitOfWork);
+        Manager.Begin(Arg.Any<UnitOfWorkOptions>()).Returns(UnitOfWork);
         var httpContext = new DefaultHttpContext();
         var cts = new CancellationTokenSource();
         httpContext.RequestAborted = cts.Token;

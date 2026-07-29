@@ -2,23 +2,34 @@ using System;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkEndpointFilter(IUnitOfWorkManager manager) : IEndpointFilter, ISingletonService
+public class UnitOfWorkEndpointFilter : IEndpointFilter, ISingletonService
 {
-    public async ValueTask<object?> InvokeAsync(
+    public UnitOfWorkEndpointFilter(
+        IUnitOfWorkManager manager,
+        IOptions<AspNetCoreUnitOfWorkOptions> options)
+    {
+        Manager = manager;
+        Options = options.Value;
+
+        options.Value.OptionsSelector ??=
+            static context => HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsQuery(context.Request.Method)
+                ? UnitOfWorkOptions.SuppressedTransaction
+                : null;
+    }
+
+    protected IUnitOfWorkManager Manager { get; }
+    protected AspNetCoreUnitOfWorkOptions Options { get; }
+
+    public virtual async ValueTask<object?> InvokeAsync(
         EndpointFilterInvocationContext context,
         EndpointFilterDelegate next)
     {
-        // Middleware already disposes
-        // However early dispose is better for releasing transactional connections
-        await using var uow = manager.Current;
-
-        if (uow == null)
-        {
-            return await next(context);
-        }
+        var option = Options.OptionsSelector!(context.HttpContext);
+        await using var uow = Manager.Begin(option);
 
         object? result;
         try

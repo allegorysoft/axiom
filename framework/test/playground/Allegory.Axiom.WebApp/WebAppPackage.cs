@@ -87,7 +87,6 @@ internal sealed class WebAppPackage : IConfigureApplication, IInitializeApplicat
         }
 
         app.UseExceptionHandler();
-        app.UseUnitOfWork();
         app.UseAuthentication();
         app.UseMultiTenancy();
         app.UseAuthorization();

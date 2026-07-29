@@ -1,17 +1,21 @@
-﻿using System.Diagnostics;
-using System.Threading;
+﻿using System.Threading;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.Threading;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWorkManager, ISingletonService
+public class UnitOfWorkManager(
+    IOptions<UnitOfWorkOptions> options,
+    ITenantContextAccessor tenantContextAccessor) 
+    : IUnitOfWorkManager, ISingletonService
 {
     protected internal static readonly AsyncLocal<AsyncLocalContext<IUnitOfWork>?> CurrentUnitOfWork = new();
 
     public virtual IUnitOfWork? Current => CurrentUnitOfWork.Value?.Context;
-    protected virtual UnitOfWorkOptions Options { get; } = options.Value;
+    protected UnitOfWorkOptions Options { get; } = options.Value;
+    protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
 
     public virtual IUnitOfWork Begin(UnitOfWorkOptions? options = null)
     {
@@ -79,6 +83,7 @@ public class UnitOfWorkManager(IOptions<UnitOfWorkOptions> options) : IUnitOfWor
         {
             unitOfWork.Activity.SetTag("uow.id", unitOfWork.Id);
             unitOfWork.Activity.SetTag("uow.transaction_behaviour", options.TransactionBehavior.ToString());
+            unitOfWork.Activity.SetTag("tenant.id", TenantContextAccessor.Current?.Id);
         }
 
         return unitOfWork;

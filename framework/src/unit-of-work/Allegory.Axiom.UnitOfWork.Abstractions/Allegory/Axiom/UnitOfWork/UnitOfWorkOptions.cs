@@ -5,6 +5,8 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkOptions
 {
+    public static readonly UnitOfWorkOptions SuppressedTransaction = new(UnitOfWorkTransactionBehavior.Suppress);
+
     public UnitOfWorkOptions() {}
 
     public UnitOfWorkOptions(
