@@ -15,7 +15,7 @@ public static class TenantStoreExtensions
             if (tenant == null)
             {
                 throw new NotFoundException(MultiTenancyExceptionCodes.TenantNotFound)
-                    .AddData("tenant-id", id);
+                    .AddData("identifier", id);
             }
 
             return tenant;
@@ -28,7 +28,7 @@ public static class TenantStoreExtensions
             if (tenant == null)
             {
                 throw new NotFoundException(MultiTenancyExceptionCodes.TenantNotFound)
-                    .AddData("tenant-name", name);
+                    .AddData("identifier", name);
             }
 
             return tenant;
