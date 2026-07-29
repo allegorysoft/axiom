@@ -18,32 +18,19 @@ using Xunit;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
-public class DistributedEventBusBaseTests : IntegrationTest
+public class DistributedEventBusBaseTests(
+    DistributedEventBusBaseFixture fixture)
+    : IClassFixture<DistributedEventBusBaseFixture>
 {
     // Test DistributedEventBusBase logic (publish modes, hooks, outbox routing) here.
 
-    public IDistributedEventBus EventBus => Service<IDistributedEventBus>();
-
-    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
-    {
-        builder.Services.Replace(ServiceDescriptor.Singleton<IDistributedEventBus, DistributedEventBusImp>());
-        builder.Services.AddSingleton<IInboxStore, InMemoryInboxStore>();
-        builder.Services.AddSingleton<IOutboxStore, InMemoryOutboxStore>();
-
-        builder.Services.Configure<DistributedEventBusOptions>(options =>
-        {
-            options.Inbox.UseFor = static _ => true;
-            options.Outbox.UseFor = static _ => true;
-        });
-
-        return base.ConfigureAsync(builder);
-    }
+    public IDistributedEventBus EventBus => fixture.Service<IDistributedEventBus>();
 
     [Fact]
     public async Task ShouldPublishImmediatelyWhenPublishModeIsImmediate()
     {
-        var handler = Service<TestEventHandler>();
-        var uowManager = Service<IUnitOfWorkManager>();
+        var handler = fixture.Service<TestEventHandler>();
+        var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
         await EventBus.PublishAsync(new TestEvent(1), publishMode: DistributedEventPublishMode.Immediate);
@@ -57,7 +44,7 @@ public class DistributedEventBusBaseTests : IntegrationTest
     [Fact]
     public async Task ShouldPublishImmediatelyWhenNoActiveUnitOfWork()
     {
-        var handler = Service<TestEventHandler>();
+        var handler = fixture.Service<TestEventHandler>();
 
         await EventBus.PublishAsync(
             new TestEvent(2),
@@ -79,8 +66,8 @@ public class DistributedEventBusBaseTests : IntegrationTest
     {
         // OnUnitOfWorkComplete → AfterComplete (publish to broker after tx commits)
 
-        var handler = Service<TestEventHandler>();
-        var uowManager = Service<IUnitOfWorkManager>();
+        var handler = fixture.Service<TestEventHandler>();
+        var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
 
@@ -110,8 +97,8 @@ public class DistributedEventBusBaseTests : IntegrationTest
     {
         // Outbox mode  → BeforeComplete (persist to store before tx commits)
 
-        var handler = Service<TestEventHandler>();
-        var uowManager = Service<IUnitOfWorkManager>();
+        var handler = fixture.Service<TestEventHandler>();
+        var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
 
@@ -134,8 +121,8 @@ public class DistributedEventBusBaseTests : IntegrationTest
     public async Task ShouldPublishOnUnitOfWorkHookBeforeCompleteWhenPublishModeIsAutoAndOutboxEnabled()
     {
         // Outbox.UseFor matches all types and IsOutboxEnabled is true (see ConfigureAsync)
-        var handler = Service<TestEventHandler>();
-        var uowManager = Service<IUnitOfWorkManager>();
+        var handler = fixture.Service<TestEventHandler>();
+        var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin();
         await EventBus.PublishAsync(new TestEvent(7), publishMode: DistributedEventPublishMode.Auto);
@@ -155,9 +142,9 @@ public class DistributedEventBusBaseTests : IntegrationTest
     [Fact]
     public async Task ShouldPublishOnUnitOfWorkHookAfterCompleteWhenPublishModeIsAutoAndOutboxDisabled()
     {
-        var provider = await CreateServiceProviderAsync(async (builder) =>
+        var provider = await fixture.CreateServiceProviderAsync(async builder =>
         {
-            await ConfigureAsync(builder);
+            await fixture.Configure(builder);
             builder.Services.Configure<DistributedEventBusOptions>(o =>
             {
                 // DistributedEventBusBase.IsOutboxEnabled is false
@@ -191,10 +178,53 @@ public class DistributedEventBusBaseTests : IntegrationTest
 
         await uow.CompleteAsync(TestContext.Current.CancellationToken);
     }
+
+    [Fact]
+    public async Task ShouldCaptureTenantIdFromContextAccessorOnPublish()
+    {
+        var tenantContextAccessor = fixture.Service<ITenantContextAccessor>();
+        var tenantId = Guid.NewGuid();
+        tenantContextAccessor.Set(new TenantContext(tenantId, "t-1", "T-1"));
+
+        await EventBus.PublishAsync(new TestEvent(9), publishMode: DistributedEventPublishMode.Immediate);
+
+        ((DistributedEventBusImp) EventBus).LastEnvelopeTenantId.ShouldBe(tenantId);
+    }
+
+    [Fact]
+    public async Task ShouldCaptureNullTenantIdWhenNoTenantContext()
+    {
+        var tenantContextAccessor = fixture.Service<ITenantContextAccessor>();
+        tenantContextAccessor.Set(null);
+
+        await EventBus.PublishAsync(new TestEvent(10), publishMode: DistributedEventPublishMode.Immediate);
+
+        ((DistributedEventBusImp) EventBus).LastEnvelopeTenantId.ShouldBeNull();
+    }
+}
+
+public class DistributedEventBusBaseFixture : IntegrationTest
+{
+    public Task Configure(IHostApplicationBuilder builder) => ConfigureAsync(builder);
+
+    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
+    {
+        builder.Services.Replace(ServiceDescriptor.Singleton<IDistributedEventBus, DistributedEventBusImp>());
+        builder.Services.AddSingleton<IInboxStore, InMemoryInboxStore>();
+        builder.Services.AddSingleton<IOutboxStore, InMemoryOutboxStore>();
+
+        builder.Services.Configure<DistributedEventBusOptions>(options =>
+        {
+            options.Inbox.UseFor = static _ => true;
+            options.Outbox.UseFor = static _ => true;
+        });
+
+        return Task.CompletedTask;
+    }
 }
 
 [Dependency(AutoRegister = false)]
-file class DistributedEventBusImp(
+public class DistributedEventBusImp(
     ILogger<DistributedEventBusBase> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
@@ -203,9 +233,12 @@ file class DistributedEventBusImp(
     ITenantContextAccessor tenantContextAccessor,
     IInboxStore inboxStore,
     IOutboxStore outboxStore)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
+    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager,
+        tenantContextAccessor, inboxStore, outboxStore)
 {
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
+
+    public Guid? LastEnvelopeTenantId { get; private set; }
 
     protected override async Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope)
     {
@@ -217,6 +250,8 @@ file class DistributedEventBusImp(
 
     protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
     {
+        LastEnvelopeTenantId = envelope.TenantId;
+
         foreach (var handler in Handlers[typeof(T)])
         {
             await handler.HandleAsync(envelope.Payload, new EventContext());
@@ -250,10 +285,14 @@ file class DistributedEventBusImp(
 }
 
 [Dependency(AutoRegister = false)]
-file class InMemoryOutboxStore : IOutboxStore {}
+file class InMemoryOutboxStore : IOutboxStore
+{
+}
 
 [Dependency(AutoRegister = false)]
-file class InMemoryInboxStore : IInboxStore {}
+file class InMemoryInboxStore : IInboxStore
+{
+}
 
 file record TestEvent(int Value);
 
