@@ -12,6 +12,10 @@ export function provideInitializers(
   }
 }
 
-export function getInitializers(): ApplicationInitializer[] {
+export function getInitializers(): readonly ApplicationInitializer[] {
   return [...registry.values()];
+}
+
+export function clearInitializers(): void {
+  registry.clear();
 }
