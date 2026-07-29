@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.RabbitMQ;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,11 +23,12 @@ public class RabbitMqDistributedEventBus(
     DistributedEventHandlerManager eventHandlerManager,
     DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
+    ITenantContextAccessor tenantContextAccessor,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
     RabbitMqConnectionFactory connectionFactory,
     IServiceProvider serviceProvider)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, inboxStore, outboxStore)
+    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqConnectionFactory ConnectionFactory { get; } = connectionFactory;
@@ -45,6 +47,7 @@ public class RabbitMqDistributedEventBus(
             DeliveryMode = DeliveryModes.Persistent,
             MessageId = envelope.Id.ToString(),
             Type = descriptor.Name,
+            Headers = new Dictionary<string, object?>()
         };
 
         using var activity = EventBusActivity.Source.StartActivity(
@@ -61,10 +64,12 @@ public class RabbitMqDistributedEventBus(
         var traceParent = activity?.Id ?? envelope.TraceParent;
         if (!string.IsNullOrWhiteSpace(traceParent))
         {
-            properties.Headers = new Dictionary<string, object?>
-            {
-                ["traceparent"] = traceParent,
-            };
+            properties.Headers["traceparent"] = traceParent;
+        }
+
+        if (envelope.TenantId.HasValue)
+        {
+            properties.Headers["tenant-id"] = envelope.TenantId.ToString();
         }
 
         var connection = await GetConnectionAsync();

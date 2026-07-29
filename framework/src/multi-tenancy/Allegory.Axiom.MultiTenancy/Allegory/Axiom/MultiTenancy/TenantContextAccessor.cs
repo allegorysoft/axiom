@@ -12,25 +12,30 @@ public class TenantContextAccessor : ITenantContextAccessor, ISingletonService
 
     public virtual TenantContext? Current => CurrentTenantContext.Value;
 
+    // Reduce disposable object allocation
     public virtual void Set(TenantContext? current = null)
     {
-        Activity.Current?.AddBaggage("tenant.id", current?.Id.ToString());
-        // Reduce disposable object allocation
+        Activity.Current?.SetTag("tenant.id", current?.Id.ToString());
         CurrentTenantContext.Value = current;
     }
 
     public virtual IDisposable Change(TenantContext? current = null)
     {
-        Activity.Current?.AddBaggage("tenant.id", current?.Id.ToString());
         var parent = Current;
         CurrentTenantContext.Value = current;
+
+        Activity.Current?.AddEvent(new ActivityEvent(
+            "Tenant switched",
+            tags: new ActivityTagsCollection
+            {
+                {"tenant.id", current?.Id.ToString()}
+            }));
 
         return new DisposableDelegate<TenantContext?>(Restore, parent);
     }
 
     private static void Restore(TenantContext? parent)
     {
-        Activity.Current?.AddBaggage("tenant.id", parent?.Id.ToString());
         CurrentTenantContext.Value = parent;
     }
 }
