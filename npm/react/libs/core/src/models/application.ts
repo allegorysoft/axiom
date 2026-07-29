@@ -1,7 +1,7 @@
 export type Platform = 'server' | 'client';
 
 type Context = { platform: Platform };
-export type ConfigureFn = (context?: Context) => void | Promise<void>;
+export type ConfigureFn = (context: Context) => void | Promise<void>;
 
 export interface ApplicationInitializer {
   configure?: ConfigureFn;

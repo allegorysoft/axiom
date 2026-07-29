@@ -16,7 +16,9 @@ export async function bootstrapApplication(
       ...(options?.initializers ?? []),
     ];
 
-    await runInitializers(initializers);
+    if (initializers.length > 0) {
+      await runInitializers(initializers);
+    }
 
     if (isDev) {
       console.info(`[Axiom] Application initialized successfully`);
