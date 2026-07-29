@@ -83,8 +83,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <h1>Error</h1>
         <p>{error.name}</p>
         <p>{error.message}</p>
-        {/*<p>The stack trace is:</p>
-        <pre>{error.stack}</pre>*/}
+        <pre>{error.stack}</pre>
       </div>
     );
   } else {

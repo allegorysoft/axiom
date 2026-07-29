@@ -3,7 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "bundler",
     "outDir": "dist",
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@react-router/node", "vite/client", "node"],
     "esModuleInterop": true,
     "jsx": "react-jsx",
