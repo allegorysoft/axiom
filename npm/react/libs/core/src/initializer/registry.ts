@@ -1,4 +1,4 @@
-import type { ApplicationInitializer } from '../models/initializer';
+import type { ApplicationInitializer } from '../models/application';
 
 const registry = new Set<ApplicationInitializer>();
 

@@ -2,7 +2,7 @@ import {
   type ConfigureFn,
   type ApplicationInitializer,
   InitializerError,
-} from '../models/initializer';
+} from '../models/application';
 import { getPlatform } from '../utils/platform-utils';
 
 type TaskSelector = (
