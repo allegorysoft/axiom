@@ -28,6 +28,10 @@ export async function clientLoader({}: ClientLoaderFunctionArgs) {
   await bootstrapApplication();
 }
 
+export function HydrateFallback() {
+  return <p>Loading App...</p>;
+}
+
 clientLoader.hydrate = true as const;
 
 export const meta: MetaFunction = () => [
