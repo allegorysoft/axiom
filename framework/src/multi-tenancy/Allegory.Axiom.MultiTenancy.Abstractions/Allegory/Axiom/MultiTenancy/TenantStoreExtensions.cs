@@ -8,7 +8,7 @@ public static class TenantStoreExtensions
 {
     extension(ITenantStore store)
     {
-        public async ValueTask<TenantContext?> GetAsync(Guid id)
+        public async ValueTask<TenantContext> GetAsync(Guid id)
         {
             var tenant = await store.FindAsync(id);
 
@@ -21,7 +21,7 @@ public static class TenantStoreExtensions
             return tenant;
         }
 
-        public async ValueTask<TenantContext?> GetAsync(string name)
+        public async ValueTask<TenantContext> GetAsync(string name)
         {
             var tenant = await store.FindAsync(name);
 

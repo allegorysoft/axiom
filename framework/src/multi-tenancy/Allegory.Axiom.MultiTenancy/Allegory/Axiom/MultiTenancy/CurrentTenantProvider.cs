@@ -51,14 +51,8 @@ public class CurrentTenantProvider(
     protected virtual async ValueTask<TenantContext> GetTenantAsync(string identifier)
     {
         var tenant = Guid.TryParse(identifier, out var id)
-            ? await Store.FindAsync(id)
-            : await Store.FindAsync(identifier);
-
-        if (tenant == null)
-        {
-            throw new NotFoundException(MultiTenancyExceptionCodes.TenantNotFound)
-                .AddData("identifier", identifier);
-        }
+            ? await Store.GetAsync(id)
+            : await Store.GetAsync(identifier);
 
         //TODO: Check tenant.IsActive
 
