@@ -30,10 +30,10 @@ public class RabbitMqEventConsumer
         Consumer = new AsyncEventingBasicConsumer(rabbitMqChannel.Channel);
         Consumer.ReceivedAsync += OnReceivedAsync;
 
-        // TODO: Call BasicCancelAsync to notify the broker to stop delivering messages for this consumer tag.
-        // Consider implementing this within a hosted service that invokes
-        // RabbitMqConnectionFactory.ShutdownGracefulAsync during application shutdown,
-        // ensuring consumers are cancelled cleanly before the connection is closed.
+        //TODO: Call BasicCancelAsync to notify the broker to stop delivering messages for this consumer tag.
+        //Consider implementing this within a hosted service that invokes
+        //RabbitMqConnectionFactory.ShutdownGracefulAsync during application shutdown,
+        //ensuring consumers are cancelled cleanly before the connection is closed.
         applicationLifetime.ApplicationStopping.Register(() => Consumer.ReceivedAsync -= OnReceivedAsync);
     }
 
