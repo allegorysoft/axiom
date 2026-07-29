@@ -120,7 +120,7 @@ public class CurrentTenantProviderTests : IntegrationTest
         var result = await Should.ThrowAsync<NotFoundException>(async () => await provider.TryGetAsync());
 
         result.Code.ShouldBe(MultiTenancyExceptionCodes.TenantNotFound);
-        result.Data["identifier"].ShouldBe(missingId.ToString());
+        result.Data["identifier"].ShouldBe(missingId);
     }
 
     [Fact]
