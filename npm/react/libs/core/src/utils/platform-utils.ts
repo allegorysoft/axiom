@@ -1,11 +1,11 @@
-export type Platform = 'server' | 'client';
+import type { Platform } from '../models/application';
 
 export function isPlatformServer(): boolean {
   return getPlatform() === 'server';
 }
 
 export function getPlatform(): Platform {
-  if (import.meta.env.SSR) {
+  if (typeof import.meta !== 'undefined' && import.meta.env.SSR) {
     return 'server';
   }
 

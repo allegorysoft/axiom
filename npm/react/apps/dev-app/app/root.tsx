@@ -1,3 +1,5 @@
+import './root.css';
+
 import {
   Links,
   Meta,
@@ -6,9 +8,27 @@ import {
   ScrollRestoration,
   type MetaFunction,
   type LinksFunction,
+  LoaderFunctionArgs,
+  ClientLoaderFunctionArgs,
+  isRouteErrorResponse,
 } from 'react-router';
 
-import './root.css';
+import { bootstrapApplication } from '@axiomframework/react-core';
+
+import type { Route } from '+/types/routes';
+import { provideEnvironment } from './providers/environment.provider';
+
+provideEnvironment();
+
+export async function loader({}: LoaderFunctionArgs) {
+  await bootstrapApplication();
+}
+
+export async function clientLoader({}: ClientLoaderFunctionArgs) {
+  await bootstrapApplication();
+}
+
+clientLoader.hydrate = true as const;
 
 export const meta: MetaFunction = () => [
   {
@@ -45,6 +65,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </body>
     </html>
   );
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+  if (isRouteErrorResponse(error)) {
+    return (
+      <>
+        <h1>
+          {error.status} {error.statusText}
+        </h1>
+        <p>{error.data}</p>
+      </>
+    );
+  } else if (error instanceof Error || error instanceof AggregateError) {
+    return (
+      <div>
+        <h1>Error</h1>
+        <p>{error.name}</p>
+        <p>{error.message}</p>
+        <pre>{error.stack}</pre>
+      </div>
+    );
+  } else {
+    return <h1>Unknown Error</h1>;
+  }
 }
 
 export default function App() {

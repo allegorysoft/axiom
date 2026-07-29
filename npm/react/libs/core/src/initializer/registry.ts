@@ -1,17 +1,17 @@
-import type { Initializer } from '../models/initializer';
+import type { ApplicationInitializer } from '../models/initializer';
 
-const registry = new Map<string, Initializer>();
+const registry = new Set<ApplicationInitializer>();
 
-export function provideInitializer(...initializers: Initializer[]): void {
+export function provideInitializers(
+  ...initializers: ApplicationInitializer[]
+): void {
   for (const initializer of initializers) {
-    registry.set(initializer.name, initializer);
+    if (initializer.configure || initializer.postConfigure) {
+      registry.add(initializer);
+    }
   }
 }
 
-export function getInitializers(): Initializer[] {
+export function getInitializers(): ApplicationInitializer[] {
   return [...registry.values()];
-}
-
-export function clearInitializers(): void {
-  registry.clear();
 }

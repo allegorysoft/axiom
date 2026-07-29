@@ -2,7 +2,7 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": ["DOM"],
+    "lib": ["DOM", "ES2022"],
     "declaration": true,
     "composite": true,
     "outDir": "../../dist/out-tsc",

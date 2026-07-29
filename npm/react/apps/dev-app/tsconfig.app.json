@@ -3,7 +3,7 @@
   "compilerOptions": {
     "moduleResolution": "bundler",
     "outDir": "dist",
-    "lib": ["DOM", "DOM.Iterable", "ES2019"],
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@react-router/node", "vite/client", "node"],
     "esModuleInterop": true,
     "jsx": "react-jsx",
@@ -20,6 +20,7 @@
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
     "**/.client/**/*.tsx",
+    "../../libs/core/src/index.ts",
     "../../libs/theme/src/components/index.ts"
   ],
   "exclude": [
