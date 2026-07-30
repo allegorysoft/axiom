@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Testcontainers.PostgreSql"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
+        <ProjectReference Include="..\..\..\src\ef-core\Allegory.Axiom.EntityFrameworkCore\Allegory.Axiom.EntityFrameworkCore.csproj"/>
+    </ItemGroup>
+
+</Project>
