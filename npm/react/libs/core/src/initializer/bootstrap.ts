@@ -1,12 +1,12 @@
 import type { AxiomApplicationOptions } from '../models/application';
+import { isDevMode } from '../utils/is-dev-mode';
 import { getInitializers } from './registry';
 import { runInitializers } from './run';
 
 export async function bootstrapApplication(
   options?: AxiomApplicationOptions,
 ): Promise<void> {
-  const isDev = import.meta.env.DEV;
-  if (isDev) {
+  if (isDevMode()) {
     console.info('[Axiom] Application initialization started.');
   }
 
@@ -20,7 +20,7 @@ export async function bootstrapApplication(
       await runInitializers(initializers);
     }
 
-    if (isDev) {
+    if (isDevMode()) {
       console.info(`[Axiom] Application initialized successfully`);
     }
   } catch (error) {

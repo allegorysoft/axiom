@@ -1,4 +1,5 @@
 import {
+  isDevMode,
   ApplicationInitializer,
   provideInitializers,
   useEnvironmentStore,
@@ -7,7 +8,7 @@ import {
 export function provideEnvironment() {
   const environmentInitializer: ApplicationInitializer = {
     configure: async () => {
-      const environment = import.meta.env.DEV
+      const environment = isDevMode()
         ? (await import('../environments/environment')).environment
         : (await import('../environments/environment.production')).environment;
       useEnvironmentStore.getState().setEnvironment(environment);
