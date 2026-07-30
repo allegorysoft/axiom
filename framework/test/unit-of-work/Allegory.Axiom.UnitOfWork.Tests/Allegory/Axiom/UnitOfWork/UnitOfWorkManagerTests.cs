@@ -83,7 +83,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
             root.Items["key"] = "value";
             using (var child = Manager.Begin())
             {
-                Manager.Current!.Items["key"].ShouldBe("value");
+                Manager.RequiredCurrent.Items["key"].ShouldBe("value");
                 root.Items.ShouldBe(child.Items);
             }
         }
@@ -214,8 +214,8 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
 
         using var uow = Manager.Begin();
 
-        Manager.Current!.Options.ShouldBe(options);
-        Manager.Current!.Options.Timeout.ShouldBe(options.Timeout);
+        Manager.RequiredCurrent.Options.ShouldBe(options);
+        Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 
     [Fact]
@@ -224,8 +224,8 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         var preferred = new UnitOfWorkOptions(timeout: TimeSpan.FromMinutes(1));
         using var uow = Manager.Begin(preferred);
 
-        Manager.Current!.Options.ShouldBe(preferred);
-        Manager.Current!.Options.Timeout.ShouldBe(preferred.Timeout);
+        Manager.RequiredCurrent.Options.ShouldBe(preferred);
+        Manager.RequiredCurrent.Options.Timeout.ShouldBe(preferred.Timeout);
     }
 
     [Fact]
@@ -236,9 +236,9 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         var preferred = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
         using var uow = Manager.Begin(preferred);
 
-        Manager.Current!.Options.ShouldBe(preferred);
-        Manager.Current!.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
-        Manager.Current!.Options.Timeout.ShouldBe(options.Timeout);
+        Manager.RequiredCurrent.Options.ShouldBe(preferred);
+        Manager.RequiredCurrent.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
+        Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 }
 

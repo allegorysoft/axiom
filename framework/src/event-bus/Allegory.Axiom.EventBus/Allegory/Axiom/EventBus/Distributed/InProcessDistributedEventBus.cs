@@ -57,7 +57,7 @@ public class InProcessDistributedEventBus(
                 return;
 
             case DistributedEventPublishMode.OnUnitOfWorkComplete:
-                UnitOfWorkManager.Current!.AddHook(
+                UnitOfWorkManager.RequiredCurrent.AddHook(
                     UnitOfWorkHookPoint.BeforeComplete,
                     () => PublishToMessageBrokerAsync(envelope));
                 return;

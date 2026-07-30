@@ -61,7 +61,7 @@ public class UnitOfWorkInterceptorTests : IntegrationTest
 
         service.OnExecute = () =>
         {
-            var options = Manager.Current!.Options;
+            var options = Manager.RequiredCurrent.Options;
             options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.RequiresNew);
             options.IsolationLevel.ShouldBe(IsolationLevel.Chaos);
             options.Timeout.ShouldBe(TimeSpan.FromMilliseconds(5000));
@@ -77,7 +77,7 @@ public class UnitOfWorkInterceptorTests : IntegrationTest
 
         service.OnExecute = () =>
         {
-            Manager.Current!.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Suppress);
+            Manager.RequiredCurrent.Options.TransactionBehavior.ShouldBe(UnitOfWorkTransactionBehavior.Suppress);
         };
 
         await service.GetAsync();

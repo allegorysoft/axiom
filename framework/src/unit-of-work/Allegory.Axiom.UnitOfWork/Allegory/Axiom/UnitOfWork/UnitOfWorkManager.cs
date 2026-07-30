@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.Threading;
@@ -14,6 +15,8 @@ public class UnitOfWorkManager(
     protected internal static readonly AsyncLocal<AsyncLocalContext<IUnitOfWork>?> CurrentUnitOfWork = new();
 
     public virtual IUnitOfWork? Current => CurrentUnitOfWork.Value?.Context;
+    public virtual IUnitOfWork RequiredCurrent => Current ?? throw new InvalidOperationException(
+        "No ambient unit of work found. Ensure a unit of work scope has been started before accessing this property");
     protected UnitOfWorkOptions Options { get; } = options.Value;
     protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
 
@@ -48,7 +51,7 @@ public class UnitOfWorkManager(
 
     protected virtual IUnitOfWork CreateUnitOfWork(UnitOfWorkOptions options)
     {
-        return ShouldCreateRoot(options) ? CreateRootUnitOfWork(options) : new ChildUnitOfWork(Current!);
+        return ShouldCreateRoot(options) ? CreateRootUnitOfWork(options) : new ChildUnitOfWork(RequiredCurrent);
     }
 
     protected virtual bool ShouldCreateRoot(UnitOfWorkOptions options)
