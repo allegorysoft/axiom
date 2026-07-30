@@ -1,4 +1,4 @@
-import type { ApplicationInitializer } from '../models/initializer';
+import type { ApplicationInitializer } from '../models/application';
 
 const registry = new Set<ApplicationInitializer>();
 
@@ -12,6 +12,10 @@ export function provideInitializers(
   }
 }
 
-export function getInitializers(): ApplicationInitializer[] {
+export function getInitializers(): readonly ApplicationInitializer[] {
   return [...registry.values()];
+}
+
+export function clearInitializers(): void {
+  registry.clear();
 }
