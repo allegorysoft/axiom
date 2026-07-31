@@ -24,6 +24,10 @@
     <Project Path="src/file-provider/Allegory.Axiom.FileProvider.Abstractions/Allegory.Axiom.FileProvider.Abstractions.csproj" />
     <Project Path="src/file-provider/Allegory.Axiom.FileProvider/Allegory.Axiom.FileProvider.csproj" />
   </Folder>
+  <Folder Name="/src/ef-core/">
+    <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.Abstractions/Allegory.Axiom.EntityFrameworkCore.Abstractions.csproj" />
+    <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore/Allegory.Axiom.EntityFrameworkCore.csproj" />
+  </Folder>
   <Folder Name="/src/event-bus/">
     <Project Path="src/event-bus/Allegory.Axiom.EventBus.Abstractions/Allegory.Axiom.EventBus.Abstractions.csproj" />
     <Project Path="src/event-bus/Allegory.Axiom.EventBus.RabbitMQ/Allegory.Axiom.EventBus.RabbitMQ.csproj" />
@@ -75,6 +79,9 @@
   <Folder Name="/test/core/">
     <Project Path="test/core/Allegory.Axiom.Core.Tests/Allegory.Axiom.Core.Tests.csproj" />
     <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/ef-core/">
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Tests/Allegory.Axiom.EntityFrameworkCore.Tests.csproj" />
   </Folder>
   <Folder Name="/test/event-bus/">
     <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />

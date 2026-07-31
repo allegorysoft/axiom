@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
+[SuppressMessage("Usage", "xUnit1051:Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken")]
 public class UnitOfWorkEndpointFilterTests
 {
     public UnitOfWorkEndpointFilterTests()
@@ -139,11 +141,24 @@ public class UnitOfWorkEndpointFilterTests
 
         Manager.Received(1).Begin(custom);
     }
-
+    
     [Fact]
-    public async Task ShouldUseRequestAbortedTokenForComplete()
+    public async Task ShouldPassHttpContextRequestServicesToBegin()
     {
-        Manager.Begin(Arg.Any<UnitOfWorkOptions>()).Returns(UnitOfWork);
+        var httpContext = new DefaultHttpContext();
+        var requestServices = Substitute.For<IServiceProvider>();
+        httpContext.RequestServices = requestServices;
+
+        await Filter.InvokeAsync(
+            new DefaultEndpointFilterInvocationContext(httpContext, []),
+            _ => ValueTask.FromResult<object?>(null));
+
+        Manager.Received(1).Begin(Arg.Any<UnitOfWorkOptions?>(), requestServices);
+    }
+    
+    [Fact]
+    public async Task ShouldPassHttpContextRequestAbortedTokenToBegin()
+    {
         var httpContext = new DefaultHttpContext();
         var cts = new CancellationTokenSource();
         httpContext.RequestAborted = cts.Token;
@@ -152,6 +167,6 @@ public class UnitOfWorkEndpointFilterTests
             new DefaultEndpointFilterInvocationContext(httpContext, []),
             _ => ValueTask.FromResult<object?>(null));
 
-        await UnitOfWork.Received(1).TryCompleteAsync(cts.Token);
+        Manager.Received(1).Begin(Arg.Any<UnitOfWorkOptions?>(), Arg.Any<IServiceProvider?>(), httpContext.RequestAborted);
     }
 }

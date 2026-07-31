@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.EntityFrameworkCore"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.EntityFrameworkCore.Abstractions\Allegory.Axiom.EntityFrameworkCore.Abstractions.csproj"/>
+    </ItemGroup>
+
+</Project>

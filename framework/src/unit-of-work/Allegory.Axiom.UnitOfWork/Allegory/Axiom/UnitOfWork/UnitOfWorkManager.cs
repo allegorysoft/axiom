@@ -1,25 +1,34 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkManager(
     IOptions<UnitOfWorkOptions> options,
-    ITenantContextAccessor tenantContextAccessor) 
+    ITenantContextAccessor tenantContextAccessor,
+    IServiceScopeFactory  serviceScopeFactory) 
     : IUnitOfWorkManager, ISingletonService
 {
     protected internal static readonly AsyncLocal<AsyncLocalContext<IUnitOfWork>?> CurrentUnitOfWork = new();
 
     public virtual IUnitOfWork? Current => CurrentUnitOfWork.Value?.Context;
+    public virtual IUnitOfWork RequiredCurrent => Current ?? throw new InvalidOperationException(
+        "No ambient unit of work found. Ensure a unit of work scope has been started before accessing this property");
     protected UnitOfWorkOptions Options { get; } = options.Value;
     protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+    protected IServiceScopeFactory ServiceScopeFactory { get; } = serviceScopeFactory;
 
-    public virtual IUnitOfWork Begin(UnitOfWorkOptions? options = null)
+    public virtual IUnitOfWork Begin(
+        UnitOfWorkOptions? options = null,
+        IServiceProvider? serviceProvider = null,
+        CancellationToken cancellationToken = default)
     {
-        var unitOfWork = CreateUnitOfWork(GetUnitOfWorkOptions(options));
+        var unitOfWork = CreateUnitOfWork(GetUnitOfWorkOptions(options), serviceProvider, cancellationToken);
 
         if (CurrentUnitOfWork.Value == null)
         {
@@ -46,9 +55,24 @@ public class UnitOfWorkManager(
         return preferred;
     }
 
-    protected virtual IUnitOfWork CreateUnitOfWork(UnitOfWorkOptions options)
+    protected virtual IUnitOfWork CreateUnitOfWork(
+        UnitOfWorkOptions options,
+        IServiceProvider? serviceProvider = null,
+        CancellationToken cancellationToken = default)
     {
-        return ShouldCreateRoot(options) ? CreateRootUnitOfWork(options) : new ChildUnitOfWork(Current!);
+        if (ShouldCreateRoot(options))
+        {
+            return CreateRootUnitOfWork(options, serviceProvider, cancellationToken);
+        }
+
+        var parent = RequiredCurrent;
+        cancellationToken = GetOrCreateCancellationToken(cancellationToken, out var cancellationTokenSource);
+
+        return new ChildUnitOfWork(
+            parent,
+            serviceProvider ?? parent.ServiceProvider,
+            cancellationToken: cancellationToken,
+            cancellationTokenSource: cancellationTokenSource);
     }
 
     protected virtual bool ShouldCreateRoot(UnitOfWorkOptions options)
@@ -73,9 +97,20 @@ public class UnitOfWorkManager(
         return true;
     }
 
-    protected virtual IUnitOfWork CreateRootUnitOfWork(UnitOfWorkOptions options)
+    protected virtual IUnitOfWork CreateRootUnitOfWork(
+        UnitOfWorkOptions options,
+        IServiceProvider? serviceProvider = null,
+        CancellationToken cancellationToken = default)
     {
-        var unitOfWork = new UnitOfWork(options);
+        serviceProvider = GetOrCreateServiceProvider(serviceProvider, out var asyncServiceScope);
+        cancellationToken = GetOrCreateCancellationToken(cancellationToken, out var cancellationTokenSource);
+
+        var unitOfWork = new UnitOfWork(
+            options,
+            serviceProvider,
+            asyncServiceScope: asyncServiceScope,
+            cancellationToken: cancellationToken,
+            cancellationTokenSource: cancellationTokenSource);
         unitOfWork.Parent = Current;
         unitOfWork.Activity = UnitOfWorkActivity.Source.StartActivity(name: "UnitOfWork");
 
@@ -87,5 +122,46 @@ public class UnitOfWorkManager(
         }
 
         return unitOfWork;
+    }
+
+    protected virtual IServiceProvider GetOrCreateServiceProvider(
+        IServiceProvider? serviceProvider,
+        out AsyncServiceScope? asyncServiceScope)
+    {
+        serviceProvider ??= Current?.ServiceProvider;
+        asyncServiceScope = null;
+
+        if (serviceProvider == null)
+        {
+            asyncServiceScope = ServiceScopeFactory.CreateAsyncScope();
+            serviceProvider = asyncServiceScope.Value.ServiceProvider;
+        }
+
+        return serviceProvider;
+    }
+
+    protected virtual CancellationToken GetOrCreateCancellationToken(
+        CancellationToken cancellationToken,
+        out CancellationTokenSource? cancellationTokenSource)
+    {
+        cancellationTokenSource = null;
+        var parentCancellationToken = Current?.CancellationToken;
+
+        if (!parentCancellationToken.HasValue ||
+            parentCancellationToken.Value == CancellationToken.None ||
+            parentCancellationToken.Value == cancellationToken)
+        {
+            return cancellationToken;
+        }
+
+        if (cancellationToken == CancellationToken.None)
+        {
+            return parentCancellationToken.Value;
+        }
+
+        cancellationTokenSource =
+            CancellationTokenSource.CreateLinkedTokenSource(parentCancellationToken.Value, cancellationToken);
+
+        return cancellationTokenSource.Token;
     }
 }

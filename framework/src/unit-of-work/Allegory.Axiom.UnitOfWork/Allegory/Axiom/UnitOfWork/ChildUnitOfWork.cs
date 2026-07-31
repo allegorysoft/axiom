@@ -6,8 +6,15 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-internal sealed class ChildUnitOfWork(IUnitOfWork parent) : IUnitOfWork
+internal sealed class ChildUnitOfWork(
+    IUnitOfWork parent,
+    IServiceProvider serviceProvider,
+    CancellationToken cancellationToken = default,
+    CancellationTokenSource? cancellationTokenSource = null) 
+    : IUnitOfWork
 {
+    private CancellationTokenSource? CancellationTokenSource { get; } = cancellationTokenSource;
+    
     public Guid Id { get; } = Guid.NewGuid();
     public IUnitOfWork Parent { get; } = parent;
     public Activity? Activity => Parent.Activity;
@@ -15,6 +22,8 @@ internal sealed class ChildUnitOfWork(IUnitOfWork parent) : IUnitOfWork
     public Dictionary<string, object> Items => Parent.Items;
     public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => Parent.Databases;
     public UnitOfWorkState State => Parent.State;
+    public IServiceProvider ServiceProvider { get; } = serviceProvider;
+    public CancellationToken CancellationToken { get; } = cancellationToken;
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => Parent.AddDatabase(key, handle);
 
@@ -28,6 +37,7 @@ internal sealed class ChildUnitOfWork(IUnitOfWork parent) : IUnitOfWork
 
     public void Dispose()
     {
+        CancellationTokenSource?.Dispose();
         UnitOfWorkManager.CurrentUnitOfWork.Value?.Context = Parent;
     }
 

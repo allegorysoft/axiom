@@ -72,7 +72,7 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(3), publishMode: DistributedEventPublishMode.Immediate);
 
         handler.Received.ShouldContain(e => e.Value == 3);
@@ -112,7 +112,7 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
             new TestEvent(7),
@@ -142,13 +142,17 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
     [Fact]
     public async Task ShouldShareScopedServiceAcrossHandlersForAnEvent()
     {
+        var uowManager = fixture.Service<IUnitOfWorkManager>();
+
         var handler1 = fixture.Service<ScopedEventHandler1>();
         var handler2 = fixture.Service<ScopedEventHandler2>();
 
         handler1.Received.ShouldBeNull();
         handler2.Received.ShouldBeNull();
 
-        await EventBus.PublishAsync(new ScopedEvent());
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
+
+        await EventBus.PublishAsync(new ScopedEvent(), DistributedEventPublishMode.Immediate);
 
         handler1.Received.ShouldNotBeNull();
         handler2.Received.ShouldNotBeNull();
@@ -211,24 +215,24 @@ file class ScopedImplementation : IScopedService
 
 file record ScopedEvent {}
 
-file class ScopedEventHandler1 : IDistributedEventHandler<ScopedEvent>
+file class ScopedEventHandler1(IUnitOfWorkManager manager) : IDistributedEventHandler<ScopedEvent>
 {
     public ScopedImplementation? Received { get; protected set; }
 
     public Task HandleAsync(ScopedEvent payload, EventContext context)
     {
-        Received = context.ServiceProvider.GetRequiredService<ScopedImplementation>();
+        Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<ScopedImplementation>();
         return Task.CompletedTask;
     }
 }
 
-file class ScopedEventHandler2 : IDistributedEventHandler<ScopedEvent>
+file class ScopedEventHandler2(IUnitOfWorkManager manager) : IDistributedEventHandler<ScopedEvent>
 {
     public ScopedImplementation? Received { get; protected set; }
 
     public Task HandleAsync(ScopedEvent payload, EventContext context)
     {
-        Received = context.ServiceProvider.GetRequiredService<ScopedImplementation>();
+        Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<ScopedImplementation>();
         return Task.CompletedTask;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
@@ -134,7 +135,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
     [Fact]
     public async Task ShouldSetImmediatelyWhenModeIsImmediateInsideUnitOfWork()
     {
-        await using var unitOfWork = UnitOfWorkManager.Begin();
+        await using var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await Cache.SetAsync(
             "mm-immediate",
@@ -144,13 +145,13 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 
         (await Cache.ExistsAsync<SomeCacheItem>("mm-immediate")).ShouldBeTrue();
 
-        await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+        await unitOfWork.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
     public async Task ShouldDeferSetUntilUnitOfWorkCompletes()
     {
-        await using (var unitOfWork = UnitOfWorkManager.Begin())
+        await using (var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             await Cache.SetAsync(
                 "mm-deferred-set",
@@ -160,7 +161,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 
             (await Cache.ExistsAsync<SomeCacheItem>("mm-deferred-set")).ShouldBeFalse();
 
-            await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+            await unitOfWork.CompleteAsync(CancellationToken.None);
         }
 
         (await Cache.ExistsAsync<SomeCacheItem>("mm-deferred-set")).ShouldBeTrue();
@@ -169,7 +170,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
     [Fact]
     public async Task ShouldNotSetWhenUnitOfWorkRollsBack()
     {
-        await using (UnitOfWorkManager.Begin())
+        await using (UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             await Cache.SetAsync(
                 "mm-rollback-set",
@@ -184,7 +185,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
     [Fact]
     public async Task ShouldCaptureTenantAtCallTimeForDeferredSet()
     {
-        await using (var unitOfWork = UnitOfWorkManager.Begin())
+        await using (var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             using (TenantContextAccessor.Change(Tenant))
             {
@@ -197,7 +198,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
                 (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeFalse();
             }
 
-            await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+            await unitOfWork.CompleteAsync(CancellationToken.None);
         }
 
         using (TenantContextAccessor.Change(Tenant))
@@ -242,7 +243,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             new SomeCacheItem(),
             cancellationToken: TestContext.Current.CancellationToken);
 
-        await using var unitOfWork = UnitOfWorkManager.Begin();
+        await using var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await Cache.RemoveAsync<SomeCacheItem>(
             "mm-remove-immediate",
@@ -250,7 +251,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             TestContext.Current.CancellationToken);
         (await Cache.ExistsAsync<SomeCacheItem>("mm-remove-immediate")).ShouldBeFalse();
 
-        await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+        await unitOfWork.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -261,7 +262,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             new SomeCacheItem(),
             cancellationToken: TestContext.Current.CancellationToken);
 
-        await using (var unitOfWork = UnitOfWorkManager.Begin())
+        await using (var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             await Cache.RemoveAsync<SomeCacheItem>(
                 "mm-deferred-remove",
@@ -270,7 +271,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 
             (await Cache.ExistsAsync<SomeCacheItem>("mm-deferred-remove")).ShouldBeTrue();
 
-            await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+            await unitOfWork.CompleteAsync(CancellationToken.None);
         }
 
         (await Cache.ExistsAsync<SomeCacheItem>("mm-deferred-remove")).ShouldBeFalse();
@@ -284,7 +285,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             new SomeCacheItem(),
             cancellationToken: TestContext.Current.CancellationToken);
 
-        await using (UnitOfWorkManager.Begin())
+        await using (UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             await Cache.RemoveAsync<SomeCacheItem>(
                 "mm-rollback-remove",
@@ -309,7 +310,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             new SomeCacheItem(),
             cancellationToken: TestContext.Current.CancellationToken);
 
-        await using (var unitOfWork = UnitOfWorkManager.Begin())
+        await using (var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             await Cache.RemoveAsync<SomeCacheItem>(
                 ["mm-many-1", "mm-many-2"],
@@ -319,7 +320,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             (await Cache.ExistsAsync<SomeCacheItem>("mm-many-1")).ShouldBeTrue();
             (await Cache.ExistsAsync<SomeCacheItem>("mm-many-2")).ShouldBeTrue();
 
-            await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+            await unitOfWork.CompleteAsync(CancellationToken.None);
         }
 
         (await Cache.ExistsAsync<SomeCacheItem>("mm-many-1")).ShouldBeFalse();
@@ -337,7 +338,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             tags: ["mm-tag"],
             cancellationToken: TestContext.Current.CancellationToken);
 
-        await using (var unitOfWork = UnitOfWorkManager.Begin())
+        await using (var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             await Cache.RemoveByTagAsync(
                 "mm-tag",
@@ -346,7 +347,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 
             (await Cache.ExistsAsync<SomeCacheItem>("mm-tagged")).ShouldBeTrue();
 
-            await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+            await unitOfWork.CompleteAsync(CancellationToken.None);
         }
 
         (await Cache.ExistsAsync<SomeCacheItem>("mm-tagged")).ShouldBeFalse();
@@ -368,7 +369,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             tags: ["mm-tag-b"],
             cancellationToken: TestContext.Current.CancellationToken);
 
-        await using (var unitOfWork = UnitOfWorkManager.Begin())
+        await using (var unitOfWork = UnitOfWorkManager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             await Cache.RemoveByTagAsync(
                 ["mm-tag-a", "mm-tag-b"],
@@ -378,7 +379,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             (await Cache.ExistsAsync<SomeCacheItem>("mm-multi-tagged-1")).ShouldBeTrue();
             (await Cache.ExistsAsync<SomeCacheItem>("mm-multi-tagged-2")).ShouldBeTrue();
 
-            await unitOfWork.CompleteAsync(TestContext.Current.CancellationToken);
+            await unitOfWork.CompleteAsync(CancellationToken.None);
         }
 
         (await Cache.ExistsAsync<SomeCacheItem>("mm-multi-tagged-1")).ShouldBeFalse();

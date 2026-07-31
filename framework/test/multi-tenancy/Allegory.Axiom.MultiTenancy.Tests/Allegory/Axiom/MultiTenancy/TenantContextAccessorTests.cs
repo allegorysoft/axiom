@@ -155,8 +155,8 @@ public class TenantContextAccessorTests
 
         Accessor.Set(tenant);
 
-        Accessor.Current!.Id.ShouldBe(id);
-        Accessor.Current.Name.ShouldBe("my-tenant");
-        Accessor.Current.NormalizedName.ShouldBe("MY-TENANT");
+        Accessor.RequiredCurrent.Id.ShouldBe(id);
+        Accessor.RequiredCurrent.Name.ShouldBe("my-tenant");
+        Accessor.RequiredCurrent.NormalizedName.ShouldBe("MY-TENANT");
     }
 }

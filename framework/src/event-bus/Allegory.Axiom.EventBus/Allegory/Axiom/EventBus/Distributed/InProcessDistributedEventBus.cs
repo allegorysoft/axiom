@@ -57,7 +57,7 @@ public class InProcessDistributedEventBus(
                 return;
 
             case DistributedEventPublishMode.OnUnitOfWorkComplete:
-                UnitOfWorkManager.Current!.AddHook(
+                UnitOfWorkManager.RequiredCurrent.AddHook(
                     UnitOfWorkHookPoint.BeforeComplete,
                     () => PublishToMessageBrokerAsync(envelope));
                 return;
@@ -86,13 +86,9 @@ public class InProcessDistributedEventBus(
 
     protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
     {
-        using var scope = ServiceScopeFactory.CreateScope();
-
         var context = new EventContext
         {
-            Id = envelope.Id,
-            CancellationToken = CancellationToken.None,
-            ServiceProvider = scope.ServiceProvider
+            Id = envelope.Id
         };
 
         foreach (var handler in Handlers[typeof(T)])

@@ -5,6 +5,7 @@
         <RuntimePackageVersion>10.0.10</RuntimePackageVersion>
         <OpenTelemetryVersion>1.17.0</OpenTelemetryVersion>
         <FusionCacheVersion>2.6.0</FusionCacheVersion>
+        <TestcontainersVersion>4.13.0</TestcontainersVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -13,13 +14,16 @@
         <PackageVersion Include="BenchmarkDotNet" Version="0.15.8"/>
         <PackageVersion Include="Castle.Core" Version="5.2.1"/>
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
-        <PackageVersion Include="RabbitMQ.Client" Version="7.2.1"/>
+
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3"/>
 
         <PackageVersion Include="OpenTelemetry.Api" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryVersion)"/>
+
+        <PackageVersion Include="RabbitMQ.Client" Version="7.2.1"/>
 
         <PackageVersion Include="ZiggyCreatures.FusionCache" Version="$(FusionCacheVersion)"/>
         <PackageVersion Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="$(FusionCacheVersion)"/>
@@ -33,6 +37,12 @@
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
+
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(RuntimePackageVersion)"/>
 
         <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(RuntimePackageVersion)"/>
@@ -62,8 +72,9 @@
         <PackageVersion Include="MSTest.TestFramework" Version="4.0.1"/>
         <PackageVersion Include="NSubstitute" Version="5.3.0"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
-        <PackageVersion Include="Testcontainers" Version="4.12.0"/>
-        <PackageVersion Include="Testcontainers.RabbitMq" Version="4.12.0"/>
+        <PackageVersion Include="Testcontainers" Version="$(TestcontainersVersion)"/>
+        <PackageVersion Include="Testcontainers.RabbitMq" Version="$(TestcontainersVersion)"/>
+        <PackageVersion Include="Testcontainers.PostgreSql" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5"/>
         <PackageVersion Include="xunit.v3" Version="3.2.2"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>

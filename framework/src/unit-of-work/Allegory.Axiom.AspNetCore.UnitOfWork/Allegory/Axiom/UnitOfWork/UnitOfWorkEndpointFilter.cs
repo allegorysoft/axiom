@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +30,10 @@ public class UnitOfWorkEndpointFilter : IEndpointFilter, ISingletonService
         EndpointFilterDelegate next)
     {
         var option = Options.OptionsSelector!(context.HttpContext);
-        await using var uow = Manager.Begin(option);
+        await using var uow = Manager.Begin(
+            option,
+            serviceProvider: context.HttpContext.RequestServices,
+            cancellationToken: context.HttpContext.RequestAborted);
 
         object? result;
         try
@@ -38,11 +42,11 @@ public class UnitOfWorkEndpointFilter : IEndpointFilter, ISingletonService
         }
         catch (Exception e)
         {
-            await uow.TryRollbackAsync(e);
+            await uow.TryRollbackAsync(e, cancellationToken: CancellationToken.None);
             throw;
         }
 
-        await uow.TryCompleteAsync(context.HttpContext.RequestAborted);
+        await uow.TryCompleteAsync(cancellationToken: CancellationToken.None);
         return result;
     }
 }
