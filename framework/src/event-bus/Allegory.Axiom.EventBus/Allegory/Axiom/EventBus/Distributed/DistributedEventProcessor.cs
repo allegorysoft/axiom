@@ -44,14 +44,13 @@ public class DistributedEventProcessor(
             using var activity = TryGetActivity(queueName, entry, id, traceParent, messagingSystem);
             TenantContextAccessor.Set(await TryGetTenantContextAsync(tenantId));
             await using var uow = UnitOfWorkManager.Begin(
-                new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew));
-            using var scope = ServiceScopeFactory.CreateScope();
+                new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew),
+                cancellationToken: cancellationToken);
+
             var context = new EventContext
             {
                 Id = id,
-                CancellationToken = cancellationToken,
-                Activity = activity,
-                ServiceProvider = scope.ServiceProvider
+                Activity = activity
             };
 
             try
@@ -60,11 +59,11 @@ public class DistributedEventProcessor(
             }
             catch (Exception e)
             {
-                await uow.TryRollbackAsync(e, cancellationToken: cancellationToken);
+                await uow.TryRollbackAsync(e, cancellationToken: CancellationToken.None);
                 throw;
             }
 
-            await uow.TryCompleteAsync(cancellationToken);
+            await uow.TryCompleteAsync(CancellationToken.None);
         }
         catch
         {

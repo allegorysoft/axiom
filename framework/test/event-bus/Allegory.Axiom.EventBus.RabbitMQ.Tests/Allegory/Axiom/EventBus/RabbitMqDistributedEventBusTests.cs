@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed;
+using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
@@ -162,24 +163,24 @@ file class RabbitScopedImplementation : IScopedService
 
 file record RabbitScopedTestEvent;
 
-file class RabbitScopedTestEventHandler1 : IDistributedEventHandler<RabbitScopedTestEvent>
+file class RabbitScopedTestEventHandler1(IUnitOfWorkManager manager) : IDistributedEventHandler<RabbitScopedTestEvent>
 {
     public RabbitScopedImplementation? Received { get; private set; }
 
     public Task HandleAsync(RabbitScopedTestEvent payload, EventContext context)
     {
-        Received = context.ServiceProvider.GetRequiredService<RabbitScopedImplementation>();
+        Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<RabbitScopedImplementation>();
         return Task.CompletedTask;
     }
 }
 
-file class RabbitScopedTestEventHandler2 : IDistributedEventHandler<RabbitScopedTestEvent>
+file class RabbitScopedTestEventHandler2(IUnitOfWorkManager manager) : IDistributedEventHandler<RabbitScopedTestEvent>
 {
     public RabbitScopedImplementation? Received { get; private set; }
 
     public Task HandleAsync(RabbitScopedTestEvent payload, EventContext context)
     {
-        Received = context.ServiceProvider.GetRequiredService<RabbitScopedImplementation>();
+        Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<RabbitScopedImplementation>();
         return Task.CompletedTask;
     }
 }
