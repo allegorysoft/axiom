@@ -77,6 +77,11 @@ internal sealed class UnitOfWork(
                 $"Cannot save UnitOfWork. Expected state '{UnitOfWorkState.Started}', but was '{State}'.");
         }
 
+        // No partial-state problem here, so the token stays live through the
+        // database handle calls below instead of being pinned to None
+        cancellationToken = cancellationToken.FallbackTo(CancellationToken);
+        cancellationToken.ThrowIfCancellationRequested();
+
         await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeSave);
 
         foreach (var databaseHandle in Databases.Values)
@@ -97,12 +102,17 @@ internal sealed class UnitOfWork(
 
         await SaveChangesAsync(cancellationToken);
         await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeComplete, saveChanges: true);
+        
+        // Last point where State is still `Started` cancellation here can still
+        // be recovered via RollbackAsync. Once Committing begins, commit is
+        // uninterruptible (CancellationToken.None below)
+        cancellationToken.FallbackTo(CancellationToken).ThrowIfCancellationRequested();
 
         State = UnitOfWorkState.Committing;
 
         foreach (var databaseHandle in Databases.Values)
         {
-            await databaseHandle.CommitAsync(cancellationToken);
+            await databaseHandle.CommitAsync(CancellationToken.None);
         }
 
         State = UnitOfWorkState.Committed;
@@ -120,10 +130,15 @@ internal sealed class UnitOfWork(
 
         await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeRollback);
 
+        // Intentionally does not fall back to the UoW's own CancellationToken:
+        // rollback should still be attempted even if that token is already canceled
+        cancellationToken.ThrowIfCancellationRequested();
+
         State = UnitOfWorkState.RollingBack;
+
         foreach (var databaseHandle in Databases.Values)
         {
-            await databaseHandle.RollbackAsync(cancellationToken);
+            await databaseHandle.RollbackAsync(CancellationToken.None);
         }
 
         State = UnitOfWorkState.RolledBack;
