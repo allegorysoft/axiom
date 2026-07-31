@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +12,8 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
+[SuppressMessage("Usage",
+    "xUnit1051:Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken")]
 public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFixture<UnitOfWorkManagerFixture>
 {
     protected IUnitOfWorkManager Manager { get; } = fixture.Service<IUnitOfWorkManager>();
@@ -241,6 +245,8 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
     }
 
+    // Options
+
     [Fact]
     public void ShouldApplyDefaultOptionsWhenPreferredOptionsNull()
     {
@@ -275,6 +281,8 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 
+    // ServiceProvider
+
     [Fact]
     public void ShouldCreateNewServiceProviderWhenNoneProvidedAndNoParent()
     {
@@ -282,7 +290,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
 
         uow.ServiceProvider.ShouldNotBeNull();
     }
-    
+
     [Fact]
     public void ShouldUseProvidedServiceProviderWhenBeginCalledWithServiceProvider()
     {
@@ -330,7 +338,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
 
         subRoot.ServiceProvider.ShouldBeSameAs(root.ServiceProvider);
     }
-    
+
     [Fact]
     public void ShouldUseExplicitServiceProviderForSubRootWhenProvided()
     {
@@ -359,6 +367,113 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
 
         first.ShouldBeSameAs(second);
         second.ShouldBeSameAs(third);
+    }
+
+    // CancellationToken
+
+    [Fact]
+    public void ShouldUseCancellationTokenNoneWhenNotProvidedAndNoParent()
+    {
+        using var uow = Manager.Begin();
+
+        uow.CancellationToken.ShouldBe(CancellationToken.None);
+    }
+
+    [Fact]
+    public void ShouldUseProvidedCancellationTokenWhenBeginCalledWithCancellationToken()
+    {
+        using var cts = new CancellationTokenSource();
+
+        using var uow = Manager.Begin(cancellationToken: cts.Token);
+
+        uow.CancellationToken.ShouldBe(cts.Token);
+    }
+
+    [Fact]
+    public void ShouldUseParentCancellationTokenWhenChildBegunWithoutExplicitToken()
+    {
+        using var parentCts = new CancellationTokenSource();
+
+        using var root = Manager.Begin(cancellationToken: parentCts.Token);
+        using var child = Manager.Begin();
+
+        child.CancellationToken.ShouldBe(parentCts.Token);
+    }
+
+    [Fact]
+    public void ShouldUseProvidedTokenWhenParentHasNoToken()
+    {
+        using var cts = new CancellationTokenSource();
+
+        using var root = Manager.Begin();
+        using var child = Manager.Begin(cancellationToken: cts.Token);
+
+        child.CancellationToken.ShouldBe(cts.Token);
+    }
+
+    [Fact]
+    public void ShouldLinkParentAndProvidedTokensWhenBothPresentAndDistinct()
+    {
+        using var parentCts = new CancellationTokenSource();
+        using var childCts = new CancellationTokenSource();
+
+        using var root = Manager.Begin(cancellationToken: parentCts.Token);
+        using var child = Manager.Begin(cancellationToken: childCts.Token);
+
+        child.CancellationToken.ShouldNotBe(parentCts.Token);
+        child.CancellationToken.ShouldNotBe(childCts.Token);
+        child.CancellationToken.CanBeCanceled.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ShouldCancelLinkedTokenWhenParentTokenCancelled()
+    {
+        using var parentCts = new CancellationTokenSource();
+        using var childCts = new CancellationTokenSource();
+
+        using var root = Manager.Begin(cancellationToken: parentCts.Token);
+        using var child = Manager.Begin(cancellationToken: childCts.Token);
+
+        parentCts.Cancel();
+
+        child.CancellationToken.IsCancellationRequested.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ShouldCancelLinkedTokenWhenProvidedTokenCancelled()
+    {
+        using var parentCts = new CancellationTokenSource();
+        using var childCts = new CancellationTokenSource();
+
+        using var root = Manager.Begin(cancellationToken: parentCts.Token);
+        using var child = Manager.Begin(cancellationToken: childCts.Token);
+
+        childCts.Cancel();
+
+        child.CancellationToken.IsCancellationRequested.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void ShouldReuseParentTokenWhenProvidedTokenEqualsParentToken()
+    {
+        using var parentCts = new CancellationTokenSource();
+
+        using var root = Manager.Begin(cancellationToken: parentCts.Token);
+        using var child = Manager.Begin(cancellationToken: parentCts.Token);
+
+        child.CancellationToken.ShouldBe(parentCts.Token);
+    }
+
+    [Fact]
+    public void ShouldUseParentCancellationTokenForSubRootWithoutExplicitToken()
+    {
+        using var parentCts = new CancellationTokenSource();
+
+        using var root = Manager.Begin(cancellationToken: parentCts.Token);
+        using var subRoot = Manager.Begin(
+            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+
+        subRoot.CancellationToken.ShouldBe(parentCts.Token);
     }
 }
 

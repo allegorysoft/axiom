@@ -147,7 +147,9 @@ public class UnitOfWorkManager(
         cancellationTokenSource = null;
         var parentCancellationToken = Current?.CancellationToken;
 
-        if (!parentCancellationToken.HasValue || parentCancellationToken.Value == CancellationToken.None)
+        if (!parentCancellationToken.HasValue ||
+            parentCancellationToken.Value == CancellationToken.None ||
+            parentCancellationToken.Value == cancellationToken)
         {
             return cancellationToken;
         }
