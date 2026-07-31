@@ -7,31 +7,29 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-internal sealed class UnitOfWork : IUnitOfWork
+internal sealed class UnitOfWork(
+    UnitOfWorkOptions options,
+    IServiceProvider serviceProvider,
+    AsyncServiceScope? asyncServiceScope = null,
+    CancellationToken cancellationToken = default,
+    CancellationTokenSource? cancellationTokenSource = null)
+    : IUnitOfWork
 {
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
     private readonly Dictionary<UnitOfWorkHookPoint, List<Func<Task>>> _hooks = new();
 
-    public UnitOfWork(
-        UnitOfWorkOptions options,
-        IServiceProvider serviceProvider,
-        AsyncServiceScope? asyncServiceScope = null)
-    {
-        Options = options;
-        ServiceProvider = serviceProvider;
-        AsyncServiceScope = asyncServiceScope;
-    }
-
-    private AsyncServiceScope? AsyncServiceScope { get; }
+    private AsyncServiceScope? AsyncServiceScope { get; } = asyncServiceScope;
+    private CancellationTokenSource? CancellationTokenSource { get; } = cancellationTokenSource;
 
     public Guid Id { get; } = Guid.NewGuid();
     public IUnitOfWork? Parent { get; set; }
     public Activity? Activity { get; set; }
-    public UnitOfWorkOptions Options { get; }
+    public UnitOfWorkOptions Options { get; } = options;
     public Dictionary<string, object> Items { get; } = new();
     public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => _databases;
     public UnitOfWorkState State { get; private set; }
-    public IServiceProvider ServiceProvider { get; }
+    public IServiceProvider ServiceProvider { get; } = serviceProvider;
+    public CancellationToken CancellationToken { get; } = cancellationToken;
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
 
@@ -157,6 +155,7 @@ internal sealed class UnitOfWork : IUnitOfWork
         }
 
         AsyncServiceScope?.Dispose();
+        CancellationTokenSource?.Dispose();
         Activity?.Dispose();
         UnitOfWorkManager.CurrentUnitOfWork.Value?.Context = Parent;
     }
@@ -199,6 +198,7 @@ internal sealed class UnitOfWork : IUnitOfWork
             await AsyncServiceScope.Value.DisposeAsync();
         }
 
+        CancellationTokenSource?.Dispose();
         Activity?.Dispose();
         UnitOfWorkManager.CurrentUnitOfWork.Value?.Context = Parent;
     }

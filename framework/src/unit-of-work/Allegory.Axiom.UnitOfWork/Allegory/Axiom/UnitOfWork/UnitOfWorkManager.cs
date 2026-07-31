@@ -66,7 +66,13 @@ public class UnitOfWorkManager(
         }
 
         var parent = RequiredCurrent;
-        return new ChildUnitOfWork(parent, serviceProvider ?? parent.ServiceProvider);
+        cancellationToken = GetOrCreateCancellationToken(cancellationToken, out var cancellationTokenSource);
+
+        return new ChildUnitOfWork(
+            parent,
+            serviceProvider ?? parent.ServiceProvider,
+            cancellationToken: cancellationToken,
+            cancellationTokenSource: cancellationTokenSource);
     }
 
     protected virtual bool ShouldCreateRoot(UnitOfWorkOptions options)
@@ -97,8 +103,14 @@ public class UnitOfWorkManager(
         CancellationToken cancellationToken = default)
     {
         serviceProvider = GetOrCreateServiceProvider(serviceProvider, out var asyncServiceScope);
+        cancellationToken = GetOrCreateCancellationToken(cancellationToken, out var cancellationTokenSource);
 
-        var unitOfWork = new UnitOfWork(options, serviceProvider, asyncServiceScope);
+        var unitOfWork = new UnitOfWork(
+            options,
+            serviceProvider,
+            asyncServiceScope: asyncServiceScope,
+            cancellationToken: cancellationToken,
+            cancellationTokenSource: cancellationTokenSource);
         unitOfWork.Parent = Current;
         unitOfWork.Activity = UnitOfWorkActivity.Source.StartActivity(name: "UnitOfWork");
 
@@ -126,5 +138,28 @@ public class UnitOfWorkManager(
         }
 
         return serviceProvider;
+    }
+
+    protected virtual CancellationToken GetOrCreateCancellationToken(
+        CancellationToken cancellationToken,
+        out CancellationTokenSource? cancellationTokenSource)
+    {
+        cancellationTokenSource = null;
+        var parentCancellationToken = Current?.CancellationToken;
+
+        if (!parentCancellationToken.HasValue || parentCancellationToken.Value == CancellationToken.None)
+        {
+            return cancellationToken;
+        }
+
+        if (cancellationToken == CancellationToken.None)
+        {
+            return parentCancellationToken.Value;
+        }
+
+        cancellationTokenSource =
+            CancellationTokenSource.CreateLinkedTokenSource(parentCancellationToken.Value, cancellationToken);
+
+        return cancellationTokenSource.Token;
     }
 }
