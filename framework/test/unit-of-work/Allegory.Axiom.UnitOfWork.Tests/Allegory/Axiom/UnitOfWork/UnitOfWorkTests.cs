@@ -16,6 +16,7 @@ public class UnitOfWorkTests
 
         return uow;
     }
+
     [Fact]
     public async Task ShouldHaveCorrectStateWhenOperationPerformed()
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -79,20 +80,21 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     public async Task ShouldNotRestoreParentUnitOfWorkWithoutAwaitingUntilSecondTaskCompletes()
     {
         // We use `AsyncLocalContext<>` to mutate the parent task's current state (execution
-        // context value) from a child execution context. That means any task running at the
-        // sametime shares and mutates the same context, so setting a unit of work shouldn't
-        // let another concurrently running method mutate it out from under us.
+        // context value) from a child execution context. `uow.DisposeAsync` runs in its own
+        // execution context but still needs to mutate the caller's context, since any task
+        // running at the sametime shares and mutates that same context, a unit of work
+        // shouldn't let another concurrently running method mutate it out from under us.
 
         await using (var root = Manager.Begin())
         {
             var rootSignal = new TaskCompletionSource();
             var childSignal = new TaskCompletionSource();
             var task = Job(rootSignal, childSignal);
-            await rootSignal.Task;
+            await rootSignal.Task; // Wait for task (Job) changes the `Manager.Current` to child uow
 
             Manager.Current.ShouldNotBe(root);
             childSignal.SetResult();
-            await task;
+            await task; // When task is over child.DisposeAsync restore context 
             Manager.Current.ShouldBe(root);
         }
 
@@ -272,6 +274,92 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         Manager.RequiredCurrent.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
+
+    [Fact]
+    public void ShouldCreateNewServiceProviderWhenNoneProvidedAndNoParent()
+    {
+        using var uow = Manager.Begin();
+
+        uow.ServiceProvider.ShouldNotBeNull();
+    }
+    
+    [Fact]
+    public void ShouldUseProvidedServiceProviderWhenBeginCalledWithServiceProvider()
+    {
+        var customProvider = fixture.Service<IServiceProvider>();
+
+        using var uow = Manager.Begin(serviceProvider: customProvider);
+
+        uow.ServiceProvider.ShouldBe(customProvider);
+    }
+
+    [Fact]
+    public void ShouldUseParentServiceProviderWhenChildBegunWithoutExplicitProvider()
+    {
+        using var root = Manager.Begin();
+
+        using var child = Manager.Begin();
+
+        child.ServiceProvider.ShouldBeSameAs(root.ServiceProvider);
+    }
+
+    [Fact]
+    public void ShouldUseExplicitServiceProviderForChildWhenProvided()
+    {
+        var customProvider = fixture.Service<IServiceProvider>();
+
+        using var root = Manager.Begin();
+        using var child = Manager.Begin(serviceProvider: customProvider);
+
+        child.ServiceProvider.ShouldBeSameAs(customProvider);
+        child.ServiceProvider.ShouldNotBe(root.ServiceProvider);
+    }
+
+    [Fact]
+    public void ShouldUseParentServiceProviderWhenSubRootBegunWithoutExplicitProvider()
+    {
+        // RequiresNew guarantees an independent transaction boundary, not an independent
+        // DI scope. Without an explicit provider, the sub-root inherits the ambient
+        // ServiceProvider. Callers needing scope isolation must create their own
+        // IServiceScope and pass its provider explicitly to Begin.
+
+        using var root = Manager.Begin();
+
+        using var subRoot = Manager.Begin(new UnitOfWorkOptions(
+            transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+
+        subRoot.ServiceProvider.ShouldBeSameAs(root.ServiceProvider);
+    }
+    
+    [Fact]
+    public void ShouldUseExplicitServiceProviderForSubRootWhenProvided()
+    {
+        var customProvider = fixture.Service<IServiceProvider>();
+        using var root = Manager.Begin();
+
+        using var subRoot = Manager.Begin(
+            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew),
+            serviceProvider: customProvider);
+
+        subRoot.ServiceProvider.ShouldBeSameAs(customProvider);
+        subRoot.ServiceProvider.ShouldNotBe(root.ServiceProvider);
+    }
+
+    [Fact]
+    public void ShouldResolveScopedServiceConsistentlyWithinSameAmbientScope()
+    {
+        using var root = Manager.Begin();
+        using var child = Manager.Begin();
+        using var subRoot = Manager.Begin(
+            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+
+        var first = root.ServiceProvider.GetRequiredService<ScopedImp>();
+        var second = child.ServiceProvider.GetRequiredService<ScopedImp>();
+        var third = subRoot.ServiceProvider.GetRequiredService<ScopedImp>();
+
+        first.ShouldBeSameAs(second);
+        second.ShouldBeSameAs(third);
+    }
 }
 
 public class UnitOfWorkManagerFixture : IntegrationTest
@@ -283,3 +371,5 @@ public class UnitOfWorkManagerFixture : IntegrationTest
         return Task.CompletedTask;
     }
 }
+
+file class ScopedImp : IScopedService {}

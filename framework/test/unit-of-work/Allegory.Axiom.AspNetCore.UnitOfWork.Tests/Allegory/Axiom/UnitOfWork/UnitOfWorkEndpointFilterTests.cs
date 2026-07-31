@@ -120,6 +120,20 @@ public class UnitOfWorkEndpointFilterTests
         Manager.Received(2).Begin(Arg.Is<UnitOfWorkOptions?>(o =>
             o != null && o.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress));
     }
+    
+    [Fact]
+    public async Task ShouldPassHttpContextRequestServicesToBegin()
+    {
+        var httpContext = new DefaultHttpContext();
+        var requestServices = Substitute.For<IServiceProvider>();
+        httpContext.RequestServices = requestServices;
+
+        await Filter.InvokeAsync(
+            new DefaultEndpointFilterInvocationContext(httpContext, []),
+            _ => ValueTask.FromResult<object?>(null));
+
+        Manager.Received(1).Begin(Arg.Any<UnitOfWorkOptions?>(), requestServices);
+    }
 
     [Fact]
     public async Task ShouldUseNullOptionsForNonGetOrQueryRequests()
