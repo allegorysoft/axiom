@@ -9,7 +9,9 @@ public static class UnitOfWorkExtensions
 {
     extension(IUnitOfWork uow)
     {
-        public async Task TryCompleteAsync(CancellationToken cancellationToken = default)
+        public async Task TryCompleteAsync(
+            CancellationToken cancellationToken = default,
+            CancellationToken rollbackCancellationToken = default)
         {
             try
             {
@@ -17,7 +19,7 @@ public static class UnitOfWorkExtensions
             }
             catch (Exception exception)
             {
-                await uow.TryRollbackAsync(exception, cancellationToken);
+                await uow.TryRollbackAsync(exception, rollbackCancellationToken);
                 throw;
             }
         }
