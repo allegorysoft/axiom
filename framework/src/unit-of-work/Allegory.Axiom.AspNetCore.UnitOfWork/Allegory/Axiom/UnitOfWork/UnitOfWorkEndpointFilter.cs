@@ -29,7 +29,10 @@ public class UnitOfWorkEndpointFilter : IEndpointFilter, ISingletonService
         EndpointFilterDelegate next)
     {
         var option = Options.OptionsSelector!(context.HttpContext);
-        await using var uow = Manager.Begin(option, context.HttpContext.RequestServices);
+        await using var uow = Manager.Begin(
+            option,
+            serviceProvider: context.HttpContext.RequestServices,
+            cancellationToken: context.HttpContext.RequestAborted);
 
         object? result;
         try
