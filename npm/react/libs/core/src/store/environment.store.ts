@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { OAuth } from '../models/oauth';
 import type { Environment, Endpoint } from '../models/environment';
+import { isDevMode } from '../utils/is-dev-mode';
 
 type EnvironmentState = { environment?: Environment };
 
@@ -50,9 +51,9 @@ function getEnvironmentOrWarn(
   state: EnvironmentState,
   action: keyof EnvironmentActions,
 ): Environment | undefined {
-  if (!state.environment && !import.meta.env.PROD) {
+  if (!state.environment && isDevMode()) {
     console.warn(
-      `[axiom] ${action} called before the environment was initialised.`,
+      `[Axiom] ${action} called before the environment was initialised.`,
     );
   }
 
