@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.AspNetCore.Http;
@@ -41,11 +42,11 @@ public class UnitOfWorkEndpointFilter : IEndpointFilter, ISingletonService
         }
         catch (Exception e)
         {
-            await uow.TryRollbackAsync(e);
+            await uow.TryRollbackAsync(e, cancellationToken: CancellationToken.None);
             throw;
         }
 
-        await uow.TryCompleteAsync(context.HttpContext.RequestAborted);
+        await uow.TryCompleteAsync(cancellationToken: CancellationToken.None);
         return result;
     }
 }
