@@ -76,6 +76,38 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     }
 
     [Fact]
+    public async Task ShouldNotRestoreParentUnitOfWorkWithoutAwaitingUntilSecondTaskCompletes()
+    {
+        // We use `AsyncLocalContext<>` to mutate the parent task's current state (execution
+        // context value) from a child execution context. That means any task running at the
+        // sametime shares and mutates the same context, so setting a unit of work shouldn't
+        // let another concurrently running method mutate it out from under us.
+
+        await using (var root = Manager.Begin())
+        {
+            var rootSignal = new TaskCompletionSource();
+            var childSignal = new TaskCompletionSource();
+            var task = Job(rootSignal, childSignal);
+            await rootSignal.Task;
+
+            Manager.Current.ShouldNotBe(root);
+            childSignal.SetResult();
+            await task;
+            Manager.Current.ShouldBe(root);
+        }
+
+        return;
+
+        async Task Job(TaskCompletionSource rootSignal, TaskCompletionSource childSignal)
+        {
+            await using var child = Manager.Begin();
+            rootSignal.SetResult();
+            Manager.Current.ShouldBe(child);
+            await childSignal.Task;
+        }
+    }
+
+    [Fact]
     public void ShouldUseParentPropertiesWhenUnitOfWorkIsChild()
     {
         using (var root = Manager.Begin())
@@ -246,10 +278,7 @@ public class UnitOfWorkManagerFixture : IntegrationTest
 {
     protected override Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<UnitOfWorkOptions>(options =>
-        {
-            options.Timeout = TimeSpan.FromSeconds(30);
-        });
+        builder.Services.Configure<UnitOfWorkOptions>(options => { options.Timeout = TimeSpan.FromSeconds(30); });
 
         return Task.CompletedTask;
     }
