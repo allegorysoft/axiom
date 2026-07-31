@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
@@ -249,6 +250,8 @@ public class UnitOfWorkTests
 
         uow.Databases["db1"].Database.ShouldBe(second);
     }
+
+    // Hook
 
     [Fact]
     public async Task ShouldInvokeHookWhenHookPointTriggered()
@@ -508,6 +511,153 @@ public class UnitOfWorkTests
         await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         log.ShouldBe(["save", "hook"]);
+    }
+
+    // Cancellation on Save, Complete and Rollback
+
+    [Fact]
+    public async Task ShouldFallbackToUnitOfWorkAmbientCancellationWhenSaveChangesAsyncCalledWithoutToken()
+    {
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var uow = new UnitOfWork(
+            new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider(),
+            cancellationToken: cts.Token);
+
+        // No token passed at the call site -> should fall back to the UoW's own (already canceled) token
+        await Should.ThrowAsync<OperationCanceledException>(() => uow.SaveChangesAsync(CancellationToken.None));
+    }
+    
+    [Fact]
+    public async Task ShouldUseProvidedTokenOverAmbientWhenSaveChangesAsyncCalledWithExplicitToken()
+    {
+        using var ambientCts = new CancellationTokenSource();
+        await ambientCts.CancelAsync();
+
+        var uow = new UnitOfWork(
+            new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider(),
+            cancellationToken: ambientCts.Token);
+
+        var saved = false;
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ =>
+            {
+                saved = true;
+                return Task.CompletedTask;
+            }));
+
+        // Ambient token canceled; explicit call-site token should be used instead and take precedence
+        await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        saved.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ShouldFallbackToUnitOfWorkAmbientCancellationWhenCompleteAsyncCalledWithoutToken()
+    {
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var uow = new UnitOfWork(
+            new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider(),
+            cancellationToken: cts.Token);
+
+        // No token passed at the call site -> should fall back to the UoW's own (already canceled) token
+        await Should.ThrowAsync<OperationCanceledException>(() => uow.CompleteAsync(CancellationToken.None));
+
+        uow.State.ShouldBe(UnitOfWorkState.Started);
+    }
+
+    [Fact]
+    public async Task ShouldUseProvidedTokenOverAmbientWhenCompleteAsyncCalledWithExplicitToken()
+    {
+        using var ambientCts = new CancellationTokenSource();
+        await ambientCts.CancelAsync();
+
+        var uow = new UnitOfWork(
+            new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider(),
+            cancellationToken: ambientCts.Token);
+
+        var commit = false;
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ => Task.CompletedTask,
+            commitAsync: _ =>
+            {
+                commit = true;
+                return Task.CompletedTask;
+            }));
+
+        // Ambient token canceled; explicit call-site token should be used instead and take precedence
+        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+
+        commit.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ShouldNotFallbackToUnitOfWorkAmbientCancellationWhenRollbackAsyncCalledWithoutToken()
+    {
+        // RollbackAsync intentionally does not fall back to the UoW's own CancellationToken,
+        // so rollback can still proceed even if that token is already canceled.
+
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        var uow = new UnitOfWork(
+            new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider(),
+            cancellationToken: cts.Token);
+
+        var rolledBack = false;
+
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ => Task.CompletedTask,
+            rollbackAsync: _ =>
+            {
+                rolledBack = true;
+                return Task.CompletedTask;
+            }));
+
+        await Should.NotThrowAsync(() => uow.RollbackAsync(CancellationToken.None));
+
+        uow.State.ShouldBe(UnitOfWorkState.RolledBack);
+        rolledBack.ShouldBeTrue();
+    }
+    
+    [Fact]
+    public async Task ShouldUseProvidedTokenWhenRollbackAsyncCalledWithExplicitToken()
+    {
+        // RollbackAsync intentionally does not fall back to the UoW's own CancellationToken,
+        // so rollback can still proceed even if that token is already canceled.
+
+        var uow = new UnitOfWork(
+            new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider());
+
+        var rolledBack = false;
+
+        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+            database: new object(),
+            saveChangesAsync: _ => Task.CompletedTask,
+            rollbackAsync: _ =>
+            {
+                rolledBack = true;
+                return Task.CompletedTask;
+            }));
+
+        var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+        await Should.ThrowAsync<OperationCanceledException>(() => uow.RollbackAsync(cts.Token));
+
+        uow.State.ShouldBe(UnitOfWorkState.Started);
+        rolledBack.ShouldBeFalse();
     }
 }
 

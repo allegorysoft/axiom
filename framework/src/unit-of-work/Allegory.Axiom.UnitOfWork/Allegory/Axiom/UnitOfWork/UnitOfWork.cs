@@ -64,7 +64,7 @@ internal sealed class UnitOfWork(
 
             if (saveChanges)
             {
-                await SaveChangesAsync();
+                await SaveChangesAsync(CancellationToken.None);
             }
         }
     }
@@ -102,7 +102,7 @@ internal sealed class UnitOfWork(
 
         await SaveChangesAsync(cancellationToken);
         await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeComplete, saveChanges: true);
-        
+
         // Last point where State is still `Started` cancellation here can still
         // be recovered via RollbackAsync. Once Committing begins, commit is
         // uninterruptible (CancellationToken.None below)
