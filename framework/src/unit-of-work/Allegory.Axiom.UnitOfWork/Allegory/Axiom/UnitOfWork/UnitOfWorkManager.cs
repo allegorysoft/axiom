@@ -3,13 +3,15 @@ using System.Threading;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkManager(
     IOptions<UnitOfWorkOptions> options,
-    ITenantContextAccessor tenantContextAccessor) 
+    ITenantContextAccessor tenantContextAccessor,
+    IServiceScopeFactory  serviceScopeFactory) 
     : IUnitOfWorkManager, ISingletonService
 {
     protected internal static readonly AsyncLocal<AsyncLocalContext<IUnitOfWork>?> CurrentUnitOfWork = new();
@@ -19,10 +21,14 @@ public class UnitOfWorkManager(
         "No ambient unit of work found. Ensure a unit of work scope has been started before accessing this property");
     protected UnitOfWorkOptions Options { get; } = options.Value;
     protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+    protected IServiceScopeFactory ServiceScopeFactory { get; } = serviceScopeFactory;
 
-    public virtual IUnitOfWork Begin(UnitOfWorkOptions? options = null)
+    public virtual IUnitOfWork Begin(
+        UnitOfWorkOptions? options = null,
+        IServiceProvider? serviceProvider = null,
+        CancellationToken cancellationToken = default)
     {
-        var unitOfWork = CreateUnitOfWork(GetUnitOfWorkOptions(options));
+        var unitOfWork = CreateUnitOfWork(GetUnitOfWorkOptions(options), serviceProvider, cancellationToken);
 
         if (CurrentUnitOfWork.Value == null)
         {
@@ -49,9 +55,18 @@ public class UnitOfWorkManager(
         return preferred;
     }
 
-    protected virtual IUnitOfWork CreateUnitOfWork(UnitOfWorkOptions options)
+    protected virtual IUnitOfWork CreateUnitOfWork(
+        UnitOfWorkOptions options,
+        IServiceProvider? serviceProvider = null,
+        CancellationToken cancellationToken = default)
     {
-        return ShouldCreateRoot(options) ? CreateRootUnitOfWork(options) : new ChildUnitOfWork(RequiredCurrent);
+        if (ShouldCreateRoot(options))
+        {
+            return CreateRootUnitOfWork(options, serviceProvider, cancellationToken);
+        }
+
+        var parent = RequiredCurrent;
+        return new ChildUnitOfWork(parent, serviceProvider ?? parent.ServiceProvider);
     }
 
     protected virtual bool ShouldCreateRoot(UnitOfWorkOptions options)
@@ -76,9 +91,14 @@ public class UnitOfWorkManager(
         return true;
     }
 
-    protected virtual IUnitOfWork CreateRootUnitOfWork(UnitOfWorkOptions options)
+    protected virtual IUnitOfWork CreateRootUnitOfWork(
+        UnitOfWorkOptions options,
+        IServiceProvider? serviceProvider = null,
+        CancellationToken cancellationToken = default)
     {
-        var unitOfWork = new UnitOfWork(options);
+        serviceProvider = GetOrCreateServiceProvider(serviceProvider, out var asyncServiceScope);
+
+        var unitOfWork = new UnitOfWork(options, serviceProvider, asyncServiceScope);
         unitOfWork.Parent = Current;
         unitOfWork.Activity = UnitOfWorkActivity.Source.StartActivity(name: "UnitOfWork");
 
@@ -90,5 +110,21 @@ public class UnitOfWorkManager(
         }
 
         return unitOfWork;
+    }
+
+    protected virtual IServiceProvider GetOrCreateServiceProvider(
+        IServiceProvider? serviceProvider,
+        out AsyncServiceScope? asyncServiceScope)
+    {
+        serviceProvider ??= Current?.ServiceProvider;
+        asyncServiceScope = null;
+
+        if (serviceProvider == null)
+        {
+            asyncServiceScope = ServiceScopeFactory.CreateAsyncScope();
+            serviceProvider = asyncServiceScope.Value.ServiceProvider;
+        }
+
+        return serviceProvider;
     }
 }

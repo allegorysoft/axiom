@@ -3,21 +3,35 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
+internal sealed class UnitOfWork : IUnitOfWork
 {
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
     private readonly Dictionary<UnitOfWorkHookPoint, List<Func<Task>>> _hooks = new();
 
+    public UnitOfWork(
+        UnitOfWorkOptions options,
+        IServiceProvider serviceProvider,
+        AsyncServiceScope? asyncServiceScope = null)
+    {
+        Options = options;
+        ServiceProvider = serviceProvider;
+        AsyncServiceScope = asyncServiceScope;
+    }
+
+    private AsyncServiceScope? AsyncServiceScope { get; }
+
     public Guid Id { get; } = Guid.NewGuid();
     public IUnitOfWork? Parent { get; set; }
     public Activity? Activity { get; set; }
-    public UnitOfWorkOptions Options { get; } = options;
+    public UnitOfWorkOptions Options { get; }
     public Dictionary<string, object> Items { get; } = new();
     public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => _databases;
-    public UnitOfWorkState State { get; set; }
+    public UnitOfWorkState State { get; private set; }
+    public IServiceProvider ServiceProvider { get; }
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
 
@@ -142,6 +156,7 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
             }
         }
 
+        AsyncServiceScope?.Dispose();
         Activity?.Dispose();
         UnitOfWorkManager.CurrentUnitOfWork.Value?.Context = Parent;
     }
@@ -177,6 +192,11 @@ internal sealed class UnitOfWork(UnitOfWorkOptions options) : IUnitOfWork
                     disposable.Dispose();
                     break;
             }
+        }
+
+        if (AsyncServiceScope.HasValue)
+        {
+            await AsyncServiceScope.Value.DisposeAsync();
         }
 
         Activity?.Dispose();

@@ -1,8 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NSubstitute;
-using NSubstitute.ExceptionExtensions;
+using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 
@@ -15,7 +14,9 @@ public class UnitOfWorkExtensionsTests
         Func<CancellationToken, Task>? saveChangeAsync = null,
         Func<CancellationToken, Task>? rollbackAsync = null)
     {
-        var uow = new UnitOfWork(new UnitOfWorkOptions());
+        var collection = new ServiceCollection();
+
+        var uow = new UnitOfWork(new UnitOfWorkOptions(), collection.BuildServiceProvider());
         uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
             database: new object(),
             saveChangesAsync: saveChangeAsync ?? (_ => Task.CompletedTask),

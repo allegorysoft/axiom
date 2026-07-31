@@ -15,6 +15,7 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     Dictionary<string, object> Items { get; }
     IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases { get; }
     UnitOfWorkState State { get; }
+    IServiceProvider ServiceProvider { get; }
 
     void AddDatabase(string key, UnitOfWorkDatabaseHandle handle);
     void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler);
