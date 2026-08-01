@@ -24,13 +24,11 @@ export function createStore<T extends object>(initialState: T): AxiomStore<T> {
 
     set(updater) {
       const patch = updater(state);
-
       if (Object.keys(patch).length === 0) {
         return;
       }
 
       let changed = false;
-
       for (const key of Object.keys(patch) as (keyof T)[]) {
         if (!Object.is(state[key], patch[key])) {
           changed = true;
@@ -42,10 +40,7 @@ export function createStore<T extends object>(initialState: T): AxiomStore<T> {
         return;
       }
 
-      state = {
-        ...state,
-        ...patch,
-      };
+      state = { ...state, ...patch };
 
       for (const listener of [...listeners]) {
         listener();
