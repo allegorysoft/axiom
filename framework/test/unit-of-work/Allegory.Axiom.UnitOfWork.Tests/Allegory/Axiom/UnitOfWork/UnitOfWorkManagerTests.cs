@@ -81,34 +81,49 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     }
 
     [Fact]
-    public async Task ShouldNotRestoreParentUnitOfWorkWithoutAwaitingUntilSecondTaskCompletes()
+    public async Task ShouldIsolateUnitOfWorkContextAcrossConcurrentExecutionContexts()
     {
-        // We use `AsyncLocalContext<>` to mutate the parent task's current state (execution
-        // context value) from a child execution context. `uow.DisposeAsync` runs in its own
-        // execution context but still needs to mutate the caller's context, since any task
-        // running at the sametime shares and mutates that same context, a unit of work
-        // shouldn't let another concurrently running method mutate it out from under us.
+        // Each call to `Manager.Begin` creates a *new* `AsyncLocalContext<>` instance and assigns
+        // it to the AsyncLocal slot for the current execution context. Because AsyncLocal writes
+        // don't flow back up to the parent, a `Begin` inside a child Task (see `Job` below) only
+        // replaces the slot's value within that child's execution context, it never touches the
+        // parent's.
+        //
+        // Disposal is different: `Dispose`/`DisposeAsync` doesn't create a new context, it mutates
+        // the `Context` property on the *same* `AsyncLocalContext` instance that both parent and
+        // child are (independently) pointing at. That mutation is visible to anyone holding a
+        // reference to that instance, regardless of which execution context they're in.
+        //
+        // So: a concurrently running task can safely `Begin` its own child unit of work without
+        // corrupting the caller's ambient state, but disposing a unit of work still correctly
+        // restores its parent everywhere that instance is observed.
 
         await using (var root = Manager.Begin())
         {
             var rootSignal = new TaskCompletionSource();
             var childSignal = new TaskCompletionSource();
-            var task = Job(rootSignal, childSignal);
-            await rootSignal.Task; // Wait for task (Job) changes the `Manager.Current` to child uow
+            var task = Job(rootSignal, childSignal, root);
+            await rootSignal.Task; // Wait for Job to begin its own child unit of work
 
-            Manager.Current.ShouldNotBe(root);
+            // Job's `Begin` ran in its own execution context, so it created its own
+            // AsyncLocalContext instance there. It never mutated ours, so `Current` is
+            // unaffected here.
+            Manager.Current.ShouldBe(root);
+
             childSignal.SetResult();
-            await task; // When task is over child.DisposeAsync restore context 
+            await task; // Job's `child.DisposeAsync` restores Job's own context to `root`
             Manager.Current.ShouldBe(root);
         }
 
         return;
 
-        async Task Job(TaskCompletionSource rootSignal, TaskCompletionSource childSignal)
+        async Task Job(TaskCompletionSource rootSignal, TaskCompletionSource childSignal, IUnitOfWork root)
         {
+            Manager.Current.ShouldBe(root);
             await using var child = Manager.Begin();
             rootSignal.SetResult();
             Manager.Current.ShouldBe(child);
+            Manager.RequiredCurrent.Parent.ShouldBe(root);
             await childSignal.Task;
         }
     }

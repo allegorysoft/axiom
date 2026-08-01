@@ -29,16 +29,7 @@ public class UnitOfWorkManager(
         CancellationToken cancellationToken = default)
     {
         var unitOfWork = CreateUnitOfWork(GetUnitOfWorkOptions(options), serviceProvider, cancellationToken);
-
-        if (CurrentUnitOfWork.Value == null)
-        {
-            CurrentUnitOfWork.Value = new AsyncLocalContext<IUnitOfWork>(unitOfWork);
-        }
-        else
-        {
-            CurrentUnitOfWork.Value.Context = unitOfWork;
-        }
-
+        CurrentUnitOfWork.Value = new AsyncLocalContext<IUnitOfWork>(unitOfWork);
         return unitOfWork;
     }
 
