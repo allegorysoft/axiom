@@ -212,6 +212,7 @@ describe('useEnvironmentStore', () => {
   describe('in production builds', () => {
     beforeEach(() => {
       vi.stubEnv('PROD', true);
+      vi.stubEnv('DEV', false);
     });
 
     it('stays silent when the environment is not initialised', () => {
