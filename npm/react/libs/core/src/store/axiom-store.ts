@@ -1,11 +1,9 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
-export type StoreListener = VoidFunction;
-
 export interface AxiomStore<T> {
   get(): Readonly<T>;
   set(updater: (prev: T) => Partial<T>): void;
-  subscribe(listener: StoreListener): () => void;
+  subscribe(listener: VoidFunction): () => void;
 }
 
 export interface AxiomStoreHook<T> {
@@ -15,7 +13,7 @@ export interface AxiomStoreHook<T> {
 
 export function createStore<T extends object>(initialState: T): AxiomStore<T> {
   let state = initialState;
-  const listeners = new Set<StoreListener>();
+  const listeners = new Set<VoidFunction>();
 
   return {
     get() {
