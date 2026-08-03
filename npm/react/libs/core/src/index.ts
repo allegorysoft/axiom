@@ -1,3 +1,4 @@
+export * from './config/index';
 export * from './hooks/index';
 export * from './initializer/index';
 export * from './models/index';

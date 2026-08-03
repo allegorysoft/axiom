@@ -1,5 +1,4 @@
 export {
   remoteLocalizationProvider,
   jsonFileLocalizationProvider,
-  provideLocalization,
-} from './localization-provider';
+} from './localization-providers';

@@ -1,8 +1,5 @@
 import type { Provider } from '../models/common';
 import type { Translations } from '../models/localization';
-import { provideInitializers } from '../initializer/registry';
-import { localizerStore } from '../store/localizer-store';
-import { seed } from '../utils/localization-utils';
 
 async function fetchJson<T>(
   url: string | URL,
@@ -40,7 +37,9 @@ function remoteLocalizationProvider(
   };
 }
 
-type JsonFileProviderOptions = { readonly fileNameOrPath: string };
+type JsonFileProviderOptions = {
+  readonly fileNameOrPath: string;
+};
 
 function jsonFileLocalizationProvider(
   options: JsonFileProviderOptions,
@@ -54,26 +53,4 @@ function jsonFileLocalizationProvider(
   };
 }
 
-type LocalizationOptions = {
-  readonly providers?: Provider<Translations>[];
-};
-
-function provideLocalization(options?: LocalizationOptions) {
-  provideInitializers({
-    configure: async () => {
-      await seed(
-        [
-          jsonFileLocalizationProvider({ fileNameOrPath: 'i18n/en' }),
-          ...(options?.providers ?? []),
-        ],
-        localizerStore,
-      );
-    },
-  });
-}
-
-export {
-  remoteLocalizationProvider,
-  jsonFileLocalizationProvider,
-  provideLocalization,
-};
+export { remoteLocalizationProvider, jsonFileLocalizationProvider };

@@ -1,11 +1,11 @@
 import {
   isDevMode,
-  ApplicationInitializer,
+  type ApplicationInitializer,
   provideInitializers,
   useEnvironmentStore,
 } from '@axiomframework/react-core';
 
-export function provideEnvironment() {
+export function configureEnvironment() {
   const environmentInitializer: ApplicationInitializer = {
     configure: async () => {
       const environment = isDevMode()
