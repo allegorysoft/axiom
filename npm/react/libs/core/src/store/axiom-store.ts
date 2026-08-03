@@ -1,10 +1,5 @@
 import { useCallback, useSyncExternalStore } from 'react';
-
-export interface AxiomStore<T> {
-  get(): Readonly<T>;
-  set(updater: (prev: T) => Partial<T>): void;
-  subscribe(listener: VoidFunction): () => void;
-}
+import type { AxiomStore } from '../models/common';
 
 export interface AxiomStoreHook<T> {
   <TSelected>(selector: (state: Readonly<T>) => TSelected): TSelected;

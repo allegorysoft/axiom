@@ -1,2 +1,3 @@
+export { createStore, createStoreHook } from './axiom-store';
 export { useEnvironmentStore } from './environment-store';
-export { type AxiomStore, createStore, createStoreHook } from './axiom-store';
+// export { localizerStore } from './localizer-store';
