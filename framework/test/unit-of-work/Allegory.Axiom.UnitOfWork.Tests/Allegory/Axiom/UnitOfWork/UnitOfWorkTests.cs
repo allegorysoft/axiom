@@ -23,33 +23,32 @@ public class UnitOfWorkTests
         object? database = null,
         object? transaction = null,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? saveChangesDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, IsolationLevel?, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? commitTransactionDelegate = null,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
     {
         database ??= new object();
         saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
-        beginTransactionDelegate ??= static (_, _, _) => Task.FromResult(new object());
+        beginTransactionDelegate ??= static (_, _) => Task.FromResult(new object());
         commitTransactionDelegate ??= static (_, _) => Task.CompletedTask;
         rollbackTransactionDelegate ??= static (_, _) => Task.CompletedTask;
 
-        if (transaction != null)
+        if (transaction == null)
         {
             return new UnitOfWorkDatabaseHandle(
                 database,
                 saveChangesDelegate,
-                transaction,
+                beginTransactionDelegate,
                 commitTransactionDelegate,
                 rollbackTransactionDelegate);
         }
 
         return new UnitOfWorkDatabaseHandle(
-            database: database,
-            saveChangesDelegate: saveChangesDelegate,
-            beginTransactionDelegate: beginTransactionDelegate,
-            commitTransactionDelegate: commitTransactionDelegate!,
-            rollbackTransactionDelegate: rollbackTransactionDelegate!
-        );
+            database,
+            transaction,
+            saveChangesDelegate,
+            commitTransactionDelegate,
+            rollbackTransactionDelegate);
     }
 
     [Fact]
@@ -229,32 +228,52 @@ public class UnitOfWorkTests
     public void ShouldDisposeDisposableDatabaseAndTransactionWhenDisposed()
     {
         var uow = CreateUnitOfWork();
+
         var database = new TrackingDisposable();
         var transaction = new TrackingDisposable();
-
         uow.AddDatabase("db1", CreateDatabaseHandle(
             database: database,
             transaction: transaction));
+        
+        var database2 = new TrackingAsyncDisposable();
+        var transaction2 = new TrackingAsyncDisposable();
+        uow.AddDatabase("db2", CreateDatabaseHandle(
+            database: database2,
+            transaction: transaction2));
 
         uow.Dispose();
 
         database.Disposed.ShouldBeTrue();
         transaction.Disposed.ShouldBeTrue();
+
+        database2.Disposed.ShouldBeTrue();
+        transaction2.Disposed.ShouldBeTrue();
     }
 
     [Fact]
     public async Task ShouldDisposeAsyncDisposableDatabaseAndTransactionWhenDisposedAsync()
     {
         var uow = CreateUnitOfWork();
+
         var database = new TrackingAsyncDisposable();
         var transaction = new TrackingAsyncDisposable();
-
-        uow.AddDatabase("db1", CreateDatabaseHandle(database: database, transaction: transaction));
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            database: database,
+            transaction: transaction));
+        
+        var database2 = new TrackingDisposable();
+        var transaction2 = new TrackingDisposable();
+        uow.AddDatabase("db2", CreateDatabaseHandle(
+            database: database2,
+            transaction: transaction2));
 
         await uow.DisposeAsync();
 
         database.Disposed.ShouldBeTrue();
         transaction.Disposed.ShouldBeTrue();
+        
+        database2.Disposed.ShouldBeTrue();
+        transaction2.Disposed.ShouldBeTrue();
     }
 
     // AddDatabase

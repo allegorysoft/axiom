@@ -12,12 +12,12 @@ public class UnitOfWorkExtensionsTests
 {
     private static UnitOfWork CreateUow(
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? saveChangesDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, IsolationLevel?, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? commitTransactionDelegate = null,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
     {
         saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
-        beginTransactionDelegate ??= static (_, _, _) => Task.FromResult(new object());
+        beginTransactionDelegate ??= static (_, _) => Task.FromResult(new object());
         commitTransactionDelegate ??= static (_, _) => Task.CompletedTask;
         rollbackTransactionDelegate ??= static (_, _) => Task.CompletedTask;
 

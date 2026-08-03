@@ -1,5 +1,4 @@
 using System;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,7 +12,7 @@ public class UnitOfWorkDatabaseHandle(
     public UnitOfWorkDatabaseHandle(
         object database,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> saveChangesDelegate,
-        Func<UnitOfWorkDatabaseHandle, IsolationLevel?, CancellationToken, Task<object>> beginTransactionDelegate,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task<object>> beginTransactionDelegate,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> commitTransactionDelegate,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> rollbackTransactionDelegate)
         : this(database, saveChangesDelegate)
@@ -25,8 +24,8 @@ public class UnitOfWorkDatabaseHandle(
 
     public UnitOfWorkDatabaseHandle(
         object database,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> saveChangesDelegate,
         object transaction,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> saveChangesDelegate,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> commitTransactionDelegate,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> rollbackTransactionDelegate)
         : this(database, saveChangesDelegate)
@@ -41,7 +40,7 @@ public class UnitOfWorkDatabaseHandle(
     public object? Transaction { get; protected set; }
 
     protected Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> SaveChangesDelegate { get; } = saveChangesDelegate;
-    protected Func<UnitOfWorkDatabaseHandle, IsolationLevel?, CancellationToken, Task<object>>? BeginTransactionDelegate { get; }
+    protected Func<UnitOfWorkDatabaseHandle, CancellationToken, Task<object>>? BeginTransactionDelegate { get; }
     protected Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? CommitTransactionDelegate { get; }
     protected Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? RollbackTransactionDelegate { get; }
 
@@ -53,7 +52,7 @@ public class UnitOfWorkDatabaseHandle(
     {
         if (Transaction == null && BeginTransactionDelegate != null)
         {
-            Transaction = await BeginTransactionDelegate(this, UnitOfWork.Options.IsolationLevel, cancellationToken);
+            Transaction = await BeginTransactionDelegate(this, cancellationToken);
         }
 
         await SaveChangesDelegate(this, cancellationToken);
