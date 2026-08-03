@@ -28,7 +28,6 @@ public class UnitOfWorkExtensionsTests
         uow.AddDatabase(
             "db1",
             new UnitOfWorkDatabaseHandle(
-                uow,
                 database: new object(),
                 saveChangesDelegate: saveChangesDelegate,
                 beginTransactionDelegate: beginTransactionDelegate,

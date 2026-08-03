@@ -70,7 +70,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(3), publishMode: LocalEventPublishMode.OnUnitOfWorkComplete);
 
         handler.Received.ShouldNotContain(e => e.Value == 3);
@@ -96,7 +96,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(5), publishMode: LocalEventPublishMode.Immediate);
 
         handler.Received.ShouldContain(e => e.Value == 5);

@@ -32,7 +32,7 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(1), publishMode: DistributedEventPublishMode.Immediate);
 
         // Immediate skips unit of work entirely, no hook wait needed
@@ -69,7 +69,7 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
             new TestEvent(5),
@@ -100,7 +100,7 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
             new TestEvent(6),
@@ -124,7 +124,7 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(7), publishMode: DistributedEventPublishMode.Auto);
 
         handler.Received.ShouldNotContain(e => e.Value == 7);
@@ -157,7 +157,7 @@ public class DistributedEventBusBaseTests(
         var handler = provider.GetRequiredService<TestEventHandler>();
         var uowManager = provider.GetRequiredService<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await eventBus.PublishAsync(new TestEvent(8), publishMode: DistributedEventPublishMode.Auto);
 
         handler.Received.ShouldNotContain(e => e.Value == 8);
