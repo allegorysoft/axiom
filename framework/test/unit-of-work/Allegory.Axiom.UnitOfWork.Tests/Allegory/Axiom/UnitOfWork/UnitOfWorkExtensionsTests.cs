@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,18 +11,30 @@ namespace Allegory.Axiom.UnitOfWork;
 public class UnitOfWorkExtensionsTests
 {
     private static UnitOfWork CreateUow(
-        Func<CancellationToken, Task>? commitAsync = null,
-        Func<CancellationToken, Task>? saveChangeAsync = null,
-        Func<CancellationToken, Task>? rollbackAsync = null)
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? saveChangesDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, IsolationLevel?, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? commitTransactionDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
     {
-        var collection = new ServiceCollection();
+        saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
+        beginTransactionDelegate ??= static (_, _, _) => Task.FromResult(new object());
+        commitTransactionDelegate ??= static (_, _) => Task.CompletedTask;
+        rollbackTransactionDelegate ??= static (_, _) => Task.CompletedTask;
 
-        var uow = new UnitOfWork(new UnitOfWorkOptions(), collection.BuildServiceProvider());
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: saveChangeAsync ?? (_ => Task.CompletedTask),
-            commitAsync: commitAsync,
-            rollbackAsync: rollbackAsync));
+        var uow = new UnitOfWork(
+            new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider());
+
+        uow.AddDatabase(
+            "db1",
+            new UnitOfWorkDatabaseHandle(
+                uow,
+                database: new object(),
+                saveChangesDelegate: saveChangesDelegate,
+                beginTransactionDelegate: beginTransactionDelegate,
+                commitTransactionDelegate: commitTransactionDelegate!,
+                rollbackTransactionDelegate: rollbackTransactionDelegate!
+            ));
         return uow;
     }
 
@@ -31,7 +44,7 @@ public class UnitOfWorkExtensionsTests
         //Action successful, UnitOfWork.Commit successful => successful commit
 
         var committed = false;
-        var uow = CreateUow(commitAsync: _ =>
+        var uow = CreateUow(commitTransactionDelegate: (_, _) =>
         {
             committed = true;
             return Task.CompletedTask;
@@ -49,11 +62,14 @@ public class UnitOfWorkExtensionsTests
         //Action exception, UnitOfWork.Rollback successful => successful rollback
 
         var rolledBack = false;
-        var uow = CreateUow(rollbackAsync: _ =>
+        var uow = CreateUow(rollbackTransactionDelegate: (_, _) =>
         {
             rolledBack = true;
             return Task.CompletedTask;
         });
+
+        // Force the lazy transaction to begin, otherwise RollbackAsync has nothing to roll back
+        await uow.SaveChangesAsync(CancellationToken.None); 
 
         var endpointException = new InvalidOperationException("endpoint failed");
 
@@ -72,9 +88,13 @@ public class UnitOfWorkExtensionsTests
         var rollbackException = new Exception("rollback failed");
         var endpointException = new InvalidOperationException("endpoint failed");
 
-        var uow = CreateUow(rollbackAsync: _ => throw rollbackException);
+        var uow = CreateUow(rollbackTransactionDelegate: (_, _) => throw rollbackException);
+        
+        // Force the lazy transaction to begin, otherwise RollbackAsync has nothing to roll back
+        await uow.SaveChangesAsync(CancellationToken.None); 
 
-        var ex = await Should.ThrowAsync<AggregateException>(() => uow.TryRollbackAsync(endpointException, TestContext.Current.CancellationToken));
+        var ex = await Should.ThrowAsync<AggregateException>(() =>
+            uow.TryRollbackAsync(endpointException, TestContext.Current.CancellationToken));
 
         ex.InnerExceptions.Count.ShouldBe(2);
         ex.InnerExceptions.ShouldContain(rollbackException);
@@ -90,8 +110,8 @@ public class UnitOfWorkExtensionsTests
         var rolledBack = false;
 
         var uow = CreateUow(
-            saveChangeAsync: _ => throw saveChangeException,
-            rollbackAsync: _ =>
+            saveChangesDelegate: (_, _) => throw saveChangeException,
+            rollbackTransactionDelegate: (_, _) =>
             {
                 rolledBack = true;
                 return Task.CompletedTask;
@@ -111,9 +131,10 @@ public class UnitOfWorkExtensionsTests
 
         var commitException = new Exception("commit failed");
 
-        var uow = CreateUow(commitAsync: _ => throw commitException);
+        var uow = CreateUow(commitTransactionDelegate: (_, _) => throw commitException);
 
-        var ex = await Should.ThrowAsync<AggregateException>(() => uow.TryCompleteAsync(TestContext.Current.CancellationToken));
+        var ex = await Should.ThrowAsync<AggregateException>(() =>
+            uow.TryCompleteAsync(TestContext.Current.CancellationToken));
 
         ex.InnerExceptions.Count.ShouldBe(2);
         ex.InnerExceptions.ShouldContain(commitException);
