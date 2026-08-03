@@ -20,7 +20,7 @@ export async function seed(
     }
 
     failures.push(result.reason);
-    console.error('[axiom-localizer] provider failed to seed:', result.reason);
+    console.error('[Axiom-localizer] provider failed to seed:', result.reason);
   }
 
   if (failures.length === results.length && results.length > 0) {
