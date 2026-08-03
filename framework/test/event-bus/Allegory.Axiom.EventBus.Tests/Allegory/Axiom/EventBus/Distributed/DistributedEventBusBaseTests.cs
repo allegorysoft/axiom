@@ -2,6 +2,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
@@ -38,7 +39,7 @@ public class DistributedEventBusBaseTests(
         // Immediate skips unit of work entirely, no hook wait needed
         handler.Received.ShouldContain(e => e.Value == 1);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -89,7 +90,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -114,7 +115,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -136,7 +137,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -176,7 +177,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]

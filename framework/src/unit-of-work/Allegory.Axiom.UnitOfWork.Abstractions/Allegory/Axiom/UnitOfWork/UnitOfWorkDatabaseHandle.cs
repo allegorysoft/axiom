@@ -6,19 +6,17 @@ using System.Threading.Tasks;
 namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkDatabaseHandle(
-    IUnitOfWork unitOfWork,
     object database,
     Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> saveChangesDelegate) 
-    :IDisposable, IAsyncDisposable
+    : IDisposable, IAsyncDisposable
 {
     public UnitOfWorkDatabaseHandle(
-        IUnitOfWork unitOfWork,
         object database,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> saveChangesDelegate,
         Func<UnitOfWorkDatabaseHandle, IsolationLevel?, CancellationToken, Task<object>> beginTransactionDelegate,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> commitTransactionDelegate,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> rollbackTransactionDelegate)
-        : this(unitOfWork, database, saveChangesDelegate)
+        : this(database, saveChangesDelegate)
     {
         BeginTransactionDelegate = beginTransactionDelegate;
         CommitTransactionDelegate = commitTransactionDelegate;
@@ -26,20 +24,19 @@ public class UnitOfWorkDatabaseHandle(
     }
 
     public UnitOfWorkDatabaseHandle(
-        IUnitOfWork unitOfWork,
         object database,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> saveChangesDelegate,
         object transaction,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> commitTransactionDelegate,
         Func<UnitOfWorkDatabaseHandle, CancellationToken, Task> rollbackTransactionDelegate)
-        : this(unitOfWork, database, saveChangesDelegate)
+        : this(database, saveChangesDelegate)
     {
         Transaction = transaction;
         CommitTransactionDelegate = commitTransactionDelegate;
         RollbackTransactionDelegate = rollbackTransactionDelegate;
     }
 
-    public IUnitOfWork UnitOfWork { get; } = unitOfWork;
+    public IUnitOfWork UnitOfWork { get; protected internal set; } = null!;
     public object Database { get; } = database;
     public object? Transaction { get; protected set; }
 

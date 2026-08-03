@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,33 +11,66 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkTests
 {
-    private static UnitOfWork CreateUow()
+    private static UnitOfWork CreateUnitOfWork(UnitOfWorkOptions? options = null)
     {
-        var collection = new ServiceCollection();
-        var uow = new UnitOfWork(new UnitOfWorkOptions(), collection.BuildServiceProvider());
+        return new UnitOfWork(
+            options ?? new UnitOfWorkOptions(),
+            new ServiceCollection().BuildServiceProvider(),
+            cancellationToken: TestContext.Current.CancellationToken);
+    }
 
-        return uow;
+    private static UnitOfWorkDatabaseHandle CreateDatabaseHandle(
+        object? database = null,
+        object? transaction = null,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? saveChangesDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, IsolationLevel?, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? commitTransactionDelegate = null,
+        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
+    {
+        database ??= new object();
+        saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
+        beginTransactionDelegate ??= static (_, _, _) => Task.FromResult(new object());
+        commitTransactionDelegate ??= static (_, _) => Task.CompletedTask;
+        rollbackTransactionDelegate ??= static (_, _) => Task.CompletedTask;
+
+        if (transaction != null)
+        {
+            return new UnitOfWorkDatabaseHandle(
+                database,
+                saveChangesDelegate,
+                transaction,
+                commitTransactionDelegate,
+                rollbackTransactionDelegate);
+        }
+
+        return new UnitOfWorkDatabaseHandle(
+            database: database,
+            saveChangesDelegate: saveChangesDelegate,
+            beginTransactionDelegate: beginTransactionDelegate,
+            commitTransactionDelegate: commitTransactionDelegate!,
+            rollbackTransactionDelegate: rollbackTransactionDelegate!
+        );
     }
 
     [Fact]
     public async Task ShouldHaveCorrectStateWhenOperationPerformed()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         uow.State.ShouldBe(UnitOfWorkState.Started);
 
-        uow = CreateUow();
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        uow = CreateUnitOfWork();
+        await uow.CompleteAsync(CancellationToken.None);
         uow.State.ShouldBe(UnitOfWorkState.Committed);
 
-        uow = CreateUow();
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+        uow = CreateUnitOfWork();
+        await uow.RollbackAsync(CancellationToken.None);
         uow.State.ShouldBe(UnitOfWorkState.RolledBack);
 
-        uow = CreateUow();
+        uow = CreateUnitOfWork();
         uow.Dispose();
         uow.State.ShouldBe(UnitOfWorkState.Disposed);
 
-        uow = CreateUow();
+        uow = CreateUnitOfWork();
         await uow.DisposeAsync();
         uow.State.ShouldBe(UnitOfWorkState.Disposed);
     }
@@ -44,25 +78,19 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldCallSaveChangesOnAllDatabaseHandlesWhenSaveChangesAsync()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var saveCount = 0;
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
-            {
-                saveCount++;
-                return Task.CompletedTask;
-            }));
-        uow.AddDatabase("db2", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
-            {
-                saveCount++;
-                return Task.CompletedTask;
-            }));
+        var saveChanges = (UnitOfWorkDatabaseHandle _, CancellationToken _) =>
+        {
+            saveCount++;
+            return Task.CompletedTask;
+        };
 
-        await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
+        uow.AddDatabase("db1", CreateDatabaseHandle(saveChangesDelegate: saveChanges));
+        uow.AddDatabase("db2", CreateDatabaseHandle(saveChangesDelegate: saveChanges));
+
+        await uow.SaveChangesAsync(CancellationToken.None);
 
         saveCount.ShouldBe(2);
     }
@@ -70,8 +98,8 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldThrowWhenSaveChangesAsyncCalledAfterComplete()
     {
-        var uow = CreateUow();
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        var uow = CreateUnitOfWork();
+        await uow.CompleteAsync(CancellationToken.None);
 
         await Should.ThrowAsync<InvalidOperationException>(() => uow.SaveChangesAsync());
     }
@@ -79,8 +107,8 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldThrowWhenSaveChangesAsyncCalledAfterRollback()
     {
-        var uow = CreateUow();
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+        var uow = CreateUnitOfWork();
+        await uow.RollbackAsync(CancellationToken.None);
 
         await Should.ThrowAsync<InvalidOperationException>(() => uow.SaveChangesAsync());
     }
@@ -88,35 +116,36 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldSaveBeforeCommitWhenCompleteAsync()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
+        var handle1 = CreateDatabaseHandle(
+            saveChangesDelegate: (_, _) =>
             {
                 log.Add("save:db1");
                 return Task.CompletedTask;
             },
-            commitAsync: _ =>
+            commitTransactionDelegate: (_, _) =>
             {
                 log.Add("commit:db1");
                 return Task.CompletedTask;
-            }));
-        uow.AddDatabase("db2", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
+            });
+        uow.AddDatabase("db1", handle1);
+
+        var handle2 = CreateDatabaseHandle(
+            saveChangesDelegate: (_, _) =>
             {
                 log.Add("save:db2");
                 return Task.CompletedTask;
             },
-            commitAsync: _ =>
+            commitTransactionDelegate: (_, _) =>
             {
                 log.Add("commit:db2");
                 return Task.CompletedTask;
-            }));
+            });
+        uow.AddDatabase("db2", handle2);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         log.IndexOf("save:db1").ShouldBeLessThan(log.IndexOf("commit:db1"));
         log.IndexOf("save:db2").ShouldBeLessThan(log.IndexOf("commit:db2"));
@@ -125,8 +154,8 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldThrowWhenCompleteAsyncCalledAfterRollback()
     {
-        var uow = CreateUow();
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+        var uow = CreateUnitOfWork();
+        await uow.RollbackAsync(CancellationToken.None);
 
         await Should.ThrowAsync<InvalidOperationException>(() => uow.CompleteAsync());
     }
@@ -134,8 +163,8 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldThrowWhenCompleteAsyncCalledTwice()
     {
-        var uow = CreateUow();
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        var uow = CreateUnitOfWork();
+        await uow.CompleteAsync(CancellationToken.None);
 
         await Should.ThrowAsync<InvalidOperationException>(() => uow.CompleteAsync());
     }
@@ -143,27 +172,25 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldCallRollbackOnAllDatabaseHandlesWhenRollbackAsync()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var rollbackCount = 0;
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            rollbackAsync: _ =>
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            transaction: new object(),
+            rollbackTransactionDelegate: (_, _) =>
             {
                 rollbackCount++;
                 return Task.CompletedTask;
             }));
-        uow.AddDatabase("db2", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            rollbackAsync: _ =>
+        uow.AddDatabase("db2", CreateDatabaseHandle(
+            transaction: new object(),
+            rollbackTransactionDelegate: (_, _) =>
             {
                 rollbackCount++;
                 return Task.CompletedTask;
             }));
 
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+        await uow.RollbackAsync(CancellationToken.None);
 
         rollbackCount.ShouldBe(2);
     }
@@ -171,8 +198,8 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldThrowWhenRollbackAsyncCalledAfterComplete()
     {
-        var uow = CreateUow();
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        var uow = CreateUnitOfWork();
+        await uow.CompleteAsync(CancellationToken.None);
 
         await Should.ThrowAsync<InvalidOperationException>(() => uow.RollbackAsync());
     }
@@ -180,8 +207,8 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldThrowWhenRollbackAsyncCalledTwice()
     {
-        var uow = CreateUow();
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+        var uow = CreateUnitOfWork();
+        await uow.RollbackAsync(CancellationToken.None);
 
         await Should.ThrowAsync<InvalidOperationException>(() => uow.RollbackAsync());
     }
@@ -189,11 +216,11 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldNotThrowWhenDisposedTwice()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         uow.Dispose();
         Should.NotThrow(() => uow.Dispose());
 
-        uow = CreateUow();
+        uow = CreateUnitOfWork();
         await uow.DisposeAsync();
         await Should.NotThrowAsync(() => uow.DisposeAsync().AsTask());
     }
@@ -201,13 +228,12 @@ public class UnitOfWorkTests
     [Fact]
     public void ShouldDisposeDisposableDatabaseAndTransactionWhenDisposed()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var database = new TrackingDisposable();
         var transaction = new TrackingDisposable();
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
+        uow.AddDatabase("db1", CreateDatabaseHandle(
             database: database,
-            saveChangesAsync: _ => Task.CompletedTask,
             transaction: transaction));
 
         uow.Dispose();
@@ -219,14 +245,11 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldDisposeAsyncDisposableDatabaseAndTransactionWhenDisposedAsync()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var database = new TrackingAsyncDisposable();
         var transaction = new TrackingAsyncDisposable();
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: database,
-            saveChangesAsync: _ => Task.CompletedTask,
-            transaction: transaction));
+        uow.AddDatabase("db1", CreateDatabaseHandle(database: database, transaction: transaction));
 
         await uow.DisposeAsync();
 
@@ -234,29 +257,39 @@ public class UnitOfWorkTests
         transaction.Disposed.ShouldBeTrue();
     }
 
+    // AddDatabase
+    
+    [Fact]
+    public void ShouldSetUnitOfWorkOnAddDatabase()
+    {
+        var uow = CreateUnitOfWork();
+
+        var handle = CreateDatabaseHandle();
+        handle.UnitOfWork.ShouldBeNull();
+
+        uow.AddDatabase("db1", handle);
+        handle.UnitOfWork.ShouldBeSameAs(uow);
+    }
+    
     [Fact]
     public void ShouldOverwriteExistingHandleWhenAddDatabaseWithSameKey()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var first = new object();
         var second = new object();
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: first,
-            saveChangesAsync: _ => Task.CompletedTask));
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: second,
-            saveChangesAsync: _ => Task.CompletedTask));
+        uow.AddDatabase("db1", CreateDatabaseHandle(database: first));
+        uow.AddDatabase("db1", CreateDatabaseHandle(database: second));
 
         uow.Databases["db1"].Database.ShouldBe(second);
     }
 
-    // Hook
+    // AddHook
 
     [Fact]
     public async Task ShouldInvokeHookWhenHookPointTriggered()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var invoked = false;
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
@@ -265,7 +298,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         invoked.ShouldBeTrue();
     }
@@ -273,7 +306,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeHooksInOrderWhenMultipleHooksAdded()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<int>();
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
@@ -292,7 +325,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         log.ShouldBe([1, 2, 3]);
     }
@@ -300,7 +333,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeHookRegisteredDuringInvocation()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<int>();
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
@@ -314,7 +347,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         log.ShouldBe([1, 2]);
     }
@@ -322,7 +355,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldNotInvokeHookForDifferentHookPoint()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var invoked = false;
 
         uow.AddHook(UnitOfWorkHookPoint.AfterRollback, () =>
@@ -331,7 +364,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         invoked.ShouldBeFalse();
     }
@@ -339,7 +372,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeBeforeCompleteHookBeforeCommit()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
@@ -347,16 +380,15 @@ public class UnitOfWorkTests
             log.Add("hook");
             return Task.CompletedTask;
         });
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            commitAsync: _ =>
+
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            commitTransactionDelegate: (_, _) =>
             {
                 log.Add("commit");
                 return Task.CompletedTask;
             }));
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         log.ShouldBe(["hook", "commit"]);
     }
@@ -364,7 +396,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldSaveChangesWhenInvokeBeforeCompleteHookBeforeCommit()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
@@ -372,20 +404,20 @@ public class UnitOfWorkTests
             log.Add("hook");
             return Task.CompletedTask;
         });
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
+
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            saveChangesDelegate: (_, _) =>
             {
                 log.Add("saved");
                 return Task.CompletedTask;
             },
-            commitAsync: _ =>
+            commitTransactionDelegate: (_, _) =>
             {
                 log.Add("commit");
                 return Task.CompletedTask;
             }));
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         log.ShouldBe(["saved", "hook", "saved", "commit"]);
     }
@@ -393,7 +425,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeAfterCompleteHookAfterCommit()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
@@ -401,16 +433,15 @@ public class UnitOfWorkTests
             log.Add("hook");
             return Task.CompletedTask;
         });
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            commitAsync: _ =>
+
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            commitTransactionDelegate: (_, _) =>
             {
                 log.Add("commit");
                 return Task.CompletedTask;
             }));
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         log.ShouldBe(["commit", "hook"]);
     }
@@ -418,7 +449,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeBeforeRollbackHookBeforeRollback()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeRollback, () =>
@@ -426,16 +457,16 @@ public class UnitOfWorkTests
             log.Add("hook");
             return Task.CompletedTask;
         });
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            rollbackAsync: _ =>
+
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            transaction: new object(),
+            rollbackTransactionDelegate: (_, _) =>
             {
                 log.Add("rollback");
                 return Task.CompletedTask;
             }));
 
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+        await uow.RollbackAsync(CancellationToken.None);
 
         log.ShouldBe(["hook", "rollback"]);
     }
@@ -443,7 +474,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeAfterRollbackHookAfterRollback()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
         uow.AddHook(UnitOfWorkHookPoint.AfterRollback, () =>
@@ -451,16 +482,16 @@ public class UnitOfWorkTests
             log.Add("hook");
             return Task.CompletedTask;
         });
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            rollbackAsync: _ =>
+
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            transaction: new object(),
+            rollbackTransactionDelegate: (_, _) =>
             {
                 log.Add("rollback");
                 return Task.CompletedTask;
             }));
 
-        await uow.RollbackAsync(TestContext.Current.CancellationToken);
+        await uow.RollbackAsync(CancellationToken.None);
 
         log.ShouldBe(["rollback", "hook"]);
     }
@@ -468,7 +499,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeBeforeSaveHookBeforeSave()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeSave, () =>
@@ -476,15 +507,14 @@ public class UnitOfWorkTests
             log.Add("hook");
             return Task.CompletedTask;
         });
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            saveChangesDelegate: (_, _) =>
             {
                 log.Add("save");
                 return Task.CompletedTask;
             }));
 
-        await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await uow.SaveChangesAsync(CancellationToken.None);
 
         log.ShouldBe(["hook", "save"]);
     }
@@ -492,7 +522,7 @@ public class UnitOfWorkTests
     [Fact]
     public async Task ShouldInvokeAfterSaveHookAfterSave()
     {
-        var uow = CreateUow();
+        var uow = CreateUnitOfWork();
         var log = new List<string>();
 
         uow.AddHook(UnitOfWorkHookPoint.AfterSave, () =>
@@ -500,15 +530,15 @@ public class UnitOfWorkTests
             log.Add("hook");
             return Task.CompletedTask;
         });
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
+
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            saveChangesDelegate: (_, _) =>
             {
                 log.Add("save");
                 return Task.CompletedTask;
             }));
 
-        await uow.SaveChangesAsync(TestContext.Current.CancellationToken);
+        await uow.SaveChangesAsync(CancellationToken.None);
 
         log.ShouldBe(["save", "hook"]);
     }
@@ -529,7 +559,7 @@ public class UnitOfWorkTests
         // No token passed at the call site -> should fall back to the UoW's own (already canceled) token
         await Should.ThrowAsync<OperationCanceledException>(() => uow.SaveChangesAsync(CancellationToken.None));
     }
-    
+
     [Fact]
     public async Task ShouldUseProvidedTokenOverAmbientWhenSaveChangesAsyncCalledWithExplicitToken()
     {
@@ -542,9 +572,8 @@ public class UnitOfWorkTests
             cancellationToken: ambientCts.Token);
 
         var saved = false;
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ =>
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            saveChangesDelegate: (_, _) =>
             {
                 saved = true;
                 return Task.CompletedTask;
@@ -585,10 +614,8 @@ public class UnitOfWorkTests
             cancellationToken: ambientCts.Token);
 
         var commit = false;
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            commitAsync: _ =>
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            commitTransactionDelegate: (_, _) =>
             {
                 commit = true;
                 return Task.CompletedTask;
@@ -616,10 +643,9 @@ public class UnitOfWorkTests
 
         var rolledBack = false;
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            rollbackAsync: _ =>
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            transaction: new object(),
+            rollbackTransactionDelegate: (_, _) =>
             {
                 rolledBack = true;
                 return Task.CompletedTask;
@@ -630,7 +656,7 @@ public class UnitOfWorkTests
         uow.State.ShouldBe(UnitOfWorkState.RolledBack);
         rolledBack.ShouldBeTrue();
     }
-    
+
     [Fact]
     public async Task ShouldUseProvidedTokenWhenRollbackAsyncCalledWithExplicitToken()
     {
@@ -643,10 +669,8 @@ public class UnitOfWorkTests
 
         var rolledBack = false;
 
-        uow.AddDatabase("db1", new UnitOfWorkDatabaseHandle(
-            database: new object(),
-            saveChangesAsync: _ => Task.CompletedTask,
-            rollbackAsync: _ =>
+        uow.AddDatabase("db1", CreateDatabaseHandle(
+            rollbackTransactionDelegate: (_, _) =>
             {
                 rolledBack = true;
                 return Task.CompletedTask;
@@ -670,6 +694,7 @@ file class TrackingDisposable : IDisposable
 file class TrackingAsyncDisposable : IAsyncDisposable
 {
     public bool Disposed { get; private set; }
+
     public ValueTask DisposeAsync()
     {
         Disposed = true;

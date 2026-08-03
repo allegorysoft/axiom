@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
@@ -77,7 +78,7 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
 
         handler.Received.ShouldContain(e => e.Value == 3);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -136,7 +137,7 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]

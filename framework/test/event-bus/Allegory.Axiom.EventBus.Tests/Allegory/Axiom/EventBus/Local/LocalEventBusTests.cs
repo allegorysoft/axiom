@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.UnitOfWork;
 using Shouldly;
@@ -75,7 +76,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
 
         handler.Received.ShouldNotContain(e => e.Value == 3);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         handler.Received.ShouldContain(e => e.Value == 3);
     }
@@ -101,7 +102,7 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
 
         handler.Received.ShouldContain(e => e.Value == 5);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]

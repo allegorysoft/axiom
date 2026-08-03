@@ -31,7 +31,11 @@ internal sealed class UnitOfWork(
     public IServiceProvider ServiceProvider { get; } = serviceProvider;
     public CancellationToken CancellationToken { get; } = cancellationToken;
 
-    public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
+    public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle)
+    {
+        handle.UnitOfWork = this;
+        _databases[key] = handle;
+    }
 
     public void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler)
     {

@@ -5,4 +5,8 @@
         <RootNamespace/>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Allegory.Axiom.UnitOfWork"/>
+    </ItemGroup>
+
 </Project>
