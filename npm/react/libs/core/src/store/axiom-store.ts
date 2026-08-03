@@ -12,12 +12,12 @@ export interface AxiomStoreHook<T> {
 }
 
 export function createStore<T extends object>(initialState: T): AxiomStore<T> {
-  let state = initialState;
+  let state = Object.freeze(initialState);
   const listeners = new Set<VoidFunction>();
 
   return {
     get() {
-      return Object.freeze(state);
+      return state;
     },
 
     set(updater) {
@@ -38,7 +38,7 @@ export function createStore<T extends object>(initialState: T): AxiomStore<T> {
         return;
       }
 
-      state = { ...state, ...patch };
+      state = Object.freeze({ ...state, ...patch });
 
       for (const listener of [...listeners]) {
         listener();
