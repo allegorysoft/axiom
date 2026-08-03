@@ -34,7 +34,9 @@ export const useEnvironmentStore = create<
   patchOAuth: (oauth) =>
     set((state) => {
       const env = getEnvironmentOrWarn(state, 'patchOAuth');
-      if (!env) return state;
+      if (!env) {
+        return state;
+      }
 
       return {
         environment: {
