@@ -30,6 +30,8 @@ export interface LocalizerStore extends AxiomStore<LocalizerState> {
   ): string;
 
   setTranslations(incoming: Translations, overwrite?: boolean): void;
-  setCulture(patch: Partial<CultureInfo>): void;
+  setCulture(culture: CultureInfo): void;
   setStatus(status: LocalizerStatus, error?: unknown): void;
+
+  reset(): void;
 }
