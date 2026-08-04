@@ -101,9 +101,12 @@ public class DistributedEventProcessor(
 
     protected virtual ValueTask<TenantContext?> TryGetTenantContextAsync(Guid? tenantId)
     {
-        return !tenantId.HasValue ?
-            ValueTask.FromResult<TenantContext?>(null) :
-            TenantStore.GetAsync(tenantId.Value);
+        if (tenantId.HasValue)
+        {
+            return TenantStore.GetAsync(tenantId.Value)!;
+        }
+
+        return ValueTask.FromResult<TenantContext?>(null);
     }
 
     protected virtual async Task InvokeHandlersAsync(EventQueueEntry entry, object payload, EventContext context)

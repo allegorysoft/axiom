@@ -2,6 +2,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
@@ -32,13 +33,13 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(1), publishMode: DistributedEventPublishMode.Immediate);
 
         // Immediate skips unit of work entirely, no hook wait needed
         handler.Received.ShouldContain(e => e.Value == 1);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
             new TestEvent(5),
@@ -89,7 +90,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -100,7 +101,7 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
             new TestEvent(6),
@@ -114,7 +115,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -124,7 +125,7 @@ public class DistributedEventBusBaseTests(
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(7), publishMode: DistributedEventPublishMode.Auto);
 
         handler.Received.ShouldNotContain(e => e.Value == 7);
@@ -136,7 +137,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]
@@ -157,7 +158,7 @@ public class DistributedEventBusBaseTests(
         var handler = provider.GetRequiredService<TestEventHandler>();
         var uowManager = provider.GetRequiredService<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await eventBus.PublishAsync(new TestEvent(8), publishMode: DistributedEventPublishMode.Auto);
 
         handler.Received.ShouldNotContain(e => e.Value == 8);
@@ -176,7 +177,7 @@ public class DistributedEventBusBaseTests(
             return Task.CompletedTask;
         });
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]

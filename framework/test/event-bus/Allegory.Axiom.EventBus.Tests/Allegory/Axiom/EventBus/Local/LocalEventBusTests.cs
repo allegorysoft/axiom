@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.UnitOfWork;
 using Shouldly;
@@ -70,12 +71,12 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(3), publishMode: LocalEventPublishMode.OnUnitOfWorkComplete);
 
         handler.Received.ShouldNotContain(e => e.Value == 3);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
 
         handler.Received.ShouldContain(e => e.Value == 3);
     }
@@ -96,12 +97,12 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
-        await using var uow = uowManager.Begin();
+        await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         await EventBus.PublishAsync(new TestEvent(5), publishMode: LocalEventPublishMode.Immediate);
 
         handler.Received.ShouldContain(e => e.Value == 5);
 
-        await uow.CompleteAsync(TestContext.Current.CancellationToken);
+        await uow.CompleteAsync(CancellationToken.None);
     }
 
     [Fact]

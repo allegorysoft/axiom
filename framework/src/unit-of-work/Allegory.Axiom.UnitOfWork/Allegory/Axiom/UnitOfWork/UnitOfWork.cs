@@ -31,7 +31,11 @@ internal sealed class UnitOfWork(
     public IServiceProvider ServiceProvider { get; } = serviceProvider;
     public CancellationToken CancellationToken { get; } = cancellationToken;
 
-    public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => _databases[key] = handle;
+    public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle)
+    {
+        handle.UnitOfWork = this;
+        _databases[key] = handle;
+    }
 
     public void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler)
     {
@@ -158,15 +162,7 @@ internal sealed class UnitOfWork(
 
         foreach (var databaseHandle in Databases.Values)
         {
-            if (databaseHandle.Database is IDisposable database)
-            {
-                database.Dispose();
-            }
-
-            if (databaseHandle.Transaction is IDisposable transaction)
-            {
-                transaction.Dispose();
-            }
+            databaseHandle.Dispose();
         }
 
         AsyncServiceScope?.Dispose();
@@ -187,25 +183,7 @@ internal sealed class UnitOfWork(
 
         foreach (var databaseHandle in Databases.Values)
         {
-            switch (databaseHandle.Database)
-            {
-                case IAsyncDisposable asyncDisposable:
-                    await asyncDisposable.DisposeAsync();
-                    break;
-                case IDisposable disposable:
-                    disposable.Dispose();
-                    break;
-            }
-
-            switch (databaseHandle.Transaction)
-            {
-                case IAsyncDisposable asyncDisposable:
-                    await asyncDisposable.DisposeAsync();
-                    break;
-                case IDisposable disposable:
-                    disposable.Dispose();
-                    break;
-            }
+            await databaseHandle.DisposeAsync();
         }
 
         if (AsyncServiceScope.HasValue)
