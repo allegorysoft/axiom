@@ -54,8 +54,6 @@ public class CurrentTenantProvider(
             ? await Store.GetAsync(id)
             : await Store.GetAsync(identifier);
 
-        //TODO: Check tenant.IsActive
-
-        return tenant;
+        return tenant.IsActive ? tenant : throw new AuthorizationException(MultiTenancyExceptionCodes.TenantNotActive);
     }
 }

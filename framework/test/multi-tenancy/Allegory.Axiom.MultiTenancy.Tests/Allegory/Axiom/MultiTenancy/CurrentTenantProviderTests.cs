@@ -140,7 +140,20 @@ public class CurrentTenantProviderTests : IntegrationTest
         result.Data["identifier"].ShouldBe("ghost");
     }
 
-    //ShouldThrowWhenTenantIsNotActive
+    [Fact]
+    public async Task ShouldThrowWhenTenantIsNotActive()
+    {
+        var services = await CreateServiceProviderAsync(builder =>
+        {
+            var provider = Substitute.For<ICurrentTenantIdentifierProvider>();
+            provider.TryGetAsync().Returns("00000000-0000-0000-0000-000000000002");
+            builder.Services.AddSingleton(provider);
+        });
+
+        var provider = services.GetRequiredService<ICurrentTenantProvider>();
+        var exception = await Should.ThrowAsync<AuthorizationException>(async ()=> await provider.TryGetAsync());
+        exception.Code.ShouldBe(MultiTenancyExceptionCodes.TenantNotActive);
+    }
 
     [Fact]
     public async Task ShouldResolveWhenPrincipalHasAccessToTenant()
