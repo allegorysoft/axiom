@@ -24,6 +24,10 @@ public class MongoDbContextProvider<TContext>(
             return dbHandle.GetDatabase<TContext>();
         }
 
+        // We can use existing configurations like this
+        // var options = Services.GetRequiredService<DbContextOptions<TContext>>();
+        // var builder = new DbContextOptionsBuilder<TContext>(options); 
+
         var optionsBuilder = new DbContextOptionsBuilder<TContext>();
         // optionsBuilder.UseMongoDB(connectionString)
         //  Registering IMongoClient as a singleton and passing it into UseMongoDB is the recommended pattern;
