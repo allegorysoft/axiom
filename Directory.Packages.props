@@ -41,6 +41,7 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(RuntimePackageVersion)"/>
 
