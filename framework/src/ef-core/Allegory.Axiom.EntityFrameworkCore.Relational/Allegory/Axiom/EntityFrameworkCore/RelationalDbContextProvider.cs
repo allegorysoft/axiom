@@ -51,7 +51,7 @@ public class RelationalDbContextProvider<TContext>(
             dbHandle = new UnitOfWorkDatabaseHandle(
                 dbContext,
                 SaveChangesAsync,
-                BeginTransactionWithIsolationAsync,
+                BeginTransactionAsync, // When IsolationLevel exists it handled in first if condition
                 CommitAsync,
                 RollbackAsync);
         }
@@ -60,17 +60,4 @@ public class RelationalDbContextProvider<TContext>(
         return dbContext;
     }
 
-    protected static async Task<object> BeginTransactionWithIsolationAsync(
-        UnitOfWorkDatabaseHandle dbHandle,
-        CancellationToken cancellationToken = default)
-    {
-        if (dbHandle.UnitOfWork.Options.IsolationLevel.HasValue)
-        {
-            return await dbHandle.GetDatabase<DbContext>().Database.BeginTransactionAsync(
-                dbHandle.UnitOfWork.Options.IsolationLevel!.Value,
-                cancellationToken);
-        }
-
-        return await dbHandle.GetDatabase<DbContext>().Database.BeginTransactionAsync(cancellationToken);
-    }
 }
