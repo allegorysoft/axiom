@@ -7,23 +7,23 @@ export async function seed(
 ): Promise<void> {
   store.setStatus('loading');
 
-  const results = await Promise.allSettled(
-    providers.map(({ provide }) => provide()),
-  );
-
   const failures: unknown[] = [];
 
-  for (const result of results) {
-    if (result.status === 'fulfilled') {
-      store.setTranslations(result.value);
-      continue;
-    }
+  for (const { provide } of providers) {
+    try {
+      const translations = await provide();
 
-    failures.push(result.reason);
-    console.error('[Axiom-localizer] provider failed to seed:', result.reason);
+      store.setTranslations(translations);
+    } catch (error) {
+      failures.push(error);
+      console.error(
+        '[Axiom-localization-utils] provider failed to seed:',
+        error,
+      );
+    }
   }
 
-  if (failures.length === results.length && results.length > 0) {
+  if (failures.length === providers.length && providers.length > 0) {
     store.setStatus('error', failures);
   } else {
     store.setStatus('ready');
