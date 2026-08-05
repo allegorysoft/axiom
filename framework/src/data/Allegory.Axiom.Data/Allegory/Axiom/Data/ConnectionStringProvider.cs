@@ -1,6 +1,5 @@
 ﻿using System.Collections.Frozen;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
@@ -11,20 +10,20 @@ namespace Allegory.Axiom.Data;
 
 public class ConnectionStringProvider : IConnectionStringProvider, ISingletonService
 {
+    public const string DefaultName = "Default";
+
     public ConnectionStringProvider(
         IConfiguration configuration,
-        IOptions<ConnectionStringOptions> options,
+        IOptions<ConnectionStringContextsOptions> options,
         ITenantContextAccessor tenantContextAccessor)
     {
         Configuration = configuration;
-        Options = options.Value;
         TenantContextAccessor = tenantContextAccessor;
 
-        BuildMappings();
+        BuildMappings(options.Value.Contexts);
     }
 
     protected IConfiguration Configuration { get; }
-    protected ConnectionStringOptions Options { get; }
     protected ITenantContextAccessor TenantContextAccessor { get; }
     protected FrozenDictionary<string, ConnectionStringContextOptions>? Mappings { get; private set; }
 
@@ -79,9 +78,9 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             return connection;
         }
 
-        return Options.DefaultName == name
+        return name == DefaultName
             ? null
-            : Configuration.GetConnectionString(Options.DefaultName);
+            : Configuration.GetConnectionString(DefaultName);
     }
 
     protected virtual string? FindByTenant(TenantContext tenant, string name)
@@ -91,39 +90,28 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             return connectionString;
         }
 
-        if (Options.DefaultName == name)
+        if (name == DefaultName)
         {
             return Configuration.GetConnectionString(name);
         }
 
-        if (tenant.ConnectionStrings.TryGetValue(Options.DefaultName, out connectionString))
+        if (tenant.ConnectionStrings.TryGetValue(DefaultName, out connectionString))
         {
             return connectionString;
         }
 
-        return Configuration.GetConnectionString(Options.DefaultName);
+        return Configuration.GetConnectionString(DefaultName);
     }
 
-    private void BuildMappings()
+    private void BuildMappings(HashSet<ConnectionStringContextOptions>? contexts)
     {
-        /*
-         {
-            "DefaultName": "host-1"
-            "Contexts": [
-                {
-                    "Name": "Administration",
-                    "Connections": [PermissionManagement, FeatureManagement, TenantManagement],
-                    "IsTenantAgnostic: true
-                }
-            ]
-         */
-        if (Options.Contexts == null)
+        if (contexts == null)
         {
             return;
         }
 
         var dictionary = new Dictionary<string, ConnectionStringContextOptions>();
-        foreach (var context in Options.Contexts)
+        foreach (var context in contexts)
         {
             dictionary.Add(context.Name, context);
 
