@@ -1,11 +1,10 @@
-import { localizerStore } from '@axiomframework/react-core';
+import { useTranslation } from '@axiomframework/react-core';
 
 export default function Home() {
+  const t = useTranslation('AxiomIdentity');
   return (
     <>
-      <p>
-        {localizerStore.localize('Welcome', 'AxiomIdentity', { name: 'Masum' })}
-      </p>
+      <span>{t('Welcome', { name: 'Masum' })}</span>
     </>
   );
 }
