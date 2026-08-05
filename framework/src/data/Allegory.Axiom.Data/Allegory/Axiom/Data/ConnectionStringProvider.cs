@@ -20,12 +20,12 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
         Configuration = configuration;
         TenantContextAccessor = tenantContextAccessor;
 
-        BuildMappings(options.Value.Contexts);
+        BuildContexts(options.Value.Contexts);
     }
 
     protected IConfiguration Configuration { get; }
     protected ITenantContextAccessor TenantContextAccessor { get; }
-    protected FrozenDictionary<string, ConnectionStringContextOptions>? Mappings { get; private set; }
+    protected FrozenDictionary<string, ConnectionStringContextOptions>? Contexts { get; private set; }
 
     public virtual async ValueTask<string> GetAsync(string name)
     {
@@ -38,7 +38,7 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
 
     public virtual ValueTask<string?> FindAsync(string name)
     {
-        var context = Mappings?.GetValueOrDefault(name);
+        var context = Contexts?.GetValueOrDefault(name);
 
         var connectionString = context == null ? FindByName(name) : FindByContext(context);
 
@@ -103,7 +103,7 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
         return Configuration.GetConnectionString(DefaultName);
     }
 
-    private void BuildMappings(HashSet<ConnectionStringContextOptions>? contexts)
+    private void BuildContexts(HashSet<ConnectionStringContextOptions>? contexts)
     {
         if (contexts == null)
         {
@@ -121,6 +121,6 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             }
         }
 
-        Mappings = dictionary.ToFrozenDictionary();
+        Contexts = dictionary.ToFrozenDictionary();
     }
 }
