@@ -181,7 +181,7 @@ public class Cache(
         return new CacheTypeDescriptor
         {
             Name = item?.Name ?? GetContextName(type),
-            IsTenantAgnostic = type.IsDefined(typeof(TenantAgnosticAttribute), false),
+            IsTenantAgnostic = item?.IsTenantAgnostic ?? type.IsDefined(typeof(TenantAgnosticAttribute), false),
             EntryOptions = item?.EntryOptions,
         };
 

@@ -16,6 +16,8 @@
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
 
         <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3"/>
+        <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="10.0.2"/>
+        <PackageVersion Include="MongoDB.Driver" Version="3.10.0"/>
 
         <PackageVersion Include="OpenTelemetry.Api" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)"/>
@@ -41,6 +43,7 @@
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(RuntimePackageVersion)"/>
 

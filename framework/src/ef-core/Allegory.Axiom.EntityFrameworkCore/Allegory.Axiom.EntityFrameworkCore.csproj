@@ -11,6 +11,9 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.EntityFrameworkCore.Abstractions\Allegory.Axiom.EntityFrameworkCore.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\data\Allegory.Axiom.Data.Abstractions\Allegory.Axiom.Data.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.UnitOfWork.Abstractions\Allegory.Axiom.UnitOfWork.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>
