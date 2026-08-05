@@ -8,12 +8,14 @@ export async function seed(
   store.setStatus('loading');
 
   const failures: unknown[] = [];
+  let succeeded = false;
 
   for (const { provide } of providers) {
     try {
       const translations = await provide();
 
       store.setTranslations(translations);
+      succeeded = true;
     } catch (error) {
       failures.push(error);
       console.error(
@@ -23,9 +25,8 @@ export async function seed(
     }
   }
 
-  if (failures.length === providers.length && providers.length > 0) {
-    store.setStatus('error', failures);
-  } else {
-    store.setStatus('ready');
-  }
+  store.setStatus(
+    succeeded ? 'ready' : 'error',
+    succeeded ? undefined : failures,
+  );
 }
