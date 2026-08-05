@@ -15,5 +15,6 @@ public class CacheOptions : IExtraProperties
 public class CacheTypeOptions
 {
     public string? Name { get; set; }
+    public bool? IsTenantAgnostic { get; set; }
     public HybridCacheEntryOptions? EntryOptions { get; set; }
 }

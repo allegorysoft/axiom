@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Allegory.Axiom.Caching;
 using Allegory.Axiom.FileProvider;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Localization;
@@ -24,6 +25,15 @@ internal sealed class MultiTenancyPackage : IConfigureApplication
                 paths: ["Allegory/Axiom/MultiTenancy/Localization/Resources"]);
 
             options.MapExceptionCode<LocalizationResource>(MultiTenancyExceptionCodes.Resource);
+        });
+
+        builder.Services.Configure<CacheOptions>(options =>
+        {
+            options.Types[typeof(TenantContext)] = new CacheTypeOptions
+            {
+                Name = "tenants",
+                IsTenantAgnostic = true
+            };
         });
 
         return Task.CompletedTask;

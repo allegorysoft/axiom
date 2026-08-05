@@ -43,7 +43,7 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
         Cache.Descriptor<SomeCacheItem>().EntryOptions.ShouldBeNull();
 
     [Fact]
-    public void ShouldCarryConfiguredEntryOptions()
+    public void ShouldBuildDescriptorByConfiguredCacheTypeOptions()
     {
         var entryOptions = new HybridCacheEntryOptions {Expiration = TimeSpan.FromMinutes(5)};
 
@@ -51,12 +51,20 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             fixture.Service<HybridCache>(),
             Options.Create(new CacheOptions
             {
-                Types = {[typeof(SomeCacheItem)] = new CacheTypeOptions {EntryOptions = entryOptions}}
+                Types = {[typeof(SomeCacheItem)] = new CacheTypeOptions
+                {
+                    Name = "custom-name",
+                    IsTenantAgnostic = true,
+                    EntryOptions = entryOptions
+                }}
             }),
             fixture.Service<ITenantContextAccessor>(),
             fixture.Service<IUnitOfWorkManager>());
 
-        cache.Descriptor<SomeCacheItem>().EntryOptions.ShouldBeSameAs(entryOptions);
+        var descriptor = cache.Descriptor<SomeCacheItem>();
+        descriptor.Name.ShouldBe("custom-name");
+        descriptor.IsTenantAgnostic.ShouldBeTrue();
+        descriptor.EntryOptions.ShouldBeSameAs(entryOptions);
     }
 
     // Key normalization 
