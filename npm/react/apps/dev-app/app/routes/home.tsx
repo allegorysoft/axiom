@@ -1,5 +1,11 @@
-import { Button } from '@axiomframework/react-theme/components';
+import { localizerStore } from '@axiomframework/react-core';
 
 export default function Home() {
-  return <Button variant="ghost">Home</Button>;
+  return (
+    <>
+      <p>
+        {localizerStore.localize('Welcome', 'AxiomIdentity', { name: 'Masum' })}
+      </p>
+    </>
+  );
 }

@@ -1,0 +1,64 @@
+{
+  "application-localization": [
+    {
+      "culture": "en",
+      "currentCulture": {
+        "name": "en",
+        "displayName": "English"
+      },
+      "translations": {
+        "AxiomIdentity": {
+          "Hello": "Hello",
+          "Welcome": "Welcome test",
+          "SignIn": "Sign In",
+          "SignOut": "Sign Out",
+          "Email": "Email",
+          "Password": "Password",
+          "ForgotPassword": "Forgot Password?",
+          "InvalidCredentials": "Invalid email or password.",
+          "Profile": "Profile",
+          "Settings": "Settings"
+        },
+        "AxiomSettingManagement": {
+          "Title": "Settings",
+          "General": "General",
+          "Language": "Language",
+          "Theme": "Theme",
+          "Save": "Save",
+          "Cancel": "Cancel",
+          "SavedSuccessfully": "Settings saved successfully."
+        }
+      }
+    },
+    {
+      "culture": "tr",
+      "currentCulture": {
+        "name": "tr",
+        "displayName": "Türkçe"
+      },
+      "translations": {
+        "AxiomIdentity": {
+          "Hello": "Merhaba",
+          "Welcome": "Hoş Geldiniz",
+          "SignIn": "Giriş Yap",
+          "SignOut": "Çıkış Yap",
+          "Email": "E-posta",
+          "Password": "Şifre",
+          "ForgotPassword": "Şifremi Unuttum?",
+          "InvalidCredentials": "E-posta veya şifre hatalı.",
+          "Profile": "Profil",
+          "Settings": "Ayarlar"
+        },
+        "AxiomSettingManagement": {
+          "Title": "Ayarlar",
+          "General": "Genel",
+          "Language": "Dil",
+          "Theme": "Tema",
+          "Save": "Kaydet",
+          "Cancel": "İptal",
+          "SavedSuccessfully": "Ayarlar başarıyla kaydedildi."
+        }
+      }
+    }
+  ]
+}

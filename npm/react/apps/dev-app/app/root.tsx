@@ -15,14 +15,17 @@ import {
 import type { Route } from '+/types/routes';
 
 import {
-  initializeApplication,
+  provideHttpClient,
   configureLocalization,
+  initializeApplication,
 } from '@axiomframework/react-core';
 
-import { configureEnvironment } from './config/index';
+import { loadEnvironment } from './config';
+
+await loadEnvironment();
 
 function configureApplication() {
-  configureEnvironment();
+  provideHttpClient();
   configureLocalization();
 }
 
