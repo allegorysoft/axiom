@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\caching\Allegory.Axiom.Caching\Allegory.Axiom.Caching.csproj"/>
+        <ProjectReference Include="..\..\data\Allegory.Axiom.Data\Allegory.Axiom.Data.csproj"/>
         <ProjectReference Include="..\..\event-bus\Allegory.Axiom.EventBus\Allegory.Axiom.EventBus.csproj"/>
         <ProjectReference Include="..\..\file-provider\Allegory.Axiom.FileProvider\Allegory.Axiom.FileProvider.csproj"/>
         <ProjectReference Include="..\..\interception\Allegory.Axiom.Interception\Allegory.Axiom.Interception.csproj"/>

@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Data;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +11,7 @@ public class RelationalDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
     IUnitOfWorkManager unitOfWorkManager,
     IConnectionStringProvider connectionStringProvider)
-    : IDbContextProvider<TContext>
+    : IDbContextProvider<TContext>, ISingletonService
     where TContext : DbContext
 {
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;

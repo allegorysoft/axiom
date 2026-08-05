@@ -55,6 +55,37 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             return FindByConfiguration(name);
         }
 
+        return FindByTenant(tenant, name);
+    }
+
+    protected virtual string? FindByContext(ConnectionStringContextOptions context)
+    {
+        var tenant = TenantContextAccessor.Current;
+
+        if (context.IsTenantAgnostic || tenant == null || tenant.ConnectionStrings.Count == 0)
+        {
+            return FindByConfiguration(context.Name);
+        }
+
+        return FindByTenant(tenant, context.Name);
+    }
+
+    protected virtual string? FindByConfiguration(string name)
+    {
+        var connection = Configuration.GetConnectionString(name);
+
+        if (connection != null)
+        {
+            return connection;
+        }
+
+        return Options.DefaultName == name
+            ? null
+            : Configuration.GetConnectionString(Options.DefaultName);
+    }
+
+    protected virtual string? FindByTenant(TenantContext tenant, string name)
+    {
         if (tenant.ConnectionStrings.TryGetValue(name, out var connectionString))
         {
             return connectionString;
@@ -71,47 +102,6 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
         }
 
         return Configuration.GetConnectionString(Options.DefaultName);
-    }
-
-    protected virtual string? FindByContext(ConnectionStringContextOptions context)
-    {
-        var tenant = TenantContextAccessor.Current;
-
-        if (context.IsTenantAgnostic || tenant == null || tenant.ConnectionStrings.Count == 0)
-        {
-            return FindByConfiguration(context.Name);
-        }
-
-        if (tenant.ConnectionStrings.TryGetValue(context.Name, out var connectionString))
-        {
-            return connectionString;
-        }
-
-        if (Options.DefaultName == context.Name)
-        {
-            return Configuration.GetConnectionString(context.Name);
-        }
-
-        if (tenant.ConnectionStrings.TryGetValue(Options.DefaultName, out connectionString))
-        {
-            return connectionString;
-        }
-
-        return Configuration.GetConnectionString(Options.DefaultName);
-    }
-
-    protected virtual string? FindByConfiguration(string name)
-    {
-        var connection = Configuration.GetConnectionString(name);
-
-        if (connection != null)
-        {
-            return connection;
-        }
-
-        return Options.DefaultName == name
-            ? null
-            : Configuration.GetConnectionString(Options.DefaultName);
     }
 
     private void BuildMappings()
