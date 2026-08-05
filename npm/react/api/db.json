@@ -9,7 +9,7 @@
       "translations": {
         "AxiomIdentity": {
           "Hello": "Hello",
-          "Welcome": "Welcome test",
+          "Welcome": "Welcome remote, {name}",
           "SignIn": "Sign In",
           "SignOut": "Sign Out",
           "Email": "Email",
@@ -39,7 +39,7 @@
       "translations": {
         "AxiomIdentity": {
           "Hello": "Merhaba",
-          "Welcome": "Hoş Geldiniz",
+          "Welcome": "Hoş geldiniz remote, {name}",
           "SignIn": "Giriş Yap",
           "SignOut": "Çıkış Yap",
           "Email": "E-posta",

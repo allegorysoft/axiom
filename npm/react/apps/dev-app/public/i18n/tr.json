@@ -1,5 +1,5 @@
 {
   "AxiomIdentity": {
-    "Welcome": "Hoşgeldin, {name}"
+    "Welcome": "Hoşgeldin i18n, {name}"
   }
 }
