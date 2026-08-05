@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,11 +8,16 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class RelationalDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
-    IUnitOfWorkManager unitOfWorkManager)
-    : DbContextProvider<TContext>(dbContextFactory, unitOfWorkManager)
+    IUnitOfWorkManager unitOfWorkManager,
+    IConnectionStringProvider connectionStringProvider)
+    : IDbContextProvider<TContext>
     where TContext : DbContext
 {
-    public override async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
+    protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
+    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    protected IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
+
+    public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {
         // GetRequestedDbContext (for interface find underlying db context they might replace)
         // ResolveConnectionString
@@ -28,6 +34,7 @@ public class RelationalDbContextProvider<TContext>(
         }
 
         var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+        var connectionString = ConnectionStringProvider.GetAsync("");
         //dbContext.Database.SetConnectionString();
 
         if (unitOfWork.Options.IsolationLevel.HasValue)
@@ -38,26 +45,26 @@ public class RelationalDbContextProvider<TContext>(
             dbHandle = new UnitOfWorkDatabaseHandle(
                 dbContext,
                 transaction,
-                SaveChangesAsync,
-                CommitAsync,
-                RollbackAsync);
+                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
+                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
+                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
         }
         else if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
         {
-            dbHandle = new UnitOfWorkDatabaseHandle(dbContext, SaveChangesAsync);
+            dbHandle = new UnitOfWorkDatabaseHandle(dbContext, UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync);
         }
         else
         {
             dbHandle = new UnitOfWorkDatabaseHandle(
                 dbContext,
-                SaveChangesAsync,
-                BeginTransactionAsync, // When IsolationLevel exists it handled in first if condition
-                CommitAsync,
-                RollbackAsync);
+                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
+                // When IsolationLevel exists it handled in first if condition
+                UnitOfWorkDatabaseHandleExtensions.BeginTransactionAsync,
+                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
+                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
         }
 
         unitOfWork.AddDatabase(key, dbHandle);
         return dbContext;
     }
-
 }
