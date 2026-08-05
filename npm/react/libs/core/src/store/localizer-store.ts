@@ -19,7 +19,21 @@ const initialState: LocalizerState = {
 
 const baseStore = createStore<LocalizerState>(initialState);
 
+type CultureReloadHandler = (culture: CultureInfo) => void | Promise<void>;
+let reloadHandler: CultureReloadHandler | undefined;
+
+export function setCultureReloadHandler(handler: CultureReloadHandler) {
+  reloadHandler = handler;
+}
+
 export const localizerStore: LocalizerStore = Object.assign(baseStore, {
+  /**
+   * Imperative translation API
+   * @param key
+   * @param moduleName
+   * @param args
+   * @returns
+   */
   localize(
     key: string,
     moduleName?: string,
@@ -57,13 +71,18 @@ export const localizerStore: LocalizerStore = Object.assign(baseStore, {
   },
 
   setCulture(culture: CultureInfo): void {
+    let changed = false;
     baseStore.set((prev) => {
-      const unchanged = Object.entries(culture).every(
+      changed = !Object.entries(culture).every(
         ([key, value]) => prev.culture[key as keyof CultureInfo] === value,
       );
 
-      return unchanged ? {} : { culture };
+      return changed ? { culture } : {};
     });
+
+    if (changed) {
+      void reloadHandler?.(culture);
+    }
   },
 
   setStatus(status: LocalizerStatus, error: unknown = null): void {

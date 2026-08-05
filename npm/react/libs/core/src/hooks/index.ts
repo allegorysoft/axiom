@@ -1,1 +1,1 @@
-export { useLocalizer } from './use-localizer';
+export { useLocalizer, useTranslation } from './use-localizer';

@@ -1,8 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { localizerStore } from '../store/localizer-store';
+import {
+  localizerStore,
+  setCultureReloadHandler,
+} from '../store/localizer-store';
 
 describe('localizer-store', () => {
-  beforeEach(localizerStore.reset);
+  beforeEach(() => {
+    localizerStore.reset();
+    setCultureReloadHandler(() => {});
+  });
 
   describe('state', () => {
     it('exposes the current localization state', () => {
@@ -166,6 +172,37 @@ describe('localizer-store', () => {
       expect(localizerStore.localize('Total', 'Checkout', ['$42'])).toBe(
         'Total: $42',
       );
+    });
+  });
+
+  describe('reload', () => {
+    it('invokes the reload handler when culture changes', () => {
+      const handler = vi.fn();
+
+      setCultureReloadHandler(handler);
+
+      const culture = {
+        name: 'tr',
+        displayName: 'Türkçe',
+      };
+
+      localizerStore.setCulture(culture);
+
+      expect(handler).toHaveBeenCalledTimes(1);
+      expect(handler).toHaveBeenCalledWith(culture);
+    });
+
+    it('does not invoke the reload handler when culture is unchanged', () => {
+      const handler = vi.fn();
+
+      setCultureReloadHandler(handler);
+
+      localizerStore.setCulture({
+        name: 'en',
+        displayName: 'English',
+      });
+
+      expect(handler).not.toHaveBeenCalled();
     });
   });
 });

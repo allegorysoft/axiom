@@ -1,5 +1,5 @@
 import type { Provider } from '../models/common';
-import type { Translations } from '../models/localization';
+import type { CultureInfo, Translations } from '../models/localization';
 import { provideInitializers } from '../initializer/registry';
 import type { HttpMiddleware } from '../http/http-client';
 import { createHttpClient } from '../http/http-client-factory';
@@ -7,7 +7,10 @@ import {
   remoteLocalizationProvider,
   jsonFileLocalizationProvider,
 } from '../providers/localization-providers';
-import { localizerStore } from '../store/localizer-store';
+import {
+  setCultureReloadHandler,
+  localizerStore,
+} from '../store/localizer-store';
 import { seed } from '../utils/localization-utils';
 
 type LocalizationOptions = {
@@ -16,18 +19,31 @@ type LocalizationOptions = {
 };
 
 export function configureLocalization(options?: LocalizationOptions) {
-  const providers = [
+  const remoteProvider = (cultureName: string) =>
     remoteLocalizationProvider({
-      url: '/application-localization',
-      cultureName: 'en',
-    }),
+      url: '/application-localization', //Will be /application/localization?culture=<value>
+      cultureName,
+    });
+
+  const jsonLocalizer = (cultureName: string) =>
     jsonFileLocalizationProvider({
-      fileNameOrPath: '/i18n/en',
-    }),
+      fileNameOrPath: `/i18n/${cultureName}`,
+    });
+
+  const providers = [
+    remoteProvider(options?.defaultCulture || 'en'),
+    jsonLocalizer(options?.defaultCulture || 'en'),
     ...(options?.providers ?? []),
   ];
 
   provideInitializers({ configure: () => seed(providers, localizerStore) });
+
+  setCultureReloadHandler(async (culture: CultureInfo) => {
+    localizerStore.setStatus('loading');
+    //Fetch providers with override and set state ?
+    //localizerStore.setTranslations({});
+    localizerStore.setStatus('ready');
+  });
 }
 
 type HttpClientOptions = { middlewares?: HttpMiddleware[] };
