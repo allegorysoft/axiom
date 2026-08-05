@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Allegory.Axiom.Data;
 
-public class ConnectionStringResolverTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     private const string Tenant1 = "T-1", Tenant2 = "T-2";
 
