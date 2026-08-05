@@ -10,6 +10,6 @@ export const environment: Environment = {
     scope: 'react_app email',
   },
   endpoints: {
-    default: { url: 'http://localhost/api' },
+    Default: { url: 'http://localhost:3000' },
   },
 };

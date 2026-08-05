@@ -12,20 +12,31 @@ import {
   ClientLoaderFunctionArgs,
   isRouteErrorResponse,
 } from 'react-router';
-
-import { bootstrapApplication } from '@axiomframework/react-core';
-
 import type { Route } from '+/types/routes';
-import { provideEnvironment } from './providers/environment.provider';
 
-provideEnvironment();
+import {
+  provideHttpClient,
+  configureLocalization,
+  initializeApplication,
+} from '@axiomframework/react-core';
+
+import { loadEnvironment } from './config';
+
+await loadEnvironment();
+
+function configureApplication() {
+  provideHttpClient();
+  configureLocalization();
+}
+
+configureApplication();
 
 export async function loader({}: LoaderFunctionArgs) {
-  await bootstrapApplication();
+  await initializeApplication();
 }
 
 export async function clientLoader({}: ClientLoaderFunctionArgs) {
-  await bootstrapApplication();
+  await initializeApplication();
 }
 
 export function HydrateFallback() {
@@ -62,7 +73,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="mx-2 my-2">
         {children}
         <ScrollRestoration />
         <Scripts />

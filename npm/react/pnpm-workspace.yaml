@@ -40,3 +40,4 @@ catalog:
   '@types/react-dom': ^19
 
   typescript: ~5.9.0
+  json-server: ~0.17.0

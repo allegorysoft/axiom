@@ -1,2 +1,2 @@
 export { provideInitializers } from './registry';
-export { bootstrapApplication } from './bootstrap';
+export { initializeApplication } from './initialize-application';

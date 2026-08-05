@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Environment } from '../models/environment';
-import { useEnvironmentStore } from '../store/environment.store';
+import { useEnvironmentStore } from '../store/environment-store';
 
 const makeEnvironment = (
   overrides: Partial<Environment> = {},
@@ -212,6 +212,7 @@ describe('useEnvironmentStore', () => {
   describe('in production builds', () => {
     beforeEach(() => {
       vi.stubEnv('PROD', true);
+      vi.stubEnv('DEV', false);
     });
 
     it('stays silent when the environment is not initialised', () => {

@@ -3,7 +3,7 @@ import { isDevMode } from '../utils/is-dev-mode';
 import { getInitializers } from './registry';
 import { runInitializers } from './run';
 
-export async function bootstrapApplication(
+export async function initializeApplication(
   options?: AxiomApplicationOptions,
 ): Promise<void> {
   if (isDevMode()) {
