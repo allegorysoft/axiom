@@ -2,7 +2,7 @@
   "name": "dev-app",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "root": "apps/dev-app",
-  "sourceRoot": "apps/dev-app/src",
+  "sourceRoot": "apps/dev-app/app",
   "projectType": "application",
   "tags": [],
   "targets": {

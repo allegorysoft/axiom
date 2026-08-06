@@ -1,15 +1,13 @@
 {
   "name": "core",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "root": "libs/core",
   "sourceRoot": "libs/core/src",
   "projectType": "library",
   "tags": ["scope:framework"],
   "targets": {
     "build": {
-      "executor": "@nx/vite:build",
       "options": {
-        "outputPath": "dist/libs/core"
+        "outDir": "../../dist/libs/core"
       }
     }
   }
