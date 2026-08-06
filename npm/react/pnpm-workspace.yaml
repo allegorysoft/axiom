@@ -2,13 +2,19 @@ packages:
   - 'apps/*'
   - 'libs/*'
 
+allowBuilds:
+  '@swc/core': true
+  esbuild: true
+  nx: true
+
 catalog:
-  nx: ~22.7.0
-  '@nx/js': ~22.7.0
-  '@nx/workspace': ~22.7.0
-  '@nx/vite': ~22.7.0
-  '@nx/web': ~22.7.0
-  '@nx/react': ~22.7.0
+  nx: ~23.1.0
+  '@nx/js': ~23.1.0
+  '@nx/workspace': ~23.1.0
+  '@nx/vite': ~23.1.0
+  '@nx/vitest': ~23.1.0
+  '@nx/web': ~23.1.0
+  '@nx/react': ~23.1.0
 
   react: ^19
   react-dom: ^19
@@ -30,6 +36,7 @@ catalog:
   vite: ^8
   vitest: ~4.1.0
   vite-plugin-dts: ~4.5.0
+  vite-plugin-static-copy: ~4.1.0
   '@vitejs/plugin-react': ^6
 
   prettier: ~3.6.0

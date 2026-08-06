@@ -3,7 +3,7 @@ import * as path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import dts from 'vite-plugin-dts';
-import { nxCopyAssetsPlugin } from '@nx/vite/plugins/nx-copy-assets.plugin';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
@@ -11,7 +11,7 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/libs/core',
   plugins: [
     react(),
-    nxCopyAssetsPlugin(['*.md']),
+    viteStaticCopy({ targets: [{ src: ['*.md', 'package.json'], dest: '.' }] }),
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
