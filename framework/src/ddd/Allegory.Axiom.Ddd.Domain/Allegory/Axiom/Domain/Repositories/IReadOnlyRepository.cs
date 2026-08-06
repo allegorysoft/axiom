@@ -11,12 +11,12 @@ namespace Allegory.Axiom.Domain.Repositories;
 public interface IReadOnlyRepository<TEntity> : IRepository where TEntity : class, IEntity
 {
     Task<TEntity> GetAsync(
-        Expression<Func<TEntity, bool>>? predicate,
+        Expression<Func<TEntity, bool>> predicate,
         bool includeDetails = true,
         CancellationToken cancellationToken = default);
 
     Task<TEntity?> FindAsync(
-        Expression<Func<TEntity, bool>>? predicate,
+        Expression<Func<TEntity, bool>> predicate,
         bool includeDetails = true,
         CancellationToken cancellationToken = default);
 
