@@ -1,4 +1,8 @@
-import { isDevMode, useEnvironmentStore } from '@axiomframework/react-core';
+import {
+  isDevMode,
+  useEnvironmentStore,
+  configureCore,
+} from '@axiomframework/react-core';
 
 export async function loadEnvironment() {
   const environment = isDevMode()
@@ -6,4 +10,8 @@ export async function loadEnvironment() {
     : (await import('../environments/environment.production')).environment;
 
   useEnvironmentStore.getState().setEnvironment(environment);
+}
+
+export function configureApplication() {
+  configureCore();
 }

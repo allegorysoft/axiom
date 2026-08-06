@@ -14,21 +14,11 @@ import {
 } from 'react-router';
 import type { Route } from '+/types/routes';
 
-import {
-  provideHttpClient,
-  configureLocalization,
-  initializeApplication,
-} from '@axiomframework/react-core';
+import { initializeApplication } from '@axiomframework/react-core';
 
-import { loadEnvironment } from './config';
+import { configureApplication, loadEnvironment } from './config';
 
 await loadEnvironment();
-
-function configureApplication() {
-  provideHttpClient();
-  configureLocalization();
-}
-
 configureApplication();
 
 export async function loader({}: LoaderFunctionArgs) {
