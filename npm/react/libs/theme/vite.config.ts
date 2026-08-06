@@ -53,4 +53,12 @@ export default defineConfig(() => ({
       },
     },
   },
+  test: {
+    name: 'theme',
+    environment: 'jsdom',
+    setupFiles: ['./test-setup.ts'],
+    globals: false,
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    watch: false,
+  },
 }));

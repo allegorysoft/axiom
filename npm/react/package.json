@@ -13,6 +13,8 @@
   "scripts": {
     "dev": "nx dev",
     "build": "nx build",
+    "build:all": "nx run-many -t build --parallel=1 --skip-nx-cache",
+    "test:all": "nx run-many -t test --parallel=1 --skip-nx-cache",
     "json-server": "json-server ./api/db.json"
   },
   "devDependencies": {
@@ -40,6 +42,9 @@
     "vite": "catalog:",
     "vite-plugin-dts": "catalog:",
     "vite-plugin-static-copy": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@testing-library/jest-dom": "catalog:",
+    "jsdom": "catalog:"
   }
 }
