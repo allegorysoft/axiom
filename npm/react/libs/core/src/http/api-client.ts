@@ -1,4 +1,4 @@
-import { useEnvironmentStore } from '../store/environment-store';
+import { environmentStore } from '../store/environment-store';
 import { HttpRequest } from './http-client';
 import { getHttpClient } from './http-client-factory';
 
@@ -46,7 +46,7 @@ class ApiClient {
 
   private resolve(path: string, moduleName?: string): string {
     const key = moduleName || 'Default';
-    const state = useEnvironmentStore.getState();
+    const state = environmentStore.get();
     const endpoint = state.environment?.endpoints[key];
 
     if (!endpoint) {

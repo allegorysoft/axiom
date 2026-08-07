@@ -21,8 +21,5 @@
   },
   "peerDependencies": {
     "react": "catalog:"
-  },
-  "dependencies": {
-    "zustand": "catalog:"
   }
 }

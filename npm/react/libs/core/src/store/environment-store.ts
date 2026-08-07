@@ -1,63 +1,70 @@
-import { create } from 'zustand';
+import { createStore } from './axiom-store';
 import type { OAuth } from '../models/oauth';
-import type { Environment, Endpoint } from '../models/environment';
+import type {
+  Environment,
+  Endpoint,
+  EnvironmentState,
+  EnvironmentStore,
+} from '../models/environment';
 import { isDevMode } from '../utils/is-dev-mode';
 
-type EnvironmentState = { environment?: Environment };
+const initialState: EnvironmentState = { environment: undefined };
+const baseStore = createStore<EnvironmentState>(initialState);
 
-type EnvironmentActions = {
-  setEnvironment: (environment: Environment) => void;
-  patchEndpoints: (endpoints: Record<string, Endpoint>) => void;
-  patchOAuth: (oauth: Partial<OAuth>) => void;
-  reset: () => void;
-};
+export const environmentStore: EnvironmentStore = Object.assign(baseStore, {
+  setEnvironment(environment: Environment | undefined): void {
+    baseStore.set(() => ({ environment }));
+  },
 
-export const useEnvironmentStore = create<
-  EnvironmentState & EnvironmentActions
->()((set) => ({
-  environment: undefined,
-  setEnvironment: (environment) => set({ environment }),
+  patchEndpoints(endpoints: Record<string, Endpoint>): void {
+    const environment = getEnvironmentOrWarn('patchEndpoints');
+    if (!environment) {
+      return;
+    }
 
-  patchEndpoints: (endpoints) =>
-    set((state) => {
-      const env = getEnvironmentOrWarn(state, 'patchEndpoints');
-      if (!env) return state;
-
-      return {
-        environment: {
-          ...env,
-          endpoints: { ...env.endpoints, ...endpoints },
+    baseStore.set(() => ({
+      environment: {
+        ...environment,
+        endpoints: {
+          ...environment.endpoints,
+          ...endpoints,
         },
-      };
-    }),
+      },
+    }));
+  },
 
-  patchOAuth: (oauth) =>
-    set((state) => {
-      const env = getEnvironmentOrWarn(state, 'patchOAuth');
-      if (!env) {
-        return state;
-      }
+  patchOAuth(oauth: Partial<OAuth>): void {
+    const environment = getEnvironmentOrWarn('patchOAuth');
+    if (!environment) {
+      return;
+    }
 
-      return {
-        environment: {
-          ...env,
-          oauth: { ...env.oauth, ...oauth },
+    baseStore.set(() => ({
+      environment: {
+        ...environment,
+        oauth: {
+          ...environment.oauth,
+          ...oauth,
         },
-      };
-    }),
+      },
+    }));
+  },
 
-  reset: () => set({ environment: undefined }),
-}));
+  reset(): void {
+    baseStore.set(() => initialState);
+  },
+});
 
 function getEnvironmentOrWarn(
-  state: EnvironmentState,
-  action: keyof EnvironmentActions,
+  action: 'patchEndpoints' | 'patchOAuth',
 ): Environment | undefined {
-  if (!state.environment && isDevMode()) {
+  const { environment } = baseStore.get();
+
+  if (!environment && isDevMode()) {
     console.warn(
       `[Axiom] ${action} called before the environment was initialised.`,
     );
   }
 
-  return state.environment;
+  return environment;
 }
