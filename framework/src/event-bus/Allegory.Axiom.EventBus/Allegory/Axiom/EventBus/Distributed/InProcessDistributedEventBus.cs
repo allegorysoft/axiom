@@ -3,14 +3,12 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -25,29 +23,29 @@ public class InProcessDistributedEventBus(
     IUnitOfWorkManager unitOfWorkManager,
     ITenantContextAccessor tenantContextAccessor,
     IInboxStore inboxStore,
-    IOutboxStore outboxStore,
-    IServiceScopeFactory serviceScopeFactory)
+    IOutboxStore outboxStore)
     : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
 {
-    protected IServiceScopeFactory ServiceScopeFactory { get; } = serviceScopeFactory;
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
 
     public override async Task PublishAsync<T>(
         T payload,
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
     {
-        //TODO: We should handle multiple tenant event publishes on same uow
-        //Same problem exists on local events too
-        if (!Handlers.ContainsKey(typeof(T)))
+        var payloadType = typeof(T) == typeof(object) ? payload.GetType() : typeof(T);
+
+        if (!Handlers.ContainsKey(payloadType))
         {
             return;
         }
 
-        publishMode = GetPublishMode<T>(publishMode);
-        var envelope = new EventEnvelope<T>
+        publishMode = GetPublishMode(publishMode, payloadType);
+        var envelope = new EventEnvelope
         {
             Id = Guid.NewGuid(),
+            TenantId = TenantContextAccessor.Current?.Id,
             Payload = payload,
+            PayloadType = payloadType,
         };
 
         switch (publishMode)
@@ -69,7 +67,7 @@ public class InProcessDistributedEventBus(
         }
     }
 
-    protected override DistributedEventPublishMode GetPublishMode<T>(DistributedEventPublishMode publishMode)
+    protected override DistributedEventPublishMode GetPublishMode(DistributedEventPublishMode publishMode, Type payloadType)
     {
         if (publishMode == DistributedEventPublishMode.Immediate || UnitOfWorkManager.Current == null)
         {
@@ -79,20 +77,23 @@ public class InProcessDistributedEventBus(
         return DistributedEventPublishMode.OnUnitOfWorkComplete;
     }
 
-    protected override Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope)
+    protected override Task PublishToOutboxAsync(EventEnvelope envelope)
     {
         throw new UnreachableException("Outbox publishing cannot be used with the in-process event bus.");
     }
 
-    protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
+    protected override async Task PublishToMessageBrokerAsync(EventEnvelope envelope)
     {
         var context = new EventContext
         {
             Id = envelope.Id
         };
 
-        foreach (var handler in Handlers[typeof(T)])
+        foreach (var handler in Handlers[envelope.PayloadType])
         {
+            // We should change tenant if envelope.TenantId != tenantAccessor.Current
+            // OnUnitOfWorkCompleted triggers might change tenant when they publish
+            // Same apply for LocalEventBus
             await handler.HandleAsync(envelope.Payload, context);
         }
     }

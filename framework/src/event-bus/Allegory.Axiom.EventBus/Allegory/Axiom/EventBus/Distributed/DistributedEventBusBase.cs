@@ -56,13 +56,16 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         DistributedEventPublishMode publishMode = DistributedEventPublishMode.Auto)
         where T : notnull
     {
-        publishMode = GetPublishMode<T>(publishMode);
-        var envelope = new EventEnvelope<T>
+        var payloadType = typeof(T) == typeof(object) ? payload.GetType() : typeof(T);
+        publishMode = GetPublishMode(publishMode, payloadType);
+
+        var envelope = new EventEnvelope
         {
             Id = Guid.NewGuid(),
             TraceParent = Activity.Current?.Id,
             TenantId = TenantContextAccessor.Current?.Id,
             Payload = payload,
+            PayloadType = payloadType
         };
 
         switch (publishMode)
@@ -105,11 +108,11 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         }
     }
 
-    protected virtual DistributedEventPublishMode GetPublishMode<T>(DistributedEventPublishMode publishMode)
+    protected virtual DistributedEventPublishMode GetPublishMode(DistributedEventPublishMode publishMode, Type payloadType)
     {
         return publishMode switch
         {
-            DistributedEventPublishMode.Auto => IsOutboxEnabled && Options.Outbox.UseFor!(typeof(T))
+            DistributedEventPublishMode.Auto => IsOutboxEnabled && Options.Outbox.UseFor!(payloadType)
                 ? DistributedEventPublishMode.Outbox
                 : DistributedEventPublishMode.OnUnitOfWorkComplete,
 
@@ -121,29 +124,29 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         };
     }
 
-    protected virtual Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope) where T : notnull
+    protected virtual Task PublishToOutboxAsync(EventEnvelope envelope)
     {
         //Save to store
 
         return Task.CompletedTask;
     }
 
-    protected abstract Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope) where T : notnull;
+    protected abstract Task PublishToMessageBrokerAsync(EventEnvelope envelope);
 
-    protected virtual DistributedEventDescriptor GetEventDescriptor<T>()
+    protected virtual DistributedEventDescriptor GetEventDescriptor(Type type)
     {
         // We can't use `Options.GetEvent<T>()` to retrieve the descriptor here,
         // because `T` may not have any registered handlers.
         // When publishing an event, having a registered handler is not required.
 
         return EventDescriptorCache.GetOrAdd(
-            typeof(T),
+            type,
             static (type, options) =>
             {
                 var descriptor = options.Events.FirstOrDefault(f => f.Type == type)
                                  ?? new DistributedEventDescriptor
                                  {
-                                     Name = typeof(T).FullName
+                                     Name = type.FullName
                                             ?? throw new InvalidOperationException("Event name cannot be null"),
                                      Topic = TopicNameAttribute.Get(type),
                                      Type = type,
