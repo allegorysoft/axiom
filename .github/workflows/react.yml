@@ -32,6 +32,8 @@ jobs:
 
       - name: Build
         run: pnpm build:all
+        working-directory: npm/react
 
       - name: Test
         run: pnpm test:all
+        working-directory: npm/react
