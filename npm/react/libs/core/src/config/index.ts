@@ -38,18 +38,11 @@ export function configureLocalization(options?: LocalizationOptions) {
 
   provideInitializers({ configure: () => seed(providers, localizerStore) });
 
-  //TODO: Improve this behavior ?
-  let reloadId = 0;
   setCultureReloadHandler(async (culture) => {
-    const current = ++reloadId;
     await seed(
       [remoteProvider(culture.name), jsonLocalizer(culture.name)],
       localizerStore,
     );
-
-    if (current !== reloadId) {
-      return;
-    }
   });
 }
 
