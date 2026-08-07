@@ -11,17 +11,18 @@ namespace Allegory.Axiom.EventBus.Local;
 public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     protected ILocalEventBus EventBus => fixture.Service<ILocalEventBus>();
+    protected int Number { get; } = Random.Shared.Next(); // Each test method gets new number
 
     [Fact]
     public async Task ShouldPublishEventToHandler()
     {
         var handler = fixture.Service<TestEventHandler>();
 
-        handler.Received.ShouldNotContain(e => e.Value == 1);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
-        await EventBus.PublishAsync(new TestEvent(1));
+        await EventBus.PublishAsync(new TestEvent(Number));
 
-        handler.Received.ShouldContain(e => e.Value == 1);
+        handler.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -29,11 +30,24 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     {
         var handler = fixture.Service<ValueTestEventHandler>();
 
-        handler.Received.ShouldNotContain(e => e.Value == 1);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
-        await EventBus.PublishAsync(new ValueTestEvent(1));
+        await EventBus.PublishAsync(new ValueTestEvent(Number));
 
-        handler.Received.ShouldContain(e => e.Value == 1);
+        handler.Received.ShouldContain(e => e.Value == Number);
+    }
+
+    [Fact]
+    public async Task ShouldPublishEventToHandlerWhenPayloadTypeIsObject()
+    {
+        var handler = fixture.Service<TestEventHandler>();
+
+        handler.Received.ShouldNotContain(e => e.Value == Number);
+
+        object payload = new TestEvent(Number);
+        await EventBus.PublishAsync(payload);
+
+        handler.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -42,13 +56,13 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var handler1 = fixture.Service<TestEventHandler>();
         var handler2 = fixture.Service<TestEventHandler2>();
 
-        handler1.Received.ShouldNotContain(e => e.Value == 2);
-        handler2.Received.ShouldNotContain(e => e.Value == 2);
+        handler1.Received.ShouldNotContain(e => e.Value == Number);
+        handler2.Received.ShouldNotContain(e => e.Value == Number);
 
-        await EventBus.PublishAsync(new TestEvent(2));
+        await EventBus.PublishAsync(new TestEvent(Number));
 
-        handler1.Received.ShouldContain(e => e.Value == 2);
-        handler2.Received.ShouldContain(e => e.Value == 2);
+        handler1.Received.ShouldContain(e => e.Value == Number);
+        handler2.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -72,13 +86,13 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
-        await EventBus.PublishAsync(new TestEvent(3), publishMode: LocalEventPublishMode.OnUnitOfWorkComplete);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: LocalEventPublishMode.OnUnitOfWorkComplete);
 
-        handler.Received.ShouldNotContain(e => e.Value == 3);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
         await uow.CompleteAsync(CancellationToken.None);
 
-        handler.Received.ShouldContain(e => e.Value == 3);
+        handler.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -86,9 +100,9 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     {
         var handler = fixture.Service<TestEventHandler>();
 
-        await EventBus.PublishAsync(new TestEvent(4), publishMode: LocalEventPublishMode.OnUnitOfWorkComplete);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: LocalEventPublishMode.OnUnitOfWorkComplete);
 
-        handler.Received.ShouldContain(e => e.Value == 4);
+        handler.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -98,9 +112,9 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
-        await EventBus.PublishAsync(new TestEvent(5), publishMode: LocalEventPublishMode.Immediate);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: LocalEventPublishMode.Immediate);
 
-        handler.Received.ShouldContain(e => e.Value == 5);
+        handler.Received.ShouldContain(e => e.Value == Number);
 
         await uow.CompleteAsync(CancellationToken.None);
     }
