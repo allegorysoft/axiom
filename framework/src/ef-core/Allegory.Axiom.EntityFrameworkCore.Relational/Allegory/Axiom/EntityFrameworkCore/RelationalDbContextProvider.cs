@@ -14,8 +14,8 @@ public class RelationalDbContextProvider<TContext>(
     : IDbContextProvider<TContext>, ISingletonService
     where TContext : DbContext
 {
+    public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
-    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
 
     public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
