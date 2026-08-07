@@ -38,11 +38,18 @@ export function configureLocalization(options?: LocalizationOptions) {
 
   provideInitializers({ configure: () => seed(providers, localizerStore) });
 
-  setCultureReloadHandler(async (culture: CultureInfo) => {
-    localizerStore.setStatus('loading');
-    //Fetch providers with override and set state ?
-    //localizerStore.setTranslations({});
-    localizerStore.setStatus('ready');
+  //TODO: Improve this behavior ?
+  let reloadId = 0;
+  setCultureReloadHandler(async (culture) => {
+    const current = ++reloadId;
+    await seed(
+      [remoteProvider(culture.name), jsonLocalizer(culture.name)],
+      localizerStore,
+    );
+
+    if (current !== reloadId) {
+      return;
+    }
   });
 }
 
