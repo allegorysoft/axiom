@@ -26,6 +26,20 @@ public class DistributedEventBusBaseTests(
     // Test DistributedEventBusBase logic (publish modes, hooks, outbox routing) here.
 
     public IDistributedEventBus EventBus => fixture.Service<IDistributedEventBus>();
+    protected int Number { get; } = Random.Shared.Next(); // Each test method gets new number
+
+    [Fact]
+    public async Task ShouldPublishEventToHandlerWhenPayloadTypeIsObject()
+    {
+        var handler = fixture.Service<TestEventHandler>();
+
+        handler.Received.ShouldNotContain(e => e.Value == Number);
+
+        object payload = new TestEvent(Number);
+        await EventBus.PublishAsync(payload);
+
+        handler.Received.ShouldContain(e => e.Value == Number);
+    }
 
     [Fact]
     public async Task ShouldPublishImmediatelyWhenPublishModeIsImmediate()
@@ -34,10 +48,10 @@ public class DistributedEventBusBaseTests(
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
-        await EventBus.PublishAsync(new TestEvent(1), publishMode: DistributedEventPublishMode.Immediate);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: DistributedEventPublishMode.Immediate);
 
         // Immediate skips unit of work entirely, no hook wait needed
-        handler.Received.ShouldContain(e => e.Value == 1);
+        handler.Received.ShouldContain(e => e.Value == Number);
 
         await uow.CompleteAsync(CancellationToken.None);
     }
@@ -46,20 +60,23 @@ public class DistributedEventBusBaseTests(
     public async Task ShouldPublishImmediatelyWhenNoActiveUnitOfWork()
     {
         var handler = fixture.Service<TestEventHandler>();
+        var number1 = Random.Shared.Next();
+        var number2 = Random.Shared.Next();
+        var number3 = Random.Shared.Next();
 
         await EventBus.PublishAsync(
-            new TestEvent(2),
+            new TestEvent(number1),
             publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
         await EventBus.PublishAsync(
-            new TestEvent(3),
+            new TestEvent(number2),
             publishMode: DistributedEventPublishMode.Outbox);
         await EventBus.PublishAsync(
-            new TestEvent(4),
+            new TestEvent(number3),
             publishMode: DistributedEventPublishMode.Auto);
 
-        handler.Received.ShouldContain(e => e.Value == 2);
-        handler.Received.ShouldContain(e => e.Value == 3);
-        handler.Received.ShouldContain(e => e.Value == 4);
+        handler.Received.ShouldContain(e => e.Value == number1);
+        handler.Received.ShouldContain(e => e.Value == number3);
+        handler.Received.ShouldContain(e => e.Value == number3);
     }
 
     [Fact]
@@ -73,20 +90,20 @@ public class DistributedEventBusBaseTests(
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
-            new TestEvent(5),
+            new TestEvent(Number),
             publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
 
-        handler.Received.ShouldNotContain(e => e.Value == 5);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
         {
-            handler.Received.ShouldNotContain(e => e.Value == 5);
+            handler.Received.ShouldNotContain(e => e.Value == Number);
             return Task.CompletedTask;
         });
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
         {
-            handler.Received.ShouldContain(e => e.Value == 5);
+            handler.Received.ShouldContain(e => e.Value == Number);
             return Task.CompletedTask;
         });
 
@@ -104,14 +121,14 @@ public class DistributedEventBusBaseTests(
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
-            new TestEvent(6),
+            new TestEvent(Number),
             publishMode: DistributedEventPublishMode.Outbox);
 
-        handler.Received.ShouldNotContain(e => e.Value == 6);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
         {
-            handler.Received.ShouldContain(e => e.Value == 6);
+            handler.Received.ShouldContain(e => e.Value == Number);
             return Task.CompletedTask;
         });
 
@@ -126,14 +143,14 @@ public class DistributedEventBusBaseTests(
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
-        await EventBus.PublishAsync(new TestEvent(7), publishMode: DistributedEventPublishMode.Auto);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: DistributedEventPublishMode.Auto);
 
-        handler.Received.ShouldNotContain(e => e.Value == 7);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
         {
             // Outbox hooks BeforeComplete
-            handler.Received.ShouldContain(e => e.Value == 7);
+            handler.Received.ShouldContain(e => e.Value == Number);
             return Task.CompletedTask;
         });
 
@@ -153,27 +170,26 @@ public class DistributedEventBusBaseTests(
             });
         });
 
-
         var eventBus = provider.GetRequiredService<IDistributedEventBus>();
         var handler = provider.GetRequiredService<TestEventHandler>();
         var uowManager = provider.GetRequiredService<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
-        await eventBus.PublishAsync(new TestEvent(8), publishMode: DistributedEventPublishMode.Auto);
+        await eventBus.PublishAsync(new TestEvent(Number), publishMode: DistributedEventPublishMode.Auto);
 
-        handler.Received.ShouldNotContain(e => e.Value == 8);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
         {
             // Outbox hooks BeforeComplete
-            handler.Received.ShouldNotContain(e => e.Value == 8);
+            handler.Received.ShouldNotContain(e => e.Value == Number);
             return Task.CompletedTask;
         });
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
         {
             // Outbox hooks BeforeComplete
-            handler.Received.ShouldContain(e => e.Value == 8);
+            handler.Received.ShouldContain(e => e.Value == Number);
             return Task.CompletedTask;
         });
 
@@ -187,7 +203,7 @@ public class DistributedEventBusBaseTests(
         var tenantId = Guid.NewGuid();
         tenantContextAccessor.Set(new TenantContext(tenantId, "t-1", "T-1"));
 
-        await EventBus.PublishAsync(new TestEvent(9), publishMode: DistributedEventPublishMode.Immediate);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: DistributedEventPublishMode.Immediate);
 
         ((DistributedEventBusImp) EventBus).LastEnvelopeTenantId.ShouldBe(tenantId);
     }
@@ -196,9 +212,9 @@ public class DistributedEventBusBaseTests(
     public async Task ShouldCaptureNullTenantIdWhenNoTenantContext()
     {
         var tenantContextAccessor = fixture.Service<ITenantContextAccessor>();
-        tenantContextAccessor.Set(null);
+        tenantContextAccessor.Set(current: null);
 
-        await EventBus.PublishAsync(new TestEvent(10), publishMode: DistributedEventPublishMode.Immediate);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: DistributedEventPublishMode.Immediate);
 
         ((DistributedEventBusImp) EventBus).LastEnvelopeTenantId.ShouldBeNull();
     }
@@ -241,19 +257,19 @@ public class DistributedEventBusImp(
 
     public Guid? LastEnvelopeTenantId { get; private set; }
 
-    protected override async Task PublishToOutboxAsync<T>(EventEnvelope<T> envelope)
+    protected override async Task PublishToOutboxAsync(EventEnvelope envelope)
     {
-        foreach (var handler in Handlers[typeof(T)])
+        foreach (var handler in Handlers[envelope.PayloadType])
         {
             await handler.HandleAsync(envelope.Payload, new EventContext());
         }
     }
 
-    protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
+    protected override async Task PublishToMessageBrokerAsync(EventEnvelope envelope)
     {
         LastEnvelopeTenantId = envelope.TenantId;
 
-        foreach (var handler in Handlers[typeof(T)])
+        foreach (var handler in Handlers[envelope.PayloadType])
         {
             await handler.HandleAsync(envelope.Payload, new EventContext());
         }

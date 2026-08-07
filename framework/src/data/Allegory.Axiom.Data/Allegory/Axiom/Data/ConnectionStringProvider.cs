@@ -10,8 +10,6 @@ namespace Allegory.Axiom.Data;
 
 public class ConnectionStringProvider : IConnectionStringProvider, ISingletonService
 {
-    public const string DefaultName = "Default";
-
     public ConnectionStringProvider(
         IConfiguration configuration,
         IOptions<ConnectionStringContextsOptions> options,
@@ -27,7 +25,7 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
     protected ITenantContextAccessor TenantContextAccessor { get; }
     protected FrozenDictionary<string, ConnectionStringContextOptions>? Contexts { get; private set; }
 
-    public virtual async ValueTask<string> GetAsync(string name)
+    public virtual async ValueTask<string> GetAsync(string name = IConnectionStringProvider.DefaultName)
     {
         var connectionString = await FindAsync(name);
 
@@ -36,7 +34,7 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             : connectionString;
     }
 
-    public virtual ValueTask<string?> FindAsync(string name)
+    public virtual ValueTask<string?> FindAsync(string name = IConnectionStringProvider.DefaultName)
     {
         var context = Contexts?.GetValueOrDefault(name);
 
@@ -78,9 +76,9 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             return connection;
         }
 
-        return name == DefaultName
+        return name == IConnectionStringProvider.DefaultName
             ? null
-            : Configuration.GetConnectionString(DefaultName);
+            : Configuration.GetConnectionString(IConnectionStringProvider.DefaultName);
     }
 
     protected virtual string? FindByTenant(TenantContext tenant, string name)
@@ -90,17 +88,17 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             return connectionString;
         }
 
-        if (name == DefaultName)
+        if (name == IConnectionStringProvider.DefaultName)
         {
             return Configuration.GetConnectionString(name);
         }
 
-        if (tenant.ConnectionStrings.TryGetValue(DefaultName, out connectionString))
+        if (tenant.ConnectionStrings.TryGetValue(IConnectionStringProvider.DefaultName, out connectionString))
         {
             return connectionString;
         }
 
-        return Configuration.GetConnectionString(DefaultName);
+        return Configuration.GetConnectionString(IConnectionStringProvider.DefaultName);
     }
 
     private void BuildContexts(HashSet<ConnectionStringContextOptions>? contexts)

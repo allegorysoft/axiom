@@ -24,6 +24,8 @@ public class RelationalDbContextProvider<TContext>(
         // ResolveConnectionString
         // Check database exists in uow (context.Type_ConnectionStr) => hash 
         // CreateDbContext; SetConnection
+        
+        //uow.Items.TryGetValue("db_{tenant.current.id??host}_{dbkey}")
 
         var unitOfWork = UnitOfWorkManager.RequiredCurrent;
         cancellationToken = cancellationToken.FallbackTo(unitOfWork.CancellationToken);
@@ -35,7 +37,7 @@ public class RelationalDbContextProvider<TContext>(
         }
 
         var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
-        var connectionString = ConnectionStringProvider.GetAsync("");
+        var connectionString = ConnectionStringProvider.GetAsync();
         //dbContext.Database.SetConnectionString();
 
         if (unitOfWork.Options.IsolationLevel.HasValue)

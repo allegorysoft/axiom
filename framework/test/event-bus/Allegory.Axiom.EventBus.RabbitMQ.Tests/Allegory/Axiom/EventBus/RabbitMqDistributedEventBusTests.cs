@@ -15,6 +15,7 @@ namespace Allegory.Axiom.EventBus;
 public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     protected IDistributedEventBus EventBus => fixture.Service<IDistributedEventBus>();
+    protected int Number { get; } = Random.Shared.Next();
 
     private static async Task WaitUntilAsync(Func<bool> condition, TimeSpan? timeout = null)
     {
@@ -37,11 +38,11 @@ public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : 
     {
         var handler = fixture.Service<RabbitTestEventHandler>();
 
-        await EventBus.PublishAsync(new RabbitTestEvent(1));
+        await EventBus.PublishAsync(new RabbitTestEvent(Number));
 
-        await WaitUntilAsync(() => handler.Received.Contains(1));
+        await WaitUntilAsync(() => handler.Received.Contains(Number));
 
-        handler.Received.ShouldContain(1);
+        handler.Received.ShouldContain(Number);
     }
 
     [Fact]
@@ -50,14 +51,14 @@ public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : 
         var handler1 = fixture.Service<RabbitMultiTestEventHandler1>();
         var handler2 = fixture.Service<RabbitMultiTestEventHandler2>();
 
-        await EventBus.PublishAsync(new RabbitMultiTestEvent(2));
+        await EventBus.PublishAsync(new RabbitMultiTestEvent(Number));
 
         await WaitUntilAsync(
-            () => handler1.Received.Contains(2) && handler2.Received.Contains(2),
+            () => handler1.Received.Contains(Number) && handler2.Received.Contains(Number),
             TimeSpan.FromSeconds(15));
 
-        handler1.Received.ShouldContain(2);
-        handler2.Received.ShouldContain(2);
+        handler1.Received.ShouldContain(Number);
+        handler2.Received.ShouldContain(Number);
     }
 
     [Fact]
@@ -65,11 +66,11 @@ public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : 
     {
         var handler = fixture.Service<RabbitValueTestEventHandler>();
 
-        await EventBus.PublishAsync(new RabbitValueTestEvent(3));
+        await EventBus.PublishAsync(new RabbitValueTestEvent(Number));
 
-        await WaitUntilAsync(() => handler.Received.Contains(3));
+        await WaitUntilAsync(() => handler.Received.Contains(Number));
 
-        handler.Received.ShouldContain(3);
+        handler.Received.ShouldContain(Number);
     }
 
     [Fact]

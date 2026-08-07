@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 
@@ -17,7 +18,9 @@ public class LocalEventBus(
         LocalEventPublishMode publishMode = LocalEventPublishMode.OnUnitOfWorkComplete)
         where T : notnull
     {
-        if (!EventHandlerManager.Handlers.ContainsKey(typeof(T)))
+        var payloadType = typeof(T) == typeof(object) ? payload.GetType() : typeof(T);
+
+        if (!EventHandlerManager.Handlers.ContainsKey(payloadType))
         {
             return;
         }
@@ -26,17 +29,18 @@ public class LocalEventBus(
         {
             UnitOfWorkManager.Current.AddHook(
                 UnitOfWorkHookPoint.BeforeComplete,
-                () => InvokeHandlersAsync<T>(payload));
+                () => InvokeHandlersAsync(payload, payloadType));
         }
         else
         {
-            await InvokeHandlersAsync<T>(payload);
+            await InvokeHandlersAsync(payload, payloadType);
         }
+
     }
 
-    protected virtual async Task InvokeHandlersAsync<T>(object payload)
+    protected virtual async Task InvokeHandlersAsync(object payload, Type type)
     {
-        foreach (var handler in EventHandlerManager.Handlers[typeof(T)])
+        foreach (var handler in EventHandlerManager.Handlers[type])
         {
             await handler.HandleAsync(payload);
         }

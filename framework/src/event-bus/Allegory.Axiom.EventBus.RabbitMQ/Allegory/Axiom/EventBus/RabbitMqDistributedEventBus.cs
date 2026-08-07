@@ -39,9 +39,9 @@ public class RabbitMqDistributedEventBus(
         return await ConnectionFactory.GetAsync(Options.RabbitMq.ConnectionName);
     }
 
-    protected override async Task PublishToMessageBrokerAsync<T>(EventEnvelope<T> envelope)
+    protected override async Task PublishToMessageBrokerAsync(EventEnvelope envelope)
     {
-        var descriptor = GetEventDescriptor<T>();
+        var descriptor = GetEventDescriptor(envelope.PayloadType);
         var properties = new BasicProperties
         {
             DeliveryMode = DeliveryModes.Persistent,
@@ -73,7 +73,7 @@ public class RabbitMqDistributedEventBus(
         }
 
         var connection = await GetConnectionAsync();
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload, descriptor.Type);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload, envelope.PayloadType);
         using var lease = await connection.RentChannelAsync(PublisherChannelName);
 
         await lease.Channel.BasicPublishAsync(

@@ -5,20 +5,17 @@ using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventProcessor(
-    IServiceScopeFactory serviceScopeFactory,
     IUnitOfWorkManager unitOfWorkManager,
     ITenantContextAccessor tenantContextAccessor,
     ITenantStore tenantStore,
     IHostApplicationLifetime applicationLifetime)
     : ISingletonService
 {
-    protected IServiceScopeFactory ServiceScopeFactory { get; set; } = serviceScopeFactory;
     protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
     protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
     protected ITenantStore TenantStore { get; } = tenantStore;
