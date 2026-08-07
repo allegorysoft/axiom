@@ -18,7 +18,7 @@ public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : ICl
     [Fact]
     public async Task ShouldResolveDefaultConnectionString()
     {
-        var connection = await Provider.GetAsync(ConnectionStringProvider.DefaultName);
+        var connection = await Provider.GetAsync();
 
         connection.ShouldBe("host-app-default");
     }
@@ -62,7 +62,7 @@ public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : ICl
     {
         TenantContextAccessor.Set(await TenantStore.GetAsync(Tenant1));
 
-        var connection = await Provider.GetAsync(ConnectionStringProvider.DefaultName);
+        var connection = await Provider.GetAsync(IConnectionStringProvider.DefaultName);
 
         connection.ShouldBe("tenant1-app-default");
     }
@@ -110,7 +110,7 @@ public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : ICl
     {
         TenantContextAccessor.Set(await TenantStore.GetAsync(Tenant2));
 
-        var connection1 = await Provider.GetAsync(ConnectionStringProvider.DefaultName);
+        var connection1 = await Provider.GetAsync();
         var connection2 = await Provider.GetAsync("AppDb1");
         var connection3 = await Provider.GetAsync("TenantAgnosticGroupedDb1");
         var connection4 = await Provider.GetAsync("GroupedDb1");
