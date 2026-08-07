@@ -50,7 +50,7 @@ describe('axiom-store', () => {
     });
   });
 
-  describe('change detection', () => {
+  describe('no-op updates', () => {
     it('ignores empty patches', () => {
       const store = createStore({ count: 0 });
       const listener = vi.fn();
@@ -97,13 +97,14 @@ describe('axiom-store', () => {
       expect(Object.is(store.get().value, -0)).toBe(true);
     });
 
-    it('notifies subscribers exactly once per update', () => {
+    it('updates when at least one patched value changes', () => {
       const store = createStore({ a: 1, b: 2 });
       const listener = vi.fn();
 
       store.subscribe(listener);
       store.set(() => ({ a: 1, b: 3 }));
 
+      expect(store.get()).toEqual({ a: 1, b: 3 });
       expect(listener).toHaveBeenCalledTimes(1);
     });
   });
@@ -181,7 +182,7 @@ describe('axiom-store', () => {
       expect(late).toHaveBeenCalledTimes(1);
     });
 
-    it('listeners observe the latest state snapshot', () => {
+    it('listeners receive the committed state', () => {
       const store = createStore({ count: 0 });
 
       store.subscribe(() => {
@@ -192,7 +193,7 @@ describe('axiom-store', () => {
     });
   });
 
-  describe('nested references', () => {
+  describe('reference equality', () => {
     it('treats a new object/array reference as a state change, even if structurally equal', () => {
       const store = createStore({
         user: { name: 'John' },

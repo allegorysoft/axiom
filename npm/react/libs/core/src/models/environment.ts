@@ -1,3 +1,4 @@
+import type { AxiomStore } from './common';
 import type { OAuth } from './oauth';
 
 export interface Environment {
@@ -8,4 +9,15 @@ export interface Environment {
 
 export interface Endpoint {
   url: string;
+}
+
+export interface EnvironmentState {
+  environment?: Environment;
+}
+
+export interface EnvironmentStore extends AxiomStore<EnvironmentState> {
+  setEnvironment(environment: Environment | undefined): void;
+  patchEndpoints(endpoints: Record<string, Endpoint>): void;
+  patchOAuth(oauth: Partial<OAuth>): void;
+  reset(): void;
 }

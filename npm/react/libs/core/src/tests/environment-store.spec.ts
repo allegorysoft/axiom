@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Environment } from '../models/environment';
-import { useEnvironmentStore } from '../store/environment-store';
+import { environmentStore } from '../store/environment-store';
 
 const makeEnvironment = (
   overrides: Partial<Environment> = {},
@@ -20,16 +20,15 @@ const makeEnvironment = (
   ...overrides,
 });
 
-const { setEnvironment, patchEndpoints, patchOAuth, reset } =
-  useEnvironmentStore.getState();
+const { setEnvironment, patchEndpoints, patchOAuth, reset } = environmentStore;
 
-const getEnvironment = () => useEnvironmentStore.getState().environment;
+const getEnvironment = () => environmentStore.get().environment;
 
 const spyOnWarn = () =>
   vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
 beforeEach(() => {
-  useEnvironmentStore.setState({ environment: undefined });
+  environmentStore.setEnvironment(undefined);
 });
 
 afterEach(() => {
@@ -37,7 +36,7 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
-describe('useEnvironmentStore', () => {
+describe('environmentStore', () => {
   it('starts with no environment', () => {
     expect(getEnvironment()).toBeUndefined();
   });
@@ -187,7 +186,7 @@ describe('useEnvironmentStore', () => {
   describe('subscribers', () => {
     it('notifies listeners when the environment changes', () => {
       const listener = vi.fn();
-      const unsubscribe = useEnvironmentStore.subscribe(listener);
+      const unsubscribe = environmentStore.subscribe(listener);
 
       setEnvironment(makeEnvironment());
       patchOAuth({ clientId: 'axiom-mobile' });
@@ -199,7 +198,7 @@ describe('useEnvironmentStore', () => {
     it('does not notify listeners when a patch is rejected', () => {
       spyOnWarn(); //Avoid console warn for environment initialize
       const listener = vi.fn();
-      const unsubscribe = useEnvironmentStore.subscribe(listener);
+      const unsubscribe = environmentStore.subscribe(listener);
 
       patchEndpoints({ health: { url: 'https://api.test/health' } });
       patchOAuth({ clientId: 'axiom-mobile' });

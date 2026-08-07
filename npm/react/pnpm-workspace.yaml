@@ -22,7 +22,6 @@ catalog:
   '@react-router/node': ^7
   '@react-router/serve': ^7
   '@react-router/dev': ^7
-  zustand: ~5.0.0
   openid-client: ~6.8.0
 
   tailwindcss: ~4.3.0

@@ -4,9 +4,10 @@ import { localizerStore } from '../store/localizer-store';
 export const useLocalizer = createStoreHook(localizerStore);
 
 /**
- * Reactive translation API for React
- * @param moduleName
- * @returns
+ * Automatically updates when the active culture or translations change.
+ *
+ * @param moduleName Translation module to resolve keys from. Defaults to "Default".
+ * @returns Translation function for looking up localized strings.
  */
 export function useTranslation(moduleName?: string) {
   useLocalizer((s) => s.culture.name);

@@ -1,9 +1,9 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { AxiomStore } from '../models/common';
 
 export interface AxiomStoreHook<T> {
   <TSelected>(selector: (state: Readonly<T>) => TSelected): TSelected;
-  getState(): Readonly<T>;
+  get(): Readonly<T>;
 }
 
 export function createStore<T extends object>(initialState: T): AxiomStore<T> {
@@ -17,12 +17,14 @@ export function createStore<T extends object>(initialState: T): AxiomStore<T> {
 
     set(updater) {
       const patch = updater(state);
-      if (Object.keys(patch).length === 0) {
+      const keys = Object.keys(patch) as (keyof T)[];
+
+      if (keys.length === 0) {
         return;
       }
 
       let changed = false;
-      for (const key of Object.keys(patch) as (keyof T)[]) {
+      for (const key of keys) {
         if (!Object.is(state[key], patch[key])) {
           changed = true;
           break;
@@ -53,12 +55,14 @@ export function createStoreHook<T extends object>(
   function useStore<TSelected>(
     selector: (state: Readonly<T>) => TSelected,
   ): TSelected {
-    const getSnapshot = useCallback(() => selector(store.get()), [selector]);
-
-    return useSyncExternalStore(store.subscribe, getSnapshot, getSnapshot);
+    return useSyncExternalStore(
+      store.subscribe,
+      () => selector(store.get()),
+      () => selector(store.get()),
+    );
   }
 
-  useStore.getState = store.get;
+  useStore.get = store.get;
 
   return useStore;
 }

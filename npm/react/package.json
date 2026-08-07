@@ -14,6 +14,7 @@
     "dev": "nx dev",
     "build": "nx build",
     "build:all": "nx run-many -t build --parallel=1 --skip-nx-cache",
+    "test": "nx test",
     "test:all": "nx run-many -t test --parallel=1 --skip-nx-cache",
     "json-server": "json-server ./api/db.json"
   },
