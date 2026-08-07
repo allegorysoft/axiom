@@ -13,17 +13,18 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     protected IDistributedEventBus EventBus => fixture.Service<IDistributedEventBus>();
+    protected int Number { get; } = Random.Shared.Next();
 
     [Fact]
     public async Task ShouldPublishEventToHandler()
     {
         var handler = fixture.Service<TestEventHandler>();
 
-        handler.Received.ShouldNotContain(e => e.Value == 1);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
-        await EventBus.PublishAsync(new TestEvent(1));
+        await EventBus.PublishAsync(new TestEvent(Number));
 
-        handler.Received.ShouldContain(e => e.Value == 1);
+        handler.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -31,11 +32,11 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
     {
         var handler = fixture.Service<ValueTestEventHandler>();
 
-        handler.Received.ShouldNotContain(e => e.Value == 1);
+        handler.Received.ShouldNotContain(e => e.Value == Number);
 
-        await EventBus.PublishAsync(new ValueTestEvent(1));
+        await EventBus.PublishAsync(new ValueTestEvent(Number));
 
-        handler.Received.ShouldContain(e => e.Value == 1);
+        handler.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -44,13 +45,13 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
         var handler1 = fixture.Service<TestEventHandler>();
         var handler2 = fixture.Service<TestEventHandler2>();
 
-        handler1.Received.ShouldNotContain(e => e.Value == 2);
-        handler2.Received.ShouldNotContain(e => e.Value == 2);
+        handler1.Received.ShouldNotContain(e => e.Value == Number);
+        handler2.Received.ShouldNotContain(e => e.Value == Number);
 
-        await EventBus.PublishAsync(new TestEvent(2));
+        await EventBus.PublishAsync(new TestEvent(Number));
 
-        handler1.Received.ShouldContain(e => e.Value == 2);
-        handler2.Received.ShouldContain(e => e.Value == 2);
+        handler1.Received.ShouldContain(e => e.Value == Number);
+        handler2.Received.ShouldContain(e => e.Value == Number);
     }
 
     [Fact]
@@ -74,9 +75,9 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
         var uowManager = fixture.Service<IUnitOfWorkManager>();
 
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
-        await EventBus.PublishAsync(new TestEvent(3), publishMode: DistributedEventPublishMode.Immediate);
+        await EventBus.PublishAsync(new TestEvent(Number), publishMode: DistributedEventPublishMode.Immediate);
 
-        handler.Received.ShouldContain(e => e.Value == 3);
+        handler.Received.ShouldContain(e => e.Value == Number);
 
         await uow.CompleteAsync(CancellationToken.None);
     }
@@ -85,20 +86,23 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
     public async Task ShouldInvokeHandlerImmediatelyWhenNoActiveUnitOfWork()
     {
         var handler = fixture.Service<TestEventHandler>();
+        var event1 = Random.Shared.Next();
+        var event2 = Random.Shared.Next();
+        var event3 = Random.Shared.Next();
 
         await EventBus.PublishAsync(
-            new TestEvent(4),
+            new TestEvent(event1),
             publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
         await EventBus.PublishAsync(
-            new TestEvent(5),
+            new TestEvent(event2),
             publishMode: DistributedEventPublishMode.Outbox);
         await EventBus.PublishAsync(
-            new TestEvent(6),
+            new TestEvent(event3),
             publishMode: DistributedEventPublishMode.Auto);
 
-        handler.Received.ShouldContain(e => e.Value == 4);
-        handler.Received.ShouldContain(e => e.Value == 5);
-        handler.Received.ShouldContain(e => e.Value == 6);
+        handler.Received.ShouldContain(e => e.Value == event1);
+        handler.Received.ShouldContain(e => e.Value == event2);
+        handler.Received.ShouldContain(e => e.Value == event3);
     }
 
     [Fact]
@@ -112,28 +116,31 @@ public class InProcessDistributedEventBusTests(IntegrationTestFixture fixture) :
 
         var handler = fixture.Service<TestEventHandler>();
         var uowManager = fixture.Service<IUnitOfWorkManager>();
+        var event1 = Random.Shared.Next();
+        var event2 = Random.Shared.Next();
+        var event3 = Random.Shared.Next();
 
         await using var uow = uowManager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         await EventBus.PublishAsync(
-            new TestEvent(7),
+            new TestEvent(event1),
             publishMode: DistributedEventPublishMode.OnUnitOfWorkComplete);
         await EventBus.PublishAsync(
-            new TestEvent(8),
+            new TestEvent(event2),
             publishMode: DistributedEventPublishMode.Outbox);
         await EventBus.PublishAsync(
-            new TestEvent(9),
+            new TestEvent(event3),
             publishMode: DistributedEventPublishMode.Auto);
 
-        handler.Received.ShouldNotContain(e => e.Value == 7);
-        handler.Received.ShouldNotContain(e => e.Value == 8);
-        handler.Received.ShouldNotContain(e => e.Value == 9);
+        handler.Received.ShouldNotContain(e => e.Value == event1);
+        handler.Received.ShouldNotContain(e => e.Value == event2);
+        handler.Received.ShouldNotContain(e => e.Value == event3);
 
         uow.AddHook(UnitOfWorkHookPoint.BeforeComplete, () =>
         {
-            handler.Received.ShouldContain(e => e.Value == 7);
-            handler.Received.ShouldContain(e => e.Value == 8);
-            handler.Received.ShouldContain(e => e.Value == 9);
+            handler.Received.ShouldContain(e => e.Value == event1);
+            handler.Received.ShouldContain(e => e.Value == event2);
+            handler.Received.ShouldContain(e => e.Value == event3);
             return Task.CompletedTask;
         });
 
