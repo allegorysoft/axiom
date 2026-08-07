@@ -1,0 +1,37 @@
+name: React
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/react.yml"
+      - "npm/react/**"
+
+  pull_request:
+    paths:
+      - ".github/workflows/react.yml"
+      - "npm/react/**"
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup pnpm
+        uses: pnpm/setup@v2
+        with:
+          version: 11.3.0
+          runtime: node@24.18.0
+
+      - name: Build
+        run: pnpm build:all
+
+      - name: Test
+        run: pnpm test:all
