@@ -27,24 +27,10 @@ public class EfCoreRepository<TDbContext, TEntity>(
     }
 
     protected IDbContextProvider<TDbContext> DbContextProvider { get; } = dbContextProvider;
+
     protected IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
-    // cancellationToken.FallbackTo(UnitOfWork.CancellationToken)
 
-    protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
-    {
-        return DbContextProvider.GetAsync(cancellationToken);
-    }
-
-    protected virtual async ValueTask<DbSet<TEntity>> GetDbSetAsync(CancellationToken cancellationToken = default)
-    {
-        var context = await GetDbContextAsync(cancellationToken);
-        return context.Set<TEntity>();
-    }
-
-    protected virtual IQueryable<TEntity> IncludeDetails(IQueryable<TEntity> query, bool includeDetails = true)
-    {
-        return query;
-    }
+    // Create EntityNotFoundException inside Domain package
 
     public virtual async Task<TEntity> GetAsync(
         Expression<Func<TEntity, bool>> predicate,
@@ -53,7 +39,6 @@ public class EfCoreRepository<TDbContext, TEntity>(
     {
         var entity = await FindAsync(predicate, includeDetails, cancellationToken);
 
-        // Create EntityNotFoundException inside Domain package
         return entity ?? throw new NotFoundException();
     }
 
@@ -67,7 +52,9 @@ public class EfCoreRepository<TDbContext, TEntity>(
 
         query = IncludeDetails(query, includeDetails);
 
-        return await query.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken);
+        return await query.FirstOrDefaultAsync(
+            predicate,
+            cancellationToken: GetCancellationToken(cancellationToken));
     }
 
     public virtual async Task<IReadOnlyList<TEntity>> GetListAsync(
@@ -91,7 +78,7 @@ public class EfCoreRepository<TDbContext, TEntity>(
             query = orderBy(query);
         }
 
-        return await query.ToListAsync(cancellationToken);
+        return await query.ToListAsync(GetCancellationToken(cancellationToken));
     }
 
     public virtual async Task<IReadOnlyList<TEntity>> GetPagedListAsync(
@@ -113,7 +100,10 @@ public class EfCoreRepository<TDbContext, TEntity>(
 
         query = orderBy(query);
 
-        return await query.Skip(skip).Take(take).ToListAsync(cancellationToken);
+        return await query
+            .Skip(skip)
+            .Take(take)
+            .ToListAsync(GetCancellationToken(cancellationToken));
     }
 
     public virtual async Task<long> GetCountAsync(
@@ -124,10 +114,10 @@ public class EfCoreRepository<TDbContext, TEntity>(
 
         if (predicate == null)
         {
-            return await set.LongCountAsync(cancellationToken: cancellationToken);
+            return await set.LongCountAsync(cancellationToken: GetCancellationToken(cancellationToken));
         }
 
-        return await set.LongCountAsync(predicate, cancellationToken);
+        return await set.LongCountAsync(predicate, GetCancellationToken(cancellationToken));
     }
 
     public virtual async ValueTask<TEntity> AddAsync(
@@ -137,7 +127,7 @@ public class EfCoreRepository<TDbContext, TEntity>(
     {
         var set = await GetDbSetAsync(cancellationToken);
 
-        var result = await set.AddAsync(entity, cancellationToken);
+        var result = await set.AddAsync(entity, GetCancellationToken(cancellationToken));
 
         if (autoSave)
         {
@@ -155,7 +145,7 @@ public class EfCoreRepository<TDbContext, TEntity>(
     {
         var set = await GetDbSetAsync(cancellationToken);
 
-        await set.AddRangeAsync(entities, cancellationToken);
+        await set.AddRangeAsync(entities, GetCancellationToken(cancellationToken));
 
         if (autoSave)
         {
@@ -224,6 +214,28 @@ public class EfCoreRepository<TDbContext, TEntity>(
             await UnitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
+    
+    
+    protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
+    {
+        return DbContextProvider.GetAsync(cancellationToken);
+    }
+
+    protected virtual async ValueTask<DbSet<TEntity>> GetDbSetAsync(CancellationToken cancellationToken = default)
+    {
+        var context = await GetDbContextAsync(cancellationToken);
+        return context.Set<TEntity>();
+    }
+
+    protected virtual IQueryable<TEntity> IncludeDetails(IQueryable<TEntity> query, bool includeDetails = true)
+    {
+        return query;
+    }
+
+    protected virtual CancellationToken GetCancellationToken(CancellationToken cancellationToken)
+    {
+        return cancellationToken.FallbackTo(UnitOfWork.CancellationToken);
+    }
 }
 
 public class EfCoreRepository<TDbContext, TEntity, TKey>(
@@ -241,12 +253,7 @@ public class EfCoreRepository<TDbContext, TEntity, TKey>(
     {
         var entity = await FindAsync(id, includeDetails, cancellationToken);
 
-        if (entity == null)
-        {
-            throw new NotFoundException();
-        }
-
-        return entity;
+        return entity ?? throw new NotFoundException();
     }
 
     public virtual Task<TEntity?> FindAsync(
@@ -262,7 +269,7 @@ public class EfCoreRepository<TDbContext, TEntity, TKey>(
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
-        var entity = await FindAsync(id, cancellationToken: cancellationToken);
+        var entity = await FindAsync(id, includeDetails: false, cancellationToken: cancellationToken);
 
         if (entity == null)
         {
@@ -277,8 +284,7 @@ public class EfCoreRepository<TDbContext, TEntity, TKey>(
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
-        var set = await GetDbSetAsync(cancellationToken);
-        var entities = await set.Where(x => ids.Contains(x.Id)).ToListAsync(cancellationToken);
+        var entities = await GetListAsync(e => ids.Contains(e.Id), cancellationToken: cancellationToken);
 
         await RemoveRangeAsync(entities, autoSave, cancellationToken);
     }
