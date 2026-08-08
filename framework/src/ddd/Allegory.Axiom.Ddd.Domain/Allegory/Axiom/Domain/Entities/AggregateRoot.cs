@@ -31,6 +31,4 @@ public abstract class AggregateRoot<TKey> : AggregateRoot, IAggregateRoot<TKey> 
     public virtual TKey Id { get; protected set; } = default!;
 
     protected AggregateRoot() { }
-
-    public override object[] GetKeys() => [Id];
 }

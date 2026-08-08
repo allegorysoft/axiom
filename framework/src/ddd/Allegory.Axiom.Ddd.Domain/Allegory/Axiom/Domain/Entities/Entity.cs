@@ -15,6 +15,4 @@ public abstract class Entity<TKey> : Entity, IEntity<TKey> where TKey : notnull
     public virtual TKey Id { get; protected set; } = default!;
 
     protected Entity() { }
-
-    public override object[] GetKeys() => [Id];
 }
