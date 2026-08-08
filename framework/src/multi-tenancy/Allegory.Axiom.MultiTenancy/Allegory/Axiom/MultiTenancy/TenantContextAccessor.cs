@@ -10,6 +10,11 @@ public class TenantContextAccessor : ITenantContextAccessor, ISingletonService
 {
     protected internal static readonly AsyncLocal<TenantContext?> CurrentTenantContext = new();
 
+    static TenantContextAccessor()
+    {
+        ITenantContextAccessor.TryGetCurrent = static () => CurrentTenantContext.Value;
+    }
+
     public virtual TenantContext? Current => CurrentTenantContext.Value;
     public virtual TenantContext RequiredCurrent => Current ?? throw new InvalidOperationException(
         "No ambient tenant context found. Ensure tenant resolution has run and set the tenant context before accessing this property");
