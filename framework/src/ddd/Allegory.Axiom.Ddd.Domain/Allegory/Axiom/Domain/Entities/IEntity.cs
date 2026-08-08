@@ -8,6 +8,4 @@ public interface IEntity
 public interface IEntity<TKey> : IEntity where TKey : notnull
 {
     TKey Id { get; }
-
-    object[] IEntity.GetKeys() => [Id];
 }
