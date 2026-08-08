@@ -22,15 +22,15 @@ public interface IReadOnlyRepository<TEntity> : IRepository where TEntity : clas
 
     Task<IReadOnlyList<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? sort = null,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         bool includeDetails = false,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<TEntity>> GetPagedListAsync(
-        int skipCount,
-        int maxResultCount,
+        int skip,
+        int take,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
         Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? sort = null,
         bool includeDetails = false,
         CancellationToken cancellationToken = default);
 

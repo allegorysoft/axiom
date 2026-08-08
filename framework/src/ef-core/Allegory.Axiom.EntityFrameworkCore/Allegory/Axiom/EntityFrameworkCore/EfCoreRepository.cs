@@ -6,7 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
+using Allegory.Axiom.Exceptions;
 using Allegory.Axiom.MultiTenancy;
+using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
@@ -17,23 +19,31 @@ public class EfCoreRepository<TDbContext, TEntity>(
     where TDbContext : DbContext
     where TEntity : class, IEntity
 {
-    public static bool IsTenantEntity { get; }
+    public static bool IsTenantOwned { get; }
 
     static EfCoreRepository()
     {
-        IsTenantEntity = typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
+        IsTenantOwned = typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
     }
 
     protected IDbContextProvider<TDbContext> DbContextProvider { get; } = dbContextProvider;
+    protected IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
+    // cancellationToken.FallbackTo(UnitOfWork.CancellationToken)
 
     protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
     {
         return DbContextProvider.GetAsync(cancellationToken);
     }
 
-    protected virtual DbSet<TEntity> IncludeDetails(DbSet<TEntity> dbSet, bool includeDetails = true)
+    protected virtual async ValueTask<DbSet<TEntity>> GetDbSetAsync(CancellationToken cancellationToken = default)
     {
-        return dbSet;
+        var context = await GetDbContextAsync(cancellationToken);
+        return context.Set<TEntity>();
+    }
+
+    protected virtual IQueryable<TEntity> IncludeDetails(IQueryable<TEntity> query, bool includeDetails = true)
+    {
+        return query;
     }
 
     public virtual async Task<TEntity> GetAsync(
@@ -41,46 +51,235 @@ public class EfCoreRepository<TDbContext, TEntity>(
         bool includeDetails = true,
         CancellationToken cancellationToken = default)
     {
-        var context = await GetDbContextAsync(cancellationToken);
-        var set = context.Set<TEntity>();
-        set = IncludeDetails(set, includeDetails);
+        var entity = await FindAsync(predicate, includeDetails, cancellationToken);
 
-        return await set.FirstAsync(predicate, cancellationToken);
+        // Create EntityNotFoundException inside Domain package
+        return entity ?? throw new NotFoundException();
     }
 
-    // We can use GetOrDefault instead FindAsync
-    // DbSet<>.Find completely different  
-    public virtual Task<TEntity?> FindAsync(
+    public virtual async Task<TEntity?> FindAsync(
         Expression<Func<TEntity, bool>> predicate,
         bool includeDetails = true,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var set = await GetDbSetAsync(cancellationToken);
+        var query = set.AsQueryable();
+
+        query = IncludeDetails(query, includeDetails);
+
+        return await query.FirstOrDefaultAsync(predicate, cancellationToken: cancellationToken);
     }
 
-    public virtual Task<IReadOnlyList<TEntity>> GetListAsync(
+    public virtual async Task<IReadOnlyList<TEntity>> GetListAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? sort = null,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
         bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var set = await GetDbSetAsync(cancellationToken);
+        var query = set.AsQueryable();
+
+        query = IncludeDetails(query, includeDetails);
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+
+        if (orderBy != null)
+        {
+            query = orderBy(query);
+        }
+
+        return await query.ToListAsync(cancellationToken);
     }
 
-    public virtual Task<IReadOnlyList<TEntity>> GetPagedListAsync(
-        int skipCount, int maxResultCount,
-        Expression<Func<TEntity, bool>>? predicate = null,
-        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? sort = null,
-        bool includeDetails = false,
+    public virtual async Task<IReadOnlyList<TEntity>> GetPagedListAsync(
+        int skip,
+        int take,
+        Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
+        Expression<Func<TEntity, bool>>? predicate = null, bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var set = await GetDbSetAsync(cancellationToken);
+        var query = set.AsQueryable();
+
+        query = IncludeDetails(query, includeDetails);
+
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+
+        query = orderBy(query);
+
+        return await query.Skip(skip).Take(take).ToListAsync(cancellationToken);
     }
 
-    public virtual Task<long> GetCountAsync(
+    public virtual async Task<long> GetCountAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var set = await GetDbSetAsync(cancellationToken);
+
+        if (predicate == null)
+        {
+            return await set.LongCountAsync(cancellationToken: cancellationToken);
+        }
+
+        return await set.LongCountAsync(predicate, cancellationToken);
+    }
+
+    public virtual async ValueTask<TEntity> AddAsync(
+        TEntity entity,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+
+        var result = await set.AddAsync(entity, cancellationToken);
+
+        if (autoSave)
+        {
+            // We use unit of work because database handle owns transaction begin
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        return result.Entity;
+    }
+
+    public virtual async Task AddRangeAsync(
+        IEnumerable<TEntity> entities,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+
+        await set.AddRangeAsync(entities, cancellationToken);
+
+        if (autoSave)
+        {
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public virtual async ValueTask<TEntity> UpdateAsync(
+        TEntity entity,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+
+        var result = set.Update(entity);
+
+        if (autoSave)
+        {
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+        }
+
+        return result.Entity;
+    }
+
+    public virtual async Task UpdateRangeAsync(
+        IEnumerable<TEntity> entities,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+
+        set.UpdateRange(entities);
+
+        if (autoSave)
+        {
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public virtual async Task RemoveAsync(
+        TEntity entity,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+
+        var result = set.Remove(entity);
+
+        if (autoSave)
+        {
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public virtual async Task RemoveRangeAsync(
+        IEnumerable<TEntity> entities,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+
+        set.RemoveRange(entities);
+
+        if (autoSave)
+        {
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+        }
+    }
+}
+
+public class EfCoreRepository<TDbContext, TEntity, TKey>(
+    IDbContextProvider<TDbContext> dbContextProvider) :
+    EfCoreRepository<TDbContext, TEntity>(dbContextProvider),
+    IRepository<TEntity, TKey>
+    where TDbContext : DbContext
+    where TEntity : class, IEntity<TKey>
+    where TKey : notnull
+{
+    public virtual async Task<TEntity> GetAsync(
+        TKey id,
+        bool includeDetails = true,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = await FindAsync(id, includeDetails, cancellationToken);
+
+        if (entity == null)
+        {
+            throw new NotFoundException();
+        }
+
+        return entity;
+    }
+
+    public virtual Task<TEntity?> FindAsync(
+        TKey id,
+        bool includeDetails = true,
+        CancellationToken cancellationToken = default)
+    {
+        return FindAsync(e => e.Id.Equals(id), includeDetails, cancellationToken);
+    }
+
+    public virtual async Task RemoveAsync(
+        TKey id,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var entity = await FindAsync(id, cancellationToken: cancellationToken);
+
+        if (entity == null)
+        {
+            return;
+        }
+
+        await RemoveAsync(entity, autoSave, cancellationToken);
+    }
+
+    public virtual async Task RemoveRangeAsync(
+        IEnumerable<TKey> ids,
+        bool autoSave = false,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+        var entities = await set.Where(x => ids.Contains(x.Id)).ToListAsync(cancellationToken);
+
+        await RemoveRangeAsync(entities, autoSave, cancellationToken);
     }
 }
