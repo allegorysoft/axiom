@@ -38,6 +38,24 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
     }
 
     [Fact]
+    public async Task ShouldPublishGenericEventToHandler()
+    {
+        var handler = fixture.Service<GenericTestEventHandler>();
+        var handler2 = fixture.Service<GenericTestEventHandler2>();
+
+        var event1 = new GenericTestEvent<int>(Number);
+        await EventBus.PublishAsync(event1);
+
+        var event2 = new GenericTestEvent<string>(Number.ToString());
+        await EventBus.PublishAsync(event2);
+        
+        handler.Received.ShouldContain(event1);
+        handler.Received.Count.ShouldBe(1);
+        handler2.Received.ShouldContain(event2);
+        handler2.Received.Count.ShouldBe(1);
+    }
+    
+    [Fact]
     public async Task ShouldPublishEventToHandlerWhenPayloadTypeIsObject()
     {
         var handler = fixture.Service<TestEventHandler>();
@@ -136,6 +154,8 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
 
 file record TestEvent(int Value);
 
+file record GenericTestEvent<T>(T Value);
+
 file record UnhandledTestEvent;
 
 file record ThrowingTestEvent;
@@ -168,6 +188,29 @@ file class TestEventHandler2 : ILocalEventHandler<TestEvent>
         return Task.CompletedTask;
     }
 }
+
+file class GenericTestEventHandler : ILocalEventHandler<GenericTestEvent<int>>
+{
+    public List<GenericTestEvent<int>> Received { get; } = [];
+
+    public Task HandleAsync(GenericTestEvent<int> payload)
+    {
+        Received.Add(payload);
+        return Task.CompletedTask;
+    }
+}
+
+file class GenericTestEventHandler2 : ILocalEventHandler<GenericTestEvent<string>>
+{
+    public List<GenericTestEvent<string>> Received { get; } = [];
+
+    public Task HandleAsync(GenericTestEvent<string> payload)
+    {
+        Received.Add(payload);
+        return Task.CompletedTask;
+    }
+}
+
 
 file class ValueTestEventHandler : ILocalEventHandler<ValueTestEvent>
 {
