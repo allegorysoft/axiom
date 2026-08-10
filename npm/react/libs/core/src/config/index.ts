@@ -1,5 +1,5 @@
 import type { Provider } from '../models/common';
-import type { CultureInfo, Translations } from '../models/localization';
+import type { Translations } from '../models/localization';
 import { provideInitializers } from '../initializer/registry';
 import type { HttpMiddleware } from '../http/http-client';
 import { createHttpClient } from '../http/http-client-factory';
