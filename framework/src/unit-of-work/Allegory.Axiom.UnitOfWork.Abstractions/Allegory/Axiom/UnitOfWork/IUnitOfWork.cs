@@ -19,7 +19,11 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     CancellationToken CancellationToken { get; }
 
     void AddDatabase(string key, UnitOfWorkDatabaseHandle handle);
-    void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler);
+
+    void AddHook(
+        UnitOfWorkHookPoint hook,
+        Func<Task> handler,
+        UnitOfWorkHookPriority priority = UnitOfWorkHookPriority.Normal);
 
     /// <summary>
     /// Persists the pending changes tracked by this unit of work.

@@ -1,9 +1,7 @@
 namespace Allegory.Axiom.UnitOfWork;
 
-public enum UnitOfWorkHookPoint
+public enum UnitOfWorkHookPoint : byte
 {
-    BeforeSave,
-    AfterSave,
     BeforeComplete,
     AfterComplete,
     BeforeRollback,
