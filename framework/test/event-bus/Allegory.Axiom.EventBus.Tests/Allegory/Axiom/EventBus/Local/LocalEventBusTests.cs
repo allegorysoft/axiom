@@ -48,13 +48,13 @@ public class LocalEventBusTests(IntegrationTestFixture fixture) : IClassFixture<
 
         var event2 = new GenericTestEvent<string>(Number.ToString());
         await EventBus.PublishAsync(event2);
-        
+
         handler.Received.ShouldContain(event1);
         handler.Received.Count.ShouldBe(1);
         handler2.Received.ShouldContain(event2);
         handler2.Received.Count.ShouldBe(1);
     }
-    
+
     [Fact]
     public async Task ShouldPublishEventToHandlerWhenPayloadTypeIsObject()
     {
@@ -210,7 +210,6 @@ file class GenericTestEventHandler2 : ILocalEventHandler<GenericTestEvent<string
         return Task.CompletedTask;
     }
 }
-
 
 file class ValueTestEventHandler : ILocalEventHandler<ValueTestEvent>
 {
