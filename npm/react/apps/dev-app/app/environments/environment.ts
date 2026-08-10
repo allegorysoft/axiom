@@ -3,11 +3,11 @@ import { Environment } from '@axiomframework/react-core';
 export const environment: Environment = {
   production: false,
   oauth: {
-    authority: 'http://localhost',
-    clientId: 'react_app',
+    authority: 'http://127.0.0.1:8080',
+    clientId: 'account',
+    flow: 'password', // | 'code'
+    scope: 'openid profile email',
     redirectUri: 'http://localhost:5173',
-    responseType: 'password',
-    scope: 'react_app email',
   },
   endpoints: {
     Default: { url: 'http://localhost:3000' },

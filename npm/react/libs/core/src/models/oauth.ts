@@ -3,5 +3,5 @@ export interface OAuth {
   clientId: string;
   scope: string;
   flow: 'password' | 'code';
-  redirectUri: string;
+  redirectUri?: string;
 }
