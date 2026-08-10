@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +10,14 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 [Dependency(AutoRegister = false)]
 public class MongoDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
-    IUnitOfWorkManager unitOfWorkManager)
+    IUnitOfWorkManager unitOfWorkManager,
+    ITenantContextAccessor tenantContextAccessor)
     : IDbContextProvider<TContext>
     where TContext : DbContext
 {
     public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    public ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
 
     public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)

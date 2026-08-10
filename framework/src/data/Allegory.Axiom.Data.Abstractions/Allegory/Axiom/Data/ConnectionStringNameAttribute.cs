@@ -24,4 +24,11 @@ public class ConnectionStringNameAttribute(string name) : Attribute
 
         return attribute.Name;
     }
+
+    public static string? TryGet(Type type)
+    {
+        var attribute = type.GetCustomAttribute<ConnectionStringNameAttribute>();
+
+        return attribute?.Name;
+    }
 }
