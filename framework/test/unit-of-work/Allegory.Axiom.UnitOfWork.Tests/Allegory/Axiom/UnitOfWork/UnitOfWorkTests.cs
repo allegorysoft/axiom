@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -323,7 +322,7 @@ public class UnitOfWorkTests
     }
 
     [Fact]
-    public async Task ShouldInvokeHooksInOrderWhenMultipleHooksAdded()
+    public async Task ShouldPreserveRegistrationOrderWhenHooksHaveSamePriority()
     {
         var uow = CreateUnitOfWork();
         var log = new List<int>();
@@ -350,6 +349,33 @@ public class UnitOfWorkTests
     }
 
     [Fact]
+    public async Task ShouldReorderByPriorityWhenHooksHaveDifferentPriority()
+    {
+        var uow = CreateUnitOfWork();
+        var log = new List<int>();
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(1);
+            return Task.CompletedTask;
+        }, UnitOfWorkHookPriority.Low);
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(2);
+            return Task.CompletedTask;
+        }, UnitOfWorkHookPriority.High);
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(3);
+            return Task.CompletedTask;
+        },  UnitOfWorkHookPriority.Highest);
+
+        await uow.CompleteAsync(CancellationToken.None);
+
+        log.ShouldBe([3, 2, 1]);
+    }
+
+    [Fact]
     public async Task ShouldInvokeHookRegisteredDuringInvocation()
     {
         var uow = CreateUnitOfWork();
@@ -369,6 +395,34 @@ public class UnitOfWorkTests
         await uow.CompleteAsync(CancellationToken.None);
 
         log.ShouldBe([1, 2]);
+    }
+
+    [Fact]
+    public async Task ShouldInsertHighPriorityHookBeforePendingHooksWhenRegisteredDuringInvocation()
+    {
+        var uow = CreateUnitOfWork();
+        var log = new List<int>();
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(1);
+            uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+            {
+                log.Add(2);
+                return Task.CompletedTask;
+            }, UnitOfWorkHookPriority.High);
+            return Task.CompletedTask;
+        });
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
+        {
+            log.Add(3);
+            return Task.CompletedTask;
+        });
+
+        await uow.CompleteAsync(CancellationToken.None);
+
+        log.ShouldBe([1, 2, 3]);
     }
 
     [Fact]
@@ -513,53 +567,6 @@ public class UnitOfWorkTests
         await uow.RollbackAsync(CancellationToken.None);
 
         log.ShouldBe(["rollback", "hook"]);
-    }
-
-    [Fact]
-    public async Task ShouldInvokeBeforeSaveHookBeforeSave()
-    {
-        var uow = CreateUnitOfWork();
-        var log = new List<string>();
-
-        uow.AddHook(UnitOfWorkHookPoint.BeforeSave, () =>
-        {
-            log.Add("hook");
-            return Task.CompletedTask;
-        });
-        uow.AddDatabase("db1", CreateDatabaseHandle(
-            saveChangesDelegate: (_, _) =>
-            {
-                log.Add("save");
-                return Task.CompletedTask;
-            }));
-
-        await uow.SaveChangesAsync(CancellationToken.None);
-
-        log.ShouldBe(["hook", "save"]);
-    }
-
-    [Fact]
-    public async Task ShouldInvokeAfterSaveHookAfterSave()
-    {
-        var uow = CreateUnitOfWork();
-        var log = new List<string>();
-
-        uow.AddHook(UnitOfWorkHookPoint.AfterSave, () =>
-        {
-            log.Add("hook");
-            return Task.CompletedTask;
-        });
-
-        uow.AddDatabase("db1", CreateDatabaseHandle(
-            saveChangesDelegate: (_, _) =>
-            {
-                log.Add("save");
-                return Task.CompletedTask;
-            }));
-
-        await uow.SaveChangesAsync(CancellationToken.None);
-
-        log.ShouldBe(["save", "hook"]);
     }
 
     // Cancellation on Save, Complete and Rollback

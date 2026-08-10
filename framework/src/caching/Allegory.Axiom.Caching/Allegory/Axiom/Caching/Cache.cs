@@ -81,7 +81,8 @@ public class Cache(
 
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
-            () => HybridCache.SetAsync(normalizedKey, value, entryOptions, tags, cancellationToken).AsTask());
+            () => HybridCache.SetAsync(normalizedKey, value, entryOptions, tags, cancellationToken).AsTask(),
+            UnitOfWorkHookPriority.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -101,7 +102,8 @@ public class Cache(
 
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
-            () => HybridCache.RemoveAsync(normalizedKey, cancellationToken).AsTask());
+            () => HybridCache.RemoveAsync(normalizedKey, cancellationToken).AsTask(),
+            UnitOfWorkHookPriority.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -123,7 +125,8 @@ public class Cache(
 
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
-            () => HybridCache.RemoveAsync(normalizedKeys, cancellationToken).AsTask());
+            () => HybridCache.RemoveAsync(normalizedKeys, cancellationToken).AsTask(),
+            UnitOfWorkHookPriority.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -140,7 +143,8 @@ public class Cache(
 
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
-            () => HybridCache.RemoveByTagAsync(tag, cancellationToken).AsTask());
+            () => HybridCache.RemoveByTagAsync(tag, cancellationToken).AsTask(),
+            UnitOfWorkHookPriority.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -157,7 +161,8 @@ public class Cache(
 
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
-            () => HybridCache.RemoveByTagAsync(tags, cancellationToken).AsTask());
+            () => HybridCache.RemoveByTagAsync(tags, cancellationToken).AsTask(),
+            UnitOfWorkHookPriority.Highest);
 
         return ValueTask.CompletedTask;
     }

@@ -13,8 +13,8 @@ public class MongoDbContextProvider<TContext>(
     : IDbContextProvider<TContext>
     where TContext : DbContext
 {
+    public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
-    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
 
     public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {

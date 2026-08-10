@@ -27,7 +27,7 @@ internal sealed class ChildUnitOfWork(
 
     public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => Parent.AddDatabase(key, handle);
 
-    public void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler) => Parent.AddHook(hook, handler);
+    public void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler, UnitOfWorkHookPriority priority = UnitOfWorkHookPriority.Normal) => Parent.AddHook(hook, handler, priority);
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default) => Parent.SaveChangesAsync(cancellationToken);
 

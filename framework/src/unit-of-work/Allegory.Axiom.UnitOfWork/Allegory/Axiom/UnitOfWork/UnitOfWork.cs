@@ -16,7 +16,8 @@ internal sealed class UnitOfWork(
     : IUnitOfWork
 {
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
-    private readonly Dictionary<UnitOfWorkHookPoint, List<Func<Task>>> _hooks = new();
+    private readonly Dictionary<UnitOfWorkHookPoint, PriorityQueue<Func<Task>, HookSortOrder>> _hooks = new();
+    private ushort _hookSequence;
 
     private AsyncServiceScope? AsyncServiceScope { get; } = asyncServiceScope;
     private CancellationTokenSource? CancellationTokenSource { get; } = cancellationTokenSource;
@@ -37,34 +38,33 @@ internal sealed class UnitOfWork(
         _databases[key] = handle;
     }
 
-    public void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler)
+    public void AddHook(
+        UnitOfWorkHookPoint hook,
+        Func<Task> handler,
+        UnitOfWorkHookPriority priority = UnitOfWorkHookPriority.Normal)
     {
         if (!_hooks.TryGetValue(hook, out var handlers))
         {
-            _hooks[hook] = handlers = [];
+            _hooks[hook] = handlers = new PriorityQueue<Func<Task>, HookSortOrder>();
         }
 
-        handlers.Add(handler);
+        _hookSequence++;
+        handlers.Enqueue(handler, new HookSortOrder(priority, _hookSequence));
     }
 
     private async Task InvokeHooksAsync(UnitOfWorkHookPoint hook, bool saveChanges = false)
     {
-        if (!_hooks.TryGetValue(hook, out var handlers))
+        if (!_hooks.TryGetValue(hook, out var queue) || queue.Count == 0)
         {
             return;
         }
 
-        var invokedCount = 0;
-        while (invokedCount < handlers.Count)
+        while (queue.Count > 0)
         {
-            var count = handlers.Count;
-
-            for (var i = invokedCount; i < count; i++)
+            while (queue.TryDequeue(out var handler, out _))
             {
-                await handlers[i]();
+                await handler();
             }
-
-            invokedCount = count;
 
             if (saveChanges)
             {
@@ -86,14 +86,10 @@ internal sealed class UnitOfWork(
         cancellationToken = cancellationToken.FallbackTo(CancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
-        await InvokeHooksAsync(UnitOfWorkHookPoint.BeforeSave);
-
         foreach (var databaseHandle in Databases.Values)
         {
             await databaseHandle.SaveChangesAsync(cancellationToken);
         }
-
-        await InvokeHooksAsync(UnitOfWorkHookPoint.AfterSave);
     }
 
     public async Task CompleteAsync(CancellationToken cancellationToken = default)
