@@ -2,6 +2,6 @@ export interface OAuth {
   authority: string;
   clientId: string;
   scope: string;
-  responseType: 'password' | 'code';
+  flow: 'password' | 'code';
   redirectUri: string;
 }

@@ -1,11 +1,11 @@
 import { HttpClient, type HttpMiddleware } from './http-client';
 
+const DEFAULT_KEY = 'default';
+const clients = new Map<string, HttpClient>();
+
 export interface HttpClientOptions {
   middlewares?: HttpMiddleware[];
 }
-
-const DEFAULT_KEY = 'default';
-const clients = new Map<string, HttpClient>();
 
 export function createHttpClient(
   options: HttpClientOptions = {},
