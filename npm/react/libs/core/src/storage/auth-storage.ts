@@ -6,7 +6,14 @@ export interface OAuthToken {
 
 const STORAGE_KEY = 'auth_token';
 
-export const authStorage = {
+export interface OAuthStorage {
+  get(): OAuthToken | null;
+  set(token: OAuthToken): void;
+  clear(): void;
+  hasToken(): boolean;
+}
+
+export const oAuthStorage: OAuthStorage = {
   get(): OAuthToken | null {
     const value = localStorage.getItem(STORAGE_KEY);
 

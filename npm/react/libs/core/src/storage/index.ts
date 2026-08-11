@@ -1,1 +1,5 @@
-export { type OAuthToken, authStorage } from './auth-storage';
+export {
+  type OAuthToken,
+  type OAuthStorage,
+  oAuthStorage,
+} from './auth-storage';
