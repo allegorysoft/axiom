@@ -3,8 +3,8 @@ using System.Reflection;
 
 namespace Allegory.Axiom.Data;
 
-[AttributeUsage(AttributeTargets.Class)]
-public class ConnectionStringNameAttribute(string name) : Attribute
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public sealed class ConnectionStringNameAttribute(string name) : Attribute
 {
     public string Name { get; } = name;
 
@@ -19,5 +19,4 @@ public class ConnectionStringNameAttribute(string name) : Attribute
 
         return attribute?.Name;
     }
-
 }

@@ -3,8 +3,8 @@ using System.Reflection;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class TenancySideAttribute(TenancySide side) : Attribute
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, Inherited = false)]
+public sealed class TenancySideAttribute(TenancySide side) : Attribute
 {
     public TenancySide Side { get; } = side;
 
