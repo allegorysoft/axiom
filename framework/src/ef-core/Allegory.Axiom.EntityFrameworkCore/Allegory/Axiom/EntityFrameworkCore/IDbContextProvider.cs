@@ -10,5 +10,7 @@ public interface IDbContextProvider<TContext> where TContext : DbContext
 {
     IUnitOfWorkManager UnitOfWorkManager { get; }
     ITenantContextAccessor TenantContextAccessor { get; }
+    AxiomDbContextOptions<TContext> Options { get; }
+
     ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default);
 }

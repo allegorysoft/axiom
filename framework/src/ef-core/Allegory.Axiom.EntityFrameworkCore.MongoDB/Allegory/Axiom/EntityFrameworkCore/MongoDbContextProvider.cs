@@ -4,6 +4,7 @@ using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
@@ -11,12 +12,14 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 public class MongoDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
     IUnitOfWorkManager unitOfWorkManager,
-    ITenantContextAccessor tenantContextAccessor)
+    ITenantContextAccessor tenantContextAccessor,
+    IOptions<AxiomDbContextOptions<TContext>> options)
     : IDbContextProvider<TContext>
     where TContext : DbContext
 {
     public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     public ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+    public AxiomDbContextOptions<TContext> Options { get; } = options.Value;
 
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
 

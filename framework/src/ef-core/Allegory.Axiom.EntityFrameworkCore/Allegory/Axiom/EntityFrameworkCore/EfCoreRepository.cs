@@ -29,6 +29,8 @@ public class EfCoreRepository<TDbContext, TEntity>(
     protected IDbContextProvider<TDbContext> DbContextProvider { get; } = dbContextProvider;
 
     protected IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
+    protected ITenantContextAccessor TenantContextAccessor => DbContextProvider.TenantContextAccessor;
+    protected AxiomDbContextOptions<TDbContext> DbContextOptions => DbContextProvider.Options;
 
     // Create EntityNotFoundException inside Domain package
 
@@ -214,10 +216,12 @@ public class EfCoreRepository<TDbContext, TEntity>(
             await UnitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
-    
-    
+
     protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
     {
+        // DbContextOptions.TenancySide.AppliesTo(TenancySide.Tenant)
+        // && !IsTenantOwned && TenantContextAccessor.Current != null
+        // Change current tenant
         return DbContextProvider.GetAsync(cancellationToken);
     }
 
