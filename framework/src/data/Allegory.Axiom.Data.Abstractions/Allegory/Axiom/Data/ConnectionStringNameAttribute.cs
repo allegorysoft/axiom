@@ -8,27 +8,16 @@ public class ConnectionStringNameAttribute(string name) : Attribute
 {
     public string Name { get; } = name;
 
-    public static string Get<T>()
-    {
-        return Get(typeof(T));
-    }
-
     public static string Get(Type type)
     {
-        var attribute = type.GetCustomAttribute<ConnectionStringNameAttribute>();
-
-        if (attribute == null)
-        {
-            return type.FullName ?? throw new ArgumentException("Connection string name cannot be null");
-        }
-
-        return attribute.Name;
+        return Find(type) ?? throw new ArgumentException("Connection string name cannot be null");
     }
 
-    public static string? TryGet(Type type)
+    public static string? Find(Type type)
     {
         var attribute = type.GetCustomAttribute<ConnectionStringNameAttribute>();
 
         return attribute?.Name;
     }
+
 }

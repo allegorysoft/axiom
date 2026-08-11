@@ -5,7 +5,7 @@ namespace Allegory.Axiom.MultiTenancy;
 [Flags]
 public enum TenancySide : byte
 {
-    Tenant = 1,
-    Host = 2,
-    Both = Tenant | Host
+    Host = 1,
+    Tenant = 2,
+    Hybrid =  Host | Tenant
 }
