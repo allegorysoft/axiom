@@ -5,6 +5,7 @@ export type AuthProvider = (options: OAuth) => AbstractAuthFlow;
 export abstract class AbstractAuthFlow {
   constructor(protected readonly options: OAuth) {}
 
+  abstract initialize(): void | Promise<void>;
   abstract login(...args: unknown[]): Promise<void>;
   abstract logout(): Promise<void>;
 }
