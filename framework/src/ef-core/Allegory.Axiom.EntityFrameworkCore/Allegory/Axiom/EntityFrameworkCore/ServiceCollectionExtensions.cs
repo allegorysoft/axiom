@@ -27,7 +27,7 @@ public static class ServiceCollectionExtensions
 
             ConfigureOptions<TContext>(services, builder);
             RegisterDbContextFactory<TContext>(services);
-            RegisterRepositories<TContext>(builder);
+            RegisterRepositories<TContext>(services, builder);
         }
     }
 
@@ -66,19 +66,11 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    private static void RegisterRepositories<TContext>(AxiomDbContextOptionsBuilder builder)
+    private static void RegisterRepositories<TContext>(
+        IServiceCollection services,
+        AxiomDbContextOptionsBuilder builder)
     {
-        var repositories = typeof(TContext).Assembly.GetTypes()
-            .Where(t => typeof(IRepository).IsAssignableFrom(t) && t is {IsAbstract: false, IsClass: true})
-            .ToList();
-    }
-
-    private static IReadOnlyList<Type> GetEntityTypes(Type type)
-    {
-        return type
-            .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
-            .Select(p => p.PropertyType.GetGenericArguments()[0])
-            .ToList();
+        var registrar = new AxiomDbContextRepositoryRegistrar(typeof(TContext), builder, services);
+        registrar.RegisterRepositories();
     }
 }

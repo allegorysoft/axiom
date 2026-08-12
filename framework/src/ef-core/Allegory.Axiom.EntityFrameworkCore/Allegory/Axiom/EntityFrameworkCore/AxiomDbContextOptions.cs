@@ -22,19 +22,22 @@ public class AxiomDbContextOptions<TContext>()
 
 public class AxiomDbContextOptionsBuilder
 {
-    private readonly Dictionary<Type, Type> _repositories = new();
+    private readonly HashSet<Type> _repositories = [];
 
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
     public string? ConnectionStringName { get; set; }
     public TenancySide? TenancySide { get; set; }
     public IReadOnlyList<Type>? ReplacedDbContexts { get; set; }
 
-    public IReadOnlyDictionary<Type, Type> Repositories => _repositories;
+    public IReadOnlySet<Type> Repositories => _repositories;
 
-    public void AddRepository<TEntity, TRepository>()
-        where TEntity : IEntity
-        where TRepository : IRepository
+    public void AddRepository(Type type)
     {
-        _repositories.Add(typeof(TEntity), typeof(TRepository));
+        if (!typeof(IRepository).IsAssignableFrom(type))
+        {
+            throw new ArgumentException("Repository type should implement 'IRepository'", nameof(type));
+        }
+
+        _repositories.Add(type);
     }
 }
