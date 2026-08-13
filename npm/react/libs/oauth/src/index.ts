@@ -1,0 +1,1 @@
+export { configureOAuth } from './config';

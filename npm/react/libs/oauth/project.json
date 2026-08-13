@@ -1,0 +1,15 @@
+{
+  "name": "oauth",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/oauth/src",
+  "projectType": "library",
+  "tags": ["scope:framework"],
+  "implicitDependencies": ["core"],
+  "targets": {
+    "build": {
+      "options": {
+        "outDir": "../../dist/libs/oauth"
+      }
+    }
+  }
+}
