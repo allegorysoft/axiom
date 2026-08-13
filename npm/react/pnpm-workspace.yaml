@@ -47,5 +47,9 @@ catalog:
   '@types/react': ^19
   '@types/react-dom': ^19
 
-  typescript: ~5.9.0
+  typescript: ~6.0.0
   json-server: ~0.17.0
+
+catalogs:
+  framework:
+    '@axiomframework/react-core': ~0.0.1-alpha.0
