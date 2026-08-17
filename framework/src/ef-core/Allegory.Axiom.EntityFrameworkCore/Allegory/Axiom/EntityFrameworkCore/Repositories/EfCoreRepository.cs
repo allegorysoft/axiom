@@ -11,7 +11,7 @@ using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore;
+namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
 public class EfCoreRepository<TDbContext, TEntity>(
     IDbContextProvider<TDbContext> dbContextProvider)

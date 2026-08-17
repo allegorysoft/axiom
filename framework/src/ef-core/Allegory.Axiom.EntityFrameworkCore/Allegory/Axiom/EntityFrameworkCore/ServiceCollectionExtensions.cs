@@ -1,5 +1,6 @@
 using System;
 using Allegory.Axiom.Data;
+using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -72,7 +73,7 @@ public static class ServiceCollectionExtensions
         IServiceCollection services,
         AxiomDbContextOptionsBuilder builder)
     {
-        var registrar = new AxiomDbContextRepositoryRegistrar(typeof(TContext), builder, services);
+        var registrar = RepositoryRegistrarBase.Create(typeof(TContext), builder, services);
         registrar.Register();
     }
 }
