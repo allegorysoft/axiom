@@ -1,7 +1,10 @@
 import type { OAuth } from '../models/oauth';
 import { type OAuthStorage, oAuthStorage } from '../storage/auth-storage';
 
-export type AuthProvider = (options: OAuth) => AbstractAuthFlow;
+export type AuthProvider = {
+  get(): AbstractAuthFlow;
+  provide(options: OAuth): void;
+};
 
 export abstract class AbstractAuthFlow {
   constructor(

@@ -9,6 +9,7 @@ const STORAGE_KEY = 'auth_token';
 export interface OAuthStorage {
   get(): OAuthToken | null;
   set(token: OAuthToken): void;
+  remove(key: string): void;
   clear(): void;
   hasToken(): boolean;
 }
@@ -27,15 +28,15 @@ export const oAuthStorage: OAuthStorage = {
       return null;
     }
   },
-
   set(token: OAuthToken): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(token));
   },
-
+  remove(key: string): void {
+    localStorage.removeItem(key);
+  },
   clear(): void {
     localStorage.removeItem(STORAGE_KEY);
   },
-
   hasToken(): boolean {
     return this.get() !== null;
   },
