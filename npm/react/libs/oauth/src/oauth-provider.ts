@@ -1,12 +1,26 @@
-// oauth
-
 import { type AuthProvider } from '@axiomframework/react-core';
+import { BaseAuthFlow } from './base-auth-flow';
 import { PasswordAuthFlow } from './password-auth-flow';
+import { CodeAuthFlow } from './code-auth-flow';
 
-export const oAuthProvider: AuthProvider = (options) => {
-  if (options.flow === 'code') {
-    //Code flow implementation
-  }
+let instance: BaseAuthFlow | null = null;
 
-  return new PasswordAuthFlow(options);
+export const oAuthProvider: AuthProvider = {
+  get() {
+    if (instance === undefined || instance === null) {
+      throw new Error(`${typeof instance} could not provided`);
+    }
+
+    return instance;
+  },
+  provide(options) {
+    if (instance) {
+      return;
+    }
+
+    instance =
+      options.flow === 'code'
+        ? new CodeAuthFlow(options)
+        : new PasswordAuthFlow(options);
+  },
 };

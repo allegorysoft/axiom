@@ -5,18 +5,27 @@ import {
 import { oAuthProvider } from './oauth-provider';
 
 type OAuthOptions = {
-  skipDiscovery: boolean;
+  skipDiscovery?: boolean;
 };
 
-export function configureOAuth(options?: OAuthOptions) {
-  if (options?.skipDiscovery !== true) {
-    provideInitializers({
-      configure: () => {
-        const environment = environmentStore.get().environment;
-        if (environment?.oauth.flow) {
-          oAuthProvider(environment.oauth).initialize();
-        }
-      },
-    });
+export function configureOAuth(options?: OAuthOptions): void {
+  if (options?.skipDiscovery) {
+    return;
   }
+
+  provideInitializers({
+    configure: async () => {
+      const oauth = environmentStore.get().environment?.oauth;
+      if (!oauth?.flow) {
+        return;
+      }
+
+      oAuthProvider.provide(oauth);
+
+      const flow = oAuthProvider.get();
+      if (flow) {
+        await flow.initialize();
+      }
+    },
+  });
 }

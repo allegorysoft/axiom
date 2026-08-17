@@ -3,6 +3,10 @@ import { BaseAuthFlow } from './base-auth-flow';
 
 export class PasswordAuthFlow extends BaseAuthFlow {
   override async login(username: string, password: string): Promise<void> {
+    if (this.storage.get()?.accessToken) {
+      return;
+    }
+
     const grant_type = 'password';
     const body = new URLSearchParams({
       grant_type,
@@ -12,16 +16,12 @@ export class PasswordAuthFlow extends BaseAuthFlow {
       scope: this.options.scope,
     });
 
-    const response = await genericGrantRequest(
+    const token = await genericGrantRequest(
       this.configuration!,
       grant_type,
       body,
     );
 
-    this.storage.set({
-      accessToken: response.access_token,
-      refreshToken: response.refresh_token,
-      expiresAt: response.expires_in,
-    });
+    this.setToken(token);
   }
 }
