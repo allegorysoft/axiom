@@ -51,7 +51,15 @@ public class AxiomDbContextOptionsBuilder
     {
         if (!typeof(IRepository).IsAssignableFrom(type))
         {
-            throw new ArgumentException("Repository type should implement 'IRepository'", nameof(type));
+            throw new ArgumentException(
+                $"Repository type '{type.Name}' should implement '{nameof(IRepository)}'", nameof(type));
+        }
+
+        if (!type.IsGenericType)
+        {
+            throw new ArgumentException(
+                $"Repository type '{type.Name}' should be a generic type that takes DbContext as a generic parameter",
+                nameof(type));
         }
 
         _repositories.Add(type);

@@ -1,9 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Allegory.Axiom.Data;
-using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,10 +27,15 @@ public static class ServiceCollectionExtensions
         }
 
         public void ConfigureAxiomDbContext<TContext>(
-            Action<DbContextOptionsBuilder> optionsAction) 
+            Action<DbContextOptionsBuilder> optionsAction)
             where TContext : DbContext
         {
             services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
+        }
+
+        public void ConfigureAxiomDbContextGlobalOptions(Action<AxiomDbContextGlobalOptions> optionsAction)
+        {
+            services.Configure(optionsAction);
         }
     }
 
