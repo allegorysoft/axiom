@@ -7,9 +7,13 @@ import {
 } from 'openid-client';
 import { BaseAuthFlow } from './base-auth-flow';
 
+const PKCE_CODE_VERIFIER_KEY = 'pkce_code_verifier';
+const OAUTH_STATE_KEY = 'oauth_state';
+
 export class CodeAuthFlow extends BaseAuthFlow {
   override async initialize(): Promise<void> {
     await super.initialize();
+
     const currentUrl = new URL(window.location.href);
 
     if (currentUrl.searchParams.has('code')) {
@@ -18,15 +22,17 @@ export class CodeAuthFlow extends BaseAuthFlow {
   }
 
   override async login(): Promise<void> {
-    await this.redirectToAuthorization();
-  }
-
-  private async redirectToAuthorization(): Promise<void> {
     if (this.storage.get()?.accessToken) {
       return;
     }
 
-    if (!this.options.redirectUri) {
+    await this.redirectToAuthorization();
+  }
+
+  private async redirectToAuthorization(): Promise<void> {
+    const redirectUri = this.options.redirectUri;
+
+    if (!redirectUri) {
       throw new Error(
         'redirectUri is required but was not provided in options',
       );
@@ -36,11 +42,11 @@ export class CodeAuthFlow extends BaseAuthFlow {
     const codeChallenge = await calculatePKCECodeChallenge(codeVerifier);
     const state = randomState();
 
-    sessionStorage.setItem('pkce_code_verifier', codeVerifier);
-    sessionStorage.setItem('oauth_state', state);
+    sessionStorage.setItem(PKCE_CODE_VERIFIER_KEY, codeVerifier);
+    sessionStorage.setItem(OAUTH_STATE_KEY, state);
 
     const authorizationUrl = buildAuthorizationUrl(this.configuration!, {
-      redirect_uri: ensureEndsWithSlash(this.options.redirectUri),
+      redirect_uri: ensureEndsWithSlash(redirectUri),
       scope: this.options.scope,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
@@ -52,21 +58,18 @@ export class CodeAuthFlow extends BaseAuthFlow {
 
   private async handleCallback(currentUrl: URL): Promise<void> {
     const pkceCodeVerifier =
-      sessionStorage.getItem('pkce_code_verifier') ?? undefined;
-    const expectedState = sessionStorage.getItem('oauth_state') ?? undefined;
+      sessionStorage.getItem(PKCE_CODE_VERIFIER_KEY) ?? undefined;
+    const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY) ?? undefined;
 
     try {
       const token = await authorizationCodeGrant(
         this.configuration!,
         currentUrl,
-        {
-          pkceCodeVerifier,
-          expectedState,
-        },
+        { pkceCodeVerifier, expectedState },
       );
 
-      sessionStorage.removeItem('pkce_code_verifier');
-      sessionStorage.removeItem('oauth_state');
+      sessionStorage.removeItem(PKCE_CODE_VERIFIER_KEY);
+      sessionStorage.removeItem(OAUTH_STATE_KEY);
 
       this.setToken(token);
     } catch {}
