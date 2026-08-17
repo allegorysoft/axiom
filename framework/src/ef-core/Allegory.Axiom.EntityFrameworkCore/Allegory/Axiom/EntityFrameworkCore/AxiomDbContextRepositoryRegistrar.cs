@@ -5,29 +5,23 @@ using System.Reflection;
 using Allegory.Axiom.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
-public class AxiomDbContextRepositoryRegistrar
+public class AxiomDbContextRepositoryRegistrar(
+    Type type,
+    AxiomDbContextOptionsBuilder builder,
+    IServiceCollection services)
 {
-    public Type Type { get; }
-    public AxiomDbContextOptionsBuilder Builder { get; }
-    public IServiceCollection Services { get; }
+    public Type Type { get; } = type;
+    public AxiomDbContextOptionsBuilder Builder { get; } = builder;
+    public IServiceCollection Services { get; } = services;
 
-    public AxiomDbContextRepositoryRegistrar(
-        Type type,
-        AxiomDbContextOptionsBuilder builder,
-        IServiceCollection services)
+    public void Register()
     {
-        Type = type;
-        Services = services;
-        Builder = builder;
+        RegisterNonGenericRepositories();
 
-        AddNonGenericRepositories();
-    }
-
-    public void RegisterRepositories()
-    {
         foreach (var repository in Builder.Repositories)
         {
             var implementationType = repository.IsGenericType
@@ -43,17 +37,22 @@ public class AxiomDbContextRepositoryRegistrar
         }
     }
 
-    protected void AddNonGenericRepositories()
+    protected void RegisterNonGenericRepositories()
     {
-        var concreteRepositories = Type.Assembly
+        var repositories = Type.Assembly
             .GetTypes()
-            .Where(t => typeof(IRepository).IsAssignableFrom(t) &&
-                        !t.IsGenericType && t is {IsClass: true, IsAbstract: false})
+            .Where(t => typeof(IRepository).IsAssignableFrom(t)
+                        && !t.IsGenericType && t is {IsClass: true, IsAbstract: false})
             .ToHashSet();
 
-        foreach (var repository in concreteRepositories)
+        foreach (var repository in repositories)
         {
-            Builder.AddRepository(repository);
+            var serviceTypes = GetRepositoryServices(repository, out _);
+
+            foreach (var serviceType in serviceTypes)
+            {
+                Services.TryAdd(ServiceDescriptor.Describe(serviceType, repository, Builder.ServiceLifetime));
+            }
         }
     }
 
@@ -72,15 +71,14 @@ public class AxiomDbContextRepositoryRegistrar
         // Entity type for IReadOnlyRepository<TEntity>; null when the repository has no explicit entity type
         var readOnlyRepository = interfaces.SingleOrDefault(x =>
             x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IReadOnlyRepository<>));
+        entityType = readOnlyRepository?.GenericTypeArguments[0];
 
-        if (readOnlyRepository == null)
+        if (readOnlyRepository == null || !Builder.ExposeGenericRepositories)
         {
             return list;
         }
 
-        entityType = readOnlyRepository.GenericTypeArguments[0];
-        list.Add(readOnlyRepository);
-
+        list.Add(readOnlyRepository); // IReadOnlyRepository<TEntity>
         AddIfMatch(interfaces, typeof(IRepository<>), list); // IRepository<TEntity>
         AddIfMatch(interfaces, typeof(IReadOnlyRepository<,>), list); // IReadOnlyRepository<TEntity, TKey>
         AddIfMatch(interfaces, typeof(IRepository<,>), list); // IRepository<TEntity, TKey>
