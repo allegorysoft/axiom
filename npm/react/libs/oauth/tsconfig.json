@@ -1,9 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "references": [
-    { "path": "../core/tsconfig.json" },
-    { "path": "./tsconfig.lib.json" }
-  ],
+  "references": [{ "path": "./tsconfig.lib.json" }],
   "compilerOptions": {
     "jsx": "react-jsx",
     "allowJs": false,
