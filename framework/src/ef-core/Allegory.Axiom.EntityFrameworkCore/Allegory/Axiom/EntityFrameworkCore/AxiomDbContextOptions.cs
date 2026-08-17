@@ -13,7 +13,7 @@ public abstract class AxiomDbContextOptions(Type type)
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
     public string? ConnectionStringName { get; set; }
     public TenancySide TenancySide { get; internal set; }
-    public IReadOnlyList<Type>? ReplacedDbContexts { get; internal set; }
+    public IReadOnlySet<Type>? ReplacedDbContexts { get; internal set; }
 }
 
 public class AxiomDbContextOptions<TContext>()
@@ -27,7 +27,7 @@ public class AxiomDbContextOptionsBuilder
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
     public string? ConnectionStringName { get; set; }
     public TenancySide? TenancySide { get; set; }
-    public IReadOnlyList<Type>? ReplacedDbContexts { get; set; }
+    public IReadOnlySet<Type>? ReplacedDbContexts { get; set; }
     public IReadOnlySet<Type> Repositories => _repositories;
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
 

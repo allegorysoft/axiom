@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,7 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class ReplaceDbContextAttribute : Attribute
 {
-    public IReadOnlyList<Type> ReplacedContexts { get; }
+    public IReadOnlySet<Type> ReplacedContexts { get; }
 
     public ReplaceDbContextAttribute(params Type[] replacedContexts)
     {
@@ -31,15 +32,15 @@ public sealed class ReplaceDbContextAttribute : Attribute
             }
         }
 
-        ReplacedContexts = replacedContexts;
+        ReplacedContexts = replacedContexts.ToHashSet();
     }
 
-    public static IReadOnlyList<Type> Get(Type type)
+    public static IReadOnlySet<Type> Get(Type type)
     {
         return Find(type) ?? throw new ArgumentException("Replace db context not found.", nameof(type));
     }
 
-    public static IReadOnlyList<Type>? Find(Type type)
+    public static IReadOnlySet<Type>? Find(Type type)
     {
         var attribute = type.GetCustomAttribute<ReplaceDbContextAttribute>();
 
