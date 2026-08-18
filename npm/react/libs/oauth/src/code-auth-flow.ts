@@ -21,6 +21,27 @@ export class CodeAuthFlow extends BaseAuthFlow {
     }
   }
 
+  private async handleCallback(currentUrl: URL): Promise<void> {
+    const pkceCodeVerifier =
+      sessionStorage.getItem(PKCE_CODE_VERIFIER_KEY) ?? undefined;
+    const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY) ?? undefined;
+
+    try {
+      const token = await authorizationCodeGrant(
+        this.configuration!,
+        currentUrl,
+        { pkceCodeVerifier, expectedState },
+      );
+
+      sessionStorage.removeItem(PKCE_CODE_VERIFIER_KEY);
+      sessionStorage.removeItem(OAUTH_STATE_KEY);
+
+      this.setToken(token);
+    } catch {}
+
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
   override async login(): Promise<void> {
     if (this.storage.get()?.accessToken) {
       return;
@@ -54,27 +75,6 @@ export class CodeAuthFlow extends BaseAuthFlow {
     });
 
     window.location.assign(authorizationUrl.href);
-  }
-
-  private async handleCallback(currentUrl: URL): Promise<void> {
-    const pkceCodeVerifier =
-      sessionStorage.getItem(PKCE_CODE_VERIFIER_KEY) ?? undefined;
-    const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY) ?? undefined;
-
-    try {
-      const token = await authorizationCodeGrant(
-        this.configuration!,
-        currentUrl,
-        { pkceCodeVerifier, expectedState },
-      );
-
-      sessionStorage.removeItem(PKCE_CODE_VERIFIER_KEY);
-      sessionStorage.removeItem(OAUTH_STATE_KEY);
-
-      this.setToken(token);
-    } catch {}
-
-    window.history.replaceState({}, '', window.location.pathname);
   }
 }
 

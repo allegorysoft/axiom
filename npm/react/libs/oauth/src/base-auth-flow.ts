@@ -6,7 +6,12 @@ import {
   discovery,
   tokenRevocation,
 } from 'openid-client';
-import { AbstractAuthFlow, isDevMode } from '@axiomframework/react-core';
+import {
+  type OAuthToken,
+  AbstractAuthFlow,
+  isDevMode,
+} from '@axiomframework/react-core';
+import { oAuthStore } from './oauth-store';
 
 const noop = (): void => {};
 
@@ -17,6 +22,11 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
    * Entry of authentication flow
    */
   override async initialize(): Promise<void> {
+    const token = this.storage.get();
+    if (token !== null) {
+      oAuthStore.setToken(token);
+    }
+
     await this.discover();
   }
 
@@ -36,24 +46,28 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
   protected setToken(
     token: TokenEndpointResponse & TokenEndpointResponseHelpers,
   ) {
-    this.storage.set({
+    const oAuthToken: OAuthToken = {
       accessToken: token.access_token,
       refreshToken: token.refresh_token,
       expiresAt: token.expires_in
         ? Date.now() + token.expires_in * 1000
         : undefined,
-    });
+    };
+    this.storage.set(oAuthToken);
+    oAuthStore.setToken(oAuthToken);
   }
 
   override async logout(): Promise<void> {
     if (!this.configuration) {
       return;
     }
-    const accessToken = this.storage.get()?.accessToken;
-    if (accessToken) {
-      await tokenRevocation(this.configuration, accessToken);
+
+    const token = this.storage.get()?.refreshToken;
+    if (token) {
+      await tokenRevocation(this.configuration, token);
     }
 
     this.storage.clear();
+    oAuthStore.clear();
   }
 }
