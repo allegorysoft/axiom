@@ -44,18 +44,16 @@ internal class RepositoryRegistrar(
 
         foreach (var repository in repositories)
         {
-            Repositories.Add(repository);
-
             var serviceTypes = GetRepositoryServices(repository, out var entityType);
-
-            if (entityType != null)
-            {
-                EntityRepositoryMap[entityType] = repository;
-            }
 
             foreach (var serviceType in serviceTypes)
             {
-                ServiceRepositoryMap[serviceType] = repository;
+                Descriptors.Add(
+                    new RepositoryDescriptor(
+                        serviceType,
+                        false,
+                        implementationType: repository,
+                        entityType: entityType));
 
                 Services.TryAdd(ServiceDescriptor.Describe(serviceType, repository, Builder.ServiceLifetime));
             }
@@ -69,15 +67,16 @@ internal class RepositoryRegistrar(
             return;
         }
 
-        var entities = GetEntityTypes(DbContextType).Where(t => !EntityRepositoryMap.ContainsKey(t)).ToList();
+        var existingRepos = Descriptors.Where(d => d.EntityType != null).Select(d => d.EntityType!).ToHashSet();
+        var entities = GetEntityTypes(DbContextType).Where(t => !existingRepos.Contains(t)).ToList();
 
         foreach (var entityType in entities)
         {
-            RegisterRepository(entityType);
+            RegisterDefaultRepository(entityType);
         }
     }
 
-    protected void RegisterRepository(Type entityType)
+    protected void RegisterDefaultRepository(Type entityType)
     {
         var keyedEntity = entityType
             .GetInterfaces()
@@ -101,12 +100,15 @@ internal class RepositoryRegistrar(
             serviceTypes.Add(typeof(IRepository<,>).MakeGenericType(entityType, keyType));
         }
 
-        Repositories.Add(repositoryType);
-        EntityRepositoryMap[entityType] = repositoryType;
-
         foreach (var serviceType in serviceTypes)
         {
-            ServiceRepositoryMap[serviceType] = repositoryType;
+            Descriptors.Add(
+                new RepositoryDescriptor(
+                    serviceType,
+                    true,
+                    implementationType: repositoryType,
+                    entityType: entityType));
+
             Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryType, Builder.ServiceLifetime));
         }
     }
@@ -131,8 +133,10 @@ internal class RepositoryRegistrar(
 
     protected void ReplaceRepository(RepositoryRegistrarBase registrar)
     {
-        foreach (var serviceRepository in registrar.ServiceRepositoryMap)
+        foreach (var descriptor in registrar.Descriptors)
         {
+            // descriptor.ImplementationType.GetGenericTypeDefinition().MakeGenericType
+            //descriptor.ImplementationType = ;
         }
     }
 }

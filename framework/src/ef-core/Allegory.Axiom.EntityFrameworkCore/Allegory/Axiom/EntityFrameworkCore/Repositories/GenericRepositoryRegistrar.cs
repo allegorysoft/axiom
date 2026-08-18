@@ -11,7 +11,7 @@ namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 internal class GenericRepositoryRegistrar(
     Type dbContextType,
     AxiomDbContextOptionsBuilder builder,
-    IServiceCollection services) : 
+    IServiceCollection services) :
     RepositoryRegistrarBase(dbContextType, builder, services)
 {
     public override void Register()
@@ -27,21 +27,19 @@ internal class GenericRepositoryRegistrar(
         foreach (var repository in Builder.Repositories)
         {
             var repositoryImplementation = repository.MakeGenericType(DbContextType);
-
-            Repositories.Add(repositoryImplementation);
-
             var serviceTypes = GetRepositoryServices(repositoryImplementation, out var entityType);
-
-            if (entityType != null)
-            {
-                EntityRepositoryMap[entityType] = repositoryImplementation;
-            }
 
             foreach (var serviceType in serviceTypes)
             {
-                ServiceRepositoryMap[serviceType] = repositoryImplementation;
+                Descriptors.Add(
+                    new RepositoryDescriptor(
+                        serviceType,
+                        false,
+                        implementationType: repository,
+                        entityType: entityType));
 
-                Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryImplementation, Builder.ServiceLifetime));
+                Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryImplementation,
+                    Builder.ServiceLifetime));
             }
         }
     }
@@ -53,15 +51,16 @@ internal class GenericRepositoryRegistrar(
             return;
         }
 
-        var entities = GetEntityTypes(DbContextType).Where(t => !EntityRepositoryMap.ContainsKey(t)).ToList();
+        var existingRepos = Descriptors.Where(d => d.EntityType != null).Select(d => d.EntityType!).ToHashSet();
+        var entities = GetEntityTypes(DbContextType).Where(t => !existingRepos.Contains(t)).ToList();
 
         foreach (var entityType in entities)
         {
-            RegisterRepository(entityType);
+            RegisterDefaultRepository(entityType);
         }
     }
 
-    protected void RegisterRepository(Type entityType)
+    protected void RegisterDefaultRepository(Type entityType)
     {
         var keyedEntity = entityType
             .GetInterfaces()
@@ -85,12 +84,15 @@ internal class GenericRepositoryRegistrar(
             serviceTypes.Add(typeof(IRepository<,>).MakeGenericType(entityType, keyType));
         }
 
-        Repositories.Add(repositoryType);
-        EntityRepositoryMap[entityType] = repositoryType;
-
         foreach (var serviceType in serviceTypes)
         {
-            ServiceRepositoryMap[serviceType] = repositoryType;
+            Descriptors.Add(
+                new RepositoryDescriptor(
+                    serviceType,
+                    true,
+                    implementationType: repositoryType,
+                    entityType: entityType));
+
             Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryType, Builder.ServiceLifetime));
         }
     }

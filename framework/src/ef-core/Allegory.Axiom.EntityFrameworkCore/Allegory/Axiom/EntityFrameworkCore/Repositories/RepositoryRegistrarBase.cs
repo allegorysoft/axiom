@@ -18,9 +18,7 @@ internal abstract class RepositoryRegistrarBase(
     internal Type DbContextType { get; } = dbContextType;
     internal AxiomDbContextOptionsBuilder Builder { get; } = builder;
     internal IServiceCollection Services { get; } = services;
-    internal HashSet<Type> Repositories { get; } = new(); // ImplementationType
-    internal Dictionary<Type, Type> EntityRepositoryMap { get; } = new(); // EntityType, ImplementationType
-    internal Dictionary<Type, Type> ServiceRepositoryMap { get; } = new(); // ServiceType, ImplementationType
+    internal List<RepositoryDescriptor> Descriptors { get; } = new();
 
     public abstract void Register();
 
