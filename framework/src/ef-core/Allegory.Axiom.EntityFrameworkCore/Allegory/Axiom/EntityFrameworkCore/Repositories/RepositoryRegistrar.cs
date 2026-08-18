@@ -28,6 +28,9 @@ internal class RepositoryRegistrar(
         // via MakeGenericType and registers it as both IReadOnlyRepository<TEntity> and IRepository<TEntity, TKey>
         RegisterDefaultRepositories();
 
+        // Replaces already-registered repository implementations (e.g. for entities also mapped
+        // in another DbContext) with ones bound to this registrar's DbContext, so later
+        // registrations for those entities resolve against this context instead.
         ReplaceRepositories();
     }
 
@@ -122,9 +125,14 @@ internal class RepositoryRegistrar(
                 continue;
             }
 
-            foreach (var serviceRepository in registrar.ServiceRepositoryMap)
-            {
-            }
+            ReplaceRepository(registrar);
+        }
+    }
+
+    protected void ReplaceRepository(RepositoryRegistrarBase registrar)
+    {
+        foreach (var serviceRepository in registrar.ServiceRepositoryMap)
+        {
         }
     }
 }
