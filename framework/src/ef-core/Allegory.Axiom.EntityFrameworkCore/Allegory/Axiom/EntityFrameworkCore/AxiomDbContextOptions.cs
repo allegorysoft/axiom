@@ -22,13 +22,13 @@ public class AxiomDbContextOptions<TContext>()
 
 public class AxiomDbContextOptionsBuilder
 {
-    private readonly HashSet<Type> _repositories = [];
+    private readonly HashSet<(Type Type, TenancySide? TenancySide)> _repositories = [];
 
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
     public string? ConnectionStringName { get; set; }
     public TenancySide? TenancySide { get; set; }
     public IReadOnlySet<Type>? ReplacedDbContexts { get; set; }
-    public IReadOnlySet<Type> Repositories => _repositories;
+    public IReadOnlySet<(Type Type, TenancySide? TenancySide)> Repositories => _repositories;
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
 
     /// <summary>
@@ -47,7 +47,7 @@ public class AxiomDbContextOptionsBuilder
     /// </summary>
     public bool ExposeGenericRepositories { get; set; }
 
-    public void AddRepository(Type type)
+    public void AddRepository(Type type, TenancySide? tenancySide = null)
     {
         if (!typeof(IRepository).IsAssignableFrom(type))
         {
@@ -62,6 +62,14 @@ public class AxiomDbContextOptionsBuilder
                 nameof(type));
         }
 
-        _repositories.Add(type);
+        if (tenancySide == MultiTenancy.TenancySide.Hybrid)
+        {
+            // If repository only uses tenant tables it should tenant otherwise host
+            throw new ArgumentException(
+                $"'{nameof(MultiTenancy.TenancySide.Hybrid)}' is not supported for repository resolution",
+                nameof(tenancySide));
+        }
+
+        _repositories.Add((type, tenancySide));
     }
 }

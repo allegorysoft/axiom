@@ -27,8 +27,8 @@ internal class GenericRepositoryRegistrar(
     {
         foreach (var repository in Builder.Repositories)
         {
-            var repositoryImplementation = repository.MakeGenericType(DbContextType);
-            var descriptor = new RepositoryDescriptor(repositoryImplementation, Builder.ExposeGenericRepositories);
+            var repositoryImplementation = repository.Type.MakeGenericType(DbContextType);
+            var descriptor = new RepositoryDescriptor(repositoryImplementation, Builder.ExposeGenericRepositories, repository.TenancySide);
             Descriptors.Add(descriptor);
 
             foreach (var serviceType in descriptor.Services)

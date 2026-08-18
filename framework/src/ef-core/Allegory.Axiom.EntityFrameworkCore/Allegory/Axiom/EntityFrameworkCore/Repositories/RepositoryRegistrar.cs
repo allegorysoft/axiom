@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
+using Allegory.Axiom.MultiTenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -97,8 +96,31 @@ internal class RepositoryRegistrar(
     {
         foreach (var descriptor in registrar.Descriptors)
         {
-            //descriptor.ImplementationType.GetGenericTypeDefinition().MakeGenericType
-            //descriptor.ImplementationType = ;
+            if (!descriptor.TenancySide.AppliesTo(Builder.TenancySide!.Value))
+            {
+                continue;
+            }
+
+            if (descriptor.IsDefaultRepository)
+            {
+                ArgumentNullException.ThrowIfNull(descriptor.EntityType);
+
+                descriptor.ImplementationType = descriptor.EntityKeyType == null
+                    ? typeof(EfCoreRepository<,>).MakeGenericType(DbContextType, descriptor.EntityType)
+                    : typeof(EfCoreRepository<,,>).MakeGenericType(DbContextType, descriptor.EntityType,
+                        descriptor.EntityKeyType);
+            }
+            else
+            {
+                descriptor.ImplementationType = descriptor.ImplementationType.GetGenericTypeDefinition()
+                    .MakeGenericType(DbContextType);
+            }
+
+            foreach (var service in descriptor.Services)
+            {
+                Services.Replace(ServiceDescriptor.Describe(service, descriptor.ImplementationType,
+                    registrar.Builder.ServiceLifetime));
+            }
         }
     }
 }
