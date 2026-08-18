@@ -16,6 +16,8 @@ internal class RepositoryRegistrar(
 {
     public override void Register()
     {
+        Registrars[DbContextType] = this;
+
         // Registers concrete (closed) repository implementations;
         // DbContext generic parameter is already fixed to a specific context type, such as
         // EfCoreRepository<AppDbContext, Entity, Key>
@@ -25,6 +27,8 @@ internal class RepositoryRegistrar(
         // already have a repository registered, closes EfCoreRepository<TDbContext, TEntity, TKey>
         // via MakeGenericType and registers it as both IReadOnlyRepository<TEntity> and IRepository<TEntity, TKey>
         RegisterDefaultRepositories();
+
+        ReplaceRepositories();
     }
 
     protected void RegisterRepositories()
@@ -101,6 +105,26 @@ internal class RepositoryRegistrar(
         {
             ServiceRepositoryMap[serviceType] = repositoryType;
             Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryType, Builder.ServiceLifetime));
+        }
+    }
+
+    protected void ReplaceRepositories()
+    {
+        if (Builder.ReplacedDbContexts == null || Builder.ReplacedDbContexts.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var dbContextType in Builder.ReplacedDbContexts)
+        {
+            if (!Registrars.TryGetValue(dbContextType, out var registrar))
+            {
+                continue;
+            }
+
+            foreach (var serviceRepository in registrar.ServiceRepositoryMap)
+            {
+            }
         }
     }
 }

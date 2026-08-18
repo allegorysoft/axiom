@@ -13,12 +13,14 @@ internal abstract class RepositoryRegistrarBase(
     AxiomDbContextOptionsBuilder builder,
     IServiceCollection services)
 {
-    protected Type DbContextType { get; } = dbContextType;
-    protected AxiomDbContextOptionsBuilder Builder { get; } = builder;
-    protected IServiceCollection Services { get; } = services;
-    protected HashSet<Type> Repositories { get; } = new(); // ImplementationType
-    protected Dictionary<Type, Type> EntityRepositoryMap { get; } = new(); // EntityType, ImplementationType
-    protected Dictionary<Type, Type> ServiceRepositoryMap { get; } = new(); // ServiceType, ImplementationType
+    protected static Dictionary<Type, RepositoryRegistrarBase> Registrars { get; } = new(); // DbContextType, Registrar
+
+    internal Type DbContextType { get; } = dbContextType;
+    internal AxiomDbContextOptionsBuilder Builder { get; } = builder;
+    internal IServiceCollection Services { get; } = services;
+    internal HashSet<Type> Repositories { get; } = new(); // ImplementationType
+    internal Dictionary<Type, Type> EntityRepositoryMap { get; } = new(); // EntityType, ImplementationType
+    internal Dictionary<Type, Type> ServiceRepositoryMap { get; } = new(); // ServiceType, ImplementationType
 
     public abstract void Register();
 
