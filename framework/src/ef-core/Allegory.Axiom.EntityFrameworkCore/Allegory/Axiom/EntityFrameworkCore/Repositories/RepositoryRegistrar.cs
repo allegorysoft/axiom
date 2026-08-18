@@ -20,12 +20,12 @@ internal class RepositoryRegistrar(
 
         // Registers concrete (closed) repository implementations;
         // DbContext generic parameter is already fixed to a specific context type, such as
-        // EfCoreRepository<AppDbContext, Entity, Key>
+        // ProductRepository : EfCoreRepository<AppDbContext, Entity, Key>
         RegisterRepositories();
 
         // Discovers every DbSet<TEntity> exposed on the DbContext and, for any entity that doesn't
         // already have a repository registered, closes EfCoreRepository<TDbContext, TEntity, TKey>
-        // via MakeGenericType and registers it as both IReadOnlyRepository<TEntity> and IRepository<TEntity, TKey>
+        // via MakeGenericType and registers it as both IReadOnlyRepository<TEntity> and IRepository<TEntity>
         RegisterDefaultRepositories();
 
         // Replaces already-registered repository implementations (e.g. for entities also mapped
@@ -44,17 +44,11 @@ internal class RepositoryRegistrar(
 
         foreach (var repository in repositories)
         {
-            var serviceTypes = GetRepositoryServices(repository, out var entityType);
+            var descriptor = new RepositoryDescriptor(repository, Builder.ExposeGenericRepositories);
+            Descriptors.Add(descriptor);
 
-            foreach (var serviceType in serviceTypes)
+            foreach (var serviceType in descriptor.Services)
             {
-                Descriptors.Add(
-                    new RepositoryDescriptor(
-                        serviceType,
-                        false,
-                        implementationType: repository,
-                        entityType: entityType));
-
                 Services.TryAdd(ServiceDescriptor.Describe(serviceType, repository, Builder.ServiceLifetime));
             }
         }
@@ -67,49 +61,17 @@ internal class RepositoryRegistrar(
             return;
         }
 
-        var existingRepos = Descriptors.Where(d => d.EntityType != null).Select(d => d.EntityType!).ToHashSet();
-        var entities = GetEntityTypes(DbContextType).Where(t => !existingRepos.Contains(t)).ToList();
+        var entities = GetEntityTypes(DbContextType).Where(t => Descriptors.All(d => t != d.EntityType)).ToList();
 
-        foreach (var entityType in entities)
+        foreach (var descriptor in entities.Select(entityType => new RepositoryDescriptor(entityType, DbContextType)))
         {
-            RegisterDefaultRepository(entityType);
-        }
-    }
+            Descriptors.Add(descriptor);
 
-    protected void RegisterDefaultRepository(Type entityType)
-    {
-        var keyedEntity = entityType
-            .GetInterfaces()
-            .SingleOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntity<>));
-
-        Type repositoryType;
-        var serviceTypes = new List<Type>(2);
-
-        if (keyedEntity == null)
-        {
-            repositoryType = typeof(EfCoreRepository<,>).MakeGenericType(DbContextType, entityType);
-            serviceTypes.Add(typeof(IReadOnlyRepository<>).MakeGenericType(entityType));
-            serviceTypes.Add(typeof(IRepository<>).MakeGenericType(entityType));
-        }
-        else
-        {
-            var keyType = keyedEntity.GetGenericArguments().Single();
-            repositoryType =
-                typeof(EfCoreRepository<,,>).MakeGenericType(DbContextType, entityType, keyType);
-            serviceTypes.Add(typeof(IReadOnlyRepository<,>).MakeGenericType(entityType, keyType));
-            serviceTypes.Add(typeof(IRepository<,>).MakeGenericType(entityType, keyType));
-        }
-
-        foreach (var serviceType in serviceTypes)
-        {
-            Descriptors.Add(
-                new RepositoryDescriptor(
-                    serviceType,
-                    true,
-                    implementationType: repositoryType,
-                    entityType: entityType));
-
-            Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryType, Builder.ServiceLifetime));
+            foreach (var serviceType in descriptor.Services)
+            {
+                Services.TryAdd(
+                    ServiceDescriptor.Describe(serviceType, descriptor.ImplementationType, Builder.ServiceLifetime));
+            }
         }
     }
 
@@ -135,7 +97,7 @@ internal class RepositoryRegistrar(
     {
         foreach (var descriptor in registrar.Descriptors)
         {
-            // descriptor.ImplementationType.GetGenericTypeDefinition().MakeGenericType
+            //descriptor.ImplementationType.GetGenericTypeDefinition().MakeGenericType
             //descriptor.ImplementationType = ;
         }
     }
