@@ -88,7 +88,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
         <h1>Error</h1>
         <p>{error.name}</p>
         <p>{error.message}</p>
-        <pre>{error.stack}</pre>
+        {error instanceof AggregateError ? (
+          <pre>{error.errors.map((err) => err.message)}</pre>
+        ) : (
+          <pre>{error.stack}</pre>
+        )}
       </div>
     );
   } else {
