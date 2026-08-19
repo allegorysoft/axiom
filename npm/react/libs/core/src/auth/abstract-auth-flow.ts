@@ -15,4 +15,8 @@ export abstract class AbstractAuthFlow {
   abstract initialize(): void | Promise<void>;
   abstract login(...args: unknown[]): Promise<void>;
   abstract logout(): Promise<void>;
+  abstract redirectToLogin(
+    navigator?: () => void,
+    returnUrl?: string,
+  ): void | Promise<void>;
 }

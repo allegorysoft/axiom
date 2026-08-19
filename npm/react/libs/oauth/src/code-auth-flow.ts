@@ -76,6 +76,10 @@ export class CodeAuthFlow extends BaseAuthFlow {
 
     window.location.assign(authorizationUrl.href);
   }
+
+  override redirectToLogin(navigator?: () => void, returnUrl?: string): void {
+    this.login();
+  }
 }
 
 function ensureEndsWithSlash(value?: string | null): string {
