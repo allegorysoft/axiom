@@ -18,8 +18,8 @@ public static class ServiceCollectionExtensions
         {
             var builder = new AxiomDbContextOptionsBuilder();
             optionsAction?.Invoke(builder);
-            builder.TenancySide ??= TenancySideAttribute.Find(typeof(TContext)) ?? TenancySide.Hybrid;
-            builder.ConnectionStringName ??= ConnectionStringNameAttribute.Find(typeof(TContext));
+            builder.TenancySide = TenancySideAttribute.Find(typeof(TContext)) ?? TenancySide.Hybrid;
+            builder.ConnectionStringName = ConnectionStringNameAttribute.Find(typeof(TContext));
             builder.ReplacedDbContexts ??= ReplaceDbContextAttribute.Find(typeof(TContext));
 
             ConfigureOptions<TContext>(services, builder);
@@ -50,7 +50,7 @@ public static class ServiceCollectionExtensions
         services.Configure<AxiomDbContextOptions<TContext>>(o =>
         {
             o.BuilderAction ??= builder.BuilderAction; // ConfigureAxiomDbContext might run first
-            o.TenancySide = builder.TenancySide!.Value;
+            o.TenancySide = builder.TenancySide;
             o.ConnectionStringName = builder.ConnectionStringName;
             o.ReplacedDbContexts = builder.ReplacedDbContexts;
         });
