@@ -2,10 +2,10 @@
 
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <RuntimePackageVersion>10.0.10</RuntimePackageVersion>
+        <RuntimePackageVersion>10.0.11</RuntimePackageVersion>
         <OpenTelemetryVersion>1.17.0</OpenTelemetryVersion>
         <FusionCacheVersion>2.6.0</FusionCacheVersion>
-        <TestcontainersVersion>4.13.0</TestcontainersVersion>
+        <TestcontainersVersion>4.14.0</TestcontainersVersion>
     </PropertyGroup>
 
     <ItemGroup>
