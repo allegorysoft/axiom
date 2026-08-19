@@ -25,7 +25,7 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
     protected ITenantContextAccessor TenantContextAccessor { get; }
     protected FrozenDictionary<string, ConnectionStringContextOptions>? Contexts { get; private set; }
 
-    public virtual async ValueTask<string> GetAsync(string name = IConnectionStringProvider.DefaultName)
+    public virtual async ValueTask<string> GetAsync(string? name = null)
     {
         var connectionString = await FindAsync(name);
 
@@ -34,8 +34,10 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             : connectionString;
     }
 
-    public virtual ValueTask<string?> FindAsync(string name = IConnectionStringProvider.DefaultName)
+    public virtual ValueTask<string?> FindAsync(string? name = null)
     {
+        name ??= IConnectionStringProvider.DefaultName;
+
         var context = Contexts?.GetValueOrDefault(name);
 
         var connectionString = context == null ? FindByName(name) : FindByContext(context);

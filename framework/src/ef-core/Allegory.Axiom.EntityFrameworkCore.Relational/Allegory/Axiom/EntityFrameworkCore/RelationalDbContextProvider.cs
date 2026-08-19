@@ -35,8 +35,7 @@ public class RelationalDbContextProvider<TContext>(
             return (TContext) context;
         }
 
-        var connectionString = await ConnectionStringProvider.GetAsync(
-            Options.ConnectionStringName ?? IConnectionStringProvider.DefaultName);
+        var connectionString = await ConnectionStringProvider.GetAsync(Options.ConnectionStringName);
         var key = $"{typeof(TContext).FullName!}_{connectionString}";
         if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
         {
