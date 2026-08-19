@@ -18,10 +18,10 @@ catalog:
 
   react: ^19
   react-dom: ^19
-  react-router: ^7
-  '@react-router/node': ^7
-  '@react-router/serve': ^7
-  '@react-router/dev': ^7
+  react-router: ^8
+  '@react-router/node': ^8
+  '@react-router/serve': ^8
+  '@react-router/dev': ^8
   openid-client: ~6.8.0
 
   tailwindcss: ~4.3.0
@@ -47,5 +47,5 @@ catalog:
   '@types/react': ^19
   '@types/react-dom': ^19
 
-  typescript: ~5.9.0
+  typescript: ~6.0.0
   json-server: ~0.17.0

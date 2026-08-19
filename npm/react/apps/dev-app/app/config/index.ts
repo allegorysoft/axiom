@@ -3,6 +3,7 @@ import {
   environmentStore,
   configureCore,
 } from '@axiomframework/react-core';
+import { configureOAuth } from '@axiomframework/react-oauth';
 
 export async function loadEnvironment() {
   const environment = isDevMode()
@@ -14,4 +15,5 @@ export async function loadEnvironment() {
 
 export function configureApplication() {
   configureCore();
+  configureOAuth();
 }

@@ -1,4 +1,4 @@
-export type { HttpMiddleware } from './http-client';
+export type { HttpMiddleware, HttpNext, HttpContext } from './http-client';
 export {
   getHttpClient,
   createHttpClient,

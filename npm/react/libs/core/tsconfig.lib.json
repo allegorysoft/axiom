@@ -1,11 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": ".",
     "lib": ["DOM", "ES2022"],
     "declaration": true,
     "composite": true,
-    "outDir": "../../dist/out-tsc",
+    "outDir": "../../dist/libs/core",
     "types": [
       "node",
       "@nx/react/typings/cssmodule.d.ts",

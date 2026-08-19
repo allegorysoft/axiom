@@ -19,6 +19,7 @@
     "target": "ES2022",
     "paths": {
       "@axiomframework/react-core": ["./libs/core/src/index.ts"],
+      "@axiomframework/react-oauth": ["./libs/oauth/src/index.ts"],
       "@axiomframework/react-theme": ["./libs/theme/src/index.ts"],
       "@axiomframework/react-theme/components": [
         "./libs/theme/src/components/index.ts"

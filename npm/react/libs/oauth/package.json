@@ -1,0 +1,28 @@
+{
+  "name": "@axiomframework/react-oauth",
+  "type": "module",
+  "version": "0.0.1-alpha.0",
+  "description": "Axiom framework react oauth package",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allegorysoft/axiom.git",
+    "directory": "npm/react/libs/oauth"
+  },
+  "homepage": "https://axiomframework.dev",
+  "author": "Allegorysoft",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.js"
+    }
+  },
+  "peerDependencies": {
+    "react": "catalog:"
+  },
+  "dependencies": {
+    "openid-client": "catalog:"
+  }
+}

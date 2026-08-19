@@ -66,9 +66,9 @@ export class HttpClient {
     };
 
     if (body !== undefined) {
-      context.request.body = JSON.stringify(body);
+      this.stringifyBody(body, context);
       context.request.headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': this.getContentType(body),
         ...context.request.headers,
       };
     }
@@ -117,5 +117,22 @@ export class HttpClient {
     }
 
     return `${url}${url.includes('?') ? '&' : '?'}${queryString}`;
+  }
+
+  protected stringifyBody(body: unknown, context: HttpContext) {
+    if (body instanceof URLSearchParams) {
+      context.request.body = body.toString();
+      return;
+    }
+
+    context.request.body = JSON.stringify(body);
+  }
+
+  protected getContentType(body: unknown) {
+    if (body instanceof URLSearchParams) {
+      return 'application/x-www-form-urlencoded';
+    }
+
+    return 'application/json';
   }
 }

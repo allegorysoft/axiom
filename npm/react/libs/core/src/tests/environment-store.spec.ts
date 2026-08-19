@@ -14,7 +14,7 @@ const makeEnvironment = (
     authority: 'https://auth.test',
     clientId: 'axiom-web',
     scope: 'openid profile',
-    responseType: 'code',
+    flow: 'code',
     redirectUri: 'https://app.test/callback',
   },
   ...overrides,
@@ -120,12 +120,12 @@ describe('environmentStore', () => {
   describe('patchOAuth', () => {
     it('merges the given fields into the existing oauth config', () => {
       setEnvironment(makeEnvironment());
-      patchOAuth({ clientId: 'axiom-mobile', responseType: 'password' });
+      patchOAuth({ clientId: 'axiom-mobile', flow: 'password' });
       expect(getEnvironment()?.oauth).toStrictEqual({
         authority: 'https://auth.test',
         clientId: 'axiom-mobile',
         scope: 'openid profile',
-        responseType: 'password',
+        flow: 'password',
         redirectUri: 'https://app.test/callback',
       });
     });
