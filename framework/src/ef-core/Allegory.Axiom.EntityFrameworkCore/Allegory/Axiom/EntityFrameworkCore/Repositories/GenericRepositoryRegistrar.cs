@@ -13,12 +13,6 @@ internal class GenericRepositoryRegistrar(
 {
     public override void Register()
     {
-        Registrars[DbContextType] = this;
-
-        // var rootDbContexts = Registrars.Values
-        //     .Where(r => r.Builder.ReplacedDbContexts?.Contains(DbContextType) ?? false)
-        //     .ToList();
-
         RegisterRepositories();
         RegisterDefaultRepositories();
     }

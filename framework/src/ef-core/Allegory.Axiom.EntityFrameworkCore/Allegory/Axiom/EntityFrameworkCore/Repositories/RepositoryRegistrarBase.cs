@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Allegory.Axiom.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,8 @@ internal abstract class RepositoryRegistrarBase(
     AxiomDbContextOptionsBuilder builder,
     IServiceCollection services)
 {
-    protected static Dictionary<Type, RepositoryRegistrarBase> Registrars { get; } = new(); // DbContextType, Registrar
+    internal static Dictionary<Type, RepositoryRegistrar> Registrars { get; } = new();
+    internal static Dictionary<Type, GenericRepositoryRegistrar> GenericRegistrars { get; } = new();
 
     internal Type DbContextType { get; } = dbContextType;
     internal AxiomDbContextOptionsBuilder Builder { get; } = builder;
@@ -21,22 +23,13 @@ internal abstract class RepositoryRegistrarBase(
 
     public abstract void Register();
 
-    public static RepositoryRegistrarBase Create(
-        Type dbContextType,
-        AxiomDbContextOptionsBuilder builder,
-        IServiceCollection services)
-    {
-        return builder.Repositories.Count > 0
-            ? new GenericRepositoryRegistrar(dbContextType, builder, services)
-            : new RepositoryRegistrar(dbContextType, builder, services);
-    }
-
     protected static IReadOnlyList<Type> GetEntityTypes(Type type)
     {
         return type
             .GetProperties(BindingFlags.Public | BindingFlags.Instance)
             .Where(p => p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
             .Select(p => p.PropertyType.GetGenericArguments()[0])
+            .Where(p => typeof(IEntity).IsAssignableFrom(p))
             .ToList();
     }
 }

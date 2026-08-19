@@ -73,7 +73,16 @@ public static class ServiceCollectionExtensions
         IServiceCollection services,
         AxiomDbContextOptionsBuilder builder)
     {
-        var registrar = RepositoryRegistrarBase.Create(typeof(TContext), builder, services);
-        registrar.Register();
+        if (builder.Repositories.Count > 0 || builder.RegisterAsGenericDbContext)
+        {
+            var registrar = new GenericRepositoryRegistrar(typeof(TContext), builder, services);
+            registrar.Register();
+            RepositoryRegistrarBase.GenericRegistrars[typeof(TContext)] = registrar;
+        }
+        else
+        {
+            var registrar = new RepositoryRegistrar(typeof(TContext), builder, services);
+            RepositoryRegistrarBase.Registrars[typeof(TContext)] = registrar;
+        }
     }
 }

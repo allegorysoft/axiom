@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
@@ -13,9 +15,13 @@ internal class RepositoryRegistrar(
     IServiceCollection services) :
     RepositoryRegistrarBase(dbContextType, builder, services)
 {
+    protected IReadOnlySet<GenericRepositoryRegistrar> ReplacedRegistrars { get; set; } = null!;
+
     public override void Register()
     {
-        Registrars[DbContextType] = this;
+        ReplacedRegistrars = Builder.ReplacedDbContexts == null
+            ? ImmutableHashSet<GenericRepositoryRegistrar>.Empty
+            : Builder.ReplacedDbContexts.Select(x => GenericRegistrars[x]).ToHashSet();
 
         // Registers concrete (closed) repository implementations;
         // DbContext generic parameter is already fixed to a specific context type, such as
@@ -60,7 +66,16 @@ internal class RepositoryRegistrar(
             return;
         }
 
-        var entities = GetEntityTypes(DbContextType).Where(t => Descriptors.All(d => t != d.EntityType)).ToList();
+        var excludedEntityTypes = ReplacedRegistrars
+            .SelectMany(x => x.Descriptors)
+            .Concat(Descriptors)
+            .Where(d => d.EntityType != null)
+            .Select(d => d.EntityType!)
+            .ToHashSet();
+
+        var entities = GetEntityTypes(DbContextType)
+            .Where(t => !excludedEntityTypes.Contains(t))
+            .ToList();
 
         foreach (var descriptor in entities.Select(entityType => new RepositoryDescriptor(entityType, DbContextType)))
         {
@@ -76,27 +91,17 @@ internal class RepositoryRegistrar(
 
     protected void ReplaceRepositories()
     {
-        if (Builder.ReplacedDbContexts == null || Builder.ReplacedDbContexts.Count == 0)
+        foreach (var registrar in ReplacedRegistrars)
         {
-            return;
-        }
-
-        foreach (var dbContextType in Builder.ReplacedDbContexts)
-        {
-            if (!Registrars.TryGetValue(dbContextType, out var registrar))
-            {
-                continue;
-            }
-
             ReplaceRepository(registrar);
         }
     }
 
-    protected void ReplaceRepository(RepositoryRegistrarBase registrar)
+    protected void ReplaceRepository(GenericRepositoryRegistrar registrar)
     {
         foreach (var descriptor in registrar.Descriptors)
         {
-            if (!descriptor.TenancySide.AppliesTo(Builder.TenancySide!.Value))
+            if (!descriptor.TenancySide.AppliesTo(Builder.TenancySide))
             {
                 continue;
             }
