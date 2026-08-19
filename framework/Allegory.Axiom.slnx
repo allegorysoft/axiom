@@ -32,7 +32,6 @@
     <Project Path="src/ddd/Allegory.Axiom.Ddd.Domain/Allegory.Axiom.Ddd.Domain.csproj" />
   </Folder>
   <Folder Name="/src/ef-core/">
-    <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.Abstractions/Allegory.Axiom.EntityFrameworkCore.Abstractions.csproj" />
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB/Allegory.Axiom.EntityFrameworkCore.MongoDB.csproj" />
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational/Allegory.Axiom.EntityFrameworkCore.Relational.csproj" />
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore/Allegory.Axiom.EntityFrameworkCore.csproj" />
