@@ -219,9 +219,19 @@ public class EfCoreRepository<TDbContext, TEntity>(
 
     protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
     {
-        // DbContextOptions.TenancySide.AppliesTo(TenancySide.Tenant)
-        // && !IsTenantOwned && TenantContextAccessor.Current != null
-        // Change current tenant
+        if (!IsTenantOwned &&
+            DbContextOptions.TenancySide.AppliesTo(TenancySide.Tenant) 
+            && TenantContextAccessor.Current != null)
+        {
+            // This is a host-side (tenant-agnostic) DbSet being resolved while a tenant
+            // is currently active. Temporarily clear the ambient tenant context so the
+            // provider resolves the host connection instead of the active tenant's.
+            using (TenantContextAccessor.Change(current: null))
+            {
+                return DbContextProvider.GetAsync(cancellationToken);
+            }
+        }
+
         return DbContextProvider.GetAsync(cancellationToken);
     }
 
