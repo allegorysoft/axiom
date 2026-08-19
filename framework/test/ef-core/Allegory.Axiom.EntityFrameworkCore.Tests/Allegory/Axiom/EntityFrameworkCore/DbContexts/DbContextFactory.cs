@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
-namespace Allegory.Axiom.EntityFrameworkCore;
+namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 
 public class DbContextFactory : IDesignTimeDbContextFactory<Module1DbContext>
 {
@@ -9,7 +9,7 @@ public class DbContextFactory : IDesignTimeDbContextFactory<Module1DbContext>
     {
         // dotnet ef migrations add initial --context Module1DbContext -o Migrations/Module1
         var options = new DbContextOptionsBuilder<Module1DbContext>()
-            .UseSqlite("Data Source=module1.db")
+            .UseSqlite()
             .Options;
 
         return new Module1DbContext(options);

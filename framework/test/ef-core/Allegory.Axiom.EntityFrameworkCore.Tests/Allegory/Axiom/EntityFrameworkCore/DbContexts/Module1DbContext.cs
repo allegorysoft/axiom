@@ -5,7 +5,7 @@ using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore;
+namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 
 [TenancySide(TenancySide.Host)]
 [ConnectionStringName("Module1")]

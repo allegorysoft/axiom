@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;

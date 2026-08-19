@@ -4,7 +4,7 @@ using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore;
+namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 
 [TenancySide(TenancySide.Tenant)]
 [ConnectionStringName("Module2")]
