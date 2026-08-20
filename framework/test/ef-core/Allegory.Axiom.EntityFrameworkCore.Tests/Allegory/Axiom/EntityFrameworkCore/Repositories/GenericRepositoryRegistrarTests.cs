@@ -69,7 +69,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     }
 
     [Fact]
-    public async Task ShouldRegisterDefaultRepositoryForUncoveredEntity()
+    public async Task ShouldRegisterDefaultRepositoryForUncoveredEntityWhenEnabled()
     {
         await fixture.CreateServiceProviderAsync(
             configure: builder =>
@@ -89,7 +89,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     }
 
     [Fact]
-    public async Task ShouldNotRegisterDefaultRepositoryWhenRegisterDefaultRepositoryIsFalse()
+    public async Task ShouldNotRegisterDefaultRepositoryForUncoveredEntityWhenDisabled()
     {
         await fixture.CreateServiceProviderAsync(
             configure: builder =>
@@ -107,13 +107,40 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     }
 
     [Fact]
-    public async Task ShouldSkipDefaultRepositoryForExplicitlyCoveredEntity()
+    public async Task ShouldExposeGenericRepositoryForCoveredEntityWhenEnabled()
     {
         await fixture.CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
                 {
+                    o.ExposeGenericRepositories = true;
+                    o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
+                });
+            },
+            postConfigure: builder =>
+            {
+                var descriptor1 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IRepository<Module1Entity1, int>));
+                descriptor1.ShouldNotBeNull();
+                descriptor1.ImplementationType.ShouldBe(typeof(EfCoreModule1Entity1Repository<Module1DbContext>));
+
+                var descriptor2 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IModule1Entity1Repository));
+                descriptor2.ShouldNotBeNull();
+                descriptor2.ImplementationType.ShouldBe(typeof(EfCoreModule1Entity1Repository<Module1DbContext>));
+            });
+    }
+
+    [Fact]
+    public async Task ShouldNotExposeGenericRepositoryForCoveredEntityWhenDisabled()
+    {
+        await fixture.CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
+                {
+                    o.ExposeGenericRepositories = false;
                     o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
                 });
             },
