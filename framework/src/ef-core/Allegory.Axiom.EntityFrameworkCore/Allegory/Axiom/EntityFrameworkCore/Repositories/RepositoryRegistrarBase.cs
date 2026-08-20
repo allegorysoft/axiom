@@ -9,14 +9,12 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
 internal abstract class RepositoryRegistrarBase(
-    Type dbContextType,
     AxiomDbContextOptionsBuilder builder,
     IServiceCollection services)
 {
     internal static Dictionary<Type, RepositoryRegistrar> Registrars { get; } = new();
     internal static Dictionary<Type, GenericRepositoryRegistrar> GenericRegistrars { get; } = new();
 
-    internal Type DbContextType { get; } = dbContextType;
     internal AxiomDbContextOptionsBuilder Builder { get; } = builder;
     internal IServiceCollection Services { get; } = services;
     internal List<RepositoryDescriptor> Descriptors { get; } = new();

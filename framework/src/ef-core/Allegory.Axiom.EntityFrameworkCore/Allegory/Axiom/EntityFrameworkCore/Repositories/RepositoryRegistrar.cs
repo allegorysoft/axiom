@@ -10,10 +10,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
 internal class RepositoryRegistrar(
-    Type dbContextType,
     AxiomDbContextOptionsBuilder builder,
     IServiceCollection services) :
-    RepositoryRegistrarBase(dbContextType, builder, services)
+    RepositoryRegistrarBase(builder, services)
 {
     protected IReadOnlySet<GenericRepositoryRegistrar> ReplacedRegistrars { get; set; } = null!;
 
@@ -41,7 +40,7 @@ internal class RepositoryRegistrar(
 
     protected void RegisterRepositories()
     {
-        var repositories = DbContextType.Assembly
+        var repositories = Builder.DbContextType.Assembly
             .GetTypes()
             .Where(t => typeof(IRepository).IsAssignableFrom(t)
                         && !t.IsGenericType && t is {IsClass: true, IsAbstract: false})
@@ -73,11 +72,11 @@ internal class RepositoryRegistrar(
             .Select(d => d.EntityType!)
             .ToHashSet();
 
-        var entities = GetEntityTypes(DbContextType)
+        var entities = GetEntityTypes(Builder.DbContextType)
             .Where(t => !excludedEntityTypes.Contains(t))
             .ToList();
 
-        foreach (var descriptor in entities.Select(entityType => new RepositoryDescriptor(entityType, DbContextType)))
+        foreach (var descriptor in entities.Select(entityType => new RepositoryDescriptor(entityType, Builder.DbContextType)))
         {
             Descriptors.Add(descriptor);
 
@@ -111,14 +110,14 @@ internal class RepositoryRegistrar(
                 ArgumentNullException.ThrowIfNull(descriptor.EntityType);
 
                 descriptor.ImplementationType = descriptor.EntityKeyType == null
-                    ? typeof(EfCoreRepository<,>).MakeGenericType(DbContextType, descriptor.EntityType)
-                    : typeof(EfCoreRepository<,,>).MakeGenericType(DbContextType, descriptor.EntityType,
+                    ? typeof(EfCoreRepository<,>).MakeGenericType(Builder.DbContextType, descriptor.EntityType)
+                    : typeof(EfCoreRepository<,,>).MakeGenericType(Builder.DbContextType, descriptor.EntityType,
                         descriptor.EntityKeyType);
             }
             else
             {
                 descriptor.ImplementationType = descriptor.ImplementationType.GetGenericTypeDefinition()
-                    .MakeGenericType(DbContextType);
+                    .MakeGenericType(Builder.DbContextType);
             }
 
             foreach (var service in descriptor.Services)

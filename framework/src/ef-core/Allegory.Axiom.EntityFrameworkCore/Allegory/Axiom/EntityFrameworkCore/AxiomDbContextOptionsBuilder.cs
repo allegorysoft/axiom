@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +12,19 @@ public class AxiomDbContextOptionsBuilder
 {
     private readonly HashSet<(Type Type, TenancySide? TenancySide)> _repositories = [];
 
+    internal AxiomDbContextOptionsBuilder(Type dbContextType)
+    {
+        DbContextType = dbContextType;
+        ConnectionStringName = ConnectionStringNameAttribute.Find(DbContextType);
+        TenancySide = TenancySideAttribute.Find(DbContextType) ?? TenancySide.Hybrid;
+        ReplacedDbContexts = ReplaceDbContextAttribute.Find(DbContextType);
+    }
+
+    internal Type DbContextType { get; }
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
-    public string? ConnectionStringName { get; internal set; }
-    public TenancySide TenancySide { get; internal set; }
-    public IReadOnlySet<Type>? ReplacedDbContexts { get; set; }
+    public string? ConnectionStringName { get; }
+    public TenancySide TenancySide { get; }
+    public IReadOnlySet<Type>? ReplacedDbContexts { get; }
     public IReadOnlySet<(Type Type, TenancySide? TenancySide)> Repositories => _repositories;
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
 

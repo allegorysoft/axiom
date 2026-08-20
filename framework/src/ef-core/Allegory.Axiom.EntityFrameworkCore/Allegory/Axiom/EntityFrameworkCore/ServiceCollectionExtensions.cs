@@ -1,7 +1,5 @@
 using System;
-using Allegory.Axiom.Data;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
-using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -16,11 +14,8 @@ public static class ServiceCollectionExtensions
             Action<AxiomDbContextOptionsBuilder>? optionsAction = null)
             where TContext : DbContext
         {
-            var builder = new AxiomDbContextOptionsBuilder();
+            var builder = new AxiomDbContextOptionsBuilder(typeof(TContext));
             optionsAction?.Invoke(builder);
-            builder.TenancySide = TenancySideAttribute.Find(typeof(TContext)) ?? TenancySide.Hybrid;
-            builder.ConnectionStringName = ConnectionStringNameAttribute.Find(typeof(TContext));
-            builder.ReplacedDbContexts ??= ReplaceDbContextAttribute.Find(typeof(TContext));
 
             ConfigureOptions<TContext>(services, builder);
             RegisterDbContextFactory<TContext>(services);
@@ -75,13 +70,13 @@ public static class ServiceCollectionExtensions
     {
         if (builder.Repositories.Count > 0 || builder.RegisterAsGenericDbContext)
         {
-            var registrar = new GenericRepositoryRegistrar(typeof(TContext), builder, services);
+            var registrar = new GenericRepositoryRegistrar(builder, services);
             registrar.Register();
             RepositoryRegistrarBase.GenericRegistrars[typeof(TContext)] = registrar;
         }
         else
         {
-            var registrar = new RepositoryRegistrar(typeof(TContext), builder, services);
+            var registrar = new RepositoryRegistrar(builder, services);
             RepositoryRegistrarBase.Registrars[typeof(TContext)] = registrar;
         }
     }
