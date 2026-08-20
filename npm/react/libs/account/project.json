@@ -1,0 +1,15 @@
+{
+  "name": "account",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/account/src",
+  "projectType": "library",
+  "tags": ["scope:framework"],
+  "implicitDependencies": ["oauth", "theme"],
+  "targets": {
+    "build": {
+      "options": {
+        "outDir": "../../dist/libs/account"
+      }
+    }
+  }
+}
