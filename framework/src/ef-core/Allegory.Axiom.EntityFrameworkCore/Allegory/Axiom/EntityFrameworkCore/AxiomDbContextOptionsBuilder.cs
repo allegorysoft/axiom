@@ -55,7 +55,7 @@ public class AxiomDbContextOptionsBuilder
     /// (e.g. resolving <c>IRepository&lt;Product, int&gt;</c> in addition to <c>IProductRepository</c>).
     /// Both interfaces resolve to the same instance. Has no effect on entities without a custom repository.
     /// </summary>
-    public bool ExposeGenericRepositories { get; set; }
+    public bool ExposeGenericServices { get; set; }
 
     public void AddRepository(Type type, TenancySide? tenancySide = null)
     {

@@ -107,14 +107,14 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     }
 
     [Fact]
-    public async Task ShouldExposeGenericRepositoryForCoveredEntityWhenEnabled()
+    public async Task ShouldExposeGenericServicesForCoveredEntityWhenEnabled()
     {
         await fixture.CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
                 {
-                    o.ExposeGenericRepositories = true;
+                    o.ExposeGenericServices = true;
                     o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
                 });
             },
@@ -133,14 +133,14 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     }
 
     [Fact]
-    public async Task ShouldNotExposeGenericRepositoryForCoveredEntityWhenDisabled()
+    public async Task ShouldNotExposeGenericServicesForCoveredEntityWhenDisabled()
     {
         await fixture.CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
                 {
-                    o.ExposeGenericRepositories = false;
+                    o.ExposeGenericServices = false;
                     o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
                 });
             },

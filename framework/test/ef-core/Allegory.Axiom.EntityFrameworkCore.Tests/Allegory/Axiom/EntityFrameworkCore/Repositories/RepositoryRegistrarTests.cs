@@ -77,12 +77,12 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     }
 
     [Fact]
-    public async Task ShouldExposeGenericRepositoryForCoveredEntityWhenEnabled()
+    public async Task ShouldExposeGenericServicesForCoveredEntityWhenEnabled()
     {
         await fixture.CreateServiceProviderAsync(
             configure: builder =>
             {
-                builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericRepositories = true; });
+                builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericServices = true; });
             },
             postConfigure: builder =>
             {
@@ -99,12 +99,12 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     }
 
     [Fact]
-    public async Task ShouldNotExposeGenericRepositoryForCoveredEntityWhenDisabled()
+    public async Task ShouldNotExposeGenericServicesForCoveredEntityWhenDisabled()
     {
         await fixture.CreateServiceProviderAsync(
             configure: builder =>
             {
-                builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericRepositories = false; });
+                builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericServices = false; });
             },
             postConfigure: builder =>
             {
@@ -113,8 +113,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 descriptor1.ShouldBeNull();
 
                 var descriptor2 =
-                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IApp1Entity1Repository));
-                descriptor2.ShouldNotBeNull();
+                    builder.Services.Single(d => d.ServiceType == typeof(IApp1Entity1Repository));
                 descriptor2.ImplementationType.ShouldBe(typeof(EfCoreApp1Entity1Repository));
             });
     }

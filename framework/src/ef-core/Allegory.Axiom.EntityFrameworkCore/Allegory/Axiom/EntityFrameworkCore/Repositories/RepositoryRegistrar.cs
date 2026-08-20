@@ -50,7 +50,7 @@ internal class RepositoryRegistrar(
 
         foreach (var repository in repositories)
         {
-            var descriptor = new RepositoryDescriptor(repository, Builder.ExposeGenericRepositories);
+            var descriptor = new RepositoryDescriptor(repository, Builder.ExposeGenericServices);
             Descriptors.Add(descriptor);
 
             foreach (var serviceType in descriptor.Services)

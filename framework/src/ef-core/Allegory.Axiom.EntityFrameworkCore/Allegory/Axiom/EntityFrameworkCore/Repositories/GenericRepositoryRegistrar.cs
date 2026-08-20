@@ -23,7 +23,7 @@ internal class GenericRepositoryRegistrar(
 
             var descriptor = new RepositoryDescriptor(
                 repositoryImplementation,
-                Builder.ExposeGenericRepositories,
+                Builder.ExposeGenericServices,
                 repository.TenancySide);
 
             Descriptors.Add(descriptor);
