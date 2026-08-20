@@ -10,7 +10,7 @@ namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 internal class RepositoryDescriptor
 {
     public Type ImplementationType { get; set; }
-    public bool IsDefaultRepository { get; } // EfCoreRepository<TContext, TEntity, TKey?> or RepositoryImp<TContext>
+    public bool IsDefaultRepository { get; }
     public Type? EntityType { get; }
     public Type? EntityKeyType { get; }
     public TenancySide TenancySide { get; }
