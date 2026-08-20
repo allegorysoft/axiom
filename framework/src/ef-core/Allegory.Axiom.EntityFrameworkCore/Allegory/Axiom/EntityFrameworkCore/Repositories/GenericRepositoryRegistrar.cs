@@ -22,13 +22,17 @@ internal class GenericRepositoryRegistrar(
         foreach (var repository in Builder.Repositories)
         {
             var repositoryImplementation = repository.Type.MakeGenericType(DbContextType);
-            var descriptor = new RepositoryDescriptor(repositoryImplementation, Builder.ExposeGenericRepositories, repository.TenancySide);
+
+            var descriptor = new RepositoryDescriptor(
+                repositoryImplementation,
+                Builder.ExposeGenericRepositories,
+                repository.TenancySide);
+
             Descriptors.Add(descriptor);
 
             foreach (var serviceType in descriptor.Services)
             {
-                Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryImplementation,
-                    Builder.ServiceLifetime));
+                Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryImplementation, Builder.ServiceLifetime));
             }
         }
     }
@@ -48,8 +52,7 @@ internal class GenericRepositoryRegistrar(
 
             foreach (var serviceType in descriptor.Services)
             {
-                Services.TryAdd(
-                    ServiceDescriptor.Describe(serviceType, descriptor.ImplementationType, Builder.ServiceLifetime));
+                Services.TryAdd(ServiceDescriptor.Describe(serviceType, descriptor.ImplementationType, Builder.ServiceLifetime));
             }
         }
     }
