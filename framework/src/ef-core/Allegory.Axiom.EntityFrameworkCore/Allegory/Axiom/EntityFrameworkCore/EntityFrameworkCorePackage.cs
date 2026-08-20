@@ -6,7 +6,6 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 internal sealed class EntityFrameworkCorePackage : IConfigureApplication
 {
-
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.AddDeferredAction(static b =>
