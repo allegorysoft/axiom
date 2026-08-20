@@ -18,9 +18,11 @@ internal class RepositoryRegistrar(
 
     public override void Register()
     {
+        var properties = ServiceCollectionExtensions.CollectionProperties.GetOrCreateValue(Services);
+
         ReplacedRegistrars = Builder.ReplacedDbContexts == null
             ? ImmutableHashSet<GenericRepositoryRegistrar>.Empty
-            : Builder.ReplacedDbContexts.Select(x => GenericRegistrars[x]).ToHashSet();
+            : Builder.ReplacedDbContexts.Select(x => properties.GenericRegistrars[x]).ToHashSet();
 
         // Registers concrete (closed) repository implementations;
         // DbContext generic parameter is already fixed to a specific context type, such as

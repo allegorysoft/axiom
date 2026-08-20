@@ -12,9 +12,6 @@ internal abstract class RepositoryRegistrarBase(
     AxiomDbContextOptionsBuilder builder,
     IServiceCollection services)
 {
-    internal static Dictionary<Type, RepositoryRegistrar> Registrars { get; } = new();
-    internal static Dictionary<Type, GenericRepositoryRegistrar> GenericRegistrars { get; } = new();
-
     internal AxiomDbContextOptionsBuilder Builder { get; } = builder;
     internal IServiceCollection Services { get; } = services;
     internal List<RepositoryDescriptor> Descriptors { get; } = new();

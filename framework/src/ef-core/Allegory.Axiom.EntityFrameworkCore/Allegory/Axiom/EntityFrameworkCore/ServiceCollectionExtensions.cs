@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +10,8 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 public static class ServiceCollectionExtensions
 {
+    internal static readonly ConditionalWeakTable<IServiceCollection, ExtraProperties> CollectionProperties = new();
+
     extension(IServiceCollection services)
     {
         public void AddAxiomDbContext<TContext>(
@@ -68,16 +72,24 @@ public static class ServiceCollectionExtensions
         IServiceCollection services,
         AxiomDbContextOptionsBuilder builder)
     {
+        var properties = CollectionProperties.GetOrCreateValue(services);
+
         if (builder.Repositories.Count > 0 || builder.RegisterAsGenericDbContext)
         {
             var registrar = new GenericRepositoryRegistrar(builder, services);
             registrar.Register();
-            RepositoryRegistrarBase.GenericRegistrars[typeof(TContext)] = registrar;
+            properties.GenericRegistrars[typeof(TContext)] = registrar;
         }
         else
         {
             var registrar = new RepositoryRegistrar(builder, services);
-            RepositoryRegistrarBase.Registrars[typeof(TContext)] = registrar;
+            properties.Registrars[typeof(TContext)] = registrar;
         }
+    }
+    
+    internal class ExtraProperties
+    {
+        internal Dictionary<Type, RepositoryRegistrar> Registrars { get; } = new();
+        internal Dictionary<Type, GenericRepositoryRegistrar> GenericRegistrars { get; } = new();
     }
 }
