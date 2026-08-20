@@ -4,7 +4,7 @@ using Allegory.Axiom.Exceptions;
 
 namespace Allegory.Axiom.MultiTenancy;
 
-public static class TenantStoreExtensions
+public static class MultiTenancyAbstractionsExtensions
 {
     extension(ITenantStore store)
     {
@@ -33,5 +33,10 @@ public static class TenantStoreExtensions
 
             return tenant;
         }
+    }
+
+    extension(TenancySide side)
+    {
+        public bool AppliesTo(TenancySide current) => (side & current) != 0;
     }
 }

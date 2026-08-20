@@ -35,7 +35,7 @@ public class TenantContextAccessor : ITenantContextAccessor, ISingletonService
             "Tenant switched",
             tags: new ActivityTagsCollection
             {
-                {"tenant.id", current?.Id.ToString()}
+                {"tenant.id", current?.Id.ToString()?? "<host>"}
             }));
 
         return new DisposableDelegate<TenantContext?>(Restore, parent);

@@ -2,72 +2,85 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.Data;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class RelationalDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
     IUnitOfWorkManager unitOfWorkManager,
-    IConnectionStringProvider connectionStringProvider)
+    IConnectionStringProvider connectionStringProvider,
+    ITenantContextAccessor tenantContextAccessor,
+    IOptions<AxiomDbContextOptions<TContext>> options)
     : IDbContextProvider<TContext>, ISingletonService
     where TContext : DbContext
 {
     public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    public ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+    public AxiomDbContextOptions<TContext> Options { get; } = options.Value;
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
     protected IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
 
     public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {
-        // GetRequestedDbContext (for interface find underlying db context they might replace)
-        // ResolveConnectionString
-        // Check database exists in uow (context.Type_ConnectionStr) => hash 
-        // CreateDbContext; SetConnection
-        
-        //uow.Items.TryGetValue("db_{tenant.current.id??host}_{dbkey}")
-
         var unitOfWork = UnitOfWorkManager.RequiredCurrent;
         cancellationToken = cancellationToken.FallbackTo(unitOfWork.CancellationToken);
-        var key = typeof(TContext).FullName!;
 
+        var itemKey = $"db_{TenantContextAccessor.Current?.Id.ToString() ?? "host"}_{typeof(TContext).FullName!}";
+        if (unitOfWork.Items.TryGetValue(itemKey, out var context))
+        {
+            return (TContext) context;
+        }
+
+        var connectionString = await ConnectionStringProvider.GetAsync(Options.ConnectionStringName);
+        var key = $"{typeof(TContext).FullName!}_{connectionString}";
         if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
         {
             return dbHandle.GetDatabase<TContext>();
         }
 
         var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
-        var connectionString = ConnectionStringProvider.GetAsync();
-        //dbContext.Database.SetConnectionString();
+        dbContext.Database.SetConnectionString(connectionString);
+        unitOfWork.Items.Add(itemKey, dbContext);
 
+        dbHandle = await CreateHandleAsync(unitOfWork, dbContext, cancellationToken);
+        unitOfWork.AddDatabase(key, dbHandle);
+
+        return dbContext;
+    }
+
+    protected virtual async ValueTask<UnitOfWorkDatabaseHandle> CreateHandleAsync(
+        IUnitOfWork unitOfWork,
+        TContext dbContext,
+        CancellationToken cancellationToken = default)
+    {
         if (unitOfWork.Options.IsolationLevel.HasValue)
         {
             var transaction = await dbContext.Database.BeginTransactionAsync(
                 unitOfWork.Options.IsolationLevel.Value,
                 cancellationToken);
-            dbHandle = new UnitOfWorkDatabaseHandle(
+            return new UnitOfWorkDatabaseHandle(
                 dbContext,
                 transaction,
                 UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
                 UnitOfWorkDatabaseHandleExtensions.CommitAsync,
                 UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
         }
-        else if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
+
+        if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
         {
-            dbHandle = new UnitOfWorkDatabaseHandle(dbContext, UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync);
-        }
-        else
-        {
-            dbHandle = new UnitOfWorkDatabaseHandle(
-                dbContext,
-                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
-                // When IsolationLevel exists it handled in first if condition
-                UnitOfWorkDatabaseHandleExtensions.BeginTransactionAsync,
-                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
-                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
+            return new UnitOfWorkDatabaseHandle(dbContext, UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync);
         }
 
-        unitOfWork.AddDatabase(key, dbHandle);
-        return dbContext;
+        return new UnitOfWorkDatabaseHandle(
+            dbContext,
+            UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
+            // When IsolationLevel exists it handled in first if condition
+            UnitOfWorkDatabaseHandleExtensions.BeginTransactionAsync,
+            UnitOfWorkDatabaseHandleExtensions.CommitAsync,
+            UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
     }
 }

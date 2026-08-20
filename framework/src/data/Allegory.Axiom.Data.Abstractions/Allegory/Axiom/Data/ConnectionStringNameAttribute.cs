@@ -3,25 +3,20 @@ using System.Reflection;
 
 namespace Allegory.Axiom.Data;
 
-[AttributeUsage(AttributeTargets.Class)]
-public class ConnectionStringNameAttribute(string name) : Attribute
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
+public sealed class ConnectionStringNameAttribute(string name) : Attribute
 {
     public string Name { get; } = name;
 
-    public static string Get<T>()
+    public static string Get(Type type)
     {
-        return Get(typeof(T));
+        return Find(type) ?? throw new ArgumentException("Connection string name cannot be null");
     }
 
-    public static string Get(Type type)
+    public static string? Find(Type type)
     {
         var attribute = type.GetCustomAttribute<ConnectionStringNameAttribute>();
 
-        if (attribute == null)
-        {
-            return type.FullName ?? throw new ArgumentException("Connection string name cannot be null");
-        }
-
-        return attribute.Name;
+        return attribute?.Name;
     }
 }

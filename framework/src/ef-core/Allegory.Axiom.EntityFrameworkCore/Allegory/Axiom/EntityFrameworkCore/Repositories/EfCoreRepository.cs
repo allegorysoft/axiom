@@ -11,7 +11,7 @@ using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore;
+namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
 public class EfCoreRepository<TDbContext, TEntity>(
     IDbContextProvider<TDbContext> dbContextProvider)
@@ -29,6 +29,8 @@ public class EfCoreRepository<TDbContext, TEntity>(
     protected IDbContextProvider<TDbContext> DbContextProvider { get; } = dbContextProvider;
 
     protected IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
+    protected ITenantContextAccessor TenantContextAccessor => DbContextProvider.TenantContextAccessor;
+    protected AxiomDbContextOptions<TDbContext> DbContextOptions => DbContextProvider.Options;
 
     // Create EntityNotFoundException inside Domain package
 
@@ -214,10 +216,20 @@ public class EfCoreRepository<TDbContext, TEntity>(
             await UnitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
-    
-    
+
     protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
     {
+        if (!IsTenantOwned && TenantContextAccessor.Current != null)
+        {
+            // This is a host-side (tenant-agnostic) DbSet being resolved while a tenant
+            // is currently active. Temporarily clear the ambient tenant context so the
+            // ConnectionStringProvider resolves the host connection instead of the active tenant's.
+            using (TenantContextAccessor.Change(current: null))
+            {
+                return DbContextProvider.GetAsync(cancellationToken);
+            }
+        }
+
         return DbContextProvider.GetAsync(cancellationToken);
     }
 

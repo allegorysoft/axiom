@@ -6,6 +6,6 @@ public interface IConnectionStringProvider
 {
     const string DefaultName = "Default";
 
-    ValueTask<string> GetAsync(string name = DefaultName);
-    ValueTask<string?> FindAsync(string name = DefaultName);
+    ValueTask<string> GetAsync(string? name = null);
+    ValueTask<string?> FindAsync(string? name = null);
 }
