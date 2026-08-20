@@ -118,6 +118,87 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 descriptor2.ImplementationType.ShouldBe(typeof(EfCoreApp1Entity1Repository));
             });
     }
+
+    [Fact]
+    public async Task ShouldUseSpecifiedDbContextForReplacedDbContexts()
+    {
+        await fixture.CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
+                {
+                    o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
+                });
+                builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+                builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<HybridDbContext>();
+            },
+            postConfigure: builder =>
+            {
+                var descriptor1 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IModule1Entity1Repository));
+                descriptor1.ShouldNotBeNull();
+                descriptor1.ImplementationType.ShouldBe(typeof(EfCoreModule1Entity1Repository<HybridDbContext>));
+
+                var descriptor2 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IRepository<Module2Entity1, int>));
+                descriptor2.ShouldNotBeNull();
+                descriptor2.ImplementationType.ShouldBe(
+                    typeof(EfCoreRepository<HybridDbContext, Module2Entity1, int>));
+
+                var descriptor3 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IRepository<Module3Entity1, int>));
+                descriptor3.ShouldNotBeNull();
+                descriptor3.ImplementationType.ShouldBe(
+                    typeof(EfCoreRepository<HybridDbContext, Module3Entity1, int>));
+            });
+    }
+
+    [Fact]
+    public async Task ShouldRespectTenancySideWhenReplacingDbContext()
+    {
+        await fixture.CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
+                {
+                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Host);
+                });
+                builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+                builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<HostSideDbContext>();
+                builder.Services.AddAxiomDbContext<TenantSideDbContext>();
+            },
+            postConfigure: builder =>
+            {
+                var descriptor1 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IModule1ReportRepository));
+                descriptor1.ShouldNotBeNull();
+                descriptor1.ImplementationType.ShouldBe(typeof(EfCoreModule1ReportRepository<HostSideDbContext>));
+
+                var descriptor2 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IRepository<Module2Entity1, int>));
+                descriptor2.ShouldNotBeNull();
+                descriptor2.ImplementationType.ShouldBe(
+                    typeof(EfCoreRepository<TenantSideDbContext, Module2Entity1, int>));
+
+                var descriptor3 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IRepository<Module3Entity1, int>));
+                descriptor3.ShouldNotBeNull();
+                descriptor3.ImplementationType.ShouldBe(
+                    typeof(EfCoreRepository<HostSideDbContext, Module3Entity1, int>));
+
+                var descriptor4 =
+                    builder.Services.SingleOrDefault(d => d.ServiceType == typeof(IRepository<Module3Entity2, int>));
+                descriptor4.ShouldNotBeNull();
+                descriptor4.ImplementationType.ShouldBe(
+                    typeof(EfCoreRepository<TenantSideDbContext, Module3Entity2, int>));
+            });
+    }
 }
 
 file class App1DbContext : DbContext
@@ -135,3 +216,20 @@ file interface IApp1Entity1Repository : IRepository<App1Entity1, int> { }
 file class EfCoreApp1Entity1Repository(
     IDbContextProvider<App1DbContext> dbContextProvider)
     : EfCoreRepository<App1DbContext, App1Entity1, int>(dbContextProvider), IApp1Entity1Repository { }
+
+[ReplaceDbContext(typeof(Module1DbContext), typeof(Module2DbContext), typeof(Module3DbContext))]
+file class HybridDbContext : DbContext { }
+
+[TenancySide(TenancySide.Host)]
+[ReplaceDbContext(typeof(Module1DbContext), typeof(Module2DbContext), typeof(Module3DbContext))]
+file class HostSideDbContext : DbContext { }
+
+[TenancySide(TenancySide.Tenant)]
+[ReplaceDbContext(typeof(Module1DbContext), typeof(Module2DbContext), typeof(Module3DbContext))]
+file class TenantSideDbContext : DbContext
+{
+    public DbSet<Module2Entity1> Module2Entity1 { get; set; }
+    public DbSet<Module2Entity2> Module2Entity2 { get; set; }
+
+    public DbSet<Module3Entity2> Module3Entity2 { get; set; }
+}
