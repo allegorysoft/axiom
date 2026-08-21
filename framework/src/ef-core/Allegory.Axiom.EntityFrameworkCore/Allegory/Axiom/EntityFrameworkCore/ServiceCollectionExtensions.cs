@@ -33,7 +33,7 @@ public static class ServiceCollectionExtensions
             services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
         }
 
-        public void ConfigureAxiomDbContextGlobalOptions(Action<AxiomDbContextGlobalOptions> optionsAction)
+        public void ConfigureAxiomDbContexts(Action<AxiomDbContextGlobalOptions> optionsAction)
         {
             services.Configure(optionsAction);
         }
