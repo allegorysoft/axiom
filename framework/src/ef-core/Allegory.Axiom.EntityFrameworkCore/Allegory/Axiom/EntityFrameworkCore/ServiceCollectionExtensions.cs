@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
         AxiomDbContextOptionsBuilder builder)
         where TContext : DbContext
     {
-        services.Configure<AxiomDbContextGlobalOptions>(o => o.Contexts.Add(typeof(TContext)));
+        services.Configure<AxiomDbContextGlobalOptions>(o => o.AddContext(typeof(TContext)));
 
         services.Configure<AxiomDbContextOptions<TContext>>(o =>
         {
@@ -86,7 +86,7 @@ public static class ServiceCollectionExtensions
             properties.Registrars[typeof(TContext)] = registrar;
         }
     }
-    
+
     internal class ExtraProperties
     {
         internal Dictionary<Type, RepositoryRegistrar> Registrars { get; } = new();
