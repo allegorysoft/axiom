@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
+using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -36,6 +37,13 @@ public static class ServiceCollectionExtensions
         public void ConfigureAxiomDbContexts(Action<AxiomDbContextGlobalOptions> optionsAction)
         {
             services.Configure(optionsAction);
+        }
+
+        public void ReplaceRepository<TContext>(Type repository, TenancySide? tenancySide = null) where TContext : DbContext
+        {
+            var properties = CollectionProperties.GetOrCreateValue(services);
+            var registrar = properties.GenericRegistrars[typeof(TContext)];
+            registrar.ReplaceRepository(repository, tenancySide);
         }
     }
 

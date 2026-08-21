@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.DbContexts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
@@ -156,4 +157,35 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
                 descriptor2.ImplementationType.ShouldBe(typeof(EfCoreModule1Entity1Repository<Module1DbContext>));
             });
     }
+
+    [Fact]
+    public async Task ShouldReplaceExistingRepositoryWithCustomRepository()
+    {
+        await fixture.CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
+                {
+                    o.ExposeGenericServices = true;
+                    o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
+                });
+
+                builder.Services.ReplaceRepository<Module1DbContext>(typeof(CustomEfCoreModule1Entity1Repository<>));
+            },
+            postConfigure: builder =>
+            {
+                var descriptor1 =
+                    builder.Services.Single(d => d.ServiceType == typeof(IModule1Entity1Repository));
+                descriptor1.ImplementationType.ShouldBe(typeof(CustomEfCoreModule1Entity1Repository<Module1DbContext>));
+
+                var descriptor2 =
+                    builder.Services.Single(d => d.ServiceType == typeof(IRepository<Module1Entity1, int>));
+                descriptor2.ImplementationType.ShouldBe(typeof(CustomEfCoreModule1Entity1Repository<Module1DbContext>));
+            });
+    }
 }
+
+file class CustomEfCoreModule1Entity1Repository<TDbContext>(
+    IDbContextProvider<TDbContext> dbContextProvider)
+    : EfCoreModule1Entity1Repository<TDbContext>(dbContextProvider)
+    where TDbContext : DbContext { }

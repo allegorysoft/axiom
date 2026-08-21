@@ -10,8 +10,6 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class AxiomDbContextOptionsBuilder
 {
-    private readonly HashSet<(Type Type, TenancySide? TenancySide)> _repositories = [];
-
     internal AxiomDbContextOptionsBuilder(Type dbContextType)
     {
         DbContextType = dbContextType;
@@ -21,11 +19,12 @@ public class AxiomDbContextOptionsBuilder
     }
 
     internal Type DbContextType { get; }
+    internal HashSet<(Type Type, TenancySide? TenancySide)> Repositories { get; } = [];
+
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
     public string? ConnectionStringName { get; }
     public TenancySide TenancySide { get; }
     public IReadOnlySet<Type>? ReplacedDbContexts { get; }
-    public IReadOnlySet<(Type Type, TenancySide? TenancySide)> Repositories => _repositories;
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
 
     /// <summary>
@@ -80,6 +79,6 @@ public class AxiomDbContextOptionsBuilder
                 nameof(tenancySide));
         }
 
-        _repositories.Add((type, tenancySide));
+        Repositories.Add((type, tenancySide));
     }
 }
