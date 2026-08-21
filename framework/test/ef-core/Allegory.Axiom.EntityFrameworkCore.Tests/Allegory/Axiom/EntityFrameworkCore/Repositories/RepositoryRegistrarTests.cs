@@ -182,6 +182,31 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     }
 
     [Fact]
+    public async Task ShouldUseReplacedRepositoryForReplacedDbContext()
+    {
+        await fixture.CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
+                {
+                    o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
+                });
+                builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+                builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<HybridDbContext>();
+                builder.Services.ReplaceRepository<Module1DbContext>(typeof(CustomEfCoreModule1Entity1Repository<>));
+            },
+            postConfigure: builder =>
+            {
+                var descriptor1 =
+                    builder.Services.Single(d => d.ServiceType == typeof(IModule1Entity1Repository));
+                descriptor1.ImplementationType.ShouldBe(typeof(CustomEfCoreModule1Entity1Repository<HybridDbContext>));
+            });
+    }
+
+    [Fact]
     public async Task ShouldRespectTenancySideWhenReplacingDbContext()
     {
         await fixture.CreateServiceProviderAsync(
@@ -267,3 +292,8 @@ file class HostSideDbContext : DbContext { }
 [TenancySide(TenancySide.Tenant)]
 [ReplaceDbContext(typeof(Module1DbContext), typeof(Module2DbContext), typeof(Module3DbContext))]
 file class TenantSideDbContext : DbContext { }
+
+file class CustomEfCoreModule1Entity1Repository<TDbContext>(
+    IDbContextProvider<TDbContext> dbContextProvider)
+    : EfCoreModule1Entity1Repository<TDbContext>(dbContextProvider)
+    where TDbContext : DbContext { }

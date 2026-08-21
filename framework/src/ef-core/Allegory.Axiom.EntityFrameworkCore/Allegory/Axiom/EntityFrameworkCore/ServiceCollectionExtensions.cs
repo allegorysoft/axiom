@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
+using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -33,9 +34,16 @@ public static class ServiceCollectionExtensions
             services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
         }
 
-        public void ConfigureAxiomDbContextGlobalOptions(Action<AxiomDbContextGlobalOptions> optionsAction)
+        public void ConfigureAxiomDbContexts(Action<AxiomDbContextGlobalOptions> optionsAction)
         {
             services.Configure(optionsAction);
+        }
+
+        public void ReplaceRepository<TContext>(Type repository, TenancySide? tenancySide = null) where TContext : DbContext
+        {
+            var properties = CollectionProperties.GetOrCreateValue(services);
+            var registrar = properties.GenericRegistrars[typeof(TContext)];
+            registrar.ReplaceRepository(repository, tenancySide);
         }
     }
 
@@ -44,7 +52,7 @@ public static class ServiceCollectionExtensions
         AxiomDbContextOptionsBuilder builder)
         where TContext : DbContext
     {
-        services.Configure<AxiomDbContextGlobalOptions>(o => o.Contexts.Add(typeof(TContext)));
+        services.Configure<AxiomDbContextGlobalOptions>(o => o.AddContext(typeof(TContext)));
 
         services.Configure<AxiomDbContextOptions<TContext>>(o =>
         {
@@ -86,7 +94,7 @@ public static class ServiceCollectionExtensions
             properties.Registrars[typeof(TContext)] = registrar;
         }
     }
-    
+
     internal class ExtraProperties
     {
         internal Dictionary<Type, RepositoryRegistrar> Registrars { get; } = new();

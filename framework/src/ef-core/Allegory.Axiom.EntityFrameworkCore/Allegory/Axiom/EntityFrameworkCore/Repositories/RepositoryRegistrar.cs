@@ -94,11 +94,11 @@ internal class RepositoryRegistrar(
     {
         foreach (var registrar in ReplacedRegistrars)
         {
-            ReplaceRepository(registrar);
+            ReplaceRepositories(registrar);
         }
     }
 
-    protected void ReplaceRepository(GenericRepositoryRegistrar registrar)
+    protected void ReplaceRepositories(GenericRepositoryRegistrar registrar)
     {
         foreach (var descriptor in registrar.Descriptors)
         {
