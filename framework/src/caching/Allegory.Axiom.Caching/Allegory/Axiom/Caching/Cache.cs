@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
+using Allegory.Axiom.Priority;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
@@ -82,7 +83,7 @@ public class Cache(
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
             () => HybridCache.SetAsync(normalizedKey, value, entryOptions, tags, cancellationToken).AsTask(),
-            UnitOfWorkHookPriority.Highest);
+            PriorityLevel.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -103,7 +104,7 @@ public class Cache(
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
             () => HybridCache.RemoveAsync(normalizedKey, cancellationToken).AsTask(),
-            UnitOfWorkHookPriority.Highest);
+            PriorityLevel.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -126,7 +127,7 @@ public class Cache(
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
             () => HybridCache.RemoveAsync(normalizedKeys, cancellationToken).AsTask(),
-            UnitOfWorkHookPriority.Highest);
+            PriorityLevel.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -144,7 +145,7 @@ public class Cache(
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
             () => HybridCache.RemoveByTagAsync(tag, cancellationToken).AsTask(),
-            UnitOfWorkHookPriority.Highest);
+            PriorityLevel.Highest);
 
         return ValueTask.CompletedTask;
     }
@@ -162,7 +163,7 @@ public class Cache(
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
             () => HybridCache.RemoveByTagAsync(tags, cancellationToken).AsTask(),
-            UnitOfWorkHookPriority.Highest);
+            PriorityLevel.Highest);
 
         return ValueTask.CompletedTask;
     }

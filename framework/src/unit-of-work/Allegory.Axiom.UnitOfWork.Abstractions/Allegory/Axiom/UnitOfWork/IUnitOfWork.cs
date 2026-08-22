@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Priority;
 
 namespace Allegory.Axiom.UnitOfWork;
 
@@ -23,7 +24,7 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     void AddHook(
         UnitOfWorkHookPoint hook,
         Func<Task> handler,
-        UnitOfWorkHookPriority priority = UnitOfWorkHookPriority.Normal);
+        PriorityLevel priority = PriorityLevel.Normal);
 
     /// <summary>
     /// Persists the pending changes tracked by this unit of work.

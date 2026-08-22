@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Priority;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Allegory.Axiom.UnitOfWork;
@@ -16,7 +17,7 @@ internal sealed class UnitOfWork(
     : IUnitOfWork
 {
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
-    private readonly Dictionary<UnitOfWorkHookPoint, PriorityQueue<Func<Task>, HookSortOrder>> _hooks = new();
+    private readonly Dictionary<UnitOfWorkHookPoint, PriorityQueue<Func<Task>, PrioritySortOrder>> _hooks = new();
     private ushort _hookSequence;
 
     private AsyncServiceScope? AsyncServiceScope { get; } = asyncServiceScope;
@@ -41,15 +42,15 @@ internal sealed class UnitOfWork(
     public void AddHook(
         UnitOfWorkHookPoint hook,
         Func<Task> handler,
-        UnitOfWorkHookPriority priority = UnitOfWorkHookPriority.Normal)
+        PriorityLevel priority = PriorityLevel.Normal)
     {
         if (!_hooks.TryGetValue(hook, out var handlers))
         {
-            _hooks[hook] = handlers = new PriorityQueue<Func<Task>, HookSortOrder>();
+            _hooks[hook] = handlers = new PriorityQueue<Func<Task>, PrioritySortOrder>();
         }
 
         _hookSequence++;
-        handlers.Enqueue(handler, new HookSortOrder(priority, _hookSequence));
+        handlers.Enqueue(handler, new PrioritySortOrder(priority, _hookSequence));
     }
 
     private async Task InvokeHooksAsync(UnitOfWorkHookPoint hook, bool saveChanges = false)

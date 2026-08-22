@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Priority;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
@@ -358,17 +359,17 @@ public class UnitOfWorkTests
         {
             log.Add(1);
             return Task.CompletedTask;
-        }, UnitOfWorkHookPriority.Low);
+        }, PriorityLevel.Low);
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
         {
             log.Add(2);
             return Task.CompletedTask;
-        }, UnitOfWorkHookPriority.High);
+        }, PriorityLevel.High);
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, () =>
         {
             log.Add(3);
             return Task.CompletedTask;
-        },  UnitOfWorkHookPriority.Highest);
+        },  PriorityLevel.Highest);
 
         await uow.CompleteAsync(CancellationToken.None);
 
@@ -410,7 +411,7 @@ public class UnitOfWorkTests
             {
                 log.Add(2);
                 return Task.CompletedTask;
-            }, UnitOfWorkHookPriority.High);
+            }, PriorityLevel.High);
             return Task.CompletedTask;
         });
 
