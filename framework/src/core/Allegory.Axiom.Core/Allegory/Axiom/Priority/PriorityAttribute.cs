@@ -17,7 +17,12 @@ public sealed class PriorityAttribute(PriorityLevel level) : Attribute
 
     public static PriorityLevel Get(Type type)
     {
+        return Find(type) ?? PriorityLevel.Normal;
+    }
+
+    public static PriorityLevel? Find(Type type)
+    {
         var attribute = type.GetCustomAttribute<PriorityAttribute>();
-        return attribute?.Level ?? PriorityLevel.Normal;
+        return attribute?.Level;
     }
 }

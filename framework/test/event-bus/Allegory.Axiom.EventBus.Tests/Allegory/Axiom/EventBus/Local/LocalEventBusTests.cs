@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Priority;
 using Allegory.Axiom.UnitOfWork;
 using Shouldly;
 using Xunit;
@@ -228,7 +229,7 @@ file class ThrowingTestEventHandler : ILocalEventHandler<ThrowingTestEvent>
         throw new InvalidOperationException("handler-failure");
 }
 
-[EventOrder(3)]
+[Priority(PriorityLevel.Low)]
 file class OrderTestEventHandler3 : ILocalEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload)
@@ -238,7 +239,7 @@ file class OrderTestEventHandler3 : ILocalEventHandler<OrderedTestEvent>
     }
 }
 
-[EventOrder(2)]
+[Priority(PriorityLevel.Normal)]
 file class OrderTestEventHandler2 : ILocalEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload)
@@ -248,7 +249,7 @@ file class OrderTestEventHandler2 : ILocalEventHandler<OrderedTestEvent>
     }
 }
 
-[EventOrder(1)]
+[Priority(PriorityLevel.High)]
 file class OrderTestEventHandler1 : ILocalEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload)
