@@ -17,7 +17,7 @@ internal sealed class UnitOfWork(
     : IUnitOfWork
 {
     private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
-    private readonly Dictionary<UnitOfWorkHookPoint, PriorityQueue<Func<Task>, PrioritySortOrder>> _hooks = new();
+    private readonly Dictionary<UnitOfWorkHookPoint, PriorityQueue<Func<Task>, PrioritySortOrder<ushort>>> _hooks = new();
     private ushort _hookSequence;
 
     private AsyncServiceScope? AsyncServiceScope { get; } = asyncServiceScope;
@@ -46,11 +46,11 @@ internal sealed class UnitOfWork(
     {
         if (!_hooks.TryGetValue(hook, out var handlers))
         {
-            _hooks[hook] = handlers = new PriorityQueue<Func<Task>, PrioritySortOrder>();
+            _hooks[hook] = handlers = new PriorityQueue<Func<Task>, PrioritySortOrder<ushort>>();
         }
 
         _hookSequence++;
-        handlers.Enqueue(handler, new PrioritySortOrder(priority, _hookSequence));
+        handlers.Enqueue(handler, new PrioritySortOrder<ushort>(priority, _hookSequence));
     }
 
     private async Task InvokeHooksAsync(UnitOfWorkHookPoint hook, bool saveChanges = false)
