@@ -8,9 +8,9 @@ namespace Allegory.Axiom.Priority;
 /// </summary>
 public enum PriorityLevel : byte
 {
-    Highest = 0,
-    High = 50,
-    Normal = 100,
-    Low = 150,
-    Lowest = 200,
+    Highest = 50,
+    High = 100,
+    Normal = 150,
+    Low = 200,
+    Lowest = 250,
 }
