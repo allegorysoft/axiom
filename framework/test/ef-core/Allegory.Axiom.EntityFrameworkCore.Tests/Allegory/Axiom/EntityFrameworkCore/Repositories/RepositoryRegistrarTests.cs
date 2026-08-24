@@ -216,7 +216,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 {
                     o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
                     o.AddRepository(typeof(EfCoreModule1Entity2Repository<>));
-                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Host);
+                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>));
                 });
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
@@ -258,6 +258,34 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                     typeof(EfCoreRepository<TenantSideDbContext, Module2Entity2, int>));
                 tenantSideDescriptor3.ImplementationType.ShouldBe(
                     typeof(EfCoreRepository<TenantSideDbContext, Module3Entity2, int>));
+            });
+    }
+    
+     [Fact]
+    public async Task ShouldRespectRepositorySpecifiedTenancySideWhenReplacingDbContext()
+    {
+        await fixture.CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
+                {
+                    // If the tenancy side is not specified, it defaults to the DbContext's tenancy side
+                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Tenant);
+                });
+                builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+                builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<HostSideDbContext>();
+                builder.Services.AddAxiomDbContext<TenantSideDbContext>();
+            },
+            postConfigure: builder =>
+            {
+                var repository =
+                    builder.Services.Single(d => d.ServiceType == typeof(IModule1ReportRepository));
+
+                repository.ImplementationType.ShouldBe(
+                    typeof(EfCoreModule1ReportRepository<TenantSideDbContext>));
             });
     }
 }
