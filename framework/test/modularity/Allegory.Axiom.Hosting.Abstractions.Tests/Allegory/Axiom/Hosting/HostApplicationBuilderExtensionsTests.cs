@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Hosting.Plugins;
+using Allegory.Axiom.Priority;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
@@ -109,6 +110,23 @@ public class HostApplicationBuilderExtensionsTests
 
         callOrder.ShouldBe([1, 2, 3]);
     }
+    
+    [Fact]
+    public async Task ShouldInvokeDeferredActionsInSpecifiedPriorityOrder()
+    {
+        var callOrder = new List<int>();
+
+        Builder.AddDeferredAction(_ => callOrder.Add(2), PriorityLevel.High);
+        Builder.AddDeferredAction(_ => callOrder.Add(0), (PriorityLevel)1);
+        Builder.AddDeferredAction(_ => callOrder.Add(1), PriorityLevel.Highest);
+        Builder.AddDeferredAction(_ => callOrder.Add(5), PriorityLevel.Lowest);
+        Builder.AddDeferredAction(_ => callOrder.Add(4), PriorityLevel.Low);
+        Builder.AddDeferredAction(_ => callOrder.Add(3), PriorityLevel.Normal);
+
+        await Builder.ConfigureApplicationAsync();
+
+        callOrder.ShouldBe([0, 1, 2, 3, 4, 5]);
+    }
 
     [Fact]
     public async Task ShouldPassBuilderInstanceToDeferredAction()
@@ -135,7 +153,7 @@ public class HostApplicationBuilderExtensionsTests
 
         var actions = HostApplicationBuilderExtensions.BuilderProperties
             .GetOrCreateValue(Builder).DeferredActions;
-        actions.ShouldBeEmpty();
+        actions.Count.ShouldBe(0);
     }
 
     [Fact]

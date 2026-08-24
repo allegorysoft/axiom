@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.Priority;
 using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Hosting;
@@ -47,22 +48,24 @@ public static class HostApplicationBuilderExtensions
             return (AxiomApplication) application.ImplementationInstance!;
         }
 
-        public void AddDeferredAction(Action<IHostApplicationBuilder> action)
+        public void AddDeferredAction(Action<IHostApplicationBuilder> action, PriorityLevel priority = PriorityLevel.Normal)
         {
             ArgumentNullException.ThrowIfNull(action);
-            BuilderProperties.GetOrCreateValue(builder).DeferredActions.Add(action);
+            var properties = BuilderProperties.GetOrCreateValue(builder);
+
+            properties.DeferredActionSequence++;
+            properties.DeferredActions.Enqueue(action, new PrioritySortOrder<ushort>(priority, properties.DeferredActionSequence));
         }
 
         private void ExecuteDeferredActions()
         {
-            var extraProperties = BuilderProperties.GetOrCreateValue(builder);
+            var properties = BuilderProperties.GetOrCreateValue(builder);
+            var queue = properties.DeferredActions;
 
-            foreach (var action in extraProperties.DeferredActions)
+            while (queue.TryDequeue(out var action, out _))
             {
                 action(builder);
             }
-
-            extraProperties.DeferredActions.Clear();
         }
 
         public void AddBuilder<T>(T builderInstance)
@@ -114,7 +117,9 @@ public static class HostApplicationBuilderExtensions
 
     internal class ExtraProperties
     {
-        public List<Action<IHostApplicationBuilder>> DeferredActions { get; } = [];
+        public ushort DeferredActionSequence { get; set; }
+        public PriorityQueue<Action<IHostApplicationBuilder>, PrioritySortOrder<ushort>> DeferredActions { get; } = new();
+
         public Dictionary<Type, IBuilderContext> BuilderContexts { get; } = [];
     }
 }

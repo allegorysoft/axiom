@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed;
+using Allegory.Axiom.Priority;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
@@ -191,7 +192,7 @@ file record RabbitOrderedTestEvent
     public List<string> Items { get; init; } = [];
 }
 
-[EventOrder(1)]
+[Priority(PriorityLevel.High)]
 file class RabbitOrderedTestEventHandler1 : IDistributedEventHandler<RabbitOrderedTestEvent>
 {
     public Task HandleAsync(RabbitOrderedTestEvent payload, EventContext context)
@@ -201,7 +202,7 @@ file class RabbitOrderedTestEventHandler1 : IDistributedEventHandler<RabbitOrder
     }
 }
 
-[EventOrder(3)]
+[Priority(PriorityLevel.Low)]
 file class RabbitOrderedTestEventHandler3 : IDistributedEventHandler<RabbitOrderedTestEvent>
 {
     public List<string>? CapturedOrder { get; private set; }
@@ -214,7 +215,7 @@ file class RabbitOrderedTestEventHandler3 : IDistributedEventHandler<RabbitOrder
     }
 }
 
-[EventOrder(2)]
+[Priority(PriorityLevel.Normal)]
 file class RabbitOrderedTestEventHandler2 : IDistributedEventHandler<RabbitOrderedTestEvent>
 {
     public Task HandleAsync(RabbitOrderedTestEvent payload, EventContext context)

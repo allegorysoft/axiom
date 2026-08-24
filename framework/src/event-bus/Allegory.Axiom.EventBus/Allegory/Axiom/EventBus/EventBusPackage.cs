@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.EventBus.Local;
 using Allegory.Axiom.Hosting;
+using Allegory.Axiom.Priority;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -52,7 +53,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
 
     private static void RegisterEvents(IHostApplicationBuilder builder)
     {
-        var targetAssembly = typeof(EventOrderAttribute).Assembly;
+        var targetAssembly = typeof(TopicNameAttribute).Assembly;
 
         var assemblies = builder.GetAxiomApplication().Assemblies
             .Where(a => a.GetReferencedAssemblies()
@@ -127,7 +128,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericEventType)
                 .Select(i => (EventType: i.GetGenericArguments()[0], HandlerType: t)))
             .GroupBy(x => x.EventType, x => x.HandlerType)
-            .ToFrozenDictionary(g => g.Key, g => g.OrderBy(EventOrderAttribute.Get).ToImmutableArray());
+            .ToFrozenDictionary(g => g.Key, g => g.OrderBy(PriorityAttribute.Get).ToImmutableArray());
     }
 
     public static async Task InitializeAsync(IHost host)

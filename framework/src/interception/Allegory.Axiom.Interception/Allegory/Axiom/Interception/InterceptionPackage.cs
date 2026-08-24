@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Hosting;
+using Allegory.Axiom.Priority;
 using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Interception;
@@ -14,7 +15,7 @@ internal sealed class InterceptionPackage : IConfigureApplication
 
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.AddDeferredAction(static b => ServiceInterceptorBinder.Apply(b.Services));
+        builder.AddDeferredAction(static b => ServiceInterceptorBinder.Apply(b.Services), (PriorityLevel)byte.MaxValue);
 
         return Task.CompletedTask;
     }

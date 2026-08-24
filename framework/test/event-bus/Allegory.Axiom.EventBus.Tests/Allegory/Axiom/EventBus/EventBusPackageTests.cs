@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.EventBus.Local;
+using Allegory.Axiom.Priority;
 using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
@@ -71,37 +72,37 @@ file class DistributedTestEventHandler : IDistributedEventHandler<DistributedTes
 
 file record OrderedTestEvent {}
 
-[EventOrder(2)]
+[Priority(PriorityLevel.Normal)]
 file class OrderedTestEventHandler2 : ILocalEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
 }
 
-[EventOrder(3)]
+[Priority(PriorityLevel.Low)]
 file class OrderedTestEventHandler3 : ILocalEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
 }
 
-[EventOrder(1)]
+[Priority(PriorityLevel.High)]
 file class OrderedTestEventHandler1 : ILocalEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload) => Task.CompletedTask;
 }
 
-[EventOrder(2)]
+[Priority(PriorityLevel.Normal)]
 file class DistributedOrderedTestEventHandler2 : IDistributedEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
-[EventOrder(3)]
+[Priority(PriorityLevel.Low)]
 file class DistributedOrderedTestEventHandler3 : IDistributedEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
 }
 
-[EventOrder(1)]
+[Priority(PriorityLevel.High)]
 file class DistributedOrderedTestEventHandler1 : IDistributedEventHandler<OrderedTestEvent>
 {
     public Task HandleAsync(OrderedTestEvent payload, EventContext context) => Task.CompletedTask;
