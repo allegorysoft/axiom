@@ -1,1 +1,1 @@
-export {}
+export { accountRoutes } from './routes';
