@@ -4,7 +4,7 @@
     "moduleResolution": "bundler",
     "outDir": "dist",
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
-    "types": ["@react-router/node", "vite/client", "node"],
+    "types": ["vite/client", "node"],
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "resolveJsonModule": true,
@@ -16,21 +16,10 @@
   "include": [
     "app/**/*.ts",
     "app/**/*.tsx",
-    "**/.server/**/*.ts",
-    "**/.server/**/*.tsx",
-    "**/.client/**/*.ts",
-    "**/.client/**/*.tsx",
     "../../libs/core/src/index.ts",
     "../../libs/oauth/src/index.ts",
     "../../libs/account/src/index.ts",
     "../../libs/theme/src/components/index.ts"
   ],
-  "exclude": [
-    "out-tsc",
-    "dist",
-    "tests/**/*.spec.ts",
-    "tests/**/*.test.ts",
-    "tests/**/*.spec.tsx",
-    "tests/**/*.test.tsx"
-  ]
+  "exclude": ["out-tsc", "dist", "build"]
 }

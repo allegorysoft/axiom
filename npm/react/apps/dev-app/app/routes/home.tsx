@@ -4,7 +4,7 @@ import { useTranslation } from '@axiomframework/react-core';
 import { oAuthProvider, useOAuth } from '@axiomframework/react-oauth';
 import { Button } from '@axiomframework/react-theme/components';
 
-export default function Home() {
+export function Component() {
   const navigate = useNavigate();
   const t = useTranslation('AxiomIdentity');
   const auth = useOAuth((s) => s.token);
@@ -15,7 +15,7 @@ export default function Home() {
   }, [auth?.accessToken]);
 
   function logIn() {
-    oAuthProvider.get().redirectToLogin(() => navigate('/login'));
+    oAuthProvider.get().redirectToLogin(() => navigate('/account/login'));
   }
 
   function logOut() {
