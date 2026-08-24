@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -6,6 +7,11 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 internal sealed class EntityFrameworkCorePackage : IConfigureApplication
 {
+    static  EntityFrameworkCorePackage()
+    {
+        AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor));
+    }
+
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.AddDeferredAction(static b =>
