@@ -34,7 +34,7 @@ public static class ServiceCollectionExtensions
             services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
         }
 
-        public void ConfigureAxiomDbContexts(Action<AxiomDbContextGlobalOptions> optionsAction)
+        public void ConfigureAxiomDbContexts(Action<AxiomDbContextsOptions> optionsAction)
         {
             services.Configure(optionsAction);
         }
@@ -52,7 +52,7 @@ public static class ServiceCollectionExtensions
         AxiomDbContextOptionsBuilder builder)
         where TContext : DbContext
     {
-        services.Configure<AxiomDbContextGlobalOptions>(o => o.AddContext(typeof(TContext)));
+        services.Configure<AxiomDbContextsOptions>(o => o.AddContext(typeof(TContext)));
 
         services.Configure<AxiomDbContextOptions<TContext>>(o =>
         {
@@ -67,7 +67,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContextFactory<TContext>(static (sp, o) =>
         {
-            var globalOptions = sp.GetRequiredService<IOptions<AxiomDbContextGlobalOptions>>().Value;
+            var globalOptions = sp.GetRequiredService<IOptions<AxiomDbContextsOptions>>().Value;
             globalOptions.SharedBuilderAction?.Invoke(o);
 
             var contextOptions = sp.GetRequiredService<IOptions<AxiomDbContextOptions<TContext>>>().Value;
