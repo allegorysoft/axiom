@@ -1,4 +1,13 @@
 {
+  "AxiomAccount": {
+    "SignIn": "Giriş yap",
+    "SignUp": "Kayıt ol",
+    "EmailOrUsername": "Email veya kullanıcı adı",
+    "Password": "Şifre",
+    "OrContinueWith": "veya şununla devam et",
+    "GetStartedWithAxiom": "Axiom ile başla",
+    "SignInOrCreateAccount": "Giriş yap veya bir hesap oluştur."
+  },
   "AxiomIdentity": {
     "Welcome": "Hoşgeldin i18n, {name}"
   }

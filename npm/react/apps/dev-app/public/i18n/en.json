@@ -1,4 +1,13 @@
 {
+  "AxiomAccount": {
+    "SignIn": "Sign in",
+    "SignUp": "Sign up",
+    "EmailOrUsername": "Email or username",
+    "Password": "Password",
+    "OrContinueWith": "Or continue with",
+    "GetStartedWithAxiom": "Get started with Axiom",
+    "SignInOrCreateAccount": "Sign in or create an account."
+  },
   "AxiomIdentity": {
     "Welcome": "Welcome i18n, {name}"
   }
