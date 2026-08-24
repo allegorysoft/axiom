@@ -3,8 +3,8 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/account/src",
   "projectType": "library",
-  "tags": ["scope:framework"],
-  "implicitDependencies": ["oauth", "theme"],
+  "tags": ["scope:module"],
+  "implicitDependencies": ["core", "oauth", "theme"],
   "targets": {
     "build": {
       "options": {

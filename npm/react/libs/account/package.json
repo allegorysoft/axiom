@@ -20,7 +20,8 @@
     }
   },
   "peerDependencies": {
-    "react": "catalog:"
+    "react": "catalog:",
+    "react-router": "catalog:"
   },
   "dependencies": {
     "lucide-react": "catalog:",
