@@ -3,7 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Allegory.Axiom.Disposables;
 using Allegory.Axiom.Hosting;
+using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
@@ -80,6 +82,50 @@ public abstract class IntegrationTest : IAsyncLifetime
     protected virtual Task ConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
 
     protected virtual Task PostConfigureAsync(IHostApplicationBuilder builder) => Task.CompletedTask;
+
+    public virtual IAsyncDisposable BeginAutoCompletingUnitOfWork(
+        IServiceProvider? provider = null,
+        UnitOfWorkOptions? options = null)
+    {
+        provider ??= Host.Services;
+        var manager = provider.GetRequiredService<IUnitOfWorkManager>();
+        var uow = manager.Begin(options, provider);
+        return new AsyncDisposableDelegate<IUnitOfWork>(
+            static async s => { await s.TryCompleteAsync(); },
+            uow);
+    }
+
+    public virtual async Task RunInUnitOfWorkAsync(
+        Action<IUnitOfWork> action,
+        IServiceProvider? provider = null,
+        UnitOfWorkOptions? options = null)
+    {
+        provider ??= Host.Services;
+        var manager = provider.GetRequiredService<IUnitOfWorkManager>();
+        await using var uow = manager.Begin(options, provider);
+        action(uow);
+        
+        if (uow.State != UnitOfWorkState.Committed)
+        {
+            await uow.TryCompleteAsync();
+        }
+    }
+
+    public virtual async Task RunInUnitOfWorkAsync(
+        Func<IUnitOfWork, Task> func,
+        IServiceProvider? provider = null,
+        UnitOfWorkOptions? options = null)
+    {
+        provider ??= Host.Services;
+        var manager = provider.GetRequiredService<IUnitOfWorkManager>();
+        await using var uow = manager.Begin(options, provider);
+        await func(uow);
+
+        if (uow.State != UnitOfWorkState.Committed)
+        {
+            await uow.TryCompleteAsync();
+        }
+    }
 
     public virtual T Service<T>() where T : notnull
     {
