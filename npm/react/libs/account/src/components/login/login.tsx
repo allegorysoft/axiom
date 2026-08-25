@@ -1,10 +1,14 @@
 import { useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router';
 import { EyeIcon, EyeOffIcon, LockIcon, MailIcon } from 'lucide-react';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { useTranslation } from '@axiomframework/react-core';
+import {
+  getOrSetAuthProvider,
+  useTranslation,
+} from '@axiomframework/react-core';
 import { cn } from '@axiomframework/react-theme';
 import {
   Button,
@@ -24,7 +28,7 @@ import {
   TabsTrigger,
 } from '@axiomframework/react-theme/components';
 
-import validators from './validators';
+import { schema, LoginParams } from './validators';
 
 export function loader() {
   return null;
@@ -38,7 +42,7 @@ export function Component({
   className,
   ...props
 }: React.ComponentProps<'div'>) {
-  const t = useTranslation('AxiomAccount');
+  const t = useTranslation();
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10 rounded">
@@ -57,7 +61,7 @@ export function Component({
                            data-[state=active]:bg-neutral-700 data-[state=active]:text-white
                            data-[state=active]:shadow-sm hover:cursor-pointer"
                   >
-                    {t('SignIn')}
+                    {t('AxiomAccount:SignIn')}
                   </TabsTrigger>
                   <TabsTrigger
                     value="signup"
@@ -65,16 +69,16 @@ export function Component({
                            data-[state=active]:bg-neutral-700 data-[state=active]:text-white
                            data-[state=active]:shadow-sm hover:cursor-pointer"
                   >
-                    {t('SignUp')}
+                    {t('AxiomAccount:SignUp')}
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="signin">
-                  <SignInContent />
+                  <SignIn />
                 </TabsContent>
 
                 <TabsContent value="signup">
-                  <SignUpContent />
+                  <SignUp />
                 </TabsContent>
 
                 <FieldDescription className="!mt-auto mb-2 pt-8 !text-xs text-center mx-2">
@@ -89,7 +93,7 @@ export function Component({
                 </FieldDescription>
               </Tabs>
 
-              <SignInHero />
+              <Hero />
             </CardContent>
           </Card>
         </div>
@@ -98,21 +102,26 @@ export function Component({
   );
 }
 
-function SignInContent() {
-  const t = useTranslation('AxiomAccount');
+function SignIn() {
+  const t = useTranslation();
+  const navigate = useNavigate();
+  const [params] = useSearchParams();
 
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
-    resolver: zodResolver(validators),
+  } = useForm<LoginParams>({
+    resolver: zodResolver(schema),
     mode: 'onSubmit',
   });
 
-  const onSubmit = (data: unknown) => {
-    console.log(data);
+  const onSubmit = async (input: LoginParams) => {
+    const provider = getOrSetAuthProvider();
+    await provider.get().login(input.username, input.password);
+    const returnUrl = params.get('returnUrl') || '/';
+    navigate(returnUrl);
   };
 
   return (
@@ -125,13 +134,17 @@ function SignInContent() {
           <div className="flex flex-col items-center gap-2 text-center">
             <AxiomLogo />
 
-            <h1 className="text-2xl font-bold">{t('GetStartedWithAxiom')}</h1>
+            <h1 className="text-2xl font-bold">
+              {t('AxiomAccount:GetStartedWithAxiom')}
+            </h1>
             <p className="text-balance text-muted-foreground">
-              {t('SignInOrCreateAccount')}
+              {t('AxiomAccount:SignInOrCreateAccount')}
             </p>
           </div>
           <Field>
-            <FieldLabel htmlFor="username">{t('EmailOrUsername')}</FieldLabel>
+            <FieldLabel htmlFor="username">
+              {t('AxiomAccount:EmailOrUsername')}
+            </FieldLabel>
             <InputGroup>
               <InputGroupAddon>
                 <MailIcon />
@@ -142,13 +155,15 @@ function SignInContent() {
                 id="username"
                 name="username"
                 type="text"
-                placeholder={t('EmailOrUsername')}
+                placeholder={t('AxiomAccount:EmailOrUsername')}
               />
             </InputGroup>
             <p className="text-red-400">{errors.username?.message}</p>
           </Field>
           <Field>
-            <FieldLabel htmlFor="password">{t('Password')}</FieldLabel>
+            <FieldLabel htmlFor="password">
+              {t('AxiomAccount:Password')}
+            </FieldLabel>
 
             <InputGroup>
               <InputGroupAddon>
@@ -160,7 +175,7 @@ function SignInContent() {
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                placeholder={t('Password')}
+                placeholder={t('AxiomAccount:Password')}
               />
 
               <InputGroupAddon align="inline-end">
@@ -182,11 +197,11 @@ function SignInContent() {
               variant="secondary"
               className="h-10 bg-blue-600/90 text-white hover:bg-blue-600"
             >
-              {t('SignIn')}
+              {t('AxiomAccount:SignIn')}
             </Button>
           </Field>
           <FieldSeparator className="*:data-[slot=field-separator-content]:bg-muted">
-            {t('OrContinueWith')}
+            {t('AxiomAccount:OrContinueWith')}
           </FieldSeparator>
           <Field className="grid grid-cols-4 gap-4">
             <Button variant="outline" type="button">
@@ -232,7 +247,7 @@ function SignInContent() {
   );
 }
 
-function SignUpContent() {
+function SignUp() {
   return <form className="p-6 md:p-8"></form>;
 }
 
@@ -307,7 +322,7 @@ function AxiomLogo() {
   );
 }
 
-function SignInHero() {
+function Hero() {
   return (
     <div className="relative hidden overflow-hidden bg-[#171717] lg:flex rounded-xl">
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.045)_1px,transparent_1px)] bg-[64px_64px]" />

@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
-export default z
+export const schema = z
   .object({
-    username: z.string().min(3).nonoptional(),
-    password: z.string().min(6).nonoptional(),
+    username: z.string().trim().min(3).nonoptional(),
+    password: z.string().trim().min(5).nonoptional(),
   })
   .required();
+
+export type LoginParams = z.infer<typeof schema>;
