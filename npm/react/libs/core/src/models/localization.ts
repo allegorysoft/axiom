@@ -25,7 +25,6 @@ export interface LocalizerState {
 export interface LocalizerStore extends AxiomStore<LocalizerState> {
   localize(
     key: string,
-    moduleName?: string,
     args?: Record<string, unknown> | readonly unknown[],
   ): string;
 

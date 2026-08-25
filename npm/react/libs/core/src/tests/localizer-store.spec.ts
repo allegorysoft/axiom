@@ -165,11 +165,11 @@ describe('localizer-store', () => {
     });
 
     it('formats translated text with arguments', () => {
-      expect(localizerStore.localize('Hello', 'Default', { name: 'Ada' })).toBe(
+      expect(localizerStore.localize('Default:Hello', { name: 'Ada' })).toBe(
         'Hello, Ada!',
       );
 
-      expect(localizerStore.localize('Total', 'Checkout', ['$42'])).toBe(
+      expect(localizerStore.localize('Checkout:Total', ['$42'])).toBe(
         'Total: $42',
       );
     });

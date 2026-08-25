@@ -30,17 +30,25 @@ export const localizerStore: LocalizerStore = Object.assign(baseStore, {
   /**
    * Imperative translation API
    * @param key
-   * @param moduleName
    * @param args
    * @returns
    */
   localize(
     key: string,
-    moduleName?: string,
     args: Record<string, unknown> | readonly unknown[] = [],
   ): string {
-    const module = baseStore.get().translations[moduleName ?? 'Default'];
-    const value = module?.[key] ?? key;
+    let moduleName = 'Default';
+    let translationKey = key;
+
+    const separator = key.indexOf(':');
+
+    if (separator > 0) {
+      moduleName = key.slice(0, separator);
+      translationKey = key.slice(separator + 1);
+    }
+
+    const module = baseStore.get().translations[moduleName];
+    const value = module?.[translationKey] ?? key;
 
     if (Array.isArray(args)) {
       return args.length > 0 ? format(value, args) : value;
