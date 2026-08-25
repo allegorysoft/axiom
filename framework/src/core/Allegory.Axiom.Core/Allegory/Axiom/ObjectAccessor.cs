@@ -29,11 +29,6 @@ public static class ObjectAccessor
         string propertyName,
         TValue value)
     {
-        if (obj is null)
-        {
-            return;
-        }
-
         var property = GetOrAddPropertyInfo(obj.GetType(), propertyName);
         property?.SetValue(obj, value);
     }
@@ -57,11 +52,6 @@ public static class ObjectAccessor
         string propertyName,
         Func<TValue> factory)
     {
-        if (obj is null)
-        {
-            return;
-        }
-
         var property = GetOrAddPropertyInfo(obj.GetType(), propertyName);
         property?.SetValue(obj, factory());
     }
