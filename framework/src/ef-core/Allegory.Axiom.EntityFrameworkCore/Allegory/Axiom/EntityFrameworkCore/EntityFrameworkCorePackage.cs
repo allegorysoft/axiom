@@ -10,6 +10,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
     static  EntityFrameworkCorePackage()
     {
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor));
+        AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(Microsoft.EntityFrameworkCore.Diagnostics.ISaveChangesInterceptor));
     }
 
     public static Task ConfigureAsync(IHostApplicationBuilder builder)

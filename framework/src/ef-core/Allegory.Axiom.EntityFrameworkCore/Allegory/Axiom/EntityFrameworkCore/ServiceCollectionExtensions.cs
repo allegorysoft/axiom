@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Allegory.Axiom.EntityFrameworkCore.Interceptors;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -73,6 +74,8 @@ public static class ServiceCollectionExtensions
             var contextOptions = sp.GetRequiredService<IOptions<AxiomDbContextOptions<TContext>>>().Value;
             var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
             builderAction?.Invoke(o);
+
+            o.AddInterceptors(sp.GetRequiredService<AxiomSaveChangesInterceptor>());
         });
     }
 
