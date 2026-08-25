@@ -6,7 +6,7 @@ import { Button } from '@axiomframework/react-theme/components';
 
 export function Component() {
   const navigate = useNavigate();
-  const t = useTranslation('AxiomIdentity');
+  const t = useTranslation();
   const auth = useOAuth((s) => s.token);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -24,9 +24,17 @@ export function Component() {
 
   return (
     <>
-      <span className="mx-3">{t('Welcome', { name: 'Masum' })}</span>
-      {!isAuthenticated && <Button onClick={logIn}>{t('Login')}</Button>}
-      {isAuthenticated && <Button onClick={logOut}>{t('Logout')}</Button>}
+      {!isAuthenticated && (
+        <Button onClick={logIn}>{t('AxiomAccount:SignIn')} </Button>
+      )}
+      {isAuthenticated && (
+        <>
+          <span className="mx-3">
+            {t('AxiomIdentity:Welcome', { name: 'Masum' })}
+          </span>
+          <Button onClick={logOut}>{t('AxiomAccount:Logout')} </Button>
+        </>
+      )}
     </>
   );
 }

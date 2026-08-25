@@ -1,3 +1,3 @@
-export default function About() {
+export function Component() {
   return <h1>About</h1>;
 }
