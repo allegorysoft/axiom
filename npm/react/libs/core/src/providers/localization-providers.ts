@@ -25,12 +25,12 @@ function remoteLocalizationProvider(
   };
 }
 
-type JsonFileProviderOptions = {
+type ClientProviderOptions = {
   readonly fileNameOrPath: string;
 };
 
-function jsonFileLocalizationProvider(
-  options: JsonFileProviderOptions,
+function clientLocalizationProvider(
+  options: ClientProviderOptions,
 ): Provider<Translations> {
   return {
     provide() {
@@ -42,4 +42,4 @@ function jsonFileLocalizationProvider(
   };
 }
 
-export { remoteLocalizationProvider, jsonFileLocalizationProvider };
+export { remoteLocalizationProvider, clientLocalizationProvider };

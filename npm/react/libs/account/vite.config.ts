@@ -31,7 +31,21 @@ export default defineConfig(() => ({
       formats: ['es' as const],
     },
     rolldownOptions: {
-      external: ['react'],
+      external: [
+        /^react$/,
+        /^react-dom(\/.*)?$/,
+        /^react\/jsx-runtime$/,
+        /^@base-ui/,
+        'react-router',
+        'lucide-react',
+        'react-hook-form',
+        /^@hookform/,
+        /^@axiomframework/,
+        'zod',
+        'clsx',
+        'class-variance-authority',
+        'tailwind-merge',
+      ],
       output: {
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),

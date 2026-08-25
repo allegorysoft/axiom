@@ -6,7 +6,8 @@
     "Password": "Password",
     "OrContinueWith": "or continue with",
     "GetStartedWithAxiom": "Get started with Axiom",
-    "SignInOrCreateAccount": "Sign in or create an account."
+    "SignInOrCreateAccount": "Sign in or create an account.",
+    "Logout": "Logout"
   },
   "AxiomIdentity": {
     "Welcome": "Welcome i18n, {name}"
