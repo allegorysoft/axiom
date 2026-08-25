@@ -8,7 +8,7 @@ namespace Allegory.Axiom;
 public static class ObjectAccessor
 {
     private static readonly ConcurrentDictionary<
-        (Type ObjectType, string PropertyName), PropertyInfo?> PropertyCache = new();
+        Type, ConcurrentDictionary<string, PropertyInfo?>> PropertyCache = new();
 
     public static void TrySetProperty<TObject, TValue>(
         TObject obj,
@@ -34,8 +34,7 @@ public static class ObjectAccessor
             return;
         }
 
-        var key = (ObjectType: obj.GetType(), PropertyName: propertyName);
-        var property = PropertyCache.GetOrAdd(key, static k => GetPropertyInfo(k.ObjectType, k.PropertyName));
+        var property = GetOrAddPropertyInfo(obj.GetType(), propertyName);
         property?.SetValue(obj, value);
     }
 
@@ -63,9 +62,15 @@ public static class ObjectAccessor
             return;
         }
 
-        var key = (ObjectType: obj.GetType(), PropertyName: propertyName);
-        var property = PropertyCache.GetOrAdd(key, static k => GetPropertyInfo(k.ObjectType, k.PropertyName));
+        var property = GetOrAddPropertyInfo(obj.GetType(), propertyName);
         property?.SetValue(obj, factory());
+    }
+
+    private static PropertyInfo? GetOrAddPropertyInfo(Type objectType, string propertyName)
+    {
+        var typeCache =
+            PropertyCache.GetOrAdd(objectType, static _ => new ConcurrentDictionary<string, PropertyInfo?>());
+        return typeCache.GetOrAdd(propertyName, static (name, type) => GetPropertyInfo(type, name), objectType);
     }
 
     private static string? GetPropertyName<TObject, TValue>(Expression<Func<TObject, TValue>> selector)
@@ -76,7 +81,6 @@ public static class ObjectAccessor
             UnaryExpression {NodeType: ExpressionType.Convert} unary => unary.Operand as MemberExpression,
             _ => null
         };
-
         return memberExpression?.Member.Name;
     }
 
@@ -85,7 +89,6 @@ public static class ObjectAccessor
         var propertyInfo = objectType.GetProperty(
             propertyName,
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
-
         if (propertyInfo is null)
         {
             return null;
