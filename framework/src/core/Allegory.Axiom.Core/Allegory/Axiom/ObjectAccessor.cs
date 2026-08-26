@@ -13,7 +13,7 @@ public static class ObjectAccessor
     public static void TrySetProperty<TObject, TValue>(
         TObject obj,
         Expression<Func<TObject, TValue>> selector,
-        TValue value)
+        TValue value) where TObject : notnull
     {
         var propertyName = GetPropertyName(selector);
         if (propertyName is null)
@@ -27,7 +27,7 @@ public static class ObjectAccessor
     public static void TrySetProperty<TObject, TValue>(
         TObject obj,
         string propertyName,
-        TValue value)
+        TValue value) where TObject : notnull
     {
         var property = GetOrAddPropertyInfo(obj.GetType(), propertyName);
         property?.SetValue(obj, value);
