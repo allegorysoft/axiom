@@ -22,6 +22,7 @@ public class AxiomSaveChangesInterceptor(
     protected ILocalEventBus LocalEventBus { get; } = localEventBus;
     protected TimeProvider TimeProvider { get; } = timeProvider;
 
+    // Each save change call invokes interceptor methods
     // Order, OrderLine relation behavior; When we change only OrderLine does these interceptors invoked?
 
     public override InterceptionResult<int> SavingChanges(
@@ -43,6 +44,8 @@ public class AxiomSaveChangesInterceptor(
 
     protected virtual void Handle(DbContext? context)
     {
+        // entry.Metadata.FindOwnership();
+
         if (context is null)
         {
             return;
@@ -53,12 +56,16 @@ public class AxiomSaveChangesInterceptor(
             switch (entry.State)
             {
                 case EntityState.Added:
-                    HandleCreation(entry);
+                    HandleCreate(entry);
                     break;
 
                 case EntityState.Modified:
+                    HandleUpdate(entry);
+                    break;
 
                 case EntityState.Deleted:
+                    HandleDelete(entry);
+                    break;
 
                 case EntityState.Detached:
                 case EntityState.Unchanged:
@@ -68,27 +75,66 @@ public class AxiomSaveChangesInterceptor(
         }
     }
 
-    protected virtual void HandleCreation(EntityEntry entry)
+    protected virtual void HandleCreate(EntityEntry entry)
     {
         var entity = entry.Entity;
 
-        // if (entity is ICreationAudited)
-        // {
-        //     ObjectAccessor.TrySetProperty(
-        //         entity,
-        //         nameof(ICreationAudited.CreatedAt),
-        //         TimeProvider.GetUtcNow().DateTime);
-        //
-        //     var principalId = PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
-        //     if (principalId != null)
-        //     {
-        //         ObjectAccessor.TrySetProperty(
-        //             entity,
-        //             nameof(ICreationAudited.CreatedBy),
-        //             principalId);
-        //     }
-        // }
+        if (entity is ICreationAudited audited)
+        {
+            if (audited.CreatedAt == default)
+            {
+                entry.Property(nameof(ICreationAudited.CreatedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
+            }
 
+            if (string.IsNullOrWhiteSpace(audited.CreatedBy))
+            {
+                var principalId = PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
+                if (principalId != null)
+                {
+                    entry.Property(nameof(ICreationAudited.CreatedBy)).CurrentValue = principalId;
+                }
+            }
+        }
+
+        // entry.Metadata.ClrType;
+        // LocalEventBus.PublishAsync() entity changed or SavedChanges ?
+    }
+
+    protected virtual void HandleUpdate(EntityEntry entry)
+    {
+        var entity = entry.Entity;
+        var obj = entry.OriginalValues.ToObject();
+
+        if (entity is IModificationAudited)
+        {
+            entry.Property(nameof(IModificationAudited.ModifiedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
+            entry.Property(nameof(IModificationAudited.ModifiedBy)).CurrentValue =
+                PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
+        }
+
+        // entry.Metadata.ClrType;
+        // LocalEventBus.PublishAsync() entity changed or SavedChanges ?
+    }
+
+    protected virtual void HandleDelete(EntityEntry entry)
+    {
+        var entity = entry.Entity;
+
+        if (entity is ISoftDelete)
+        {
+            entry.State = EntityState.Modified;
+
+            entry.Property(nameof(ISoftDelete.IsDeleted)).CurrentValue = true;
+
+            if (entity is IDeletionAudited)
+            {
+                entry.Property(nameof(IDeletionAudited.DeletedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
+                entry.Property(nameof(IDeletionAudited.DeletedBy)).CurrentValue =
+                    PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
+            }
+        }
+
+        // entry.Metadata.ClrType;
         // LocalEventBus.PublishAsync() entity changed or SavedChanges ?
     }
 }
