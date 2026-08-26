@@ -9,26 +9,19 @@ import {
   getOrSetAuthProvider,
   useTranslation,
 } from '@axiomframework/react-core';
-import { cn } from '@axiomframework/react-theme';
 import {
   Button,
-  Card,
-  CardContent,
+  AxButton,
   Field,
-  FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldSeparator,
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
 } from '@axiomframework/react-theme/components';
 
-import { schema, LoginParams } from './validators';
+import { schema, LoginParams } from './login-schema';
 
 export function loader() {
   return null;
@@ -38,71 +31,7 @@ export function ErrorBoundary() {
   return <div>Failed to load login!</div>;
 }
 
-export function Component({
-  className,
-  ...props
-}: React.ComponentProps<'div'>) {
-  const t = useTranslation();
-
-  return (
-    <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-6 md:p-10 rounded">
-      <div className="w-full max-w-sm md:max-w-6xl">
-        <div className={cn('flex flex-col gap-6', className)} {...props}>
-          <Card className="overflow-hidden bg-white/10 backdrop-blur-xl border border-white/10 transition-colors">
-            <CardContent className="grid lg:grid-cols-2 min-h-[700px] gap-2">
-              <Tabs
-                defaultValue="signin"
-                className="w-full bg-muted rounded-xl py-2 px-2"
-              >
-                <TabsList className="!h-auto grid grid-cols-2 rounded-md p-1 gap-1 border w-full lg:w-[400px] m-auto">
-                  <TabsTrigger
-                    value="signin"
-                    className="py-2 rounded-md text-sm text-neutral-400 border-0
-                           data-[state=active]:bg-neutral-700 data-[state=active]:text-white
-                           data-[state=active]:shadow-sm hover:cursor-pointer"
-                  >
-                    {t('AxiomAccount:SignIn')}
-                  </TabsTrigger>
-                  <TabsTrigger
-                    value="signup"
-                    className="py-2 rounded-md text-sm text-neutral-400 border-0
-                           data-[state=active]:bg-neutral-700 data-[state=active]:text-white
-                           data-[state=active]:shadow-sm hover:cursor-pointer"
-                  >
-                    {t('AxiomAccount:SignUp')}
-                  </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="signin">
-                  <SignIn />
-                </TabsContent>
-
-                <TabsContent value="signup">
-                  <SignUp />
-                </TabsContent>
-
-                <FieldDescription className="!mt-auto mb-2 pt-8 !text-xs text-center mx-2">
-                  Copyright © 2026 Allegorysoft. All rights reserved. &nbsp;
-                  <a href="#" className="text-blue-400 !no-underline">
-                    Terms &amp; Conditions
-                  </a>
-                  <span className="mx-1">|</span>
-                  <a href="#" className="text-blue-400 !no-underline">
-                    Privacy Policy
-                  </a>
-                </FieldDescription>
-              </Tabs>
-
-              <Hero />
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function SignIn() {
+export function Component() {
   const t = useTranslation();
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -119,7 +48,7 @@ function SignIn() {
 
   const onSubmit = async (input: LoginParams) => {
     const provider = getOrSetAuthProvider();
-    await provider.get().login(input.username, input.password);
+    await provider.get().login(input.usernameOrEmail, input.password);
     const returnUrl = params.get('returnUrl') || '/';
     navigate(returnUrl);
   };
@@ -134,15 +63,14 @@ function SignIn() {
           <div className="flex flex-col items-center gap-2 text-center">
             <AxiomLogo />
 
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-lg md:text-2xl font-bold">
               {t('AxiomAccount:GetStartedWithAxiom')}
             </h1>
-            <p className="text-balance text-muted-foreground">
-              {t('AxiomAccount:SignInOrCreateAccount')}
-            </p>
+            <p>{t('AxiomAccount:SignInOrCreateAccount')}</p>
           </div>
+
           <Field>
-            <FieldLabel htmlFor="username">
+            <FieldLabel htmlFor="usernameOrEmail">
               {t('AxiomAccount:EmailOrUsername')}
             </FieldLabel>
             <InputGroup>
@@ -151,15 +79,16 @@ function SignIn() {
               </InputGroupAddon>
 
               <InputGroupInput
-                {...register('username')}
-                id="username"
-                name="username"
+                {...register('usernameOrEmail')}
+                id="usernameOrEmail"
+                name="usernameOrEmail"
                 type="text"
                 placeholder={t('AxiomAccount:EmailOrUsername')}
               />
             </InputGroup>
-            <p className="text-red-400">{errors.username?.message}</p>
+            <p>{errors.usernameOrEmail?.message}</p>
           </Field>
+
           <Field>
             <FieldLabel htmlFor="password">
               {t('AxiomAccount:Password')}
@@ -189,20 +118,17 @@ function SignIn() {
                 </button>
               </InputGroupAddon>
             </InputGroup>
-            <p className="text-red-400">{errors.password?.message}</p>
+            <p>{errors.password?.message}</p>
           </Field>
+
           <Field>
-            <Button
-              type="submit"
-              variant="secondary"
-              className="h-10 bg-blue-600/90 text-white hover:bg-blue-600"
-            >
+            <Button className="h-10" type="submit">
               {t('AxiomAccount:SignIn')}
             </Button>
           </Field>
-          <FieldSeparator className="*:data-[slot=field-separator-content]:bg-muted">
-            {t('AxiomAccount:OrContinueWith')}
-          </FieldSeparator>
+
+          <FieldSeparator>{t('AxiomAccount:OrContinueWith')}</FieldSeparator>
+
           <Field className="grid grid-cols-4 gap-4">
             <Button variant="outline" type="button">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -245,10 +171,6 @@ function SignIn() {
       </FieldGroup>
     </form>
   );
-}
-
-function SignUp() {
-  return <form className="p-6 md:p-8"></form>;
 }
 
 function AxiomLogo() {
@@ -318,52 +240,6 @@ function AxiomLogo() {
           </linearGradient>
         </defs>
       </svg>
-    </div>
-  );
-}
-
-function Hero() {
-  return (
-    <div className="relative hidden overflow-hidden bg-[#171717] lg:flex rounded-xl">
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.045)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.045)_1px,transparent_1px)] bg-[64px_64px]" />
-      <div className="relative z-10 flex w-full flex-col items-center justify-center px-12 pt-8 pb-6 text-center">
-        <div className="mb-16 relative">
-          <div className="absolute -inset-20 rounded-full bg-blue-500/10 blur-3xl" />
-
-          <div className="relative flex items-end gap-3">
-            <div className="flex size-28 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-300 to-pink-500 shadow-[0_20px_50px_rgba(236,72,153,.25)]">
-              <span className="text-5xl">✚</span>
-            </div>
-
-            <div className="flex size-36 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-300 to-violet-500 shadow-[0_25px_60px_rgba(139,92,246,.3)]">
-              <span className="text-5xl font-bold text-white">&lt;/&gt;</span>
-            </div>
-
-            <div className="flex size-28 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-400 to-blue-600 shadow-[0_20px_50px_rgba(59,130,246,.3)]">
-              <span className="text-5xl">▱</span>
-            </div>
-          </div>
-        </div>
-
-        <h2 className="max-w-xl text-3xl font-bold tracking-tight text-white mt-auto">
-          Build Modular .NET Applications
-          <br />
-          Without Rebuilding the Basics
-        </h2>
-
-        <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400">
-          Axiom handles dependency injection, modularity, interception, unit of
-          work, file providers, and localization so developers can focus on
-          application logic instead of repetitive infrastructure.
-        </p>
-
-        <div className="mt-14 flex w-full max-w-xl gap-3 pt-2">
-          <div className="h-1.5 flex-1 rounded-full bg-blue-500" />
-          <div className="h-1.5 flex-1 rounded-full bg-violet-400/70" />
-          <div className="h-1.5 flex-1 rounded-full bg-zinc-700" />
-          <div className="h-1.5 flex-1 rounded-full bg-zinc-700" />
-        </div>
-      </div>
     </div>
   );
 }
