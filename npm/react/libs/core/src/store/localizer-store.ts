@@ -89,6 +89,7 @@ export const localizerStore: LocalizerStore = Object.assign(baseStore, {
     });
 
     if (changed) {
+      document.documentElement.lang = culture.name;
       void reloadHandler?.(culture);
     }
   },
