@@ -40,6 +40,7 @@ export function configureLocalization(options?: LocalizationOptions) {
     providers.push(clientLocalizer(options?.defaultCulture || 'en'));
   }
 
+  //TODO: Invalid approach
   if (options?.providers?.length) {
     providers.push(...options.providers);
   }
@@ -47,10 +48,21 @@ export function configureLocalization(options?: LocalizationOptions) {
   provideInitializers({ configure: () => seed(providers, localizerStore) });
 
   setCultureReloadHandler(async (culture) => {
-    await seed(
-      [remoteProvider(culture.name), clientLocalizer(culture.name)],
-      localizerStore,
-    );
+    const providers: Provider<Translations>[] = [];
+    if (!options?.skipProvider?.remote) {
+      providers.push(remoteProvider(culture.name));
+    }
+
+    if (!options?.skipProvider?.client) {
+      providers.push(clientLocalizer(culture.name));
+    }
+
+    //TODO: Invalid approach
+    if (options?.providers?.length) {
+      providers.push(...options.providers);
+    }
+
+    await seed([...providers], localizerStore);
   });
 }
 

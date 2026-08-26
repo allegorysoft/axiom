@@ -10,7 +10,8 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-router": "catalog:",
-    "isbot": "^5"
+    "isbot": "^5",
+    "lucide-react": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",

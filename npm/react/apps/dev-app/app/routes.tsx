@@ -1,9 +1,11 @@
 import {
   createBrowserRouter,
   isRouteErrorResponse,
+  Outlet,
   useRouteError,
 } from 'react-router';
 import { accountRoutes } from '@axiomframework/react-account';
+import { Header } from './header';
 
 export const routes = createBrowserRouter([
   {
@@ -11,12 +13,18 @@ export const routes = createBrowserRouter([
     ErrorBoundary,
     children: [
       {
-        index: true,
-        lazy: () => import('./routes/home'),
-      },
-      {
-        path: 'about',
-        lazy: () => import('./routes/about'),
+        path: '',
+        Component: Layout,
+        children: [
+          {
+            index: true,
+            lazy: () => import('./routes/home'),
+          },
+          {
+            path: 'about',
+            lazy: () => import('./routes/about'),
+          },
+        ],
       },
       {
         path: 'account',
@@ -25,6 +33,17 @@ export const routes = createBrowserRouter([
     ],
   },
 ]);
+
+function Layout() {
+  return (
+    <>
+      <Header />
+      <main>
+        <Outlet />
+      </main>
+    </>
+  );
+}
 
 export function ErrorBoundary() {
   const error = useRouteError();

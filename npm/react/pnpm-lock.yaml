@@ -206,6 +206,9 @@ importers:
       isbot:
         specifier: ^5
         version: 5.2.1
+      lucide-react:
+        specifier: 'catalog:'
+        version: 1.17.0(react@19.2.8)
       react:
         specifier: 'catalog:'
         version: 19.2.8
