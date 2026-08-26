@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore.Design;
 
 namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 
-public class DbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
+public class DbContextFactory : IDesignTimeDbContextFactory<App2DbContext>
 {
-    public AppDbContext CreateDbContext(string[] args)
+    public App2DbContext CreateDbContext(string[] args)
     {
-        // dotnet ef migrations add Initial --context AppDbContext -o Migrations/App
-        var options = new DbContextOptionsBuilder<AppDbContext>()
+        // dotnet ef migrations add Initial --context App2DbContext -o Migrations/App
+        var options = new DbContextOptionsBuilder<App2DbContext>()
             .UseSqlite()
             .Options;
 
-        return new AppDbContext(options);
+        return new App2DbContext(options);
     }
 }

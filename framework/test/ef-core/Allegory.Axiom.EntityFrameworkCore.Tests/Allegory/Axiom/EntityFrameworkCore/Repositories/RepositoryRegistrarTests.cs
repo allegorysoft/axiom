@@ -131,7 +131,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HybridDbContext>();
             },
             postConfigure: builder =>
@@ -165,7 +164,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HybridDbContext>();
             },
             postConfigure: builder =>
@@ -194,7 +192,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HybridDbContext>();
                 builder.Services.ReplaceRepository<Module1DbContext>(typeof(CustomEfCoreModule1Entity1Repository<>));
             },
@@ -221,7 +218,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HostSideDbContext>();
                 builder.Services.AddAxiomDbContext<TenantSideDbContext>();
             },
@@ -275,7 +271,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HostSideDbContext>();
                 builder.Services.AddAxiomDbContext<TenantSideDbContext>();
             },
@@ -289,22 +284,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
             });
     }
 }
-
-file class App1DbContext : DbContext
-{
-    public DbSet<App1Entity1> Entity1 { get; set; }
-    public DbSet<App1Entity2> Entity2 { get; set; }
-}
-
-file class App1Entity1 : AggregateRoot<int> { }
-
-file class App1Entity2 : AggregateRoot<int> { }
-
-file interface IApp1Entity1Repository : IRepository<App1Entity1, int> { }
-
-file class EfCoreApp1Entity1Repository(
-    IDbContextProvider<App1DbContext> dbContextProvider)
-    : EfCoreRepository<App1DbContext, App1Entity1, int>(dbContextProvider), IApp1Entity1Repository { }
 
 [ReplaceDbContext(typeof(Module1DbContext), typeof(Module2DbContext), typeof(Module3DbContext))]
 file class HybridDbContext : DbContext
