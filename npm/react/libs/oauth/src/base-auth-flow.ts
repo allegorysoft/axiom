@@ -31,9 +31,8 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
   }
 
   protected async discover(): Promise<void> {
-    const realmName = 'master'; //Tenant
     const configuration = await discovery(
-      new URL(`${this.options.authority}/realms/${realmName}`),
+      new URL(`${this.options.authority}`),
       this.options.clientId,
       {},
       undefined,
