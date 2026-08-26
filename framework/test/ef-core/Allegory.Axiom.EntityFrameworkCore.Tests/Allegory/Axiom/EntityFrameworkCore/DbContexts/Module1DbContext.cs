@@ -37,4 +37,7 @@ public class EfCoreModule1Entity2Repository<TDbContext>(
 
 public class EfCoreModule1ReportRepository<TContext>(
     IDbContextProvider<TContext> dbContextProvider) : IModule1ReportRepository
-    where TContext : DbContext { }
+    where TContext : DbContext
+{
+    protected IDbContextProvider<TContext> DbContextProvider { get; } = dbContextProvider;
+}
