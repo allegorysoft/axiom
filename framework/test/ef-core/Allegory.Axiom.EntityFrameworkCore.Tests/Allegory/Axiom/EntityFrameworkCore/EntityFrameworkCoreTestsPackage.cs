@@ -6,45 +6,20 @@ using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Priority;
-using DiffEngine;
-using Docker.DotNet.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Npgsql;
-using Testcontainers.PostgreSql;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
 internal sealed class EntityFrameworkCoreTestsPackage : IConfigureApplication
 {
-    public static async Task ConfigureAsync(IHostApplicationBuilder builder)
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        await ConfigureDatabaseAsync(builder);
-
         builder.Services.ConfigureAxiomDbContexts(o => { o.DefaultBuilderAction = b => { b.UseSqlite(); }; });
 
         builder.AddDeferredAction(RemoveUnconfiguredDbContextRepositories, PriorityLevel.Low);
-    }
 
-    private static async Task ConfigureDatabaseAsync(IHostApplicationBuilder builder)
-    {
-        var container = new PostgreSqlBuilder("postgres:16")
-            .WithUsername("admin")
-            .WithPassword("admin")
-            .Build();
-
-        await builder.AddTestContainerAsync(container);
-
-        var app2ConnectionStringBuilder = new NpgsqlConnectionStringBuilder(container.GetConnectionString())
-        {
-            Database = "app2"
-        };
-
-        builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["ConnectionStrings:App2"] = app2ConnectionStringBuilder.ConnectionString
-        });
+        return Task.CompletedTask;
     }
 
     private static void RemoveUnconfiguredDbContextRepositories(IHostApplicationBuilder builder)

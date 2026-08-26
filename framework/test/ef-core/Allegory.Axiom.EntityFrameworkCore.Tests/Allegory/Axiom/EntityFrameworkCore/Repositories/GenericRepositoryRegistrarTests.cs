@@ -9,12 +9,14 @@ using Xunit;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
-public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class GenericRepositoryRegistrarTests : IntegrationTest
 {
+    public override ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
     [Fact]
     public async Task ShouldRegisterRepositories()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -48,7 +50,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     [Fact]
     public async Task ShouldUseConfiguredServiceLifetime()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o =>
@@ -72,7 +74,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     [Fact]
     public async Task ShouldRegisterDefaultRepositoryForUncoveredEntityWhenEnabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o =>
@@ -92,7 +94,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     [Fact]
     public async Task ShouldNotRegisterDefaultRepositoryForUncoveredEntityWhenDisabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o =>
@@ -110,7 +112,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     [Fact]
     public async Task ShouldExposeGenericServicesForCoveredEntityWhenEnabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -136,7 +138,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     [Fact]
     public async Task ShouldNotExposeGenericServicesForCoveredEntityWhenDisabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -161,7 +163,7 @@ public class GenericRepositoryRegistrarTests(IntegrationTestFixture fixture) : I
     [Fact]
     public async Task ShouldReplaceExistingRepositoryWithCustomRepository()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>

@@ -11,12 +11,14 @@ using Xunit;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
-public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class RepositoryRegistrarTests : IntegrationTest
 {
+    public override ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
     [Fact]
     public async Task ShouldRegisterRepositories()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder => { builder.Services.AddAxiomDbContext<App1DbContext>(); },
             postConfigure: builder =>
             {
@@ -31,7 +33,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldUseConfiguredServiceLifetime()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o =>
@@ -49,7 +51,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldRegisterDefaultRepositoryForUncoveredEntityWhenEnabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.RegisterDefaultRepositories = true; });
@@ -65,7 +67,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldNotRegisterDefaultRepositoryForUncoveredEntityWhenDisabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.RegisterDefaultRepositories = false; });
@@ -79,7 +81,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldExposeGenericServicesForCoveredEntityWhenEnabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericServices = true; });
@@ -101,7 +103,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldNotExposeGenericServicesForCoveredEntityWhenDisabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericServices = false; });
@@ -121,7 +123,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldUseSpecifiedDbContextForReplacedDbContexts()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -154,7 +156,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldNotRegisterDefaultRepositoryForReplacedContextEntities()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -182,7 +184,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldUseReplacedRepositoryForReplacedDbContext()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -206,7 +208,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldRespectTenancySideWhenReplacingDbContext()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -260,7 +262,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
      [Fact]
     public async Task ShouldRespectRepositorySpecifiedTenancySideWhenReplacingDbContext()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
