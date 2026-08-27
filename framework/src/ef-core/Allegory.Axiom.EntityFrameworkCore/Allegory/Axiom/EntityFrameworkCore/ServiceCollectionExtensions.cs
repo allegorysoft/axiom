@@ -76,7 +76,7 @@ public static class ServiceCollectionExtensions
             builderAction?.Invoke(o);
 
             o.AddInterceptors(sp.GetRequiredService<AuditSaveChangesInterceptor>());
-            o.AddInterceptors(sp.GetRequiredService<EventSaveChangesInterceptor>());
+            o.AddInterceptors(sp.GetRequiredService<EventPublishSaveChangesInterceptor>());
         });
     }
 

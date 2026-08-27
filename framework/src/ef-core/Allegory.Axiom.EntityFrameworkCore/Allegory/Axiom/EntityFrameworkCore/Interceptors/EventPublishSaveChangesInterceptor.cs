@@ -15,7 +15,7 @@ using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Interceptors;
 
-public class EventSaveChangesInterceptor(
+public class EventPublishSaveChangesInterceptor(
     ILocalEventBus localEventBus,
     IOptions<LocalEventBusOptions> localEventBusOptions,
     IDistributedEventBus distributedEventBus)
