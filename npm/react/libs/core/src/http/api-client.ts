@@ -1,4 +1,4 @@
-import { environmentStore } from '../store/environment-store';
+import { environmentStore } from '../environment/environment-store';
 import { HttpRequest } from './http-client';
 import { getHttpClient } from './http-client-factory';
 

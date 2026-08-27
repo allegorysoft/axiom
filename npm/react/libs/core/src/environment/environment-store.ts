@@ -1,11 +1,11 @@
-import { createStore } from './axiom-store';
+import { createStore } from '../store/axiom-store';
 import type { OAuth } from '../models/oauth';
 import type {
   Environment,
   Endpoint,
   EnvironmentState,
   EnvironmentStore,
-} from '../models/environment';
+} from './environment';
 import { isDevMode } from '../utils/is-dev-mode';
 
 const initialState: EnvironmentState = { environment: undefined };
