@@ -1,5 +1,5 @@
 import { createStoreHook } from '../store/axiom-store';
-import { localizerStore } from '../localization/localizer-store';
+import { localizerStore } from './localizer-store';
 
 export const useLocalizer = createStoreHook(localizerStore);
 
