@@ -3,25 +3,24 @@
   "type": "module",
   "version": "0.0.0",
   "scripts": {
-    "dev": "react-router dev",
-    "build": "react-router build"
+    "dev": "vite",
+    "build": "vite build"
   },
   "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-router": "catalog:",
-    "@react-router/node": "catalog:",
-    "@react-router/serve": "catalog:",
-    "isbot": "^5"
+    "isbot": "^5",
+    "lucide-react": "catalog:"
   },
   "devDependencies": {
-    "@react-router/dev": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "tailwindcss": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "@vitejs/plugin-react": "catalog:"
   }
 }

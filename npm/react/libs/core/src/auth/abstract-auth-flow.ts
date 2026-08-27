@@ -6,6 +6,21 @@ export type AuthProvider = {
   provide(options: OAuth): void;
 };
 
+let _authProvider: AuthProvider | null = null;
+export function getOrSetAuthProvider(
+  factory?: () => AuthProvider,
+): AuthProvider {
+  if (_authProvider != null) {
+    return _authProvider;
+  }
+
+  if (!factory) {
+    throw new Error('AuthProvider has not been initialized.');
+  }
+
+  return (_authProvider = factory());
+}
+
 export abstract class AbstractAuthFlow {
   constructor(
     protected readonly options: OAuth,

@@ -5,7 +5,7 @@ import type { HttpMiddleware } from '../http/http-client';
 import { createHttpClient } from '../http/http-client-factory';
 import {
   remoteLocalizationProvider,
-  jsonFileLocalizationProvider,
+  clientLocalizationProvider,
 } from '../providers/localization-providers';
 import {
   setCultureReloadHandler,
@@ -16,6 +16,7 @@ import { seed } from '../utils/localization-utils';
 type LocalizationOptions = {
   readonly providers?: Provider<Translations>[];
   readonly defaultCulture?: string;
+  readonly skipProvider?: Partial<{ remote: boolean; client: boolean }>;
 };
 
 export function configureLocalization(options?: LocalizationOptions) {
@@ -25,24 +26,43 @@ export function configureLocalization(options?: LocalizationOptions) {
       cultureName,
     });
 
-  const jsonLocalizer = (cultureName: string) =>
-    jsonFileLocalizationProvider({
+  const clientLocalizer = (cultureName: string) =>
+    clientLocalizationProvider({
       fileNameOrPath: `/i18n/${cultureName}`,
     });
 
-  const providers = [
-    remoteProvider(options?.defaultCulture || 'en'),
-    jsonLocalizer(options?.defaultCulture || 'en'),
-    ...(options?.providers ?? []),
-  ];
+  const providers: Provider<Translations>[] = [];
+  if (!options?.skipProvider?.remote) {
+    providers.push(remoteProvider(options?.defaultCulture || 'en'));
+  }
+
+  if (!options?.skipProvider?.client) {
+    providers.push(clientLocalizer(options?.defaultCulture || 'en'));
+  }
+
+  //TODO: Invalid approach
+  if (options?.providers?.length) {
+    providers.push(...options.providers);
+  }
 
   provideInitializers({ configure: () => seed(providers, localizerStore) });
 
   setCultureReloadHandler(async (culture) => {
-    await seed(
-      [remoteProvider(culture.name), jsonLocalizer(culture.name)],
-      localizerStore,
-    );
+    const providers: Provider<Translations>[] = [];
+    if (!options?.skipProvider?.remote) {
+      providers.push(remoteProvider(culture.name));
+    }
+
+    if (!options?.skipProvider?.client) {
+      providers.push(clientLocalizer(culture.name));
+    }
+
+    //TODO: Invalid approach
+    if (options?.providers?.length) {
+      providers.push(...options.providers);
+    }
+
+    await seed([...providers], localizerStore);
   });
 }
 

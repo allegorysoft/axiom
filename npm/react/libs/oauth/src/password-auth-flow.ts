@@ -16,8 +16,12 @@ export class PasswordAuthFlow extends BaseAuthFlow {
       scope: this.options.scope,
     });
 
+    if (!this.configuration) {
+      throw new Error('OAuth configuration not found');
+    }
+
     const token = await genericGrantRequest(
-      this.configuration!,
+      this.configuration,
       grant_type,
       body,
     );

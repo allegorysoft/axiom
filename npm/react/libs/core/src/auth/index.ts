@@ -1,1 +1,5 @@
-export { type AuthProvider, AbstractAuthFlow } from './abstract-auth-flow';
+export {
+  type AuthProvider,
+  AbstractAuthFlow,
+  getOrSetAuthProvider,
+} from './abstract-auth-flow';

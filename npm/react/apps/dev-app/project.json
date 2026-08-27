@@ -7,10 +7,10 @@
   "tags": [],
   "targets": {
     "dev": {
-      "command": "react-router dev"
+      "command": "vite"
     },
     "build": {
-      "command": "react-router build"
+      "command": "vite build"
     }
   }
 }

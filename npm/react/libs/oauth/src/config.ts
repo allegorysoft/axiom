@@ -1,5 +1,6 @@
 import {
   environmentStore,
+  getOrSetAuthProvider,
   provideInitializers,
 } from '@axiomframework/react-core';
 import { oAuthProvider } from './oauth-provider';
@@ -9,10 +10,6 @@ type OAuthOptions = {
 };
 
 export function configureOAuth(options?: OAuthOptions): void {
-  if (options?.skipDiscovery) {
-    return;
-  }
-
   provideInitializers({
     configure: async () => {
       const oauth = environmentStore.get().environment?.oauth;
@@ -20,10 +17,11 @@ export function configureOAuth(options?: OAuthOptions): void {
         return;
       }
 
+      getOrSetAuthProvider(() => oAuthProvider);
       oAuthProvider.provide(oauth);
 
       const flow = oAuthProvider.get();
-      if (flow) {
+      if (flow && !options?.skipDiscovery) {
         await flow.initialize();
       }
     },

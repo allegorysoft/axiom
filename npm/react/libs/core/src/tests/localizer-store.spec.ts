@@ -1,3 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
+/// <reference lib="dom" />
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   localizerStore,
@@ -165,11 +170,11 @@ describe('localizer-store', () => {
     });
 
     it('formats translated text with arguments', () => {
-      expect(localizerStore.localize('Hello', 'Default', { name: 'Ada' })).toBe(
+      expect(localizerStore.localize('Default:Hello', { name: 'Ada' })).toBe(
         'Hello, Ada!',
       );
 
-      expect(localizerStore.localize('Total', 'Checkout', ['$42'])).toBe(
+      expect(localizerStore.localize('Checkout:Total', ['$42'])).toBe(
         'Total: $42',
       );
     });
@@ -188,6 +193,7 @@ describe('localizer-store', () => {
 
       localizerStore.setCulture(culture);
 
+      expect(document.documentElement.lang).toBe('tr');
       expect(handler).toHaveBeenCalledTimes(1);
       expect(handler).toHaveBeenCalledWith(culture);
     });
