@@ -1,36 +1,42 @@
 using System;
+using System.Collections.Concurrent;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.EventBus.Local;
 using Allegory.Axiom.Security.Principal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Interceptors;
 
-public class AxiomSaveChangesInterceptor(
+public class AuditSaveChangesInterceptor(
     IPrincipalAccessor principalAccessor,
-    ILocalEventBus localEventBus,
     TimeProvider timeProvider) :
     SaveChangesInterceptor, ISingletonInterceptor, ISingletonService
 {
     protected IPrincipalAccessor PrincipalAccessor { get; } = principalAccessor;
-    protected ILocalEventBus LocalEventBus { get; } = localEventBus;
     protected TimeProvider TimeProvider { get; } = timeProvider;
 
-    // Each save change call invokes interceptor methods
-    // Order, OrderLine relation behavior; When we change only OrderLine does these interceptors invoked?
+    // Interceptor methods are invoked on every SaveChanges call, but handle executed only
+    // When there are actual entity changes other entities marked as "Unchanged" or "Detached".
+
+    // Root-child relationship behavior:
+    // When a child is added, updated, or removed, only the child entity state is marked.
+    // To mark the aggregate root as `Modified` as well, explicitly call
+    // repository.Update(root), which sets the root entity's state to `Modified`.
 
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
     {
         Handle(eventData.Context);
-        return base.SavingChanges(eventData, result);
+        return result;
     }
 
     public override ValueTask<InterceptionResult<int>> SavingChangesAsync(
@@ -39,13 +45,11 @@ public class AxiomSaveChangesInterceptor(
         CancellationToken cancellationToken = default)
     {
         Handle(eventData.Context);
-        return base.SavingChangesAsync(eventData, result, cancellationToken);
+        return new ValueTask<InterceptionResult<int>>(result);
     }
 
     protected virtual void Handle(DbContext? context)
     {
-        // entry.Metadata.FindOwnership();
-
         if (context is null)
         {
             return;
@@ -79,62 +83,62 @@ public class AxiomSaveChangesInterceptor(
     {
         var entity = entry.Entity;
 
-        if (entity is ICreationAudited audited)
+        if (entity is not ICreationAudited audited)
         {
-            if (audited.CreatedAt == default)
-            {
-                entry.Property(nameof(ICreationAudited.CreatedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
-            }
-
-            if (string.IsNullOrWhiteSpace(audited.CreatedBy))
-            {
-                var principalId = PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
-                if (principalId != null)
-                {
-                    entry.Property(nameof(ICreationAudited.CreatedBy)).CurrentValue = principalId;
-                }
-            }
+            return;
         }
 
-        // entry.Metadata.ClrType;
-        // LocalEventBus.PublishAsync() entity changed or SavedChanges ?
+        if (audited.CreatedAt == default)
+        {
+            entry.Property(nameof(ICreationAudited.CreatedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
+        }
+
+        if (!string.IsNullOrWhiteSpace(audited.CreatedBy))
+        {
+            return;
+        }
+
+        var principalId = PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
+        if (principalId != null)
+        {
+            entry.Property(nameof(ICreationAudited.CreatedBy)).CurrentValue = principalId;
+        }
     }
 
     protected virtual void HandleUpdate(EntityEntry entry)
     {
         var entity = entry.Entity;
-        var obj = entry.OriginalValues.ToObject();
 
-        if (entity is IModificationAudited)
+        if (entity is not IModificationAudited)
         {
-            entry.Property(nameof(IModificationAudited.ModifiedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
-            entry.Property(nameof(IModificationAudited.ModifiedBy)).CurrentValue =
-                PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
+            return;
         }
 
-        // entry.Metadata.ClrType;
-        // LocalEventBus.PublishAsync() entity changed or SavedChanges ?
+        entry.Property(nameof(IModificationAudited.ModifiedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
+        entry.Property(nameof(IModificationAudited.ModifiedBy)).CurrentValue =
+            PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
     }
 
     protected virtual void HandleDelete(EntityEntry entry)
     {
         var entity = entry.Entity;
 
-        if (entity is ISoftDelete)
+        if (entity is not ISoftDelete)
         {
-            entry.State = EntityState.Modified;
-
-            entry.Property(nameof(ISoftDelete.IsDeleted)).CurrentValue = true;
-
-            if (entity is IDeletionAudited)
-            {
-                entry.Property(nameof(IDeletionAudited.DeletedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
-                entry.Property(nameof(IDeletionAudited.DeletedBy)).CurrentValue =
-                    PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
-            }
+            return;
         }
 
-        // entry.Metadata.ClrType;
-        // LocalEventBus.PublishAsync() entity changed or SavedChanges ?
+        entry.State = EntityState.Modified;
+
+        entry.Property(nameof(ISoftDelete.IsDeleted)).CurrentValue = true;
+
+        if (entity is not IDeletionAudited)
+        {
+            return;
+        }
+
+        entry.Property(nameof(IDeletionAudited.DeletedAt)).CurrentValue = TimeProvider.GetUtcNow().UtcDateTime;
+        entry.Property(nameof(IDeletionAudited.DeletedBy)).CurrentValue =
+            PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
     }
 }
