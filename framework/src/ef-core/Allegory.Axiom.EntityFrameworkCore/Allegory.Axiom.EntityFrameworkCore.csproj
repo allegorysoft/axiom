@@ -10,13 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\data\Allegory.Axiom.Data.Abstractions\Allegory.Axiom.Data.Abstractions.csproj"/>
         <ProjectReference Include="..\..\ddd\Allegory.Axiom.Ddd.Domain\Allegory.Axiom.Ddd.Domain.csproj"/>
-        <ProjectReference Include="..\..\event-bus\Allegory.Axiom.EventBus.Abstractions\Allegory.Axiom.EventBus.Abstractions.csproj" />
-        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
-        <ProjectReference Include="..\..\multi-tenancy\Allegory.Axiom.MultiTenancy.Abstractions\Allegory.Axiom.MultiTenancy.Abstractions.csproj"/>
-        <ProjectReference Include="..\..\security\Allegory.Axiom.Security.Abstractions\Allegory.Axiom.Security.Abstractions.csproj"/>
-        <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.UnitOfWork.Abstractions\Allegory.Axiom.UnitOfWork.Abstractions.csproj"/>
     </ItemGroup>
 
 </Project>
