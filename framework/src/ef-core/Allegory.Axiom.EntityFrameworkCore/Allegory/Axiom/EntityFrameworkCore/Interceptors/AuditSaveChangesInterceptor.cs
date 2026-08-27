@@ -1,24 +1,20 @@
 using System;
-using System.Collections.Concurrent;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
-using Allegory.Axiom.EventBus.Local;
 using Allegory.Axiom.Security.Principal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Interceptors;
 
 public class AuditSaveChangesInterceptor(
     IPrincipalAccessor principalAccessor,
-    TimeProvider timeProvider) :
-    SaveChangesInterceptor, ISingletonInterceptor, ISingletonService
+    TimeProvider timeProvider)
+    : SaveChangesInterceptor, ISingletonInterceptor, ISingletonService
 {
     protected IPrincipalAccessor PrincipalAccessor { get; } = principalAccessor;
     protected TimeProvider TimeProvider { get; } = timeProvider;

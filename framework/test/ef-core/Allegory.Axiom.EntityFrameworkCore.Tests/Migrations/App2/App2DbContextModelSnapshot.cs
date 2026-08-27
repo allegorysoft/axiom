@@ -64,34 +64,40 @@ namespace Migrations.App2
                     b.ToTable("Entity1");
                 });
 
+            modelBuilder.Entity("Allegory.Axiom.EntityFrameworkCore.DbContexts.App2SubEntity1", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AppEntity1Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SubNumber")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppEntity1Id");
+
+                    b.ToTable("App2SubEntity1");
+                });
+
+            modelBuilder.Entity("Allegory.Axiom.EntityFrameworkCore.DbContexts.App2SubEntity1", b =>
+                {
+                    b.HasOne("Allegory.Axiom.EntityFrameworkCore.DbContexts.App2Entity1", null)
+                        .WithMany("SubEntities")
+                        .HasForeignKey("AppEntity1Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Allegory.Axiom.EntityFrameworkCore.DbContexts.App2Entity1", b =>
                 {
-                    b.OwnsMany("Allegory.Axiom.EntityFrameworkCore.DbContexts.App2SubEntity1", "SubEntities", b1 =>
-                        {
-                            b1.Property<int>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
-
-                            b1.Property<int>("Entity1Id")
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("SubNumber")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("character varying(100)");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("Entity1Id");
-
-                            b1.ToTable("App2SubEntity1");
-
-                            b1.WithOwner()
-                                .HasForeignKey("Entity1Id");
-                        });
-
                     b.Navigation("SubEntities");
                 });
 #pragma warning restore 612, 618

@@ -39,24 +39,24 @@ namespace Migrations.App2
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Entity1Id = table.Column<int>(type: "integer", nullable: false),
+                    AppEntity1Id = table.Column<int>(type: "integer", nullable: false),
                     SubNumber = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_App2SubEntity1", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_App2SubEntity1_Entity1_Entity1Id",
-                        column: x => x.Entity1Id,
+                        name: "FK_App2SubEntity1_Entity1_AppEntity1Id",
+                        column: x => x.AppEntity1Id,
                         principalTable: "Entity1",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_App2SubEntity1_Entity1Id",
+                name: "IX_App2SubEntity1_AppEntity1Id",
                 table: "App2SubEntity1",
-                column: "Entity1Id");
+                column: "AppEntity1Id");
         }
 
         /// <inheritdoc />

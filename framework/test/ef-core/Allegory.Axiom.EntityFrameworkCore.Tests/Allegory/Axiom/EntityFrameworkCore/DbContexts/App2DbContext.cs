@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
@@ -28,28 +29,26 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
                 .IsRequired()
                 .HasMaxLength(100);
 
-            // Soft delete global query filter
-            // builder.HasQueryFilter(e => !e.IsDeleted);
-
-            // Configure owned or child collection
-            // builder.HasMany(x => x.SubEntities)
-            //     .WithOne()
-            //     .HasForeignKey(x => x.AppEntity1Id)
-            //     .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure as an Owned Collection with explicit Primary Key
-            builder.OwnsMany(x => x.SubEntities, subBuilder =>
-            {
-                subBuilder.WithOwner().HasForeignKey(x => x.Entity1Id);
-
-                subBuilder.Property(e => e.Id);
-                subBuilder.HasKey(e => e.Id);
-
-                subBuilder.Property(e => e.SubNumber)
-                    .IsRequired()
-                    .HasMaxLength(100);
-            });
+            builder.HasMany(x => x.SubEntities)
+                .WithOne()
+                .HasForeignKey(x => x.AppEntity1Id)
+                .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<App2SubEntity1>(builder =>
+        {
+            builder.HasKey(e => e.Id);
+        
+            builder.Property(e => e.SubNumber)
+                .IsRequired()
+                .HasMaxLength(100);
+        });
+
+        // foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        // {
+        //     var clrType = entityType.ClrType;
+        //     var name = entityType.Name;
+        // }
     }
 }
 
@@ -64,29 +63,32 @@ public class App2Entity1 : AggregateRoot<int>, ICreationAudited, IModificationAu
 
     public string Number { get; set; } = null!;
 
-    public DateTime CreatedAt { get; private init; }
-    public string? CreatedBy { get; private init; }
+    public DateTime CreatedAt { get; set; }
+    public string? CreatedBy { get; set; }
 
-    public DateTime? ModifiedAt { get; private init; }
-    public string? ModifiedBy { get; private init; }
+    public DateTime? ModifiedAt { get; set; }
+    public string? ModifiedBy { get; set; }
 
-    public bool IsDeleted { get; private init; }
-    public DateTime? DeletedAt { get; private init; }
-    public string? DeletedBy { get; private init; }
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
+    public string? DeletedBy { get; set; }
 
-    public Guid? TenantId { get; private init; }
+    public Guid? TenantId { get; set; }
 
-    public List<App2SubEntity1> SubEntities { get; } = [];
+    public List<App2SubEntity1> SubEntities { get; set; } = [];
 }
 
 public class App2SubEntity1 : Entity<int>
 {
-    public int Entity1Id { get; set; }
+    public int AppEntity1Id { get; set; }
 
     public string SubNumber { get; set; } = null!;
 }
 
-public interface IApp2Entity1Repository : IRepository<App2Entity1, int> { }
+public interface IApp2Entity1Repository : IRepository<App2Entity1, int>
+{
+    ValueTask<IQueryable<App2Entity1>> GetQueryable();
+}
 
 public class EfCoreEntity1Repository(
     IDbContextProvider<App2DbContext> dbContextProvider)
@@ -97,5 +99,12 @@ public class EfCoreEntity1Repository(
         bool includeDetails = true)
     {
         return query.Include(q => q.SubEntities);
+    }
+
+    public async ValueTask<IQueryable<App2Entity1>> GetQueryable()
+    {
+        var set = await GetDbSetAsync();
+        var query = set.AsNoTracking().AsQueryable();
+        return query;
     }
 }
