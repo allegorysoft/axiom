@@ -38,7 +38,7 @@ function Layout() {
   return (
     <>
       <Header />
-      <main>
+      <main className="mx-3 my-2">
         <Outlet />
       </main>
     </>

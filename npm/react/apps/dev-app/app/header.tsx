@@ -38,7 +38,7 @@ export function Header() {
   }
 
   return (
-    <header className="flex h-10 px-2 py-6 shrink-0 items-center gap-2 border-b overflow-hidden">
+    <header className="flex h-10 px-3 py-6 shrink-0 items-center gap-2 border-b overflow-hidden">
       <div className="flex items-center gap-2">
         {!isAuthenticated && (
           <Button onClick={logIn}>{t('AxiomAccount:SignIn')} </Button>
