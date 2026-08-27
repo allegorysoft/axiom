@@ -5,7 +5,7 @@ import type {
   LocalizerStore,
   LocalizerStatus,
 } from '../models/localization';
-import { createStore } from './axiom-store';
+import { createStore } from '../store/axiom-store';
 
 const initialState: LocalizerState = {
   translations: {},

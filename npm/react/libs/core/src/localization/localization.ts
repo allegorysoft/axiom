@@ -1,4 +1,4 @@
-import { AxiomStore } from './common';
+import { AxiomStore } from '../models/common';
 
 export type Translations = Record<string, Record<string, string>>;
 

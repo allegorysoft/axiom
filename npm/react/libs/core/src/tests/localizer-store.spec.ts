@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   localizerStore,
   setCultureReloadHandler,
-} from '../store/localizer-store';
+} from '../localization/localizer-store';
 
 describe('localizer-store', () => {
   beforeEach(() => {

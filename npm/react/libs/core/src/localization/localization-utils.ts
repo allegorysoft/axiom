@@ -1,5 +1,5 @@
 import type { Provider } from '../models/common';
-import type { Translations, LocalizerStore } from '../models/localization';
+import type { Translations, LocalizerStore } from './localization';
 
 export async function seed(
   providers: Provider<Translations>[],
