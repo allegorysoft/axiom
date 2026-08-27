@@ -1,3 +1,8 @@
+/**
+ * @vitest-environment jsdom
+ */
+/// <reference lib="dom" />
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   localizerStore,
@@ -188,6 +193,7 @@ describe('localizer-store', () => {
 
       localizerStore.setCulture(culture);
 
+      expect(document.documentElement.lang).toBe('tr');
       expect(handler).toHaveBeenCalledTimes(1);
       expect(handler).toHaveBeenCalledWith(culture);
     });
