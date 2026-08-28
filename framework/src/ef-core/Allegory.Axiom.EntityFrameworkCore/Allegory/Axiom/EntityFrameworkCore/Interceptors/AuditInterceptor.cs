@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Interceptors;
 
-public class AuditSaveChangesInterceptor(
+public class AuditInterceptor(
     IPrincipalAccessor principalAccessor,
     TimeProvider timeProvider)
     : SaveChangesInterceptor, ISingletonInterceptor, ISingletonService

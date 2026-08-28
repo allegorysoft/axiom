@@ -75,8 +75,8 @@ public static class ServiceCollectionExtensions
             var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
             builderAction?.Invoke(o);
 
-            o.AddInterceptors(sp.GetRequiredService<AuditSaveChangesInterceptor>());
-            o.AddInterceptors(sp.GetRequiredService<EventPublishSaveChangesInterceptor>());
+            o.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+            o.AddInterceptors(sp.GetRequiredService<EntityEventPublisherInterceptor>());
         });
     }
 
