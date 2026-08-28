@@ -4,7 +4,7 @@ public abstract class Entity : IEntity
 {
     protected Entity()
     {
-        // Set tenant if entity is ITenantOwned
+        EntityAccessor.TrySetTenant(this);
     }
 
     public abstract object[] GetKeys();

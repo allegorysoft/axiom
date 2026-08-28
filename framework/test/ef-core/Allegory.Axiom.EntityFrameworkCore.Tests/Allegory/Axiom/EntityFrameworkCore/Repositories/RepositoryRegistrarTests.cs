@@ -11,12 +11,14 @@ using Xunit;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
-public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class RepositoryRegistrarTests : IntegrationTest
 {
+    public override ValueTask InitializeAsync() => ValueTask.CompletedTask;
+
     [Fact]
     public async Task ShouldRegisterRepositories()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder => { builder.Services.AddAxiomDbContext<App1DbContext>(); },
             postConfigure: builder =>
             {
@@ -31,7 +33,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldUseConfiguredServiceLifetime()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o =>
@@ -49,7 +51,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldRegisterDefaultRepositoryForUncoveredEntityWhenEnabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.RegisterDefaultRepositories = true; });
@@ -65,7 +67,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldNotRegisterDefaultRepositoryForUncoveredEntityWhenDisabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.RegisterDefaultRepositories = false; });
@@ -79,7 +81,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldExposeGenericServicesForCoveredEntityWhenEnabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericServices = true; });
@@ -101,7 +103,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldNotExposeGenericServicesForCoveredEntityWhenDisabled()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<App1DbContext>(o => { o.ExposeGenericServices = false; });
@@ -121,7 +123,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldUseSpecifiedDbContextForReplacedDbContexts()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -131,7 +133,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HybridDbContext>();
             },
             postConfigure: builder =>
@@ -155,7 +156,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldNotRegisterDefaultRepositoryForReplacedContextEntities()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -165,7 +166,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HybridDbContext>();
             },
             postConfigure: builder =>
@@ -184,7 +184,7 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldUseReplacedRepositoryForReplacedDbContext()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
@@ -194,7 +194,6 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HybridDbContext>();
                 builder.Services.ReplaceRepository<Module1DbContext>(typeof(CustomEfCoreModule1Entity1Repository<>));
             },
@@ -209,19 +208,18 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldRespectTenancySideWhenReplacingDbContext()
     {
-        await fixture.CreateServiceProviderAsync(
+        await CreateServiceProviderAsync(
             configure: builder =>
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
                 {
                     o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
                     o.AddRepository(typeof(EfCoreModule1Entity2Repository<>));
-                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Host);
+                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>));
                 });
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
 
-                builder.Services.AddAxiomDbContext<App1DbContext>();
                 builder.Services.AddAxiomDbContext<HostSideDbContext>();
                 builder.Services.AddAxiomDbContext<TenantSideDbContext>();
             },
@@ -260,23 +258,34 @@ public class RepositoryRegistrarTests(IntegrationTestFixture fixture) : IClassFi
                     typeof(EfCoreRepository<TenantSideDbContext, Module3Entity2, int>));
             });
     }
+    
+     [Fact]
+    public async Task ShouldRespectRepositorySpecifiedTenancySideWhenReplacingDbContext()
+    {
+        await CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
+                {
+                    // If the tenancy side is not specified, it defaults to the DbContext's tenancy side
+                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Tenant);
+                });
+                builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+                builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
+
+                builder.Services.AddAxiomDbContext<HostSideDbContext>();
+                builder.Services.AddAxiomDbContext<TenantSideDbContext>();
+            },
+            postConfigure: builder =>
+            {
+                var repository =
+                    builder.Services.Single(d => d.ServiceType == typeof(IModule1ReportRepository));
+
+                repository.ImplementationType.ShouldBe(
+                    typeof(EfCoreModule1ReportRepository<TenantSideDbContext>));
+            });
+    }
 }
-
-file class App1DbContext : DbContext
-{
-    public DbSet<App1Entity1> Entity1 { get; set; }
-    public DbSet<App1Entity2> Entity2 { get; set; }
-}
-
-file class App1Entity1 : AggregateRoot<int> { }
-
-file class App1Entity2 : AggregateRoot<int> { }
-
-file interface IApp1Entity1Repository : IRepository<App1Entity1, int> { }
-
-file class EfCoreApp1Entity1Repository(
-    IDbContextProvider<App1DbContext> dbContextProvider)
-    : EfCoreRepository<App1DbContext, App1Entity1, int>(dbContextProvider), IApp1Entity1Repository { }
 
 [ReplaceDbContext(typeof(Module1DbContext), typeof(Module2DbContext), typeof(Module3DbContext))]
 file class HybridDbContext : DbContext

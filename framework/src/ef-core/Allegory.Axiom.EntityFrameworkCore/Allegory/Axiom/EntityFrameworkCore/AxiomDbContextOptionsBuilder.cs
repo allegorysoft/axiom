@@ -71,14 +71,6 @@ public class AxiomDbContextOptionsBuilder
                 nameof(type));
         }
 
-        if (tenancySide == MultiTenancy.TenancySide.Hybrid)
-        {
-            // If repository only uses tenant tables it should tenant otherwise host
-            throw new ArgumentException(
-                $"'{nameof(MultiTenancy.TenancySide.Hybrid)}' is not supported for repository resolution",
-                nameof(tenancySide));
-        }
-
         Repositories.Add((type, tenancySide));
     }
 }

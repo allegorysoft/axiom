@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
-public class AxiomDbContextGlobalOptions
+public class AxiomDbContextsOptions
 {
     private readonly HashSet<Type> _contexts = new();
 
