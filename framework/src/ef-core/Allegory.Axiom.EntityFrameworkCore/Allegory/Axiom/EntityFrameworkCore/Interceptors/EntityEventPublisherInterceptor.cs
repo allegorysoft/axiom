@@ -81,19 +81,19 @@ public class EntityEventPublisherInterceptor(
             case EntityState.Added:
             {
                 var descriptor = await TryPublishEntityChangedEventAsync(entry, EntityChangeType.Created);
-                if (descriptor.EntityCreated != null)
+                if (descriptor.Created != null)
                 {
-                    await LocalEventBus.PublishAsync(descriptor.EntityCreated(entry.Entity));
+                    await LocalEventBus.PublishAsync(descriptor.Created(entry.Entity));
                 }
 
                 break;
             }
             case EntityState.Modified:
             {
-                var descriptor = await TryPublishEntityChangedEventAsync(entry, EntityChangeType.Created);
-                if (descriptor.EntityUpdated != null)
+                var descriptor = await TryPublishEntityChangedEventAsync(entry, EntityChangeType.Updated);
+                if (descriptor.Updated != null)
                 {
-                    await LocalEventBus.PublishAsync(descriptor.EntityUpdated(
+                    await LocalEventBus.PublishAsync(descriptor.Updated(
                         entry.Entity,
                         entry.OriginalValues.ToObject()));
                 }
@@ -102,10 +102,10 @@ public class EntityEventPublisherInterceptor(
             }
             case EntityState.Deleted:
             {
-                var descriptor = await TryPublishEntityChangedEventAsync(entry, EntityChangeType.Created);
-                if (descriptor.EntityDeleted != null)
+                var descriptor = await TryPublishEntityChangedEventAsync(entry, EntityChangeType.Deleted);
+                if (descriptor.Deleted != null)
                 {
-                    await LocalEventBus.PublishAsync(descriptor.EntityDeleted(entry.Entity));
+                    await LocalEventBus.PublishAsync(descriptor.Deleted(entry.Entity));
                 }
 
                 break;
@@ -124,9 +124,9 @@ public class EntityEventPublisherInterceptor(
     {
         var descriptor = EntityEventManager.Get(entry.Metadata.ClrType);
 
-        if (descriptor.EntityChanged != null)
+        if (descriptor.Changed != null)
         {
-            await LocalEventBus.PublishAsync(descriptor.EntityChanged(entry.Entity, changeType));
+            await LocalEventBus.PublishAsync(descriptor.Changed(entry.Entity, changeType));
         }
 
         return descriptor;

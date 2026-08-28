@@ -22,10 +22,10 @@ public class EntityEventManager(IOptions<LocalEventBusOptions> options) : ISingl
         Type type,
         LocalEventBusOptions options)
     {
-        Func<object, EntityChangeType, object>? entityChanged = null;
-        Func<object, object>? entityCreated = null;
-        Func<object, object, object>? entityUpdated = null;
-        Func<object, object>? entityDeleted = null;
+        Func<object, EntityChangeType, object>? changed = null;
+        Func<object, object>? created = null;
+        Func<object, object, object>? updated = null;
+        Func<object, object>? deleted = null;
 
         if (!typeof(IEntity).IsAssignableFrom(type))
         {
@@ -49,7 +49,7 @@ public class EntityEventManager(IOptions<LocalEventBusOptions> options) : ISingl
             var body = Expression.Convert(Expression.New(ctor, callArgs), typeof(object));
             var lambda = Expression.Lambda<Func<object, EntityChangeType, object>>(body, entityParam, changeTypeParam);
 
-            entityChanged = lambda.Compile();
+            changed = lambda.Compile();
         }
 
         var eventCreatedType = typeof(EntityCreated<>).MakeGenericType(type);
@@ -67,7 +67,7 @@ public class EntityEventManager(IOptions<LocalEventBusOptions> options) : ISingl
             var body = Expression.Convert(Expression.New(ctor, callArgs), typeof(object));
             var lambda = Expression.Lambda<Func<object, object>>(body, entityParam);
 
-            entityCreated = lambda.Compile();
+            created = lambda.Compile();
         }
 
         var eventUpdatedType = typeof(EntityUpdated<>).MakeGenericType(type);
@@ -87,7 +87,7 @@ public class EntityEventManager(IOptions<LocalEventBusOptions> options) : ISingl
             var body = Expression.Convert(Expression.New(ctor, callArgs), typeof(object));
             var lambda = Expression.Lambda<Func<object, object, object>>(body, entityParam, previousParam);
 
-            entityUpdated = lambda.Compile();
+            updated = lambda.Compile();
         }
 
         var eventDeletedType = typeof(EntityDeleted<>).MakeGenericType(type);
@@ -105,15 +105,15 @@ public class EntityEventManager(IOptions<LocalEventBusOptions> options) : ISingl
             var body = Expression.Convert(Expression.New(ctor, callArgs), typeof(object));
             var lambda = Expression.Lambda<Func<object, object>>(body, entityParam);
 
-            entityDeleted = lambda.Compile();
+            deleted = lambda.Compile();
         }
 
         return new EntityEventDescriptor
         {
-            EntityChanged = entityChanged,
-            EntityCreated = entityCreated,
-            EntityUpdated = entityUpdated,
-            EntityDeleted = entityDeleted
+            Changed = changed,
+            Created = created,
+            Updated = updated,
+            Deleted = deleted
         };
     }
 }
