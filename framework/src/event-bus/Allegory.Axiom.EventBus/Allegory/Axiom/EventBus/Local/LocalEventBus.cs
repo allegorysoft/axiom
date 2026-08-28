@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
@@ -27,15 +28,38 @@ public class LocalEventBus(
 
         if (publishMode == LocalEventPublishMode.OnUnitOfWorkComplete && UnitOfWorkManager.Current != null)
         {
-            UnitOfWorkManager.Current.AddHook(
-                UnitOfWorkHookPoint.BeforeComplete,
-                () => InvokeHandlersAsync(payload, payloadType));
+            if (UnitOfWorkManager.Current.Items.TryGetValue(ILocalEventBus.UnitOfWorkItemKey, out var obj))
+            {
+                var queue = (Queue<(object Payload, Type PayloadType)>) obj;
+                queue.Enqueue((payload, payloadType));
+            }
+            else
+            {
+                InitializeUnitOfWorkEventQueue(payload, payloadType);
+            }
         }
         else
         {
             await InvokeHandlersAsync(payload, payloadType);
         }
+    }
 
+    protected void InitializeUnitOfWorkEventQueue(object payload, Type payloadType)
+    {
+        var newQueue = new Queue<(object Payload, Type PayloadType)>();
+        UnitOfWorkManager.Current!.Items[ILocalEventBus.UnitOfWorkItemKey] = newQueue;
+
+        UnitOfWorkManager.Current.AddHook(
+            UnitOfWorkHookPoint.BeforeComplete,
+            async () =>
+            {
+                while (newQueue.TryDequeue(out var tuple))
+                {
+                    await InvokeHandlersAsync(tuple.Payload, tuple.PayloadType);
+                }
+            });
+
+        newQueue.Enqueue((payload, payloadType));
     }
 
     protected virtual async Task InvokeHandlersAsync(object payload, Type type)
