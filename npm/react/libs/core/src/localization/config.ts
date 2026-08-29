@@ -10,54 +10,75 @@ import {
 import { seed } from './localization-utils';
 
 export type LocalizationOptions = {
-  readonly providers?: Provider<Translations>[];
   readonly defaultCulture?: string;
-  readonly skipProvider?: Partial<{ remote: boolean; client: boolean }>;
+  readonly remote?: Partial<{
+    skipProvider: boolean;
+    /**
+     * Default: `application/localization`
+     */
+    url: string;
+  }>;
+
+  readonly client?: Partial<{
+    skipProvider: boolean;
+    /**
+     * Default: `i18n`
+     */
+    basePath: string;
+  }>;
+
+  /**
+   * ```
+   * const en = {
+   *   provide() {
+   *     return { AxiomAccount: { SignIn: 'Sign in (static)' } };
+   *   },
+   * };
+   * ```
+   */
+  readonly translationProviders?: Record<string, Provider<Translations>>;
 };
 
 export function configureLocalization(options?: LocalizationOptions) {
-  const remoteProvider = (cultureName: string) =>
-    remoteLocalizationProvider({
-      url: '/application-localization', //Will be /application/localization?culture=<value>
-      cultureName,
-    });
-
-  const clientLocalizer = (cultureName: string) =>
-    clientLocalizationProvider({
-      fileNameOrPath: `/i18n/${cultureName}`,
-    });
-
-  const providers: Provider<Translations>[] = [];
-  if (!options?.skipProvider?.remote) {
-    providers.push(remoteProvider(options?.defaultCulture || 'en'));
-  }
-
-  if (!options?.skipProvider?.client) {
-    providers.push(clientLocalizer(options?.defaultCulture || 'en'));
-  }
-
-  //TODO: Invalid approach
-  if (options?.providers?.length) {
-    providers.push(...options.providers);
-  }
-
-  provideInitializers({ configure: () => seed(providers, localizerStore) });
-
-  setCultureReloadHandler(async (culture) => {
-    const providers: Provider<Translations>[] = [];
-    if (!options?.skipProvider?.remote) {
-      providers.push(remoteProvider(culture.name));
-    }
-
-    if (!options?.skipProvider?.client) {
-      providers.push(clientLocalizer(culture.name));
-    }
-
-    //TODO: Invalid approach
-    if (options?.providers?.length) {
-      providers.push(...options.providers);
-    }
-
-    await seed([...providers], localizerStore);
+  provideInitializers({
+    configure: () =>
+      seed(buildProviders(options?.defaultCulture, options), localizerStore),
   });
+
+  setCultureReloadHandler((culture) =>
+    seed(buildProviders(culture.name, options), localizerStore),
+  );
+}
+
+function buildProviders(
+  cultureName: string = 'en',
+  options?: LocalizationOptions,
+): Provider<Translations>[] {
+  const providers: Provider<Translations>[] = [];
+
+  if (!options?.remote?.skipProvider) {
+    console.log(options?.remote?.url);
+    providers.push(
+      remoteLocalizationProvider({
+        //TODO: After backend provide endpoint switch to: `application/localization?culture=<cultureName> || <en>`
+        url: `/${options?.remote?.url ?? 'application-localization'}`,
+        cultureName,
+      }),
+    );
+  }
+
+  if (!options?.client?.skipProvider) {
+    providers.push(
+      clientLocalizationProvider({
+        fileNameOrPath: `/${options?.client?.basePath ?? 'i18n'}/${cultureName}`,
+      }),
+    );
+  }
+
+  const additionalProviders = options?.translationProviders?.[cultureName];
+  if (additionalProviders) {
+    providers.push(additionalProviders);
+  }
+
+  return providers;
 }

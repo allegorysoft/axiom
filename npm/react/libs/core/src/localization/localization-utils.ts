@@ -5,30 +5,22 @@ export async function seed(
   providers: Provider<Translations>[],
   store: LocalizerStore,
 ): Promise<void> {
-  store.setStatus('loading');
-
-  const merged: Translations = {};
-  const failures: unknown[] = [];
-  let succeeded = false;
+  let merged: Translations = {};
 
   for (const { provide } of providers) {
-    try {
-      const translations = await provide();
-      Object.assign(merged, translations);
-      succeeded = true;
-    } catch (error) {
-      failures.push(error);
-      console.error(
-        '[Axiom-localization-utils] provider failed to seed:',
-        error,
-      );
-    }
+    const translations = await provide();
+    merged = merge(merged, translations);
   }
 
   store.setTranslations(merged);
+}
 
-  store.setStatus(
-    succeeded ? 'ready' : 'error',
-    succeeded ? undefined : failures,
-  );
+function merge(target: Translations, source: Translations): Translations {
+  const result: Translations = { ...target };
+
+  for (const [moduleName, texts] of Object.entries(source)) {
+    result[moduleName] = { ...result[moduleName], ...texts };
+  }
+
+  return result;
 }
