@@ -44,7 +44,7 @@ public class LocalEventBus(
         }
     }
 
-    protected void InitializeUnitOfWorkEventQueue(object payload, Type payloadType)
+    protected virtual void InitializeUnitOfWorkEventQueue(object payload, Type payloadType)
     {
         var newQueue = new Queue<(object Payload, Type PayloadType)>();
         UnitOfWorkManager.Current!.Items[ILocalEventBus.UnitOfWorkItemKey] = newQueue;
