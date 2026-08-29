@@ -3,9 +3,8 @@ import type {
   CultureInfo,
   Translations,
   LocalizerStore,
-  LocalizerStatus,
-} from '../models/localization';
-import { createStore } from './axiom-store';
+} from './localization';
+import { createStore } from '../store/axiom-store';
 
 const initialState: LocalizerState = {
   translations: {},
@@ -13,7 +12,6 @@ const initialState: LocalizerState = {
     name: 'en',
     displayName: 'English',
   },
-  status: 'idle',
   error: null,
 };
 
@@ -57,6 +55,22 @@ export const localizerStore: LocalizerStore = Object.assign(baseStore, {
     return Object.keys(args).length > 0 ? format(value, args) : value;
   },
 
+  setCulture(culture: CultureInfo): void {
+    let changed = false;
+    baseStore.set((prev) => {
+      changed = !Object.entries(culture).every(
+        ([key, value]) => prev.culture[key as keyof CultureInfo] === value,
+      );
+
+      return changed ? { culture } : {};
+    });
+
+    if (changed) {
+      document.documentElement.lang = culture.name;
+      void reloadHandler?.(culture);
+    }
+  },
+
   setTranslations(incoming: Translations, overwrite = true): void {
     baseStore.set((prev) => {
       let changed = false;
@@ -76,29 +90,6 @@ export const localizerStore: LocalizerStore = Object.assign(baseStore, {
 
       return changed ? { translations: next } : {};
     });
-  },
-
-  setCulture(culture: CultureInfo): void {
-    let changed = false;
-    baseStore.set((prev) => {
-      changed = !Object.entries(culture).every(
-        ([key, value]) => prev.culture[key as keyof CultureInfo] === value,
-      );
-
-      return changed ? { culture } : {};
-    });
-
-    if (changed) {
-      document.documentElement.lang = culture.name;
-      void reloadHandler?.(culture);
-    }
-  },
-
-  setStatus(status: LocalizerStatus, error: unknown = null): void {
-    baseStore.set(() => ({
-      status,
-      error,
-    }));
   },
 
   reset(): void {

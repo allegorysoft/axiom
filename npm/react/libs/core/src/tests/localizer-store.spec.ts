@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   localizerStore,
   setCultureReloadHandler,
-} from '../store/localizer-store';
+} from '../localization/localizer-store';
 
 describe('localizer-store', () => {
   beforeEach(() => {
@@ -23,18 +23,8 @@ describe('localizer-store', () => {
           name: 'en',
           displayName: 'English',
         },
-        status: 'idle',
         error: null,
       });
-    });
-
-    it('allows direct state patching', () => {
-      localizerStore.set((state) => ({
-        ...state,
-        status: 'ready',
-      }));
-
-      expect(localizerStore.get().status).toBe('ready');
     });
   });
 
@@ -61,24 +51,6 @@ describe('localizer-store', () => {
       });
 
       expect(listener).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('status', () => {
-    it('updates the localization status', () => {
-      localizerStore.setStatus('loading');
-
-      expect(localizerStore.get().status).toBe('loading');
-      expect(localizerStore.get().error).toBeNull();
-    });
-
-    it('stores the associated error', () => {
-      const error = new Error('Failed');
-
-      localizerStore.setStatus('error', error);
-
-      expect(localizerStore.get().status).toBe('error');
-      expect(localizerStore.get().error).toBe(error);
     });
   });
 
@@ -132,6 +104,30 @@ describe('localizer-store', () => {
       });
 
       expect(localizerStore.get().translations.Default?.Greeting).toBe('Hi');
+    });
+
+    it('keeps previous translations, overwrites existing, and adds new translations', () => {
+      localizerStore.setTranslations({
+        Default: {
+          Greeting: 'Hello',
+          Welcome: 'Welcome',
+        },
+      });
+
+      localizerStore.setTranslations({
+        Default: {
+          Greeting: 'Hi',
+          Farewell: 'Goodbye',
+        },
+      });
+
+      expect(localizerStore.get().translations).toEqual({
+        Default: {
+          Greeting: 'Hi',
+          Welcome: 'Welcome',
+          Farewell: 'Goodbye',
+        },
+      });
     });
 
     it('notifies subscribers when translations change', () => {

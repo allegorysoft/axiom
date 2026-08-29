@@ -7,17 +7,18 @@
         "displayName": "English"
       },
       "translations": {
-        "AxiomIdentity": {
-          "Hello": "Hello",
-          "Welcome": "Welcome remote, {name}",
-          "SignIn": "Sign In",
-          "SignOut": "Sign Out",
-          "Email": "Email",
+        "AxiomAccount": {
+          "SignIn": "Sign in (remote)",
+          "SignUp": "Sign up",
+          "EmailOrUsername": "Email or username",
           "Password": "Password",
-          "ForgotPassword": "Forgot Password?",
-          "InvalidCredentials": "Invalid email or password.",
-          "Profile": "Profile",
-          "Settings": "Settings"
+          "OrContinueWith": "or continue with",
+          "GetStartedWithAxiom": "Get started with Axiom",
+          "SignInOrCreateAccount": "Sign in or create an account.",
+          "Logout": "Logout"
+        },
+        "AxiomIdentity": {
+          "Welcome": "Welcome i18n, {name}"
         },
         "AxiomSettingManagement": {
           "Title": "Settings",
@@ -37,17 +38,18 @@
         "displayName": "Türkçe"
       },
       "translations": {
-        "AxiomIdentity": {
-          "Hello": "Merhaba",
-          "Welcome": "Hoş geldiniz remote, {name}",
-          "SignIn": "Giriş Yap",
-          "SignOut": "Çıkış Yap",
-          "Email": "E-posta",
+        "AxiomAccount": {
+          "SignIn": "Giriş yap (remote)",
+          "SignUp": "Kayıt ol",
+          "EmailOrUsername": "Email veya kullanıcı adı",
           "Password": "Şifre",
-          "ForgotPassword": "Şifremi Unuttum?",
-          "InvalidCredentials": "E-posta veya şifre hatalı.",
-          "Profile": "Profil",
-          "Settings": "Ayarlar"
+          "OrContinueWith": "veya şununla devam et",
+          "GetStartedWithAxiom": "Axiom ile başla",
+          "SignInOrCreateAccount": "Giriş yap veya bir hesap oluştur.",
+          "Logout": "Çıkış yap"
+        },
+        "AxiomIdentity": {
+          "Welcome": "Hoşgeldin i18n, {name}"
         },
         "AxiomSettingManagement": {
           "Title": "Ayarlar",

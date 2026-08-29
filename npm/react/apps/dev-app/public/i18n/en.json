@@ -1,6 +1,6 @@
 {
   "AxiomAccount": {
-    "SignIn": "Sign in",
+    "SignIn": "Sign in (client)",
     "SignUp": "Sign up",
     "EmailOrUsername": "Email or username",
     "Password": "Password",

@@ -1,6 +1,6 @@
 {
   "AxiomAccount": {
-    "SignIn": "Giriş yap",
+    "SignIn": "Giriş yap (client)",
     "SignUp": "Kayıt ol",
     "EmailOrUsername": "Email veya kullanıcı adı",
     "Password": "Şifre",

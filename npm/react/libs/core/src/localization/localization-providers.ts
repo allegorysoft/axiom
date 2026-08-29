@@ -1,5 +1,5 @@
 import type { Provider } from '../models/common';
-import type { Translations } from '../models/localization';
+import type { Translations } from './localization';
 import { HttpClient } from '../http/http-client';
 import { getApiClient } from '../http/api-client';
 
