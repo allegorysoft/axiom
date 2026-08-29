@@ -1,20 +1,13 @@
-import type { HttpMiddleware } from '../http/http-client';
-import { createHttpClient } from '../http/http-client-factory';
+import type { HttpClientOptions } from '../http/http-client-factory';
+import { provideHttpClient } from '../http/providers';
 import {
   type LocalizationOptions,
   configureLocalization,
 } from '../localization/config';
 
-type HttpClientOptions = { middlewares?: HttpMiddleware[] };
-
-export function provideHttpClient(options?: HttpClientOptions) {
-  const middlewares = options?.middlewares ?? [];
-  createHttpClient({ middlewares });
-}
-
 type CoreOptions = {
-  localization?: LocalizationOptions;
   httpClient?: HttpClientOptions;
+  localization?: LocalizationOptions;
 };
 
 export function configureCore(options?: CoreOptions) {

@@ -60,7 +60,6 @@ function buildProviders(
     console.log(options?.remote?.url);
     providers.push(
       remoteLocalizationProvider({
-        //TODO: After backend provide endpoint switch to: `application/localization?culture=<cultureName> || <en>`
         url: `/${options?.remote?.url ?? 'application-localization'}`,
         cultureName,
       }),
