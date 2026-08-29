@@ -5,15 +5,13 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Entities;
+using Allegory.Axiom.UnitOfWork;
 
 namespace Allegory.Axiom.Domain.Repositories;
 
 public interface IReadOnlyRepository<TEntity> : IRepository where TEntity : class, IEntity
 {
-    Task<TEntity> GetAsync(
-        Expression<Func<TEntity, bool>> predicate,
-        bool includeDetails = true,
-        CancellationToken cancellationToken = default);
+    IUnitOfWork UnitOfWork { get; }
 
     Task<TEntity?> FindAsync(
         Expression<Func<TEntity, bool>> predicate,
@@ -43,11 +41,6 @@ public interface IReadOnlyRepository<TEntity, TKey> : IReadOnlyRepository<TEntit
     where TEntity : class, IEntity<TKey>
     where TKey : notnull
 {
-    Task<TEntity> GetAsync(
-        TKey id,
-        bool includeDetails = true,
-        CancellationToken cancellationToken = default);
-
     Task<TEntity?> FindAsync(
         TKey id,
         bool includeDetails = true,

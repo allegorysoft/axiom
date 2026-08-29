@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
-using Allegory.Axiom.Exceptions;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -26,23 +25,11 @@ public class EfCoreRepository<TDbContext, TEntity>(
         IsTenantOwned = typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
     }
 
-    protected IDbContextProvider<TDbContext> DbContextProvider { get; } = dbContextProvider;
+    public IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
 
-    protected IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
+    protected IDbContextProvider<TDbContext> DbContextProvider { get; } = dbContextProvider;
     protected ITenantContextAccessor TenantContextAccessor => DbContextProvider.TenantContextAccessor;
     protected AxiomDbContextOptions<TDbContext> DbContextOptions => DbContextProvider.Options;
-
-    // Create EntityNotFoundException inside Domain package
-
-    public virtual async Task<TEntity> GetAsync(
-        Expression<Func<TEntity, bool>> predicate,
-        bool includeDetails = true,
-        CancellationToken cancellationToken = default)
-    {
-        var entity = await FindAsync(predicate, includeDetails, cancellationToken);
-
-        return entity ?? throw new NotFoundException();
-    }
 
     public virtual async Task<TEntity?> FindAsync(
         Expression<Func<TEntity, bool>> predicate,
@@ -87,7 +74,8 @@ public class EfCoreRepository<TDbContext, TEntity>(
         int skip,
         int take,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy,
-        Expression<Func<TEntity, bool>>? predicate = null, bool includeDetails = false,
+        Expression<Func<TEntity, bool>>? predicate = null,
+        bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
         var set = await GetDbSetAsync(cancellationToken);
@@ -258,16 +246,6 @@ public class EfCoreRepository<TDbContext, TEntity, TKey>(
     where TEntity : class, IEntity<TKey>
     where TKey : notnull
 {
-    public virtual async Task<TEntity> GetAsync(
-        TKey id,
-        bool includeDetails = true,
-        CancellationToken cancellationToken = default)
-    {
-        var entity = await FindAsync(id, includeDetails, cancellationToken);
-
-        return entity ?? throw new NotFoundException();
-    }
-
     public virtual Task<TEntity?> FindAsync(
         TKey id,
         bool includeDetails = true,

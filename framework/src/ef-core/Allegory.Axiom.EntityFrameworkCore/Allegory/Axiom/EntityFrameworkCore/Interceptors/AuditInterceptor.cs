@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Domain.Entities.Auditing;
+using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.Security.Principal;
+using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -12,12 +15,16 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 namespace Allegory.Axiom.EntityFrameworkCore.Interceptors;
 
 public class AuditInterceptor(
+    IUnitOfWorkManager unitOfWorkManager,
     IPrincipalAccessor principalAccessor,
     TimeProvider timeProvider)
     : SaveChangesInterceptor, ISingletonInterceptor, ISingletonService
 {
+    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected IPrincipalAccessor PrincipalAccessor { get; } = principalAccessor;
     protected TimeProvider TimeProvider { get; } = timeProvider;
+
+    protected IUnitOfWork UnitOfWork => UnitOfWorkManager.RequiredCurrent;
 
     // Interceptor methods are invoked on every SaveChanges call, but handle executed only
     // When there are actual entity changes other entities marked as "Unchanged" or "Detached".
@@ -122,6 +129,15 @@ public class AuditInterceptor(
         if (entity is not ISoftDelete)
         {
             return;
+        }
+
+        if (UnitOfWork.Items.TryGetValue(RepositoryExtensions.HardRemoveUnitOfWorkItemKey, out var value))
+        {
+            var items = (HashSet<object>) value;
+            if (items.Contains(entity))
+            {
+                return;
+            }
         }
 
         entry.State = EntityState.Modified;
