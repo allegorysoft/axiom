@@ -24,17 +24,12 @@ public class RelationalDbContextProvider<TContext>(
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
     protected IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
 
-    public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
+    public virtual async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {
         var unitOfWork = UnitOfWorkManager.RequiredCurrent;
         cancellationToken = cancellationToken.FallbackTo(unitOfWork.CancellationToken);
 
-        var itemKey = $"db_{TenantContextAccessor.Current?.Id.ToString() ?? "host"}_{typeof(TContext).FullName!}";
-        if (unitOfWork.Items.TryGetValue(itemKey, out var context))
-        {
-            return (TContext) context;
-        }
-
+        //TODO: We might optimize here
         var connectionString = await ConnectionStringProvider.GetAsync(Options.ConnectionStringName);
         var key = $"{typeof(TContext).FullName!}_{connectionString}";
         if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
@@ -44,7 +39,6 @@ public class RelationalDbContextProvider<TContext>(
 
         var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
         dbContext.Database.SetConnectionString(connectionString);
-        unitOfWork.Items.Add(itemKey, dbContext);
 
         dbHandle = await CreateHandleAsync(unitOfWork, dbContext, cancellationToken);
         unitOfWork.AddDatabase(key, dbHandle);
