@@ -75,8 +75,10 @@ public static class ServiceCollectionExtensions
             var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
             builderAction?.Invoke(o);
 
-            o.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
+            // Publish entity events first because the `AuditInterceptor` changes `ISoftDelete` entities
+            // from the `Deleted` state to `Modified`.
             o.AddInterceptors(sp.GetRequiredService<EntityEventPublisherInterceptor>());
+            o.AddInterceptors(sp.GetRequiredService<AuditInterceptor>());
         });
     }
 
