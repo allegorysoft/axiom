@@ -1,14 +1,10 @@
-using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
-using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 
-[TenancySide(TenancySide.Host)]
-[ConnectionStringName("Module1")]
 public class Module1DbContext(DbContextOptions<Module1DbContext> options) : DbContext(options)
 {
     public DbSet<Module1Entity1> Entity1 { get; set; }

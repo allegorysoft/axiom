@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.MultiTenancy;
@@ -215,7 +214,7 @@ public class RepositoryRegistrarTests : IntegrationTest
                 {
                     o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
                     o.AddRepository(typeof(EfCoreModule1Entity2Repository<>));
-                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>));
+                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Host);
                 });
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
@@ -267,7 +266,6 @@ public class RepositoryRegistrarTests : IntegrationTest
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
                 {
-                    // If the tenancy side is not specified, it defaults to the DbContext's tenancy side
                     o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Tenant);
                 });
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });

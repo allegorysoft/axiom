@@ -13,17 +13,17 @@ public class AxiomDbContextOptionsBuilder
     internal AxiomDbContextOptionsBuilder(Type dbContextType)
     {
         DbContextType = dbContextType;
-        ConnectionStringName = ConnectionStringNameAttribute.Find(DbContextType);
         TenancySide = TenancySideAttribute.Find(DbContextType) ?? TenancySide.Hybrid;
         ReplacedDbContexts = ReplaceDbContextAttribute.Find(DbContextType);
+        SetConnectionStringName();
     }
 
     internal Type DbContextType { get; }
     internal HashSet<(Type Type, TenancySide? TenancySide)> Repositories { get; } = [];
 
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
-    public string? ConnectionStringName { get; }
-    public TenancySide TenancySide { get; }
+    public string? ConnectionStringName { get; private set; }
+    public TenancySide TenancySide { get; internal set; }
     public IReadOnlySet<Type>? ReplacedDbContexts { get; }
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
 
@@ -55,6 +55,21 @@ public class AxiomDbContextOptionsBuilder
     /// Both interfaces resolve to the same instance. Has no effect on entities without a custom repository.
     /// </summary>
     public bool ExposeGenericServices { get; set; }
+
+    private void SetConnectionStringName()
+    {
+        ConnectionStringName = ConnectionStringNameAttribute.Find(DbContextType);
+
+        if (ConnectionStringName != null)
+        {
+            return;
+        }
+
+        var name = DbContextType.Name;
+        ConnectionStringName = name.EndsWith("DbContext", StringComparison.OrdinalIgnoreCase)
+            ? name[..^9]
+            : name;
+    }
 
     public void AddRepository(Type type, TenancySide? tenancySide = null)
     {

@@ -17,7 +17,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
     {
         builder.AddDeferredAction(static b =>
         {
-            var properties = ServiceCollectionExtensions.CollectionProperties.GetOrCreateValue(b.Services);
+            var properties = b.Services.GetExtraProperties();
 
             foreach (var registrar in properties.Registrars)
             {

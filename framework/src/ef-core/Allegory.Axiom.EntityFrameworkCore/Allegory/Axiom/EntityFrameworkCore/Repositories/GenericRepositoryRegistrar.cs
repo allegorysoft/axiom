@@ -15,6 +15,7 @@ internal class GenericRepositoryRegistrar(
     {
         RegisterRepositories();
         RegisterDefaultRepositories();
+        SetTenancySide();
     }
 
     protected void RegisterRepositories()
@@ -26,13 +27,14 @@ internal class GenericRepositoryRegistrar(
             var descriptor = new RepositoryDescriptor(
                 repositoryImplementation,
                 Builder.ExposeGenericServices,
-                repository.TenancySide ?? Builder.TenancySide);
+                repository.TenancySide);
 
             Descriptors.Add(descriptor);
 
             foreach (var serviceType in descriptor.Services)
             {
-                Services.TryAdd(ServiceDescriptor.Describe(serviceType, repositoryImplementation, Builder.ServiceLifetime));
+                Services.TryAdd(
+                    ServiceDescriptor.Describe(serviceType, repositoryImplementation, Builder.ServiceLifetime));
             }
         }
     }
@@ -44,21 +46,43 @@ internal class GenericRepositoryRegistrar(
             return;
         }
 
-        var entities = GetEntityTypes(Builder.DbContextType).Where(t => Descriptors.All(d => t != d.EntityType)).ToList();
+        var descriptors = GetEntityTypes(Builder.DbContextType)
+            .Where(t => Descriptors.All(d => t != d.EntityType))
+            .ToList()
+            .Select(entityType => new RepositoryDescriptor(entityType, Builder.DbContextType));
 
-        foreach (var descriptor in entities.Select(entityType => new RepositoryDescriptor(entityType, Builder.DbContextType)))
+        foreach (var descriptor in descriptors)
         {
             Descriptors.Add(descriptor);
 
             foreach (var serviceType in descriptor.Services)
             {
-                Services.TryAdd(ServiceDescriptor.Describe(serviceType, descriptor.ImplementationType, Builder.ServiceLifetime));
+                Services.TryAdd(
+                    ServiceDescriptor.Describe(serviceType, descriptor.ImplementationType, Builder.ServiceLifetime));
             }
         }
     }
 
-    public void ReplaceRepository(Type repository, TenancySide? tenancySide = null)
+    protected void SetTenancySide()
     {
+        if (Descriptors.All(d => d.TenancySide == TenancySide.Host))
+        {
+            Builder.TenancySide = TenancySide.Host;
+        }
+        else if (Descriptors.All(d => d.TenancySide == TenancySide.Tenant))
+        {
+            Builder.TenancySide = TenancySide.Tenant;
+        }
+        else
+        {
+            Builder.TenancySide = TenancySide.Hybrid;
+        }
+    }
+
+    public void ReplaceRepository(Type repository)
+    {
+        TenancySide? tenancySide = null;
+
         foreach (var existingRepository in Builder.Repositories)
         {
             var type = repository;
@@ -70,6 +94,7 @@ internal class GenericRepositoryRegistrar(
                     Builder.Repositories.Remove(existingRepository);
                     var oldRepositoryType = existingRepository.Type.MakeGenericType(Builder.DbContextType);
                     var oldDescriptor = Descriptors.Single(d => d.ImplementationType == oldRepositoryType);
+                    tenancySide = oldDescriptor.TenancySide;
                     Descriptors.Remove(oldDescriptor);
                     break;
                 }
@@ -89,7 +114,8 @@ internal class GenericRepositoryRegistrar(
 
         foreach (var serviceType in descriptor.Services)
         {
-            Services.Replace(ServiceDescriptor.Describe(serviceType, repositoryImplementation, Builder.ServiceLifetime));
+            Services.Replace(
+                ServiceDescriptor.Describe(serviceType, repositoryImplementation, Builder.ServiceLifetime));
         }
     }
 }

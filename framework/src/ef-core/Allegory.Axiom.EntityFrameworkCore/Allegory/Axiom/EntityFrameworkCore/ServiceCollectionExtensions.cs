@@ -16,6 +16,8 @@ public static class ServiceCollectionExtensions
 
     extension(IServiceCollection services)
     {
+        internal ExtraProperties GetExtraProperties() => CollectionProperties.GetOrCreateValue(services);
+
         public void ConfigureAxiomDbContexts(Action<AxiomDbContextsOptions> optionsAction)
         {
             services.Configure(optionsAction);
@@ -29,9 +31,9 @@ public static class ServiceCollectionExtensions
             var builder = new AxiomDbContextOptionsBuilder(typeof(TContext));
             optionsAction?.Invoke(builder);
 
-            services.ConfigureOptions<TContext>(builder);
-            services.RegisterDbContextFactory<TContext>();
             services.RegisterRepositories<TContext>(builder);
+            services.RegisterDbContextFactory<TContext>();
+            services.ConfigureOptions<TContext>(builder);
         }
 
         public void ConfigureAxiomDbContext(Action<DbContextOptionsBuilder> optionsAction)
@@ -39,39 +41,11 @@ public static class ServiceCollectionExtensions
             services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
         }
 
-        public void ReplaceRepository(Type repository, TenancySide? tenancySide = null)
+        public void ReplaceRepository(Type repository)
         {
             var properties = CollectionProperties.GetOrCreateValue(services);
             var registrar = properties.GenericRegistrars[typeof(TContext)];
-            registrar.ReplaceRepository(repository, tenancySide);
-        }
-
-        private void ConfigureOptions(AxiomDbContextOptionsBuilder builder)
-        {
-            services.Configure<AxiomDbContextsOptions>(o => o.AddContext(typeof(TContext)));
-
-            services.Configure<AxiomDbContextOptions<TContext>>(o =>
-            {
-                o.BuilderAction ??= builder.BuilderAction; // ConfigureAxiomDbContext might run first
-                o.TenancySide = builder.TenancySide;
-                o.ConnectionStringName = builder.ConnectionStringName;
-                o.ReplacedDbContexts = builder.ReplacedDbContexts;
-            });
-        }
-
-        private void RegisterDbContextFactory()
-        {
-            services.AddDbContextFactory<TContext>(static (sp, o) =>
-            {
-                var globalOptions = sp.GetRequiredService<IOptions<AxiomDbContextsOptions>>().Value;
-                globalOptions.SharedBuilderAction?.Invoke(o);
-
-                var contextOptions = sp.GetRequiredService<IOptions<AxiomDbContextOptions<TContext>>>().Value;
-                var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
-                builderAction?.Invoke(o);
-
-                o.AddInterceptors(sp.GetRequiredService<AxiomSaveChangesInterceptor>());
-            });
+            registrar.ReplaceRepository(repository);
         }
 
         private void RegisterRepositories(AxiomDbContextOptionsBuilder builder)
@@ -89,6 +63,34 @@ public static class ServiceCollectionExtensions
                 var registrar = new RepositoryRegistrar(builder, services);
                 properties.Registrars[typeof(TContext)] = registrar;
             }
+        }
+
+        private void RegisterDbContextFactory()
+        {
+            services.AddDbContextFactory<TContext>(static (sp, o) =>
+            {
+                var globalOptions = sp.GetRequiredService<IOptions<AxiomDbContextsOptions>>().Value;
+                globalOptions.SharedBuilderAction?.Invoke(o);
+
+                var contextOptions = sp.GetRequiredService<IOptions<AxiomDbContextOptions<TContext>>>().Value;
+                var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
+                builderAction?.Invoke(o);
+
+                o.AddInterceptors(sp.GetRequiredService<AxiomSaveChangesInterceptor>());
+            });
+        }
+
+        private void ConfigureOptions(AxiomDbContextOptionsBuilder builder)
+        {
+            services.Configure<AxiomDbContextsOptions>(o => o.AddContext(typeof(TContext)));
+
+            services.Configure<AxiomDbContextOptions<TContext>>(o =>
+            {
+                o.BuilderAction ??= builder.BuilderAction; // ConfigureAxiomDbContext might run first
+                o.TenancySide = builder.TenancySide;
+                o.ConnectionStringName = builder.ConnectionStringName;
+                o.ReplacedDbContexts = builder.ReplacedDbContexts;
+            });
         }
     }
 

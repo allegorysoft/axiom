@@ -30,7 +30,7 @@ internal sealed class EntityFrameworkCoreTestsPackage : IConfigureApplication
         // to DI. This causes DI validation to fail because their corresponding DbContexts
         // were never registered. Remove those repositories when their DbContext was not
         // configured with AddAxiomDbContext.
-        var properties = ServiceCollectionExtensions.CollectionProperties.GetOrCreateValue(builder.Services);
+        var properties = builder.Services.GetExtraProperties();
         var registrar = properties.Registrars.FirstOrDefault().Value;
 
         if (registrar == null)
