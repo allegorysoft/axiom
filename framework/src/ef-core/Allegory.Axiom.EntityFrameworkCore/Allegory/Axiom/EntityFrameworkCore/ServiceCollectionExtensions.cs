@@ -16,85 +16,79 @@ public static class ServiceCollectionExtensions
 
     extension(IServiceCollection services)
     {
-        public void AddAxiomDbContext<TContext>(
-            Action<AxiomDbContextOptionsBuilder>? optionsAction = null)
-            where TContext : DbContext
-        {
-            var builder = new AxiomDbContextOptionsBuilder(typeof(TContext));
-            optionsAction?.Invoke(builder);
-
-            ConfigureOptions<TContext>(services, builder);
-            RegisterDbContextFactory<TContext>(services);
-            RegisterRepositories<TContext>(services, builder);
-        }
-
-        public void ConfigureAxiomDbContext<TContext>(
-            Action<DbContextOptionsBuilder> optionsAction)
-            where TContext : DbContext
-        {
-            services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
-        }
-
         public void ConfigureAxiomDbContexts(Action<AxiomDbContextsOptions> optionsAction)
         {
             services.Configure(optionsAction);
         }
+    }
 
-        public void ReplaceRepository<TContext>(Type repository, TenancySide? tenancySide = null) where TContext : DbContext
+    extension<TContext>(IServiceCollection services) where TContext : DbContext
+    {
+        public void AddAxiomDbContext(Action<AxiomDbContextOptionsBuilder>? optionsAction = null)
+        {
+            var builder = new AxiomDbContextOptionsBuilder(typeof(TContext));
+            optionsAction?.Invoke(builder);
+
+            services.ConfigureOptions<TContext>(builder);
+            services.RegisterDbContextFactory<TContext>();
+            services.RegisterRepositories<TContext>(builder);
+        }
+
+        public void ConfigureAxiomDbContext(Action<DbContextOptionsBuilder> optionsAction)
+        {
+            services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
+        }
+
+        public void ReplaceRepository(Type repository, TenancySide? tenancySide = null)
         {
             var properties = CollectionProperties.GetOrCreateValue(services);
             var registrar = properties.GenericRegistrars[typeof(TContext)];
             registrar.ReplaceRepository(repository, tenancySide);
         }
-    }
 
-    private static void ConfigureOptions<TContext>(
-        IServiceCollection services,
-        AxiomDbContextOptionsBuilder builder)
-        where TContext : DbContext
-    {
-        services.Configure<AxiomDbContextsOptions>(o => o.AddContext(typeof(TContext)));
-
-        services.Configure<AxiomDbContextOptions<TContext>>(o =>
+        private void ConfigureOptions(AxiomDbContextOptionsBuilder builder)
         {
-            o.BuilderAction ??= builder.BuilderAction; // ConfigureAxiomDbContext might run first
-            o.TenancySide = builder.TenancySide;
-            o.ConnectionStringName = builder.ConnectionStringName;
-            o.ReplacedDbContexts = builder.ReplacedDbContexts;
-        });
-    }
+            services.Configure<AxiomDbContextsOptions>(o => o.AddContext(typeof(TContext)));
 
-    private static void RegisterDbContextFactory<TContext>(IServiceCollection services) where TContext : DbContext
-    {
-        services.AddDbContextFactory<TContext>(static (sp, o) =>
-        {
-            var globalOptions = sp.GetRequiredService<IOptions<AxiomDbContextsOptions>>().Value;
-            globalOptions.SharedBuilderAction?.Invoke(o);
-
-            var contextOptions = sp.GetRequiredService<IOptions<AxiomDbContextOptions<TContext>>>().Value;
-            var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
-            builderAction?.Invoke(o);
-
-            o.AddInterceptors(sp.GetRequiredService<AxiomSaveChangesInterceptor>());
-        });
-    }
-
-    private static void RegisterRepositories<TContext>(
-        IServiceCollection services,
-        AxiomDbContextOptionsBuilder builder)
-    {
-        var properties = CollectionProperties.GetOrCreateValue(services);
-
-        if (builder.Repositories.Count > 0 || builder.RegisterAsGenericDbContext)
-        {
-            var registrar = new GenericRepositoryRegistrar(builder, services);
-            registrar.Register();
-            properties.GenericRegistrars[typeof(TContext)] = registrar;
+            services.Configure<AxiomDbContextOptions<TContext>>(o =>
+            {
+                o.BuilderAction ??= builder.BuilderAction; // ConfigureAxiomDbContext might run first
+                o.TenancySide = builder.TenancySide;
+                o.ConnectionStringName = builder.ConnectionStringName;
+                o.ReplacedDbContexts = builder.ReplacedDbContexts;
+            });
         }
-        else
+
+        private void RegisterDbContextFactory()
         {
-            var registrar = new RepositoryRegistrar(builder, services);
-            properties.Registrars[typeof(TContext)] = registrar;
+            services.AddDbContextFactory<TContext>(static (sp, o) =>
+            {
+                var globalOptions = sp.GetRequiredService<IOptions<AxiomDbContextsOptions>>().Value;
+                globalOptions.SharedBuilderAction?.Invoke(o);
+
+                var contextOptions = sp.GetRequiredService<IOptions<AxiomDbContextOptions<TContext>>>().Value;
+                var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
+                builderAction?.Invoke(o);
+
+                o.AddInterceptors(sp.GetRequiredService<AxiomSaveChangesInterceptor>());
+            });
+        }
+
+        private void RegisterRepositories(AxiomDbContextOptionsBuilder builder)
+        {
+            var properties = CollectionProperties.GetOrCreateValue(services);
+
+            if (builder.Repositories.Count > 0 || builder.RegisterAsGenericDbContext)
+            {
+                var registrar = new GenericRepositoryRegistrar(builder, services);
+                registrar.Register();
+                properties.GenericRegistrars[typeof(TContext)] = registrar;
+            }
+            else
+            {
+                var registrar = new RepositoryRegistrar(builder, services);
+                properties.Registrars[typeof(TContext)] = registrar;
+            }
         }
     }
 
