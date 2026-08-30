@@ -13,6 +13,7 @@ export const oAuthProvider: AuthProvider = {
 
     return instance;
   },
+
   provide(options) {
     if (instance) {
       return;

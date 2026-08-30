@@ -20,8 +20,12 @@ export function configureOAuth(options?: OAuthOptions): void {
       getOrSetAuthProvider(() => oAuthProvider);
       oAuthProvider.provide(oauth);
 
+      if (options?.skipDiscovery) {
+        return;
+      }
+
       const flow = oAuthProvider.get();
-      if (flow && !options?.skipDiscovery) {
+      if (flow) {
         await flow.initialize();
       }
     },
