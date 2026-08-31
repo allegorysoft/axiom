@@ -5,6 +5,7 @@ using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
 
@@ -27,6 +28,25 @@ public class RepositoryRegistrarTests : IntegrationTest
                 var descriptor2 = builder.Services.Single(d => d.ServiceType == typeof(IRepository<App1Entity2, int>));
                 descriptor2.ImplementationType.ShouldBe(typeof(EfCoreRepository<App1DbContext, App1Entity2, int>));
             });
+    }
+
+    [Fact]
+    public async Task ShouldSetCorrectTenancySideAndConnectionString()
+    {
+        var provider = await CreateServiceProviderAsync(
+            configure: builder => { builder.Services.AddAxiomDbContext<App1DbContext>(); },
+            postConfigure: builder =>
+            {
+                var properties = builder.Services.GetExtraProperties();
+
+                var module1 = properties.Registrars[typeof(App1DbContext)];
+                module1.TenancySide.ShouldBe(TenancySide.Hybrid);
+                module1.ConnectionStringName.ShouldBe("App1");
+            });
+
+        var options = provider.GetRequiredService<IOptions<AxiomDbContextOptions<App1DbContext>>>().Value;
+        options.TenancySide.ShouldBe(TenancySide.Hybrid);
+        options.ConnectionStringName.ShouldBe("App1");
     }
 
     [Fact]
