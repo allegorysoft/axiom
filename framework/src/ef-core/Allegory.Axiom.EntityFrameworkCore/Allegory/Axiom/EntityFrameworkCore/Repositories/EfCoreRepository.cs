@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
@@ -12,24 +13,33 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
-public class EfCoreRepository<TDbContext, TEntity>(
-    IDbContextProvider<TDbContext> dbContextProvider)
-    : IRepository<TEntity>
+public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
     where TDbContext : DbContext
     where TEntity : class, IEntity
 {
-    public static bool IsTenantOwned { get; }
-
     static EfCoreRepository()
     {
-        IsTenantOwned = typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
+        IsTenantAgnostic = !typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
+    }
+
+    public static bool IsTenantAgnostic { get; }
+
+    protected EfCoreRepository(IDbContextProvider<TDbContext> dbContextProvider)
+    {
+        DbContextProvider = dbContextProvider;
+        TenantContextAccessor = DbContextProvider.TenantContextAccessor;
+        DbContextOptions = DbContextProvider.Options;
+
+        ConnectionStringContextOptions =
+            DbContextProvider.ConnectionStringProvider.Contexts[DbContextOptions.ConnectionStringName];
     }
 
     public IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
 
-    protected IDbContextProvider<TDbContext> DbContextProvider { get; } = dbContextProvider;
-    protected ITenantContextAccessor TenantContextAccessor => DbContextProvider.TenantContextAccessor;
-    protected AxiomDbContextOptions<TDbContext> DbContextOptions => DbContextProvider.Options;
+    protected IDbContextProvider<TDbContext> DbContextProvider { get; }
+    protected ITenantContextAccessor TenantContextAccessor { get; }
+    protected AxiomDbContextOptions<TDbContext> DbContextOptions { get; }
+    protected ConnectionStringContextOptions ConnectionStringContextOptions { get; }
 
     public virtual async Task<TEntity?> FindAsync(
         Expression<Func<TEntity, bool>> predicate,
@@ -207,13 +217,13 @@ public class EfCoreRepository<TDbContext, TEntity>(
 
     protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
     {
-        if (!IsTenantOwned &&
-            DbContextOptions.TenancySide != TenancySide.Host &&
+        if (IsTenantAgnostic &&
+            !ConnectionStringContextOptions.IsTenantAgnostic &&
             TenantContextAccessor.Current != null)
         {
             // This is a host-side (tenant-agnostic) DbSet being resolved while a tenant
             // is currently active. Temporarily clear the ambient tenant context so the
-            // ConnectionStringProvider resolves the host connection instead of the active tenant's.
+            // `ConnectionStringProvider` provides the host connection instead of the active tenant's.
             using (TenantContextAccessor.Change(current: null))
             {
                 return DbContextProvider.GetAsync(cancellationToken);

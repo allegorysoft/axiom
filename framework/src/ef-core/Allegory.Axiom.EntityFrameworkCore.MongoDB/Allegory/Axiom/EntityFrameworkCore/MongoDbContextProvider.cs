@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
@@ -13,13 +14,15 @@ public class MongoDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
     IUnitOfWorkManager unitOfWorkManager,
     ITenantContextAccessor tenantContextAccessor,
-    IOptions<AxiomDbContextOptions<TContext>> options)
+    IOptions<AxiomDbContextOptions<TContext>> options,
+    IConnectionStringProvider connectionStringProvider)
     : IDbContextProvider<TContext>
     where TContext : DbContext
 {
     public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     public ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
     public AxiomDbContextOptions<TContext> Options { get; } = options.Value;
+    public IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
 
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
 

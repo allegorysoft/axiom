@@ -12,17 +12,18 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 public class RelationalDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
     IUnitOfWorkManager unitOfWorkManager,
-    IConnectionStringProvider connectionStringProvider,
     ITenantContextAccessor tenantContextAccessor,
-    IOptions<AxiomDbContextOptions<TContext>> options)
+    IOptions<AxiomDbContextOptions<TContext>> options,
+    IConnectionStringProvider connectionStringProvider)
     : IDbContextProvider<TContext>, ISingletonService
     where TContext : DbContext
 {
     public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     public ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
     public AxiomDbContextOptions<TContext> Options { get; } = options.Value;
+    public IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
+
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
-    protected IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
 
     public virtual async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {
