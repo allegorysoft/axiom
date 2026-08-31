@@ -27,11 +27,12 @@ public class RelationalDbContextProvider<TContext>(
 
     public virtual async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {
+        //TODO: We might optimize here
+
         var unitOfWork = UnitOfWorkManager.RequiredCurrent;
         cancellationToken = cancellationToken.FallbackTo(unitOfWork.CancellationToken);
 
-        //TODO: We might optimize here
-        var connectionString = await ConnectionStringProvider.GetAsync(Options.ConnectionStringName);
+        var connectionString = await ConnectionStringProvider.FindAsync(Options.ConnectionStringName);
         var key = $"{typeof(TContext).FullName!}_{connectionString}";
         if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
         {
@@ -39,7 +40,11 @@ public class RelationalDbContextProvider<TContext>(
         }
 
         var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
-        dbContext.Database.SetConnectionString(connectionString);
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            dbContext.Database.SetConnectionString(connectionString);    
+        }
 
         dbHandle = await CreateHandleAsync(unitOfWork, dbContext, cancellationToken);
         unitOfWork.AddDatabase(key, dbHandle);
