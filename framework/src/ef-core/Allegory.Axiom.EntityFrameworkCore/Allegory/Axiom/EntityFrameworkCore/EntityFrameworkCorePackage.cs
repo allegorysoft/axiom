@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.Hosting;
@@ -42,6 +44,8 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
             registrar.Register();
             ConfigureOptions(builder.Services, type, registrar);
         }
+
+        ConfigureConnectionStringOptions(builder);
     }
     
     private static void ConfigureOptions(
@@ -62,6 +66,50 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
                 registrar.TenancySide)!);
     }
 
+    private static void ConfigureConnectionStringOptions(IHostApplicationBuilder builder)
+    {
+        var properties = builder.Services.GetExtraProperties();
+ 
+        var registrars = properties.Registrars;
+        foreach (var (_, registrar) in registrars)
+        {
+            var context = new ConnectionStringContextOptions
+            {
+                Name = registrar.ConnectionStringName,
+                IsTenantAgnostic = registrar.TenancySide == TenancySide.Host
+            };
+
+            builder.Services.Configure<ConnectionStringContextsOptions>(o =>
+            {
+                o.Contexts.Add(context);
+            });
+        }
+
+        var replacedContexts = registrars
+            .Select(r => r.Value.ReplacedRegistrars.Select(d => d.DbContextType))
+            .SelectMany(r => r)
+            .Distinct()
+            .ToList();
+
+        var genericRegistrars = properties.GenericRegistrars.Where(g => !replacedContexts.Contains(g.Key)).ToList();
+        foreach (var (_, registrar) in genericRegistrars)
+        {
+            var context = new ConnectionStringContextOptions
+            {
+                Name = registrar.ConnectionStringName,
+                IsTenantAgnostic = registrar.TenancySide == TenancySide.Host
+            };
+
+            builder.Services.Configure<ConnectionStringContextsOptions>(o =>
+            {
+                if (!o.Contexts.SelectMany(c => c.Connections).Any(f => f == context.Name))
+                {
+                    o.Contexts.Add(context);    
+                }
+            });
+        }
+    }
+    
     private sealed class AxiomDbContextOptionsConfigurer<TContext>(
         Action<DbContextOptionsBuilder>? builderAction,
         string connectionStringName,

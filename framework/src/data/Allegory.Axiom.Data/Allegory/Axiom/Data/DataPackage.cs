@@ -14,7 +14,7 @@ internal sealed class DataPackage : IConfigureApplication
         builder.Services.Configure<ConnectionStringContextsOptions>(options =>
             options.Contexts = builder.Configuration
                 .GetSection("Axiom:ConnectionStringContexts")
-                .Get<HashSet<ConnectionStringContextOptions>>());
+                .Get<HashSet<ConnectionStringContextOptions>>() ?? []);
 
         return Task.CompletedTask;
     }

@@ -103,13 +103,8 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
         return Configuration.GetConnectionString(IConnectionStringProvider.DefaultName);
     }
 
-    private void BuildContexts(HashSet<ConnectionStringContextOptions>? contexts)
+    private void BuildContexts(HashSet<ConnectionStringContextOptions> contexts)
     {
-        if (contexts == null)
-        {
-            return;
-        }
-
         var dictionary = new Dictionary<string, ConnectionStringContextOptions>();
         foreach (var context in contexts)
         {

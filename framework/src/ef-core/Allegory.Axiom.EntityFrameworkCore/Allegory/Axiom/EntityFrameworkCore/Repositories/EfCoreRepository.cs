@@ -207,7 +207,9 @@ public class EfCoreRepository<TDbContext, TEntity>(
 
     protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
     {
-        if (!IsTenantOwned && TenantContextAccessor.Current != null)
+        if (!IsTenantOwned &&
+            DbContextOptions.TenancySide != TenancySide.Host &&
+            TenantContextAccessor.Current != null)
         {
             // This is a host-side (tenant-agnostic) DbSet being resolved while a tenant
             // is currently active. Temporarily clear the ambient tenant context so the

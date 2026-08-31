@@ -15,7 +15,7 @@ internal class RepositoryRegistrar(
     IServiceCollection services) :
     RepositoryRegistrarBase(dbContextType, builder, services)
 {
-    protected IReadOnlySet<GenericRepositoryRegistrar> ReplacedRegistrars { get; set; } = null!;
+    internal IReadOnlySet<GenericRepositoryRegistrar> ReplacedRegistrars { get; set; } = null!;
 
     public override void Register()
     {
