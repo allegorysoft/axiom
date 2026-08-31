@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 
-[ConnectionStringName("App2")]
 public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(options)
 {
     public DbSet<App2Entity1> Entity1 => Set<App2Entity1>();

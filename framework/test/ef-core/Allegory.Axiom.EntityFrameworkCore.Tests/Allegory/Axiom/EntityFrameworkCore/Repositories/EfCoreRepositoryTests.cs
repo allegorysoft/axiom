@@ -20,7 +20,7 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
     {
         await fixture.RunInUnitOfWorkAsync(async _ =>
         {
-            var result = await Entity1Repository.GetListAsync();
+
         });
     }
 }
