@@ -4,3 +4,4 @@ export {
   createHttpClient,
   removeHttpClient,
 } from './http-client-factory';
+export { ApiClient, getOrCreateApiClient } from './api-client';

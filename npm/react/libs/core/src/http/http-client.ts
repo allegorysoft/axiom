@@ -5,6 +5,7 @@ export type QueryParams = Record<
 
 export interface HttpRequest extends RequestInit {
   query?: QueryParams;
+  signal?: AbortSignal;
 }
 
 export interface HttpContext {
@@ -20,10 +21,10 @@ export type HttpMiddleware = (
 ) => Promise<Response>;
 
 export class HttpClient {
-  private readonly middlewares: HttpMiddleware[] = [];
+  protected readonly middlewares: HttpMiddleware[] = [];
 
   constructor(
-    private readonly fetcher: typeof fetch = (...args) => fetch(...args),
+    protected readonly fetcher: typeof fetch = (...args) => fetch(...args),
   ) {}
 
   use(middleware: HttpMiddleware): this {
@@ -51,7 +52,7 @@ export class HttpClient {
     return this.request('DELETE', url, undefined, request);
   }
 
-  private async request<T>(
+  protected async request<T>(
     method: string,
     url: string,
     body?: unknown,
@@ -86,10 +87,16 @@ export class HttpClient {
     return response.json() as Promise<T>;
   }
 
-  private dispatch(context: HttpContext, index: number): Promise<Response> {
+  protected dispatch(context: HttpContext, index: number): Promise<Response> {
     if (index === this.middlewares.length) {
-      const { query, ...init } = context.request;
-      return this.fetcher(this.buildUrl(context.url, query), init);
+      const { query, signal, ...init } = context.request;
+
+      const options: RequestInit = {
+        ...init,
+        signal: signal,
+      };
+
+      return this.fetcher(this.buildUrl(context.url, query), options);
     }
 
     return this.middlewares[index](context, () =>
@@ -97,7 +104,7 @@ export class HttpClient {
     );
   }
 
-  private buildUrl(url: string, query?: QueryParams): string {
+  protected buildUrl(url: string, query?: QueryParams): string {
     if (!query) {
       return url;
     }

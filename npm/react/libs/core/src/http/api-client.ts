@@ -6,11 +6,12 @@ interface ApiRequest extends HttpRequest {
   moduleName?: string;
 }
 
-class ApiClient {
-  constructor(private readonly http = getHttpClient()) {}
+export class ApiClient {
+  constructor(protected readonly http = getHttpClient()) {}
 
   get<T>(path: string, request?: ApiRequest) {
-    return this.http.get<T>(this.resolve(path, request?.moduleName), request);
+    const { moduleName, ...httpRequest } = request ?? {};
+    return this.http.get<T>(this.resolve(path, moduleName), httpRequest);
   }
 
   post<T>(path: string, body?: unknown, request?: ApiRequest) {
@@ -44,7 +45,7 @@ class ApiClient {
     );
   }
 
-  private resolve(path: string, moduleName?: string): string {
+  protected resolve(path: string, moduleName?: string): string {
     const key = moduleName || 'Default';
     const state = environmentStore.get();
     const endpoint = state.environment?.endpoints[key];
@@ -59,7 +60,7 @@ class ApiClient {
 
 let restClient: ApiClient | undefined;
 
-export function getApiClient() {
+export function getOrCreateApiClient() {
   restClient ??= new ApiClient();
 
   return restClient;
