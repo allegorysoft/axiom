@@ -10,8 +10,8 @@ public class ConnectionStringContextsOptions
 public class ConnectionStringContextOptions
 {
     public string Name { get; init; } = null!;
-    public HashSet<string> Connections { get; set; } = [];
-    public bool IsTenantAgnostic { get; set; }
+    public HashSet<string> Connections { get; init; } = [];
+    public bool IsTenantAgnostic { get; init; }
 
     public override bool Equals(object? obj) => obj is ConnectionStringContextOptions options && options.Name == Name;
 

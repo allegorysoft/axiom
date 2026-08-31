@@ -21,9 +21,10 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
         BuildContexts(options.Value.Contexts);
     }
 
+    public FrozenDictionary<string, ConnectionStringContextOptions> Contexts { get; private set; } = null!;
+
     protected IConfiguration Configuration { get; }
     protected ITenantContextAccessor TenantContextAccessor { get; }
-    protected FrozenDictionary<string, ConnectionStringContextOptions> Contexts { get; private set; } = null!;
 
     public virtual async ValueTask<string> GetAsync(string name)
     {
