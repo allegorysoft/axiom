@@ -10,19 +10,23 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
 internal class RepositoryRegistrar(
+    Type dbContextType,
     AxiomDbContextOptionsBuilder builder,
     IServiceCollection services) :
-    RepositoryRegistrarBase(builder, services)
+    RepositoryRegistrarBase(dbContextType, builder, services)
 {
     protected IReadOnlySet<GenericRepositoryRegistrar> ReplacedRegistrars { get; set; } = null!;
 
     public override void Register()
     {
-        var properties = ServiceCollectionExtensions.CollectionProperties.GetOrCreateValue(Services);
+        var properties = Services.GetExtraProperties();
 
-        ReplacedRegistrars = Builder.ReplacedDbContexts == null
+        TenancySide = TenancySideAttribute.Find(DbContextType) ?? TenancySide.Hybrid;
+
+        var replaced = ReplaceDbContextAttribute.Find(DbContextType);
+        ReplacedRegistrars = replaced == null
             ? ImmutableHashSet<GenericRepositoryRegistrar>.Empty
-            : Builder.ReplacedDbContexts.Select(x => properties.GenericRegistrars[x]).ToHashSet();
+            : replaced.Select(x => properties.GenericRegistrars[x]).ToHashSet();
 
         // Registers concrete (closed) repository implementations;
         // DbContext generic parameter is already fixed to a specific context type, such as
@@ -42,7 +46,7 @@ internal class RepositoryRegistrar(
 
     protected void RegisterRepositories()
     {
-        var repositories = Builder.DbContextType.Assembly
+        var repositories = DbContextType.Assembly
             .GetTypes()
             .Where(t => typeof(IRepository).IsAssignableFrom(t)
                         && !t.IsGenericType && t is {IsClass: true, IsAbstract: false})
@@ -50,7 +54,7 @@ internal class RepositoryRegistrar(
 
         foreach (var repository in repositories)
         {
-            var descriptor = new RepositoryDescriptor(repository, Builder.ExposeGenericServices, Builder.TenancySide);
+            var descriptor = new RepositoryDescriptor(repository, Builder.ExposeGenericServices, TenancySide);
             Descriptors.Add(descriptor);
 
             foreach (var serviceType in descriptor.Services)
@@ -74,11 +78,12 @@ internal class RepositoryRegistrar(
             .Select(d => d.EntityType!)
             .ToHashSet();
 
-        var entities = GetEntityTypes(Builder.DbContextType)
+        var descriptors = GetEntityTypes(DbContextType)
             .Where(t => !excludedEntityTypes.Contains(t))
-            .ToList();
+            .ToList()
+            .Select(entityType => new RepositoryDescriptor(entityType, DbContextType));
 
-        foreach (var descriptor in entities.Select(entityType => new RepositoryDescriptor(entityType, Builder.DbContextType)))
+        foreach (var descriptor in descriptors)
         {
             Descriptors.Add(descriptor);
 
@@ -102,7 +107,7 @@ internal class RepositoryRegistrar(
     {
         foreach (var descriptor in registrar.Descriptors)
         {
-            if (!descriptor.TenancySide.AppliesTo(Builder.TenancySide))
+            if (!descriptor.TenancySide.AppliesTo(TenancySide))
             {
                 continue;
             }
@@ -112,20 +117,20 @@ internal class RepositoryRegistrar(
                 ArgumentNullException.ThrowIfNull(descriptor.EntityType);
 
                 descriptor.ImplementationType = descriptor.EntityKeyType == null
-                    ? typeof(EfCoreRepository<,>).MakeGenericType(Builder.DbContextType, descriptor.EntityType)
-                    : typeof(EfCoreRepository<,,>).MakeGenericType(Builder.DbContextType, descriptor.EntityType,
+                    ? typeof(EfCoreRepository<,>).MakeGenericType(DbContextType, descriptor.EntityType)
+                    : typeof(EfCoreRepository<,,>).MakeGenericType(DbContextType, descriptor.EntityType,
                         descriptor.EntityKeyType);
             }
             else
             {
                 descriptor.ImplementationType = descriptor.ImplementationType.GetGenericTypeDefinition()
-                    .MakeGenericType(Builder.DbContextType);
+                    .MakeGenericType(DbContextType);
             }
 
             foreach (var service in descriptor.Services)
             {
-                Services.Replace(ServiceDescriptor.Describe(service, descriptor.ImplementationType,
-                    registrar.Builder.ServiceLifetime));
+                Services.Replace(
+                    ServiceDescriptor.Describe(service, descriptor.ImplementationType, registrar.Builder.ServiceLifetime));
             }
         }
     }

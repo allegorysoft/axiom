@@ -63,15 +63,15 @@ public class GenericRepositoryRegistrarTests : IntegrationTest
             {
                 var properties = builder.Services.GetExtraProperties();
 
-                var module1 = properties.GenericRegistrars[typeof(Module1DbContext)].Builder;
+                var module1 = properties.GenericRegistrars[typeof(Module1DbContext)];
                 module1.TenancySide.ShouldBe(TenancySide.Host);
                 module1.ConnectionStringName.ShouldBe("Module1");
 
-                var module2 = properties.GenericRegistrars[typeof(Module2DbContext)].Builder;
+                var module2 = properties.GenericRegistrars[typeof(Module2DbContext)];
                 module2.TenancySide.ShouldBe(TenancySide.Tenant);
                 module2.ConnectionStringName.ShouldBe("Module2");
 
-                var module3 = properties.GenericRegistrars[typeof(Module3DbContext)].Builder;
+                var module3 = properties.GenericRegistrars[typeof(Module3DbContext)];
                 module3.TenancySide.ShouldBe(TenancySide.Hybrid);
                 module3.ConnectionStringName.ShouldBe("Module3");
             });

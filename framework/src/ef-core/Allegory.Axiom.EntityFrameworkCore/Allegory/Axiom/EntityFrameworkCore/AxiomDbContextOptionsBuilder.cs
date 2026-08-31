@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -10,21 +9,9 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class AxiomDbContextOptionsBuilder
 {
-    internal AxiomDbContextOptionsBuilder(Type dbContextType)
-    {
-        DbContextType = dbContextType;
-        TenancySide = TenancySideAttribute.Find(DbContextType) ?? TenancySide.Hybrid;
-        ReplacedDbContexts = ReplaceDbContextAttribute.Find(DbContextType);
-        SetConnectionStringName();
-    }
-
-    internal Type DbContextType { get; }
     internal HashSet<(Type Type, TenancySide? TenancySide)> Repositories { get; } = [];
 
     public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
-    public string? ConnectionStringName { get; private set; }
-    public TenancySide TenancySide { get; internal set; }
-    public IReadOnlySet<Type>? ReplacedDbContexts { get; }
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
 
     /// <summary>
@@ -38,7 +25,7 @@ public class AxiomDbContextOptionsBuilder
     /// there is no need to set this to <see langword="true"/> it is already considered a generic
     /// <see cref="DbContext"/> registration.
     /// </summary>
-    public bool RegisterAsGenericDbContext { get; set; }
+    public bool RegisterAsGenericDbContext { get => field || Repositories.Count > 0; set; }
 
     /// <summary>
     /// When <see langword="true"/>, automatically registers <see cref="IRepository{TEntity, TKey}"/>
@@ -55,21 +42,6 @@ public class AxiomDbContextOptionsBuilder
     /// Both interfaces resolve to the same instance. Has no effect on entities without a custom repository.
     /// </summary>
     public bool ExposeGenericServices { get; set; }
-
-    private void SetConnectionStringName()
-    {
-        ConnectionStringName = ConnectionStringNameAttribute.Find(DbContextType);
-
-        if (ConnectionStringName != null)
-        {
-            return;
-        }
-
-        var name = DbContextType.Name;
-        ConnectionStringName = name.EndsWith("DbContext", StringComparison.OrdinalIgnoreCase)
-            ? name[..^9]
-            : name;
-    }
 
     public void AddRepository(Type type, TenancySide? tenancySide = null)
     {

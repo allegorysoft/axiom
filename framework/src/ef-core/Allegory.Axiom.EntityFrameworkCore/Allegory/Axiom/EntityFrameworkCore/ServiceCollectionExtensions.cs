@@ -28,12 +28,11 @@ public static class ServiceCollectionExtensions
     {
         public void AddAxiomDbContext(Action<AxiomDbContextOptionsBuilder>? optionsAction = null)
         {
-            var builder = new AxiomDbContextOptionsBuilder(typeof(TContext));
+            var builder = new AxiomDbContextOptionsBuilder();
             optionsAction?.Invoke(builder);
 
             services.RegisterRepositories<TContext>(builder);
             services.RegisterDbContextFactory<TContext>();
-            services.ConfigureOptions<TContext>(builder);
         }
 
         public void ConfigureAxiomDbContext(Action<DbContextOptionsBuilder> optionsAction)
@@ -43,7 +42,7 @@ public static class ServiceCollectionExtensions
 
         public void ReplaceRepository(Type repository)
         {
-            var properties = CollectionProperties.GetOrCreateValue(services);
+            var properties = services.GetExtraProperties();
             var registrar = properties.GenericRegistrars[typeof(TContext)];
             registrar.ReplaceRepository(repository);
         }
@@ -52,16 +51,14 @@ public static class ServiceCollectionExtensions
         {
             var properties = CollectionProperties.GetOrCreateValue(services);
 
-            if (builder.Repositories.Count > 0 || builder.RegisterAsGenericDbContext)
+            if (builder.RegisterAsGenericDbContext)
             {
-                var registrar = new GenericRepositoryRegistrar(builder, services);
-                registrar.Register();
-                properties.GenericRegistrars[typeof(TContext)] = registrar;
+                properties.GenericRegistrars[typeof(TContext)] =
+                    new GenericRepositoryRegistrar(typeof(TContext), builder, services);
             }
             else
             {
-                var registrar = new RepositoryRegistrar(builder, services);
-                properties.Registrars[typeof(TContext)] = registrar;
+                properties.Registrars[typeof(TContext)] = new RepositoryRegistrar(typeof(TContext), builder, services);
             }
         }
 
@@ -77,19 +74,6 @@ public static class ServiceCollectionExtensions
                 builderAction?.Invoke(o);
 
                 o.AddInterceptors(sp.GetRequiredService<AxiomSaveChangesInterceptor>());
-            });
-        }
-
-        private void ConfigureOptions(AxiomDbContextOptionsBuilder builder)
-        {
-            services.Configure<AxiomDbContextsOptions>(o => o.AddContext(typeof(TContext)));
-
-            services.Configure<AxiomDbContextOptions<TContext>>(o =>
-            {
-                o.BuilderAction ??= builder.BuilderAction; // ConfigureAxiomDbContext might run first
-                o.TenancySide = builder.TenancySide;
-                o.ConnectionStringName = builder.ConnectionStringName;
-                o.ReplacedDbContexts = builder.ReplacedDbContexts;
             });
         }
     }
