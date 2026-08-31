@@ -16,15 +16,7 @@ public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : ICl
     // Host
 
     [Fact]
-    public async Task ShouldResolveDefaultConnectionString()
-    {
-        var connection = await Provider.GetAsync();
-
-        connection.ShouldBe("host-app-default");
-    }
-
-    [Fact]
-    public async Task ShouldResolveSpecifiedConnectionString()
+    public async Task ShouldResolveConnectionString()
     {
         var connection1 = await Provider.GetAsync("AppDb1");
         var connection2 = await Provider.GetAsync("AppDb2");
@@ -45,14 +37,6 @@ public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : ICl
         connection2.ShouldBe("host-tenant-agnostic-app-group");
         connection3.ShouldBe("host-app-group");
         connection4.ShouldBe("host-app-group");
-    }
-
-    [Fact]
-    public async Task ShouldFallbackToDefaultConnectionStringWhenNamedConnectionMissing()
-    {
-        var connection = await Provider.GetAsync("NotFoundDb");
-
-        connection.ShouldBe("host-app-default");
     }
 
     // Tenant
@@ -82,13 +66,14 @@ public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : ICl
     {
         TenantContextAccessor.Set(await TenantStore.GetAsync(Tenant1));
 
+        // Tenant-agnostic contexts always use the host-side connection strings from IConfiguration.
         var connection1 = await Provider.GetAsync("TenantAgnosticGroupedDb1");
         var connection2 = await Provider.GetAsync("TenantAgnosticGroupedDb2");
-        var connection3 = await Provider.GetAsync("GroupedDb1");
-        var connection4 = await Provider.GetAsync("GroupedDb2");
-
         connection1.ShouldBe("host-tenant-agnostic-app-group");
         connection2.ShouldBe("host-tenant-agnostic-app-group");
+
+        var connection3 = await Provider.GetAsync("GroupedDb1");
+        var connection4 = await Provider.GetAsync("GroupedDb2");
         connection3.ShouldBe("tenant1-app-group");
         connection4.ShouldBe("tenant1-app-group");
     }
@@ -110,16 +95,12 @@ public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : ICl
     {
         TenantContextAccessor.Set(await TenantStore.GetAsync(Tenant2));
 
-        var connection1 = await Provider.GetAsync();
-        var connection2 = await Provider.GetAsync("AppDb1");
-        var connection3 = await Provider.GetAsync("TenantAgnosticGroupedDb1");
-        var connection4 = await Provider.GetAsync("GroupedDb1");
-        var connection5 = await Provider.GetAsync("NotFoundDb");
+        var connection1 = await Provider.GetAsync("AppDb1");
+        var connection2 = await Provider.GetAsync("TenantAgnosticGroupedDb1");
+        var connection3 = await Provider.GetAsync("GroupedDb1");
 
-        connection1.ShouldBe("host-app-default");
-        connection2.ShouldBe("host-app-db-1");
-        connection3.ShouldBe("host-tenant-agnostic-app-group");
-        connection4.ShouldBe("host-app-group");
-        connection5.ShouldBe("host-app-default");
+        connection1.ShouldBe("host-app-db-1");
+        connection2.ShouldBe("host-tenant-agnostic-app-group");
+        connection3.ShouldBe("host-app-group");
     }
 }

@@ -23,9 +23,9 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
 
     protected IConfiguration Configuration { get; }
     protected ITenantContextAccessor TenantContextAccessor { get; }
-    protected FrozenDictionary<string, ConnectionStringContextOptions>? Contexts { get; private set; }
+    protected FrozenDictionary<string, ConnectionStringContextOptions> Contexts { get; private set; } = null!;
 
-    public virtual async ValueTask<string> GetAsync(string? name = null)
+    public virtual async ValueTask<string> GetAsync(string name)
     {
         var connectionString = await FindAsync(name);
 
@@ -34,11 +34,9 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
             : connectionString;
     }
 
-    public virtual ValueTask<string?> FindAsync(string? name = null)
+    public virtual ValueTask<string?> FindAsync(string name)
     {
-        name ??= IConnectionStringProvider.DefaultName;
-
-        var context = Contexts?.GetValueOrDefault(name);
+        var context = Contexts.GetValueOrDefault(name);
 
         var connectionString = context == null ? FindByName(name) : FindByContext(context);
 
@@ -71,41 +69,24 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
 
     protected virtual string? FindByConfiguration(string name)
     {
-        var connection = Configuration.GetConnectionString(name);
-
-        if (connection != null)
-        {
-            return connection;
-        }
-
-        return name == IConnectionStringProvider.DefaultName
-            ? null
-            : Configuration.GetConnectionString(IConnectionStringProvider.DefaultName);
+        return Configuration.GetConnectionString(name);
     }
 
     protected virtual string? FindByTenant(TenantContext tenant, string name)
     {
-        if (tenant.ConnectionStrings.TryGetValue(name, out var connectionString))
+        if (tenant.ConnectionStrings.TryGetValue(name, out var connectionString) ||
+            tenant.ConnectionStrings.TryGetValue(IConnectionStringProvider.DefaultName, out connectionString))
         {
             return connectionString;
         }
 
-        if (name == IConnectionStringProvider.DefaultName)
-        {
-            return Configuration.GetConnectionString(name);
-        }
-
-        if (tenant.ConnectionStrings.TryGetValue(IConnectionStringProvider.DefaultName, out connectionString))
-        {
-            return connectionString;
-        }
-
-        return Configuration.GetConnectionString(IConnectionStringProvider.DefaultName);
+        return FindByConfiguration(name);
     }
 
     private void BuildContexts(HashSet<ConnectionStringContextOptions> contexts)
     {
         var dictionary = new Dictionary<string, ConnectionStringContextOptions>();
+
         foreach (var context in contexts)
         {
             dictionary.Add(context.Name, context);
