@@ -4,7 +4,7 @@ namespace Allegory.Axiom.Data;
 
 public class ConnectionStringContextsOptions
 {
-    public HashSet<ConnectionStringContextOptions> Contexts { get; set; } = null!;
+    public HashSet<ConnectionStringContextOptions> Contexts { get; } = [];
 }
 
 public class ConnectionStringContextOptions

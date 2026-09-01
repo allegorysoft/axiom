@@ -12,9 +12,19 @@ internal sealed class DataPackage : IConfigureApplication
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<ConnectionStringContextsOptions>(options =>
-            options.Contexts = builder.Configuration
+        {
+            var contexts = builder.Configuration
                 .GetSection("Axiom:ConnectionStringContexts")
-                .Get<HashSet<ConnectionStringContextOptions>>() ?? []);
+                .Get<HashSet<ConnectionStringContextOptions>>();
+
+            if (contexts != null)
+            {
+                foreach (var context in contexts)
+                {
+                    options.Contexts.Add(context);
+                }
+            }
+        });
 
         return Task.CompletedTask;
     }
