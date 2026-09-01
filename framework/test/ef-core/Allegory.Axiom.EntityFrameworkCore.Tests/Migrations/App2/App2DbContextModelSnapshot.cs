@@ -24,11 +24,9 @@ namespace Migrations.App2
 
             modelBuilder.Entity("Allegory.Axiom.EntityFrameworkCore.DbContexts.App2Entity1", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -66,14 +64,12 @@ namespace Migrations.App2
 
             modelBuilder.Entity("Allegory.Axiom.EntityFrameworkCore.DbContexts.App2SubEntity1", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("uuid");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppEntity1Id")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("AppEntity1Id")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("SubNumber")
                         .IsRequired()

@@ -28,9 +28,14 @@ public abstract class AggregateRoot : Entity, IAggregateRoot
 
 public abstract class AggregateRoot<TKey> : AggregateRoot, IAggregateRoot<TKey> where TKey : notnull
 {
-    public virtual TKey Id { get; protected set; } = default!;
+    public TKey Id { get; protected set; } = default!;
 
     protected AggregateRoot() { }
+    
+    protected AggregateRoot(TKey id)
+    {
+        Id = id;
+    }
 
     public override object[] GetKeys() => [Id];
 }

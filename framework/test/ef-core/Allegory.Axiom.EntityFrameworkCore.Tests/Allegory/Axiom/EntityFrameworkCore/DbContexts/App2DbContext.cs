@@ -37,7 +37,7 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
         modelBuilder.Entity<App2SubEntity1>(builder =>
         {
             builder.HasKey(e => e.Id);
-        
+
             builder.Property(e => e.SubNumber)
                 .IsRequired()
                 .HasMaxLength(100);
@@ -51,13 +51,18 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
     }
 }
 
-public class App2Entity1 : AggregateRoot<int>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned
+public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned
 {
     protected App2Entity1() { }
 
-    public App2Entity1(string number)
+    public App2Entity1(string number, Guid? id = null)
     {
         Number = number;
+
+        if (id != null)
+        {
+            Id = id.Value;
+        }
     }
 
     public string Number { get; set; } = null!;
@@ -77,33 +82,21 @@ public class App2Entity1 : AggregateRoot<int>, ICreationAudited, IModificationAu
     public List<App2SubEntity1> SubEntities { get; set; } = [];
 }
 
-public class App2SubEntity1 : Entity<int>
+public class App2SubEntity1 : Entity<Guid>
 {
-    public int AppEntity1Id { get; set; }
+    protected App2SubEntity1() { }
+
+    public App2SubEntity1(string number, Guid? id = null)
+    {
+        SubNumber = number;
+
+        if (id != null)
+        {
+            Id = id.Value;
+        }
+    }
+
+    public Guid AppEntity1Id { get; set; }
 
     public string SubNumber { get; set; } = null!;
-}
-
-public interface IApp2Entity1Repository : IRepository<App2Entity1, int>
-{
-    ValueTask<IQueryable<App2Entity1>> GetQueryable();
-}
-
-public class EfCoreEntity1Repository(
-    IDbContextProvider<App2DbContext> dbContextProvider)
-    : EfCoreRepository<App2DbContext, App2Entity1, int>(dbContextProvider), IApp2Entity1Repository
-{
-    protected override IQueryable<App2Entity1> IncludeDetails(
-        IQueryable<App2Entity1> query,
-        bool includeDetails = true)
-    {
-        return query.Include(q => q.SubEntities);
-    }
-
-    public async ValueTask<IQueryable<App2Entity1>> GetQueryable()
-    {
-        var set = await GetDbSetAsync();
-        var query = set.AsNoTracking().AsQueryable();
-        return query;
-    }
 }
