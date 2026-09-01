@@ -12,7 +12,7 @@ public class AxiomDbContextOptionsBuilder
 {
     internal HashSet<(Type Type, TenancySide? TenancySide)> Repositories { get; } = [];
 
-    public Action<DbContextOptionsBuilder>? BuilderAction { get; set; }
+    public Action<IServiceProvider, DbContextOptionsBuilder>? BuilderAction { get; internal set; }
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
 
     /// <summary>
@@ -62,4 +62,15 @@ public class AxiomDbContextOptionsBuilder
 
         Repositories.Add((type, tenancySide));
     }
+    
+    public void Configure(Action<DbContextOptionsBuilder> action)
+    {
+        BuilderAction = (_, b) => action(b);
+    }
+
+    public void Configure(Action<IServiceProvider, DbContextOptionsBuilder> action)
+    {
+        BuilderAction = action;
+    }
+
 }

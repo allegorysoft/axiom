@@ -15,7 +15,10 @@ internal sealed class EntityFrameworkCoreTestsPackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.ConfigureAxiomDbContexts(o => { o.DefaultBuilderAction = b => { b.UseSqlite(); }; });
+        builder.Services.ConfigureAxiomDbContexts(o =>
+        {
+            o.Configure(b => { b.UseSqlite(); });
+        });
 
         builder.AddDeferredAction(RemoveUnconfiguredDbContextRepositories, PriorityLevel.Low);
 

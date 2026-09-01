@@ -35,9 +35,9 @@ public static class ServiceCollectionExtensions
             services.RegisterDbContextFactory<TContext>();
         }
 
-        public void ConfigureAxiomDbContext(Action<DbContextOptionsBuilder> optionsAction)
+        public void ConfigureAxiomDbContext(Action<AxiomDbContextOptions<TContext>> optionsAction)
         {
-            services.Configure<AxiomDbContextOptions<TContext>>(o => o.BuilderAction = optionsAction);
+            services.Configure(optionsAction);
         }
 
         public void ReplaceRepository(Type repository)
@@ -67,11 +67,11 @@ public static class ServiceCollectionExtensions
             services.AddDbContextFactory<TContext>(static (sp, o) =>
             {
                 var globalOptions = sp.GetRequiredService<IOptions<AxiomDbContextsOptions>>().Value;
-                globalOptions.SharedBuilderAction?.Invoke(o);
+                globalOptions.SharedBuilderAction?.Invoke(sp, o);
 
                 var contextOptions = sp.GetRequiredService<IOptions<AxiomDbContextOptions<TContext>>>().Value;
-                var builderAction = contextOptions.BuilderAction ?? globalOptions.DefaultBuilderAction;
-                builderAction?.Invoke(o);
+                var builderAction = contextOptions.BuilderAction ?? globalOptions.BuilderAction;
+                builderAction?.Invoke(sp, o);
 
                 o.AddInterceptors(sp.GetRequiredService<AxiomSaveChangesInterceptor>());
             });

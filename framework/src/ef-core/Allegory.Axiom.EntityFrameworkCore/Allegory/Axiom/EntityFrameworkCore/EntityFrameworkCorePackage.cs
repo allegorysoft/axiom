@@ -108,7 +108,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
     }
 
     private sealed class AxiomDbContextOptionsConfigurer<TContext>(
-        Action<DbContextOptionsBuilder>? builderAction,
+        AxiomDbContextOptionsBuilder builder,
         string connectionStringName,
         TenancySide tenancySide) :
         IConfigureOptions<AxiomDbContextOptions<TContext>>
@@ -116,7 +116,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
     {
         public void Configure(AxiomDbContextOptions<TContext> o)
         {
-            o.BuilderAction ??= builderAction;
+            o.BuilderAction ??= builder.BuilderAction;
             o.ConnectionStringName = connectionStringName;
             o.TenancySide = tenancySide;
         }
