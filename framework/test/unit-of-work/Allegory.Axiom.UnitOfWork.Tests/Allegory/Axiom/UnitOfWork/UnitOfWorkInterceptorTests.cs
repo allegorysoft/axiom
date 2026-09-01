@@ -114,12 +114,12 @@ public class UnitOfWorkInterceptorTests : IntegrationTest
     }
 }
 
-public interface IHasExecuteAction : ITransientService
+public interface IExecuteAction : ITransientService
 {
     Action? OnExecute { get; set; }
 }
 
-public interface IUnitOfWorkScopedService : IUnitOfWorkScope, IHasExecuteAction
+public interface IUnitOfWorkScopedService : IUnitOfWorkScope, IExecuteAction
 {
     Task DoWorkAsync();
 }
@@ -134,7 +134,7 @@ file class UnitOfWorkScopedService : IUnitOfWorkScopedService
     }
 }
 
-public interface IAttributedUnitOfWorkService : IHasExecuteAction
+public interface IAttributedUnitOfWorkService : IExecuteAction
 {
     Task DoWorkAsync();
     Task SkippedAsync();
