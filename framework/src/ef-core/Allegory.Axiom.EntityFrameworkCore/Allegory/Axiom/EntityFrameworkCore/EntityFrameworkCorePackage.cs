@@ -16,7 +16,7 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 internal sealed class EntityFrameworkCorePackage : IConfigureApplication
 {
-    static  EntityFrameworkCorePackage()
+    static EntityFrameworkCorePackage()
     {
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(IInterceptor));
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(ISaveChangesInterceptor));
@@ -36,19 +36,19 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
         foreach (var (type, registrar) in properties.GenericRegistrars)
         {
             registrar.Register();
-            ConfigureOptions(builder.Services, type, registrar);
+            ConfigureDbContextOptions(builder.Services, type, registrar);
         }
 
         foreach (var (type, registrar) in properties.Registrars)
         {
             registrar.Register();
-            ConfigureOptions(builder.Services, type, registrar);
+            ConfigureDbContextOptions(builder.Services, type, registrar);
         }
 
         ConfigureConnectionStringOptions(builder);
     }
-    
-    private static void ConfigureOptions(
+
+    private static void ConfigureDbContextOptions(
         IServiceCollection services,
         Type contextType,
         RepositoryRegistrarBase registrar)
@@ -69,7 +69,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
     private static void ConfigureConnectionStringOptions(IHostApplicationBuilder builder)
     {
         var properties = builder.Services.GetExtraProperties();
- 
+
         var registrars = properties.Registrars;
         foreach (var (_, registrar) in registrars)
         {
@@ -79,10 +79,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
                 IsTenantAgnostic = registrar.TenancySide == TenancySide.Host
             };
 
-            builder.Services.Configure<ConnectionStringContextsOptions>(o =>
-            {
-                o.Contexts.Add(context);
-            });
+            builder.Services.Configure<ConnectionStringContextsOptions>(o => { o.Contexts.Add(context); });
         }
 
         var replacedContexts = registrars
@@ -104,12 +101,12 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
             {
                 if (!o.Contexts.SelectMany(c => c.Connections).Any(f => f == context.Name))
                 {
-                    o.Contexts.Add(context);    
+                    o.Contexts.Add(context);
                 }
             });
         }
     }
-    
+
     private sealed class AxiomDbContextOptionsConfigurer<TContext>(
         Action<DbContextOptionsBuilder>? builderAction,
         string connectionStringName,
