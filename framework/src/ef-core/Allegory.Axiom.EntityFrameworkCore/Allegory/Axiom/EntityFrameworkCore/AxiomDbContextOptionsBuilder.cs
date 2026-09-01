@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,8 @@ public class AxiomDbContextOptionsBuilder
                 $"Repository type '{type.Name}' should implement '{nameof(IRepository)}'", nameof(type));
         }
 
-        if (!type.IsGenericType)
+        if (!type.IsGenericType ||
+            type.GetGenericArguments().Single().GetGenericParameterConstraints().First() != typeof(DbContext))
         {
             throw new ArgumentException(
                 $"Repository type '{type.Name}' should be a generic type that takes DbContext as a generic parameter",
