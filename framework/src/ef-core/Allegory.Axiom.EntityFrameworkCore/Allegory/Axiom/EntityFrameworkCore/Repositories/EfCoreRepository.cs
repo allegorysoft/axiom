@@ -29,6 +29,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         DbContextProvider = dbContextProvider;
         TenantContextAccessor = DbContextProvider.TenantContextAccessor;
         DbContextOptions = DbContextProvider.Options;
+        Options = DbContextOptions.GetEntityOptions<TEntity>();
 
         ConnectionStringContextOptions =
             DbContextProvider.ConnectionStringProvider.Contexts[DbContextOptions.ConnectionStringName];
@@ -39,6 +40,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
     protected IDbContextProvider<TDbContext> DbContextProvider { get; }
     protected ITenantContextAccessor TenantContextAccessor { get; }
     protected AxiomDbContextOptions<TDbContext> DbContextOptions { get; }
+    protected AxiomEntityOptions<TEntity> Options { get; }
     protected ConnectionStringContextOptions ConnectionStringContextOptions { get; }
 
     public virtual async Task<TEntity?> FindAsync(
@@ -241,7 +243,12 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
 
     protected virtual IQueryable<TEntity> IncludeDetails(IQueryable<TEntity> query, bool includeDetails = true)
     {
-        return query;
+        if (!includeDetails)
+        {
+            return query;
+        }
+
+        return Options.IncludeDetails == null ? query : Options.IncludeDetails(query);
     }
 
     protected virtual CancellationToken GetCancellationToken(CancellationToken cancellationToken)

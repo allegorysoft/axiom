@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 public class AxiomDbContextOptionsBuilder
 {
     internal HashSet<(Type Type, TenancySide? TenancySide)> Repositories { get; } = [];
+    internal Dictionary<Type, object> EntityOptions { get; } = [];
 
     public Action<IServiceProvider, DbContextOptionsBuilder>? BuilderAction { get; internal set; }
     public ServiceLifetime ServiceLifetime { get; set; } = ServiceLifetime.Singleton;
@@ -62,7 +64,7 @@ public class AxiomDbContextOptionsBuilder
 
         Repositories.Add((type, tenancySide));
     }
-    
+
     public void Configure(Action<DbContextOptionsBuilder> action)
     {
         BuilderAction = (_, b) => action(b);
@@ -73,4 +75,13 @@ public class AxiomDbContextOptionsBuilder
         BuilderAction = action;
     }
 
+    public void Entity<TEntity>(Action<AxiomEntityOptions<TEntity>> action) where TEntity : IEntity
+    {
+        if (!EntityOptions.TryGetValue(typeof(TEntity), out var options))
+        {
+            EntityOptions[typeof(TEntity)] = options = new AxiomEntityOptions<TEntity>();
+        }
+
+        action((AxiomEntityOptions<TEntity>)options);
+    }
 }

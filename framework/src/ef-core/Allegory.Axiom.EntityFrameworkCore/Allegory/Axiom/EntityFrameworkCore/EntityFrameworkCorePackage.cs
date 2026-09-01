@@ -61,7 +61,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
         services.AddSingleton(configureOptionsType,
             Activator.CreateInstance(
                 typeof(AxiomDbContextOptionsConfigurer<>).MakeGenericType(contextType),
-                registrar.Builder.BuilderAction,
+                registrar.Builder,
                 registrar.ConnectionStringName,
                 registrar.TenancySide)!);
     }
@@ -116,9 +116,19 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
     {
         public void Configure(AxiomDbContextOptions<TContext> o)
         {
-            o.BuilderAction ??= builder.BuilderAction;
             o.ConnectionStringName = connectionStringName;
             o.TenancySide = tenancySide;
+            o.BuilderAction ??= builder.BuilderAction;
+
+            foreach (var entityOption in builder.EntityOptions)
+            {
+                if (o.EntityOptions.ContainsKey(entityOption.Key))
+                {
+                    continue;
+                }
+
+                o.EntityOptions[entityOption.Key] = entityOption.Value;
+            }
         }
     }
 }
