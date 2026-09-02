@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\ddd\Allegory.Axiom.Ddd.Domain\Allegory.Axiom.Ddd.Domain.csproj"/>
+        <ProjectReference Include="..\..\ddd\Allegory.Axiom.Domain\Allegory.Axiom.Domain.csproj"/>
     </ItemGroup>
 
 </Project>
