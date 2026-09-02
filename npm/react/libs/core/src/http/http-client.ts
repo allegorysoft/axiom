@@ -1,3 +1,5 @@
+import { HttpError } from '../error-handling/models';
+
 export type QueryParams = Record<
   string,
   string | number | boolean | null | undefined
@@ -77,7 +79,7 @@ export class HttpClient {
     const response = await this.dispatch(context, 0);
 
     if (!response.ok) {
-      throw new Error(`${response.status} ${response.statusText}`);
+      throw new HttpError(response);
     }
 
     if (response.status === 204) {

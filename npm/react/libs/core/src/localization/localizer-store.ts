@@ -62,7 +62,7 @@ export const localizerStore: LocalizerStore = Object.assign(baseStore, {
         ([key, value]) => prev.culture[key as keyof CultureInfo] === value,
       );
 
-      return changed ? { culture } : {};
+      return changed ? { culture, translations: {}, error: null } : {};
     });
 
     if (changed) {

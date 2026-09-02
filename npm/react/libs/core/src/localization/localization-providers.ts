@@ -1,6 +1,6 @@
 import type { Provider } from '../models/common';
 import type { Translations } from './localization';
-import { HttpClient } from '../http/http-client';
+import { getHttpClient } from '../http/http-client-factory';
 import { getOrCreateApiClient } from '../http/api-client';
 
 type RemoteProviderOptions = {
@@ -34,7 +34,7 @@ function clientLocalizationProvider(
 ): Provider<Translations> {
   return {
     provide() {
-      const client = new HttpClient();
+      const client = getHttpClient();
       return client.get<Translations>(`${options.fileNameOrPath}.json`, {
         headers: { Accept: 'application/json' },
       });
