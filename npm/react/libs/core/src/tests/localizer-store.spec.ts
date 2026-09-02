@@ -52,6 +52,12 @@ describe('localizer-store', () => {
 
       expect(listener).toHaveBeenCalledTimes(1);
     });
+
+    it('resets translations when the culture changes', () => {
+      localizerStore.setTranslations({ Default: { Greeting: 'Hello' } });
+      localizerStore.setCulture({ name: 'tr', displayName: 'Türkçe' });
+      expect(localizerStore.get().translations).toEqual({});
+    });
   });
 
   describe('translations', () => {
