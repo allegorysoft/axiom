@@ -1,12 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
-using Allegory.Axiom.Domain.Repositories;
-using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,7 +21,7 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
 
             builder.Property(e => e.Number)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(App2Entity1.MaxNumberLength);
 
             builder.HasMany(x => x.SubEntities)
                 .WithOne()
@@ -40,7 +35,7 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
 
             builder.Property(e => e.SubNumber)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(App2SubEntity1.MaxNumberLength);
         });
 
         // foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -53,11 +48,13 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
 
 public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned
 {
+    public static byte MaxNumberLength { get; set; } = 100;
+
     protected App2Entity1() { }
 
     public App2Entity1(string number, Guid? id = null)
     {
-        Number = number;
+        SetNumber(number);
 
         if (id != null)
         {
@@ -65,30 +62,40 @@ public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationA
         }
     }
 
-    public string Number { get; set; } = null!;
+    public string Number { get; protected set; } = null!;
 
-    public DateTime CreatedAt { get; set; }
-    public string? CreatedBy { get; set; }
+    public DateTime CreatedAt { get; private set; }
+    public string? CreatedBy { get; private set; }
 
-    public DateTime? ModifiedAt { get; set; }
-    public string? ModifiedBy { get; set; }
+    public DateTime? ModifiedAt { get; private set; }
+    public string? ModifiedBy { get; private set; }
 
-    public bool IsDeleted { get; set; }
-    public DateTime? DeletedAt { get; set; }
-    public string? DeletedBy { get; set; }
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; private set; }
+    public string? DeletedBy { get; private set; }
 
-    public Guid? TenantId { get; set; }
+    public Guid? TenantId { get; private set; }
 
     public List<App2SubEntity1> SubEntities { get; set; } = [];
+
+    public void SetNumber(string number)
+    {
+        ArgumentNullException.ThrowIfNull(number);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number.Length, MaxNumberLength);
+
+        Number = number;
+    }
 }
 
 public class App2SubEntity1 : Entity<Guid>
 {
+    public static byte MaxNumberLength { get; set; } = 100;
+
     protected App2SubEntity1() { }
 
     public App2SubEntity1(string number, Guid? id = null)
     {
-        SubNumber = number;
+        SetSubNumber(number);
 
         if (id != null)
         {
@@ -96,7 +103,15 @@ public class App2SubEntity1 : Entity<Guid>
         }
     }
 
-    public Guid AppEntity1Id { get; set; }
+    public Guid AppEntity1Id { get; private init; }
 
-    public string SubNumber { get; set; } = null!;
+    public string SubNumber { get; protected set; } = null!;
+
+    public void SetSubNumber(string number)
+    {
+        ArgumentNullException.ThrowIfNull(number);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number.Length, MaxNumberLength);
+
+        SubNumber = number;
+    }
 }
