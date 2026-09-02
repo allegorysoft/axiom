@@ -57,7 +57,6 @@ function buildProviders(
   const providers: Provider<Translations>[] = [];
 
   if (!options?.remote?.skipProvider) {
-    console.log(options?.remote?.url);
     providers.push(
       remoteLocalizationProvider({
         url: `/${options?.remote?.url ?? 'application-localization'}`,

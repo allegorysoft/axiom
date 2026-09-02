@@ -1,7 +1,7 @@
 import type { Provider } from '../models/common';
 import type { Translations } from './localization';
 import { HttpClient } from '../http/http-client';
-import { getApiClient } from '../http/api-client';
+import { getOrCreateApiClient } from '../http/api-client';
 
 type RemoteProviderOptions = {
   readonly url: string;
@@ -16,7 +16,7 @@ function remoteLocalizationProvider(
   return {
     provide() {
       //TODO: Update response return object with CultureInfo
-      const client = getApiClient();
+      const client = getOrCreateApiClient();
       const query = { culture: options.cultureName };
       return client
         .get<Response[]>(options.url, { query })
