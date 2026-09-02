@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import {
-  getOrSetAuthProvider,
+  getOrCreateAuthProvider,
   useTranslation,
 } from '@axiomframework/react-core';
 import {
@@ -46,7 +46,7 @@ export function Component() {
   });
 
   const onSubmit = async (input: LoginParams) => {
-    const provider = getOrSetAuthProvider();
+    const provider = getOrCreateAuthProvider();
     await provider.get().login(input.usernameOrEmail, input.password);
     const returnUrl = params.get('returnUrl') || '/';
     navigate(returnUrl);
