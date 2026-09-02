@@ -37,12 +37,7 @@ public interface IReadOnlyRepository<TEntity> : IRepository where TEntity : clas
         CancellationToken cancellationToken = default);
 }
 
-public interface IReadOnlyRepository<TEntity, TKey> : IReadOnlyRepository<TEntity>
+public interface IReadOnlyRepository<TEntity, TKey> :
+    IReadOnlyRepository<TEntity>
     where TEntity : class, IEntity<TKey>
-    where TKey : notnull
-{
-    Task<TEntity?> FindAsync(
-        TKey id,
-        bool includeDetails = true,
-        CancellationToken cancellationToken = default);
-}
+    where TKey : notnull { }

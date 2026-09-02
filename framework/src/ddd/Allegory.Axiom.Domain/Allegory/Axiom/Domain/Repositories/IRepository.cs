@@ -46,15 +46,4 @@ public interface IRepository<TEntity, TKey> :
     IRepository<TEntity>,
     IReadOnlyRepository<TEntity, TKey>
     where TEntity : class, IEntity<TKey>
-    where TKey : notnull
-{
-    Task RemoveAsync(
-        TKey id,
-        bool autoSave = false,
-        CancellationToken cancellationToken = default);
-
-    Task RemoveRangeAsync(
-        IEnumerable<TKey> ids,
-        bool autoSave = false,
-        CancellationToken cancellationToken = default);
-}
+    where TKey : notnull { }

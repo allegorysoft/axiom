@@ -30,6 +30,14 @@ public static class RepositoryExtensions
         where TEntity : class, IEntity<TKey>
         where TKey : notnull
     {
+        public Task<TEntity?> FindAsync(
+            TKey id,
+            bool includeDetails = true,
+            CancellationToken cancellationToken = default)
+        {
+            return repository.FindAsync(e => e.Id.Equals(id), includeDetails, cancellationToken);
+        }
+
         public async Task<TEntity> GetAsync(
             TKey id,
             bool includeDetails = true,
@@ -94,6 +102,36 @@ public static class RepositoryExtensions
             }
 
             return repository.RemoveRangeAsync(materialized, autoSave, cancellationToken);
+        }
+    }
+
+    extension<TEntity, TKey>(IRepository<TEntity, TKey> repository)
+        where TEntity : class, IEntity<TKey>
+        where TKey : notnull
+    {
+        public async Task RemoveAsync(
+            TKey id,
+            bool autoSave = false,
+            CancellationToken cancellationToken = default)
+        {
+            var entity = await repository.FindAsync(id, includeDetails: false, cancellationToken: cancellationToken);
+
+            if (entity == null)
+            {
+                return;
+            }
+
+            await repository.RemoveAsync(entity, autoSave, cancellationToken);
+        }
+        
+        public async Task RemoveRangeAsync(
+            IEnumerable<TKey> ids,
+            bool autoSave = false,
+            CancellationToken cancellationToken = default)
+        {
+            var entities = await repository.GetListAsync(e => ids.Contains(e.Id), cancellationToken: cancellationToken);
+
+            await repository.RemoveRangeAsync(entities, autoSave, cancellationToken);
         }
     }
 }

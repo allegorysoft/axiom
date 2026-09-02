@@ -263,38 +263,4 @@ public class EfCoreRepository<TDbContext, TEntity, TKey>(
     IRepository<TEntity, TKey>
     where TDbContext : DbContext
     where TEntity : class, IEntity<TKey>
-    where TKey : notnull
-{
-    public virtual Task<TEntity?> FindAsync(
-        TKey id,
-        bool includeDetails = true,
-        CancellationToken cancellationToken = default)
-    {
-        return FindAsync(e => e.Id.Equals(id), includeDetails, cancellationToken);
-    }
-
-    public virtual async Task RemoveAsync(
-        TKey id,
-        bool autoSave = false,
-        CancellationToken cancellationToken = default)
-    {
-        var entity = await FindAsync(id, includeDetails: false, cancellationToken: cancellationToken);
-
-        if (entity == null)
-        {
-            return;
-        }
-
-        await RemoveAsync(entity, autoSave, cancellationToken);
-    }
-
-    public virtual async Task RemoveRangeAsync(
-        IEnumerable<TKey> ids,
-        bool autoSave = false,
-        CancellationToken cancellationToken = default)
-    {
-        var entities = await GetListAsync(e => ids.Contains(e.Id), cancellationToken: cancellationToken);
-
-        await RemoveRangeAsync(entities, autoSave, cancellationToken);
-    }
-}
+    where TKey : notnull { }
