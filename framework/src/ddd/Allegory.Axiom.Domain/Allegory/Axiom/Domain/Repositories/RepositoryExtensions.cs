@@ -13,8 +13,6 @@ public static class RepositoryExtensions
 {
     public const string HardRemoveUnitOfWorkItemKey = $"{nameof(IRepository)}.HardRemove";
 
-    // Create EntityNotFoundException inside Domain package
-
     extension<TEntity>(IReadOnlyRepository<TEntity> repository) where TEntity : class, IEntity
     {
         public async Task<TEntity> GetAsync(
@@ -24,7 +22,7 @@ public static class RepositoryExtensions
         {
             var entity = await repository.FindAsync(predicate, includeDetails, cancellationToken);
 
-            return entity ?? throw new NotFoundException();
+            return entity ?? throw new EntityNotFoundException();
         }
     }
 
@@ -39,7 +37,7 @@ public static class RepositoryExtensions
         {
             var entity = await repository.FindAsync(id, includeDetails, cancellationToken);
 
-            return entity ?? throw new NotFoundException();
+            return entity ?? throw new EntityNotFoundException(id.ToString());
         }
 
         public Task<IReadOnlyList<TEntity>> GetPagedListAsync(

@@ -1,3 +1,4 @@
 {
-  
+  "Axiom.Domain:EntityNotFound" : "The specified entity was not found.",
+  "Axiom.Domain:EntityNotFoundByIdentifier" : "The specified entity with identifier '{identifier}' was not found."
 }

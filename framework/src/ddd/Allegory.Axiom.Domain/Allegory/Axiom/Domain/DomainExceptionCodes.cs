@@ -4,5 +4,6 @@ public static class DomainExceptionCodes
 {
     public const string Resource = "Axiom.Domain";
 
-    public static string EntityNotFound { get; } = $"{Resource}:EntityNotFound";
+    public const string EntityNotFound = $"{Resource}:EntityNotFound";
+    public const string EntityNotFoundByIdentifier = $"{Resource}:EntityNotFoundByIdentifier";
 }

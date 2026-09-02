@@ -7,9 +7,18 @@ public class EntityNotFoundException : NotFoundException
     public EntityNotFoundException(
         string? identifier = null,
         string? code = null,
-        string? message = null) : base(message: message)
+        string? message = null) : base(code, message)
     {
-        // The specified entity was not found.
-        // The specified entity with identifier '{identifier}' was not found.
+        if (code == null)
+        {
+            base.Code = identifier == null
+                ? DomainExceptionCodes.EntityNotFound
+                : DomainExceptionCodes.EntityNotFoundByIdentifier;
+        }
+
+        if (!string.IsNullOrWhiteSpace(identifier))
+        {
+            this.AddData(nameof(identifier), identifier);
+        }
     }
 }
