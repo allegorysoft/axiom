@@ -4,5 +4,5 @@ public static class SecurityExceptionCodes
 {
     public const string Resource = "Axiom.Security";
 
-    public static string NameIdentifierNotFound { get; } = $"{Resource}:NameIdentifierNotFound";
+    public const string NameIdentifierNotFound = $"{Resource}:NameIdentifierNotFound";
 }
