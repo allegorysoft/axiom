@@ -50,6 +50,7 @@ async function run(
 
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
+      //Todo: Fix/Remove "InitializerError" first argument
       errors.push(new InitializerError('' + index, result.reason));
     }
   });
