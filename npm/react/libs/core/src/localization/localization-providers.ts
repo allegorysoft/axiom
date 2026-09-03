@@ -1,7 +1,7 @@
 import type { Provider } from '../models/common';
 import type { Translations } from './localization';
-import { HttpClient } from '../http/http-client';
-import { getApiClient } from '../http/api-client';
+import { getHttpClient } from '../http/http-client-factory';
+import { getOrCreateApiClient } from '../http/api-client';
 
 type RemoteProviderOptions = {
   readonly url: string;
@@ -16,7 +16,7 @@ function remoteLocalizationProvider(
   return {
     provide() {
       //TODO: Update response return object with CultureInfo
-      const client = getApiClient();
+      const client = getOrCreateApiClient();
       const query = { culture: options.cultureName };
       return client
         .get<Response[]>(options.url, { query })
@@ -34,7 +34,7 @@ function clientLocalizationProvider(
 ): Provider<Translations> {
   return {
     provide() {
-      const client = new HttpClient();
+      const client = getHttpClient();
       return client.get<Translations>(`${options.fileNameOrPath}.json`, {
         headers: { Accept: 'application/json' },
       });

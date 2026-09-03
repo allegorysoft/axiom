@@ -1,5 +1,5 @@
 export {
   type AuthProvider,
   AbstractAuthFlow,
-  getOrSetAuthProvider,
+  getOrCreateAuthProvider,
 } from './abstract-auth-flow';

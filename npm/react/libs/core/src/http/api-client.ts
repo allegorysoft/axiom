@@ -1,16 +1,17 @@
 import { environmentStore } from '../environment/environment-store';
-import { HttpRequest } from './http-client';
+import type { HttpRequest } from './http-client';
 import { getHttpClient } from './http-client-factory';
 
 interface ApiRequest extends HttpRequest {
   moduleName?: string;
 }
 
-class ApiClient {
-  constructor(private readonly http = getHttpClient()) {}
+export class ApiClient {
+  constructor(protected readonly http = getHttpClient()) {}
 
   get<T>(path: string, request?: ApiRequest) {
-    return this.http.get<T>(this.resolve(path, request?.moduleName), request);
+    const { moduleName, ...httpRequest } = request ?? {};
+    return this.http.get<T>(this.resolve(path, moduleName), httpRequest);
   }
 
   post<T>(path: string, body?: unknown, request?: ApiRequest) {
@@ -44,7 +45,7 @@ class ApiClient {
     );
   }
 
-  private resolve(path: string, moduleName?: string): string {
+  protected resolve(path: string, moduleName?: string): string {
     const key = moduleName || 'Default';
     const state = environmentStore.get();
     const endpoint = state.environment?.endpoints[key];
@@ -57,10 +58,7 @@ class ApiClient {
   }
 }
 
-let restClient: ApiClient | undefined;
-
-export function getApiClient() {
-  restClient ??= new ApiClient();
-
-  return restClient;
+let apiClient: ApiClient | undefined;
+export function getOrCreateApiClient() {
+  return (apiClient ??= new ApiClient());
 }

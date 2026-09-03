@@ -7,9 +7,9 @@ export async function seed(
 ): Promise<void> {
   let merged: Translations = {};
 
-  for (const { provide } of providers) {
-    const translations = await provide();
-    merged = merge(merged, translations);
+  const results = await Promise.allSettled(providers.map((p) => p.provide()));
+  for (const result of results.filter((f) => f.status === 'fulfilled')) {
+    merged = merge(merged, result.value);
   }
 
   store.setTranslations(merged);

@@ -7,7 +7,7 @@ export async function initializeApplication(
   options?: AxiomApplicationOptions,
 ): Promise<void> {
   if (isDevMode()) {
-    console.info('[Axiom] Application initialization started.');
+    console.debug('[Axiom] Application initialization started.');
   }
 
   try {
@@ -21,10 +21,11 @@ export async function initializeApplication(
     }
 
     if (isDevMode()) {
-      console.info(`[Axiom] Application initialized successfully`);
+      console.debug(`[Axiom] Application initialized successfully.`);
     }
   } catch (error) {
-    console.error('[Axiom] Application initialization failed.', error);
-    throw error;
+    if (isDevMode()) {
+      console.error('[Axiom] Application initialization failed.');
+    }
   }
 }

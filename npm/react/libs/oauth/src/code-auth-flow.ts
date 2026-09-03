@@ -21,7 +21,7 @@ export class CodeAuthFlow extends BaseAuthFlow {
     }
   }
 
-  private async handleCallback(currentUrl: URL): Promise<void> {
+  protected async handleCallback(currentUrl: URL): Promise<void> {
     const pkceCodeVerifier =
       sessionStorage.getItem(PKCE_CODE_VERIFIER_KEY) ?? undefined;
     const expectedState = sessionStorage.getItem(OAUTH_STATE_KEY) ?? undefined;
