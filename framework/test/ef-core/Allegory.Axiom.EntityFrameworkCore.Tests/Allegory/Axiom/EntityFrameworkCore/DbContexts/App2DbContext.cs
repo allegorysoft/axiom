@@ -38,11 +38,7 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
                 .HasMaxLength(App2SubEntity1.MaxNumberLength);
         });
 
-        // foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        // {
-        //     var clrType = entityType.ClrType;
-        //     var name = entityType.Name;
-        // }
+        modelBuilder.ConfigureAxiom(); 
     }
 }
 
