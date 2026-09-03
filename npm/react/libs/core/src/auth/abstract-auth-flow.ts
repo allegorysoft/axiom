@@ -7,7 +7,7 @@ export type AuthProvider = {
 };
 
 let _authProvider: AuthProvider | null = null;
-export function getOrSetAuthProvider(
+export function getOrCreateAuthProvider(
   factory?: () => AuthProvider,
 ): AuthProvider {
   if (_authProvider != null) {

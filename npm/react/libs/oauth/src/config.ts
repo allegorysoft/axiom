@@ -1,6 +1,6 @@
 import {
   environmentStore,
-  getOrSetAuthProvider,
+  getOrCreateAuthProvider,
   provideInitializers,
 } from '@axiomframework/react-core';
 import { oAuthProvider } from './oauth-provider';
@@ -17,17 +17,14 @@ export function configureOAuth(options?: OAuthOptions): void {
         return;
       }
 
-      getOrSetAuthProvider(() => oAuthProvider);
-      oAuthProvider.provide(oauth);
+      const provider = getOrCreateAuthProvider(() => oAuthProvider);
+      provider.provide(oauth);
 
       if (options?.skipDiscovery) {
         return;
       }
 
-      const flow = oAuthProvider.get();
-      if (flow) {
-        await flow.initialize();
-      }
+      await provider.get()?.initialize();
     },
   });
 }
