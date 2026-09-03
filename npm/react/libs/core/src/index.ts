@@ -1,6 +1,7 @@
 export * from './auth/index';
 export * from './config/index';
 export * from './environment/index';
+export * from './error-handling/index';
 export * from './http/index';
 export * from './initializer/index';
 export * from './localization/index';
