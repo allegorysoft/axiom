@@ -3,7 +3,7 @@ import {
   provideErrorHandler,
 } from '../error-handling/error-handler';
 import type { HttpClientOptions } from '../http/http-client-factory';
-import { provideHttpClient } from '../http/providers';
+import { provideHttpClient } from '../http/provider';
 import {
   type LocalizationOptions,
   configureLocalization,
