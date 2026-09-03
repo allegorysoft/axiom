@@ -77,11 +77,6 @@ export class HttpClient {
     }
 
     const response = await this.dispatch(context, 0);
-
-    if (!response.ok) {
-      throw new HttpError(response);
-    }
-
     if (response.status === 204) {
       return undefined as T;
     }
@@ -98,7 +93,15 @@ export class HttpClient {
         signal: signal,
       };
 
-      return this.fetcher(this.buildUrl(context.url, query), options);
+      return this.fetcher(this.buildUrl(context.url, query), options).then(
+        (response) => {
+          if (!response.ok) {
+            throw new HttpError(response);
+          }
+
+          return response;
+        },
+      );
     }
 
     return this.middlewares[index](context, () =>

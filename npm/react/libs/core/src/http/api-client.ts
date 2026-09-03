@@ -1,5 +1,5 @@
 import { environmentStore } from '../environment/environment-store';
-import { HttpRequest } from './http-client';
+import type { HttpRequest } from './http-client';
 import { getHttpClient } from './http-client-factory';
 
 interface ApiRequest extends HttpRequest {
@@ -58,10 +58,7 @@ export class ApiClient {
   }
 }
 
-let restClient: ApiClient | undefined;
-
+let apiClient: ApiClient | undefined;
 export function getOrCreateApiClient() {
-  restClient ??= new ApiClient();
-
-  return restClient;
+  return (apiClient ??= new ApiClient());
 }
