@@ -1,10 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { HttpError, NetworkError } from '../error-handling/models';
-import {
-  ErrorHandler,
-  getErrorHandler,
-  provideErrorHandler,
-} from '../error-handling/error-handler';
+import { ErrorHandler } from '../error-handling/error-handler';
 
 describe('ErrorHandler', () => {
   describe('constructor', () => {
