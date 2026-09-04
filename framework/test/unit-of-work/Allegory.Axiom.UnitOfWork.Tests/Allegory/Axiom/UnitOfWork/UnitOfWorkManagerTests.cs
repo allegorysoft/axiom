@@ -70,8 +70,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         {
             Manager.Current.ShouldBe(root);
 
-            await using (var child = Manager.Begin(new UnitOfWorkOptions(
-                             transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+            await using (var child = Manager.Begin(UnitOfWorkOptions.RequiresNew))
             {
                 Manager.Current.ShouldBe(child);
             }
@@ -150,8 +149,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+            using (var subRoot = Manager.Begin(UnitOfWorkOptions.RequiresNew))
             {
                 Manager.Current.ShouldBe(subRoot);
                 Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -179,8 +177,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // RequiresNew, Required
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+        using (var root = Manager.Begin(UnitOfWorkOptions.RequiresNew))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -194,14 +191,12 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // Suppress, Suppress
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+        using (var root = Manager.Begin(UnitOfWorkOptions.Suppress))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+            using (var child = Manager.Begin(UnitOfWorkOptions.Suppress))
             {
                 Manager.Current.ShouldBe(child);
                 Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
@@ -219,8 +214,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+            using (var subRoot = Manager.Begin(UnitOfWorkOptions.Suppress))
             {
                 Manager.Current.ShouldBe(subRoot);
                 Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -229,8 +223,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // Suppress, Required
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+        using (var root = Manager.Begin(UnitOfWorkOptions.Suppress))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -244,14 +237,12 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // RequiresNew, Suppress
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+        using (var root = Manager.Begin(UnitOfWorkOptions.RequiresNew))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+            using (var subRoot = Manager.Begin(UnitOfWorkOptions.Suppress))
             {
                 Manager.Current.ShouldBe(subRoot);
                 Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -269,7 +260,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
 
         using var uow = Manager.Begin();
 
-        Manager.RequiredCurrent.Options.ShouldBe(options.Current);
+        Manager.RequiredCurrent.Options.ShouldBe(options.Default);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 
@@ -279,8 +270,8 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         var preferred = new UnitOfWorkOptions(timeout: TimeSpan.FromMinutes(1));
         using var uow = Manager.Begin(preferred);
 
-        Manager.RequiredCurrent.Options.ShouldBe(preferred);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(preferred.Timeout);
+        Manager.RequiredCurrent.Options.ShouldBeSameAs(preferred);
     }
 
     [Fact]
@@ -291,8 +282,8 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         var preferred = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
         using var uow = Manager.Begin(preferred);
 
-        Manager.RequiredCurrent.Options.ShouldBe(preferred);
         Manager.RequiredCurrent.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
+        Manager.RequiredCurrent.Options.ShouldBeSameAs(preferred);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 
@@ -348,8 +339,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
 
         using var root = Manager.Begin();
 
-        using var subRoot = Manager.Begin(new UnitOfWorkOptions(
-            transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+        using var subRoot = Manager.Begin(UnitOfWorkOptions.RequiresNew);
 
         subRoot.ServiceProvider.ShouldBeSameAs(root.ServiceProvider);
     }
@@ -361,7 +351,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         using var root = Manager.Begin();
 
         using var subRoot = Manager.Begin(
-            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew),
+            UnitOfWorkOptions.RequiresNew,
             serviceProvider: customProvider);
 
         subRoot.ServiceProvider.ShouldBeSameAs(customProvider);
@@ -373,8 +363,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     {
         using var root = Manager.Begin();
         using var child = Manager.Begin();
-        using var subRoot = Manager.Begin(
-            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+        using var subRoot = Manager.Begin(UnitOfWorkOptions.RequiresNew);
 
         var first = root.ServiceProvider.GetRequiredService<ScopedImp>();
         var second = child.ServiceProvider.GetRequiredService<ScopedImp>();
@@ -485,8 +474,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         using var parentCts = new CancellationTokenSource();
 
         using var root = Manager.Begin(cancellationToken: parentCts.Token);
-        using var subRoot = Manager.Begin(
-            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+        using var subRoot = Manager.Begin(UnitOfWorkOptions.RequiresNew);
 
         subRoot.CancellationToken.ShouldBe(parentCts.Token);
     }

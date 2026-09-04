@@ -20,7 +20,7 @@ public class UnitOfWorkManager(
     public virtual IUnitOfWork RequiredCurrent => Current ?? throw new InvalidOperationException(
         "No ambient unit of work found. Ensure a unit of work scope has been started before accessing this property");
 
-    protected UnitOfWorkOptions Options { get; } = options.Value.Current;
+    protected UnitOfWorkOptions Options { get; } = options.Value.Default;
     protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
     protected IServiceScopeFactory ServiceScopeFactory { get; } = serviceScopeFactory;
 

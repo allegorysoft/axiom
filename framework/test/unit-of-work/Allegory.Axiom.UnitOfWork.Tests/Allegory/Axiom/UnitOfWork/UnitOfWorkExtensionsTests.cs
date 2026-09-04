@@ -1,5 +1,4 @@
 using System;
-using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +21,7 @@ public class UnitOfWorkExtensionsTests
         rollbackTransactionDelegate ??= static (_, _) => Task.CompletedTask;
 
         var uow = new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider());
 
         uow.AddDatabase(

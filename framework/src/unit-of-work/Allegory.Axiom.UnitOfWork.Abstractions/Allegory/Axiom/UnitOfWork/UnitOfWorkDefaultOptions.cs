@@ -5,23 +5,23 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkDefaultOptions
 {
-    public UnitOfWorkOptions Current { get; } = new();
+    public UnitOfWorkOptions Default { get; } = new();
 
     public UnitOfWorkTransactionBehavior TransactionBehavior
     {
-        get => Current.TransactionBehavior;
-        set => Current.TransactionBehavior = value;
+        get => Default.TransactionBehavior;
+        set => Default.TransactionBehavior = value;
     }
 
     public IsolationLevel? IsolationLevel
     {
-        get => Current.IsolationLevel;
-        set => Current.IsolationLevel = value;
+        get => Default.IsolationLevel;
+        set => Default.IsolationLevel = value;
     }
 
     public TimeSpan? Timeout
     {
-        get => Current.Timeout;
-        set => Current.Timeout = value;
+        get => Default.Timeout;
+        set => Default.Timeout = value;
     }
 }

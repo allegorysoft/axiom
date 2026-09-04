@@ -11,7 +11,7 @@ public class UnitOfWorkDatabaseHandleTests
     private static UnitOfWork CreateUnitOfWork()
     {
         return new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider(),
             cancellationToken: TestContext.Current.CancellationToken);
     }
