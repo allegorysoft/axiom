@@ -1,2 +1,2 @@
 export * from './hooks';
-export { cn } from './lib/utils';
+export * from './lib/utils';
