@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.Data.Filtering;
 using Allegory.Axiom.Domain.Entities;
+using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
@@ -21,10 +22,12 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
 {
     static EfCoreRepository()
     {
-        IsTenantAgnostic = !typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
+        IsTenantOwned = typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
+        IsSoftDelete = typeof(TEntity).IsAssignableFrom(typeof(ISoftDelete));
     }
 
-    public static bool IsTenantAgnostic { get; }
+    public static bool IsTenantOwned { get; }
+    public static bool IsSoftDelete { get; }
 
     protected EfCoreRepository(IServiceProvider serviceProvider)
     {
@@ -54,14 +57,12 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool includeDetails = true,
         CancellationToken cancellationToken = default)
     {
-        var set = await GetDbSetAsync(cancellationToken);
-        var query = set.AsQueryable();
+        cancellationToken = GetCancellationToken(cancellationToken);
+        var queryable = await GetQueryableAsync(includeDetails, cancellationToken);
 
-        query = IncludeDetails(query, includeDetails);
-
-        return await query.FirstOrDefaultAsync(
+        return await queryable.FirstOrDefaultAsync(
             predicate,
-            cancellationToken: GetCancellationToken(cancellationToken));
+            cancellationToken: cancellationToken);
     }
 
     public virtual async Task<IReadOnlyList<TEntity>> GetListAsync(
@@ -70,22 +71,20 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
-        var set = await GetDbSetAsync(cancellationToken);
-        var query = set.AsQueryable();
-
-        query = IncludeDetails(query, includeDetails);
+        cancellationToken = GetCancellationToken(cancellationToken);
+        var queryable = await GetQueryableAsync(includeDetails, cancellationToken);
 
         if (predicate != null)
         {
-            query = query.Where(predicate);
+            queryable = queryable.Where(predicate);
         }
 
         if (orderBy != null)
         {
-            query = orderBy(query);
+            queryable = orderBy(queryable);
         }
 
-        return await query.ToListAsync(GetCancellationToken(cancellationToken));
+        return await queryable.ToListAsync(cancellationToken);
     }
 
     public virtual async Task<IReadOnlyList<TEntity>> GetPagedListAsync(
@@ -96,36 +95,35 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool includeDetails = false,
         CancellationToken cancellationToken = default)
     {
-        var set = await GetDbSetAsync(cancellationToken);
-        var query = set.AsQueryable();
-
-        query = IncludeDetails(query, includeDetails);
+        cancellationToken = GetCancellationToken(cancellationToken);
+        var queryable = await GetQueryableAsync(includeDetails, cancellationToken);
 
         if (predicate != null)
         {
-            query = query.Where(predicate);
+            queryable = queryable.Where(predicate);
         }
 
-        query = orderBy(query);
+        queryable = orderBy(queryable);
 
-        return await query
+        return await queryable
             .Skip(skip)
             .Take(take)
-            .ToListAsync(GetCancellationToken(cancellationToken));
+            .ToListAsync(cancellationToken);
     }
 
     public virtual async Task<long> GetCountAsync(
         Expression<Func<TEntity, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        var set = await GetDbSetAsync(cancellationToken);
+        cancellationToken = GetCancellationToken(cancellationToken);
+        var queryable = await GetQueryableAsync(false, cancellationToken);
 
         if (predicate == null)
         {
-            return await set.LongCountAsync(cancellationToken: GetCancellationToken(cancellationToken));
+            return await queryable.LongCountAsync(cancellationToken);
         }
 
-        return await set.LongCountAsync(predicate, GetCancellationToken(cancellationToken));
+        return await queryable.LongCountAsync(predicate, cancellationToken);
     }
 
     public virtual async ValueTask<TEntity> AddAsync(
@@ -133,9 +131,10 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken = GetCancellationToken(cancellationToken);
         var set = await GetDbSetAsync(cancellationToken);
 
-        var result = await set.AddAsync(entity, GetCancellationToken(cancellationToken));
+        var result = await set.AddAsync(entity, cancellationToken);
 
         if (autoSave)
         {
@@ -151,9 +150,10 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken = GetCancellationToken(cancellationToken);
         var set = await GetDbSetAsync(cancellationToken);
 
-        await set.AddRangeAsync(entities, GetCancellationToken(cancellationToken));
+        await set.AddRangeAsync(entities, cancellationToken);
 
         if (autoSave)
         {
@@ -166,6 +166,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken = GetCancellationToken(cancellationToken);
         var set = await GetDbSetAsync(cancellationToken);
 
         var result = set.Update(entity);
@@ -183,6 +184,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken = GetCancellationToken(cancellationToken);
         var set = await GetDbSetAsync(cancellationToken);
 
         set.UpdateRange(entities);
@@ -198,6 +200,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken = GetCancellationToken(cancellationToken);
         var set = await GetDbSetAsync(cancellationToken);
 
         var result = set.Remove(entity);
@@ -213,6 +216,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         bool autoSave = false,
         CancellationToken cancellationToken = default)
     {
+        cancellationToken = GetCancellationToken(cancellationToken);
         var set = await GetDbSetAsync(cancellationToken);
 
         set.RemoveRange(entities);
@@ -225,7 +229,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
 
     protected virtual ValueTask<TDbContext> GetDbContextAsync(CancellationToken cancellationToken = default)
     {
-        if (IsTenantAgnostic &&
+        if (!IsTenantOwned &&
             !ConnectionStringContextOptions.IsTenantAgnostic &&
             TenantContextAccessor.Current != null)
         {
@@ -245,6 +249,23 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
     {
         var context = await GetDbContextAsync(cancellationToken);
         return context.Set<TEntity>();
+    }
+
+    protected virtual async ValueTask<IQueryable<TEntity>> GetQueryableAsync(
+        bool includeDetails = true,
+        CancellationToken cancellationToken = default)
+    {
+        var set = await GetDbSetAsync(cancellationToken);
+        var queryable = set.AsQueryable();
+
+        if (UnitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
+        {
+            queryable = queryable.AsNoTracking();
+        }
+
+        //queryable = queryable.IgnoreQueryFilters([nameof(ISoftDelete.IsDeleted)])
+        
+        return IncludeDetails(queryable, includeDetails);
     }
 
     protected virtual IQueryable<TEntity> IncludeDetails(IQueryable<TEntity> query, bool includeDetails = true)
