@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Allegory.Axiom.Data.Filtering;
 using Allegory.Axiom.Data.IdGeneration;
 using Allegory.Axiom.Domain;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.DbContexts;
+using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
@@ -765,6 +766,7 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
     [Fact]
     public async Task ShouldUpdateRangeWithAutoSave()
     {
+        var r = Repository;
         var numbers = new List<string>
         {
             GetNewNumber,
@@ -810,6 +812,38 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
             context.Database.CurrentTransaction.ShouldNotBeNull();
         });
     }
+
+    [Fact]
+    public async Task ShouldRemove()
+    {
+        var entity = new App2Entity1(GetNewNumber)
+        {
+            SubEntities = new List<App2SubEntity1>
+            {
+                new(GetNewNumber),
+                new(GetNewNumber),
+            }
+        };
+
+        var filterSwitch = fixture.Service<IFilterSwitch>();
+    }
+
+    protected async Task T()
+    {
+        var filterSwitch = fixture.Service<IFilterSwitch>();
+
+        var f = filterSwitch.IsEnabled<ITenantOwned>();
+
+        var a = filterSwitch.IsEnabled<ITenantOwned>();
+    }
+    
+    // RemoveById
+
+    // RemoveRange
+    // RemoveRangeById
+
+    // Soft delete
+    // Hard delete
 }
 
 public class EfCoreRepositoryFixture : IntegrationTest

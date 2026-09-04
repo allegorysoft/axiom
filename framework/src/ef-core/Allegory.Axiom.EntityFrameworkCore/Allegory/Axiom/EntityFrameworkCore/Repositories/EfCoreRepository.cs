@@ -13,6 +13,7 @@ using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
@@ -35,7 +36,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
         DbContextProvider = serviceProvider.GetRequiredService<IDbContextProvider<TDbContext>>();
         TenantContextAccessor = serviceProvider.GetRequiredService<ITenantContextAccessor>();
         FilterSwitch = serviceProvider.GetRequiredService<IFilterSwitch>();
-        DbContextOptions = serviceProvider.GetRequiredService<AxiomDbContextOptions<TDbContext>>();
+        DbContextOptions = serviceProvider.GetRequiredService<IOptions<AxiomDbContextOptions<TDbContext>>>().Value;
         EntityOptions = DbContextOptions.GetEntityOptions<TEntity>();
 
         var connectionStringProvider = serviceProvider.GetRequiredService<IConnectionStringProvider>();
