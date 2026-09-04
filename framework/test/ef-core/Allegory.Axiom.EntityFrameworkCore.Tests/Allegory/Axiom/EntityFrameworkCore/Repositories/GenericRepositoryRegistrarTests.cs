@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Repositories;
@@ -230,6 +231,6 @@ public class GenericRepositoryRegistrarTests : IntegrationTest
 }
 
 file class CustomEfCoreModule1Entity1Repository<TDbContext>(
-    IDbContextProvider<TDbContext> dbContextProvider)
-    : EfCoreModule1Entity1Repository<TDbContext>(dbContextProvider)
+    IServiceProvider serviceProvider) : 
+    EfCoreModule1Entity1Repository<TDbContext>(serviceProvider)
     where TDbContext : DbContext { }

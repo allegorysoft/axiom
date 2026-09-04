@@ -32,6 +32,7 @@ public static class ModelBuilderExtensions
 
                 if (typeof(ITenantOwned).IsAssignableFrom(entity.ClrType))
                 {
+                    // CurrentTenantId = ITenantContextAccessor.TryGetCurrent()?.Id
                     // Expression.Call(ITenantContextAccessor.TryGetCurrent) take this as parameter not constant
                     // Add filter
                 }

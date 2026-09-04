@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Repositories;
@@ -321,6 +322,6 @@ file class HostSideDbContext : DbContext { }
 file class TenantSideDbContext : DbContext { }
 
 file class CustomEfCoreModule1Entity1Repository<TDbContext>(
-    IDbContextProvider<TDbContext> dbContextProvider)
-    : EfCoreModule1Entity1Repository<TDbContext>(dbContextProvider)
+    IServiceProvider serviceProvider) : 
+    EfCoreModule1Entity1Repository<TDbContext>(serviceProvider)
     where TDbContext : DbContext { }

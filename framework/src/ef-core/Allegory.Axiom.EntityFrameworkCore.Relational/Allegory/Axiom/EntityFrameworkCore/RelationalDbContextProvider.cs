@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -12,18 +11,15 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 public class RelationalDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
     IUnitOfWorkManager unitOfWorkManager,
-    ITenantContextAccessor tenantContextAccessor,
     IOptions<AxiomDbContextOptions<TContext>> options,
     IConnectionStringProvider connectionStringProvider)
     : IDbContextProvider<TContext>, ISingletonService
     where TContext : DbContext
 {
-    public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
-    public ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
-    public AxiomDbContextOptions<TContext> Options { get; } = options.Value;
-    public IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
-
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
+    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    protected AxiomDbContextOptions<TContext> Options { get; } = options.Value;
+    protected IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
 
     public virtual async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {

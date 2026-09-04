@@ -1,3 +1,4 @@
+using System;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
@@ -22,17 +23,20 @@ public interface IModule1Entity2Repository : IRepository<Module1Entity2, int> { 
 public interface IModule1ReportRepository : IRepository { }
 
 public class EfCoreModule1Entity1Repository<TDbContext>(
-    IDbContextProvider<TDbContext> dbContextProvider)
-    : EfCoreRepository<TDbContext, Module1Entity1, int>(dbContextProvider), IModule1Entity1Repository
+    IServiceProvider serviceProvider) : 
+    EfCoreRepository<TDbContext, Module1Entity1, int>(serviceProvider), 
+    IModule1Entity1Repository
     where TDbContext : DbContext { }
 
 public class EfCoreModule1Entity2Repository<TDbContext>(
-    IDbContextProvider<TDbContext> dbContextProvider)
-    : EfCoreRepository<TDbContext, Module1Entity2, int>(dbContextProvider), IModule1Entity2Repository
+    IServiceProvider serviceProvider) : 
+    EfCoreRepository<TDbContext, Module1Entity2, int>(serviceProvider),
+    IModule1Entity2Repository
     where TDbContext : DbContext { }
 
 public class EfCoreModule1ReportRepository<TContext>(
-    IDbContextProvider<TContext> dbContextProvider) : IModule1ReportRepository
+    IDbContextProvider<TContext> dbContextProvider) : 
+    IModule1ReportRepository
     where TContext : DbContext
 {
     protected IDbContextProvider<TContext> DbContextProvider { get; } = dbContextProvider;

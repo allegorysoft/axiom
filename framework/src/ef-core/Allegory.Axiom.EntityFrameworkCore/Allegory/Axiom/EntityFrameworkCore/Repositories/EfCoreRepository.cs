@@ -5,11 +5,13 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Data.ConnectionStrings;
+using Allegory.Axiom.Data.Filtering;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
 
@@ -24,23 +26,27 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
 
     public static bool IsTenantAgnostic { get; }
 
-    protected EfCoreRepository(IDbContextProvider<TDbContext> dbContextProvider)
+    protected EfCoreRepository(IServiceProvider serviceProvider)
     {
-        DbContextProvider = dbContextProvider;
-        TenantContextAccessor = DbContextProvider.TenantContextAccessor;
-        DbContextOptions = DbContextProvider.Options;
-        Options = DbContextOptions.GetEntityOptions<TEntity>();
+        UnitOfWorkManager = serviceProvider.GetRequiredService<IUnitOfWorkManager>();
+        DbContextProvider = serviceProvider.GetRequiredService<IDbContextProvider<TDbContext>>();
+        TenantContextAccessor = serviceProvider.GetRequiredService<ITenantContextAccessor>();
+        FilterSwitch = serviceProvider.GetRequiredService<IFilterSwitch>();
+        DbContextOptions = serviceProvider.GetRequiredService<AxiomDbContextOptions<TDbContext>>();
+        EntityOptions = DbContextOptions.GetEntityOptions<TEntity>();
 
-        ConnectionStringContextOptions =
-            DbContextProvider.ConnectionStringProvider.Contexts[DbContextOptions.ConnectionStringName];
+        var connectionStringProvider = serviceProvider.GetRequiredService<IConnectionStringProvider>();
+        ConnectionStringContextOptions = connectionStringProvider.Contexts[DbContextOptions.ConnectionStringName];
     }
 
-    public IUnitOfWork UnitOfWork => DbContextProvider.UnitOfWorkManager.RequiredCurrent;
+    public IUnitOfWork UnitOfWork => UnitOfWorkManager.RequiredCurrent;
 
+    protected IUnitOfWorkManager UnitOfWorkManager { get; }
     protected IDbContextProvider<TDbContext> DbContextProvider { get; }
     protected ITenantContextAccessor TenantContextAccessor { get; }
+    protected IFilterSwitch FilterSwitch { get; }
     protected AxiomDbContextOptions<TDbContext> DbContextOptions { get; }
-    protected AxiomEntityOptions<TEntity> Options { get; }
+    protected AxiomEntityOptions<TEntity> EntityOptions { get; }
     protected ConnectionStringContextOptions ConnectionStringContextOptions { get; }
 
     public virtual async Task<TEntity?> FindAsync(
@@ -248,7 +254,7 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
             return query;
         }
 
-        return Options.IncludeDetails == null ? query : Options.IncludeDetails(query);
+        return EntityOptions.IncludeDetails == null ? query : EntityOptions.IncludeDetails(query);
     }
 
     protected virtual CancellationToken GetCancellationToken(CancellationToken cancellationToken)
@@ -258,8 +264,8 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
 }
 
 public class EfCoreRepository<TDbContext, TEntity, TKey>(
-    IDbContextProvider<TDbContext> dbContextProvider) :
-    EfCoreRepository<TDbContext, TEntity>(dbContextProvider),
+    IServiceProvider serviceProvider) :
+    EfCoreRepository<TDbContext, TEntity>(serviceProvider),
     IRepository<TEntity, TKey>
     where TDbContext : DbContext
     where TEntity : class, IEntity<TKey>
