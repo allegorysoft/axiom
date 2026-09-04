@@ -35,8 +35,8 @@ public class FilterSwitch(IOptions<FilterSwitchOptions> options) : IFilterSwitch
         return new DisposableDelegate<(AsyncLocal<bool?>, bool?)>(
             static state =>
             {
-                var (l, p) = state;
-                l.Value = p;
+                var (f, p) = state;
+                f.Value = p;
             }, (filter, previous));
     }
 
@@ -55,8 +55,8 @@ public class FilterSwitch(IOptions<FilterSwitchOptions> options) : IFilterSwitch
         return new DisposableDelegate<(AsyncLocal<bool?>, bool?)>(
             static state =>
             {
-                var (l, p) = state;
-                l.Value = p;
+                var (f, p) = state;
+                f.Value = p;
             }, (filter, previous));
     }
 
