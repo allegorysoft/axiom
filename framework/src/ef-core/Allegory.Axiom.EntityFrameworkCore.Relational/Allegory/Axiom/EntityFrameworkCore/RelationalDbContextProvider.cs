@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Allegory.Axiom.Data;
+using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;

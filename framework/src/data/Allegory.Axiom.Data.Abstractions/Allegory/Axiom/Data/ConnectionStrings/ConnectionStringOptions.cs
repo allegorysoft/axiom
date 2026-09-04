@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Allegory.Axiom.Data;
+namespace Allegory.Axiom.Data.ConnectionStrings;
 
 public class ConnectionStringContextsOptions
 {

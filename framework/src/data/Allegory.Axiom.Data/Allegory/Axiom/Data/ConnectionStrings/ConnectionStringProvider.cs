@@ -6,7 +6,7 @@ using Allegory.Axiom.MultiTenancy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 
-namespace Allegory.Axiom.Data;
+namespace Allegory.Axiom.Data.ConnectionStrings;
 
 public class ConnectionStringProvider : IConnectionStringProvider, ISingletonService
 {

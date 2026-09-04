@@ -3,7 +3,7 @@ using Allegory.Axiom.MultiTenancy;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.Data;
+namespace Allegory.Axiom.Data.ConnectionStrings;
 
 public class ConnectionStringProviderTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {

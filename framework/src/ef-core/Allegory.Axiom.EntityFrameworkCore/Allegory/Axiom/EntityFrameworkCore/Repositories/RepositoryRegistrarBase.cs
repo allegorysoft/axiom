@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Allegory.Axiom.Data;
+using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;

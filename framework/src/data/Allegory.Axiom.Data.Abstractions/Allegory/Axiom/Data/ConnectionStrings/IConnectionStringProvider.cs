@@ -1,7 +1,7 @@
 ﻿using System.Collections.Frozen;
 using System.Threading.Tasks;
 
-namespace Allegory.Axiom.Data;
+namespace Allegory.Axiom.Data.ConnectionStrings;
 
 public interface IConnectionStringProvider
 {

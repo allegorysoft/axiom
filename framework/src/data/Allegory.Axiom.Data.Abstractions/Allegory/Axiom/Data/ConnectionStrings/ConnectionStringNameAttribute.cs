@@ -1,7 +1,7 @@
 using System;
 using System.Reflection;
 
-namespace Allegory.Axiom.Data;
+namespace Allegory.Axiom.Data.ConnectionStrings;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class ConnectionStringNameAttribute(string name) : Attribute
