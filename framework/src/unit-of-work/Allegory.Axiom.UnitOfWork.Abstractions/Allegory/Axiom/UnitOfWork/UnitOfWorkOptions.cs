@@ -5,7 +5,9 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkOptions
 {
-    public static readonly UnitOfWorkOptions SuppressedTransaction = new(UnitOfWorkTransactionBehavior.Suppress);
+    public static readonly UnitOfWorkOptions Suppress = new(UnitOfWorkTransactionBehavior.Suppress);
+    public static readonly UnitOfWorkOptions Required = new(UnitOfWorkTransactionBehavior.Required);
+    public static readonly UnitOfWorkOptions RequiresNew = new(UnitOfWorkTransactionBehavior.RequiresNew);
 
     public UnitOfWorkOptions() {}
 
@@ -19,7 +21,7 @@ public class UnitOfWorkOptions
         Timeout = timeout;
     }
 
-    public IsolationLevel? IsolationLevel { get; set; }
     public UnitOfWorkTransactionBehavior TransactionBehavior { get; set; }
+    public IsolationLevel? IsolationLevel { get; set; }
     public TimeSpan? Timeout { get; set; }
 }

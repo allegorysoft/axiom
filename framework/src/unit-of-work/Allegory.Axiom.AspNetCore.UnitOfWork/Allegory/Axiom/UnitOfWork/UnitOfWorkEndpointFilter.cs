@@ -18,7 +18,7 @@ public class UnitOfWorkEndpointFilter : IEndpointFilter, ISingletonService
 
         options.Value.OptionsSelector ??=
             static context => HttpMethods.IsGet(context.Request.Method) || HttpMethods.IsQuery(context.Request.Method)
-                ? UnitOfWorkOptions.SuppressedTransaction
+                ? UnitOfWorkOptions.Suppress
                 : null;
     }
 
