@@ -265,11 +265,11 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldApplyDefaultOptionsWhenPreferredOptionsNull()
     {
-        var options = fixture.Service<IOptions<UnitOfWorkOptions>>().Value;
+        var options = fixture.Service<IOptions<UnitOfWorkDefaultOptions>>().Value;
 
         using var uow = Manager.Begin();
 
-        Manager.RequiredCurrent.Options.ShouldBe(options);
+        Manager.RequiredCurrent.Options.ShouldBe(options.Current);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 
@@ -286,7 +286,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldFallbackDefaultOptionsWhenPreferredOptionsPropertyIsNull()
     {
-        var options = fixture.Service<IOptions<UnitOfWorkOptions>>().Value;
+        var options = fixture.Service<IOptions<UnitOfWorkDefaultOptions>>().Value;
 
         var preferred = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
         using var uow = Manager.Begin(preferred);
@@ -496,7 +496,7 @@ public class UnitOfWorkManagerFixture : IntegrationTest
 {
     protected override Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<UnitOfWorkOptions>(options => { options.Timeout = TimeSpan.FromSeconds(30); });
+        builder.Services.Configure<UnitOfWorkDefaultOptions>(options => { options.Timeout = TimeSpan.FromSeconds(30); });
 
         return Task.CompletedTask;
     }

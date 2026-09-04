@@ -9,7 +9,7 @@ using Microsoft.Extensions.Options;
 namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkManager(
-    IOptions<UnitOfWorkOptions> options,
+    IOptions<UnitOfWorkDefaultOptions> options,
     ITenantContextAccessor tenantContextAccessor,
     IServiceScopeFactory  serviceScopeFactory) 
     : IUnitOfWorkManager, ISingletonService
@@ -19,7 +19,8 @@ public class UnitOfWorkManager(
     public virtual IUnitOfWork? Current => CurrentUnitOfWork.Value?.Context;
     public virtual IUnitOfWork RequiredCurrent => Current ?? throw new InvalidOperationException(
         "No ambient unit of work found. Ensure a unit of work scope has been started before accessing this property");
-    protected UnitOfWorkOptions Options { get; } = options.Value;
+
+    protected UnitOfWorkOptions Options { get; } = options.Value.Current;
     protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
     protected IServiceScopeFactory ServiceScopeFactory { get; } = serviceScopeFactory;
 
