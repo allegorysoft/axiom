@@ -1,0 +1,15 @@
+{
+  "name": "components",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/components/src",
+  "projectType": "library",
+  "tags": ["scope:framework"],
+  "implicitDependencies": ["core"],
+  "targets": {
+    "build": {
+      "options": {
+        "outDir": "../../dist/libs/components"
+      }
+    }
+  }
+}
