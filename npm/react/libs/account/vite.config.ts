@@ -20,7 +20,6 @@ export default defineConfig(() => ({
   ],
   build: {
     target: 'esnext',
-    cssCodeSplit: true,
     outDir: '../../dist/libs/account',
     emptyOutDir: true,
     lib: {
