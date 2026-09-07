@@ -1,4 +1,5 @@
-using System.Linq.Expressions;
+using System;
+using System.Reflection;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -7,35 +8,57 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 public static class ModelBuilderExtensions
 {
+    private static readonly MethodInfo ConfigureMethod = typeof(ModelBuilderExtensions)
+        .GetMethod(nameof(ConfigureAxiom), BindingFlags.NonPublic | BindingFlags.Static)!;
+
     extension(ModelBuilder builder)
     {
-        public void ConfigureAxiom()
+        public void ConfigureAxiom(DbContext context, bool createIndexes = true)
         {
-            // We should call replaced db contexts configure methods in here automatically
+            var parameters = new object[] {builder, context, createIndexes};
 
-            foreach (var entity in builder.Model.GetEntityTypes()) // IMutableEntityType
+            foreach (var entity in builder.Model.GetEntityTypes())
             {
-                // builder.Entity(entity.ClrType, entityBuilder => // EntityTypeBuilder
-                // { 
-                //     entityBuilder.HasQueryFilter("a", () => true);
-                // });
+                var method = ConfigureMethod.MakeGenericMethod(entity.ClrType);
+                method.Invoke(null, parameters);
+            }
+        }
+    }
 
-                if (typeof(ISoftDelete).IsAssignableFrom(entity.ClrType))
-                {
-                    var parameter = Expression.Parameter(entity.ClrType, "e");
-                    var property = Expression.Property(parameter, nameof(ISoftDelete.IsDeleted));
-                    var condition = Expression.Equal(property, Expression.Constant(false));
-                    var lambda = Expression.Lambda(condition, parameter);
+    private static void ConfigureAxiom<TEntity>(
+        ModelBuilder builder,
+        DbContext context,
+        bool createIndexes)
+        where TEntity : class
+    {
+        var entityBuilder = builder.Entity<TEntity>();
 
-                    entity.SetQueryFilter(nameof(ISoftDelete), lambda);
-                }
+        var isSoftDelete = typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity));
+        var isTenantOwned = typeof(ITenantOwned).IsAssignableFrom(typeof(TEntity));
 
-                if (typeof(ITenantOwned).IsAssignableFrom(entity.ClrType))
-                {
-                    // CurrentTenantId = ITenantContextAccessor.TryGetCurrent()?.Id
-                    // Expression.Call(ITenantContextAccessor.TryGetCurrent) take this as parameter not constant
-                    // Add filter
-                }
+        if (isSoftDelete)
+        {
+            entityBuilder.HasQueryFilter(
+                nameof(ISoftDelete),
+                e => EF.Property<bool>(e, nameof(ISoftDelete.IsDeleted)) == false);
+        }
+
+        if (isTenantOwned)
+        {
+            entityBuilder.HasQueryFilter(
+                nameof(ITenantOwned),
+                e => EF.Property<Guid?>(e, nameof(ITenantOwned.TenantId)) == context.GetCurrentTenantId());
+        }
+
+        if (createIndexes)
+        {
+            if (isTenantOwned && isSoftDelete)
+            {
+                entityBuilder.HasIndex(nameof(ITenantOwned.TenantId), nameof(ISoftDelete.IsDeleted));
+            }
+            else if (isTenantOwned)
+            {
+                entityBuilder.HasIndex(nameof(ITenantOwned.TenantId));
             }
         }
     }

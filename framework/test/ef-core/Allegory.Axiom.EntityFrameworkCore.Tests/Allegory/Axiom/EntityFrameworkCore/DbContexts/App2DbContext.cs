@@ -38,7 +38,7 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
                 .HasMaxLength(App2SubEntity1.MaxNumberLength);
         });
 
-        modelBuilder.ConfigureAxiom(); 
+        modelBuilder.ConfigureAxiom(this);
     }
 }
 

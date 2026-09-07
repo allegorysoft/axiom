@@ -992,6 +992,37 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
         });
     }
 
+    [Fact]
+    public async Task ShouldHardRemove()
+    {
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            await Repository.AddAsync(new App2Entity1(Number)
+            {
+                SubEntities = new List<App2SubEntity1>
+                {
+                    new(GetNewNumber),
+                    new(GetNewNumber),
+                }
+            });
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+            await Repository.HardRemoveAsync(entity, autoSave: true);
+
+            var result = await Repository.FindAsync(e => e.Number == Number);
+            result.ShouldBeNull();
+
+            using (FilterSwitch.Disable<ISoftDelete>())
+            {
+                result = await Repository.FindAsync(e => e.Number == Number);
+                result.ShouldBeNull();
+            }
+        });
+    }
+
     // Query filter
 
     [Fact]
@@ -1090,37 +1121,6 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
             }
         });
     }
-
-    [Fact]
-    public async Task ShouldHardRemove()
-    {
-        await fixture.RunInUnitOfWorkAsync(async _ =>
-        {
-            await Repository.AddAsync(new App2Entity1(Number)
-            {
-                SubEntities = new List<App2SubEntity1>
-                {
-                    new(GetNewNumber),
-                    new(GetNewNumber),
-                }
-            });
-        });
-
-        await fixture.RunInUnitOfWorkAsync(async _ =>
-        {
-            var entity = await Repository.GetAsync(e => e.Number == Number);
-            await Repository.HardRemoveAsync(entity, autoSave: true);
-
-            var result = await Repository.FindAsync(e => e.Number == Number);
-            result.ShouldBeNull();
-
-            using (FilterSwitch.Disable<ISoftDelete>())
-            {
-                result = await Repository.FindAsync(e => e.Number == Number);
-                result.ShouldBeNull();
-            }
-        });
-    }
 }
 
 public class EfCoreRepositoryFixture : IntegrationTest
@@ -1155,6 +1155,6 @@ public class EfCoreRepositoryFixture : IntegrationTest
 
         var provider = Host.Services.GetRequiredService<IDbContextProvider<App2DbContext>>();
         var dbContext = await provider.GetAsync();
-        await dbContext.Database.MigrateAsync();
+        await dbContext.Database.EnsureCreatedAsync();
     }
 }
