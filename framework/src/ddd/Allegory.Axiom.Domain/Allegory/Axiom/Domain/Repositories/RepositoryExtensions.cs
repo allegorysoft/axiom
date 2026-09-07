@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Entities;
-using Allegory.Axiom.Exceptions;
 
 namespace Allegory.Axiom.Domain.Repositories;
 
@@ -114,7 +113,7 @@ public static class RepositoryExtensions
             bool autoSave = false,
             CancellationToken cancellationToken = default)
         {
-            var entity = await repository.FindAsync(id, includeDetails: false, cancellationToken: cancellationToken);
+            var entity = await repository.FindAsync(id, cancellationToken: cancellationToken);
 
             if (entity == null)
             {
@@ -129,7 +128,10 @@ public static class RepositoryExtensions
             bool autoSave = false,
             CancellationToken cancellationToken = default)
         {
-            var entities = await repository.GetListAsync(e => ids.Contains(e.Id), cancellationToken: cancellationToken);
+            var entities = await repository.GetListAsync(
+                e => ids.Contains(e.Id),
+                includeDetails: true,
+                cancellationToken: cancellationToken);
 
             await repository.RemoveRangeAsync(entities, autoSave, cancellationToken);
         }

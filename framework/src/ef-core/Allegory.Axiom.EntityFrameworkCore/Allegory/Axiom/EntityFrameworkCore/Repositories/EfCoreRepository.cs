@@ -23,8 +23,8 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
 {
     static EfCoreRepository()
     {
-        IsTenantOwned = typeof(TEntity).IsAssignableFrom(typeof(ITenantOwned));
-        IsSoftDelete = typeof(TEntity).IsAssignableFrom(typeof(ISoftDelete));
+        IsTenantOwned = typeof(ITenantOwned).IsAssignableFrom(typeof(TEntity));
+        IsSoftDelete = typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity));
     }
 
     public static bool IsTenantOwned { get; }
@@ -264,8 +264,16 @@ public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
             queryable = queryable.AsNoTracking();
         }
 
-        //queryable = queryable.IgnoreQueryFilters([nameof(ISoftDelete.IsDeleted)])
+        if (IsSoftDelete && !FilterSwitch.IsEnabled<ISoftDelete>())
+        {
+            queryable = queryable.IgnoreQueryFilters([nameof(ISoftDelete)]);
+        }
         
+        if (IsTenantOwned && !FilterSwitch.IsEnabled<ITenantOwned>())
+        {
+            queryable = queryable.IgnoreQueryFilters([nameof(ITenantOwned)]);
+        }
+
         return IncludeDetails(queryable, includeDetails);
     }
 

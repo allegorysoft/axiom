@@ -6,10 +6,10 @@ using Allegory.Axiom.Data.Filtering;
 using Allegory.Axiom.Data.IdGeneration;
 using Allegory.Axiom.Domain;
 using Allegory.Axiom.Domain.Entities;
+using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.MultiTenancy;
-using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Testing.Platform.Services;
@@ -24,8 +24,10 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
     protected IDbContextProvider<App2DbContext> DbContextProvider =>
         fixture.Service<IDbContextProvider<App2DbContext>>();
 
-    protected IGuidGenerator GuidGenerator => fixture.Service<IGuidGenerator>();
     protected IRepository<App2Entity1, Guid> Repository => fixture.Service<IRepository<App2Entity1, Guid>>();
+    protected IGuidGenerator GuidGenerator => fixture.Service<IGuidGenerator>();
+    protected ITenantContextAccessor TenantContextAccessor => fixture.Service<ITenantContextAccessor>();
+    protected IFilterSwitch FilterSwitch => fixture.Service<IFilterSwitch>();
 
     protected string Number { get; } = Random.Shared.Next().ToString();
     protected string GetNewNumber => Random.Shared.Next().ToString();
@@ -696,7 +698,7 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
             entity.SubEntities.Add(new App2SubEntity1(GetNewNumber));
 
             await Repository.UpdateAsync(entity, autoSave: true);
-            
+
             var result = await Repository.GetAsync(e => e.Number == Number);
             result.SubEntities.Count.ShouldBe(2);
 
@@ -813,41 +815,318 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
         });
     }
 
+    // Remove
+
     [Fact]
     public async Task ShouldRemove()
     {
-        var entity = new App2Entity1(GetNewNumber)
+        await fixture.RunInUnitOfWorkAsync(async _ =>
         {
-            SubEntities = new List<App2SubEntity1>
+            await Repository.AddAsync(new App2Entity1(Number)
             {
-                new(GetNewNumber),
-                new(GetNewNumber),
-            }
+                SubEntities = new List<App2SubEntity1>
+                {
+                    new(GetNewNumber),
+                    new(GetNewNumber),
+                }
+            });
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+            await Repository.RemoveAsync(entity);
+
+            // autoSave: false
+            var result = await Repository.FindAsync(entity.Id);
+            result.ShouldNotBeNull();
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.FindAsync(e => e.Number == Number);
+            entity.ShouldBeNull();
+        });
+    }
+
+    [Fact]
+    public async Task ShouldRemoveWithAutoSave()
+    {
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            await Repository.AddAsync(new App2Entity1(Number)
+            {
+                SubEntities = new List<App2SubEntity1>
+                {
+                    new(GetNewNumber),
+                    new(GetNewNumber),
+                }
+            });
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+            await Repository.RemoveAsync(entity, autoSave: true);
+
+            var result = await Repository.FindAsync(entity.Id);
+            result.ShouldBeNull();
+        });
+    }
+
+    [Fact]
+    public async Task ShouldRemoveRange()
+    {
+        var numbers = new List<string>
+        {
+            GetNewNumber,
+            GetNewNumber,
+            GetNewNumber
         };
 
-        var filterSwitch = fixture.Service<IFilterSwitch>();
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            foreach (var number in numbers)
+            {
+                await Repository.AddAsync(new App2Entity1(number));
+            }
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entities = await Repository.GetListAsync(e => numbers.Contains(e.Number), includeDetails: true);
+
+            await Repository.RemoveRangeAsync(entities);
+
+            // autoSave: false
+            var result = await Repository.GetListAsync(e => numbers.Contains(e.Number));
+            result.ShouldNotBeEmpty();
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var result = await Repository.GetListAsync(e => numbers.Contains(e.Number));
+            result.ShouldBeEmpty();
+        });
     }
 
-    protected async Task T()
+    [Fact]
+    public async Task ShouldRemoveRangeWithAutoSave()
     {
-        var filterSwitch = fixture.Service<IFilterSwitch>();
+        var numbers = new List<string>
+        {
+            GetNewNumber,
+            GetNewNumber,
+            GetNewNumber
+        };
 
-        var f = filterSwitch.IsEnabled<ITenantOwned>();
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            foreach (var number in numbers)
+            {
+                await Repository.AddAsync(new App2Entity1(number));
+            }
+        });
 
-        var a = filterSwitch.IsEnabled<ITenantOwned>();
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entities = await Repository.GetListAsync(e => numbers.Contains(e.Number), includeDetails: true);
+
+            await Repository.RemoveRangeAsync(entities, autoSave: true);
+
+            var result = await Repository.GetListAsync(e => numbers.Contains(e.Number));
+            result.ShouldBeEmpty();
+        });
     }
-    
-    // RemoveById
 
-    // RemoveRange
-    // RemoveRangeById
+    [Fact]
+    public async Task ShouldRemoveById()
+    {
+        var id = GuidGenerator.Create();
 
-    // Soft delete
-    // Hard delete
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            await Repository.AddAsync(new App2Entity1(GetNewNumber, id)
+            {
+                SubEntities = new List<App2SubEntity1>
+                {
+                    new(GetNewNumber),
+                    new(GetNewNumber),
+                }
+            });
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ => { await Repository.RemoveAsync(id); });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.FindAsync(id);
+            entity.ShouldBeNull();
+        });
+    }
+
+    [Fact]
+    public async Task ShouldRemoveRangeById()
+    {
+        var ids = new List<Guid>
+        {
+            GuidGenerator.Create(),
+            GuidGenerator.Create(),
+            GuidGenerator.Create(),
+        };
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            foreach (var id in ids)
+            {
+                await Repository.AddAsync(new App2Entity1(GetNewNumber, id));
+            }
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ => { await Repository.RemoveRangeAsync(ids); });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var result = await Repository.GetListAsync(e => ids.Contains(e.Id));
+            result.ShouldBeEmpty();
+        });
+    }
+
+    // Query filter
+
+    [Fact]
+    public async Task ShouldApplyTenantFilter()
+    {
+        var hostSideEntityId = GuidGenerator.Create();
+        var t1EntityId = GuidGenerator.Create();
+        var t2EntityId = GuidGenerator.Create();
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            using (TenantContextAccessor.Change(current: null))
+            {
+                await Repository.AddAsync(new App2Entity1(Number, hostSideEntityId));
+            }
+
+            using (TenantContextAccessor.Change(fixture.Tenant1))
+            {
+                await Repository.AddAsync(new App2Entity1(Number, t1EntityId));
+            }
+
+            using (TenantContextAccessor.Change(fixture.Tenant2))
+            {
+                await Repository.AddAsync(new App2Entity1(Number, t2EntityId));
+            }
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            using (TenantContextAccessor.Change(current: null))
+            {
+                var h = await Repository.FindAsync(hostSideEntityId);
+                var t1 = await Repository.FindAsync(t1EntityId);
+                var t2 = await Repository.FindAsync(t2EntityId);
+
+                h.ShouldNotBeNull();
+                t1.ShouldBeNull();
+                t2.ShouldBeNull();
+            }
+
+            using (TenantContextAccessor.Change(fixture.Tenant1))
+            {
+                var h = await Repository.FindAsync(hostSideEntityId);
+                var t1 = await Repository.FindAsync(t1EntityId);
+                var t2 = await Repository.FindAsync(t2EntityId);
+
+                h.ShouldBeNull();
+                t1.ShouldNotBeNull();
+                t2.ShouldBeNull();
+            }
+
+            using (TenantContextAccessor.Change(fixture.Tenant2))
+            {
+                var h = await Repository.FindAsync(hostSideEntityId);
+                var t1 = await Repository.FindAsync(t1EntityId);
+                var t2 = await Repository.FindAsync(t2EntityId);
+
+                h.ShouldBeNull();
+                t1.ShouldBeNull();
+                t2.ShouldNotBeNull();
+            }
+
+            using (FilterSwitch.Disable<ITenantOwned>())
+            {
+                var h = await Repository.FindAsync(hostSideEntityId);
+                var t1 = await Repository.FindAsync(t1EntityId);
+                var t2 = await Repository.FindAsync(t2EntityId);
+
+                h.ShouldNotBeNull();
+                t1.ShouldNotBeNull();
+                t2.ShouldNotBeNull();
+            }
+        });
+    }
+
+    [Fact]
+    public async Task ShouldApplySoftDeleteFilter()
+    {
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            await Repository.AddAsync(new App2Entity1(Number));
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+            await Repository.RemoveAsync(entity, autoSave: true);
+
+            var result = await Repository.FindAsync(e => e.Number == Number);
+            result.ShouldBeNull();
+
+            using (FilterSwitch.Disable<ISoftDelete>())
+            {
+                result = await Repository.FindAsync(e => e.Number == Number);
+                result.ShouldNotBeNull();
+            }
+        });
+    }
+
+    [Fact]
+    public async Task ShouldHardRemove()
+    {
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            await Repository.AddAsync(new App2Entity1(Number)
+            {
+                SubEntities = new List<App2SubEntity1>
+                {
+                    new(GetNewNumber),
+                    new(GetNewNumber),
+                }
+            });
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+            await Repository.HardRemoveAsync(entity, autoSave: true);
+
+            var result = await Repository.FindAsync(e => e.Number == Number);
+            result.ShouldBeNull();
+
+            using (FilterSwitch.Disable<ISoftDelete>())
+            {
+                result = await Repository.FindAsync(e => e.Number == Number);
+                result.ShouldBeNull();
+            }
+        });
+    }
 }
 
 public class EfCoreRepositoryFixture : IntegrationTest
 {
+    public TenantContext Tenant1 = null!, Tenant2 = null!;
+
     protected override async Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         var container = new PostgreSqlBuilder("postgres:latest")
@@ -869,6 +1148,10 @@ public class EfCoreRepositoryFixture : IntegrationTest
     {
         await base.InitializeAsync();
         await using var _ = BeginAutoCompletingUnitOfWork();
+
+        var tenantStore = Host.Services.GetRequiredService<ITenantStore>();
+        Tenant1 = await tenantStore.GetAsync("T-1");
+        Tenant2 = await tenantStore.GetAsync("T-2");
 
         var provider = Host.Services.GetRequiredService<IDbContextProvider<App2DbContext>>();
         var dbContext = await provider.GetAsync();
