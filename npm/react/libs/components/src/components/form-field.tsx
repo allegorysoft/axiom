@@ -21,7 +21,9 @@ export function FormField<T extends FieldValues>({
     <>
       {children}
       {error?.message && (
-        <p>{t(String(localizedMessage?.key), localizedMessage?.args)}</p>
+        <p className="text-red-400">
+          {t(String(localizedMessage?.key), localizedMessage?.args)}
+        </p>
       )}
     </>
   );

@@ -1,4 +1,8 @@
 {
+  "AxiomBase": {
+    "Min": "{length} veya daha uzun karakter olmalı (client)",
+    "InvalidPasswordFormat": "Küçük harf, büyük harf, rakam ve sembol içermelidir."
+  },
   "AxiomAccount": {
     "SignIn": "Giriş yap (client)",
     "SignUp": "Kayıt ol",

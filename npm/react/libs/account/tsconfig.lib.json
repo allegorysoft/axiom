@@ -2,7 +2,8 @@
   "extends": "./tsconfig.json",
   "references": [
     { "path": "../theme/tsconfig.lib.json" },
-    { "path": "../oauth/tsconfig.lib.json" }
+    { "path": "../oauth/tsconfig.lib.json" },
+    { "path": "../components/tsconfig.lib.json" }
   ],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],

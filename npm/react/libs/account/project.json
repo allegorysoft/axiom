@@ -4,7 +4,7 @@
   "sourceRoot": "libs/account/src",
   "projectType": "library",
   "tags": ["scope:module"],
-  "implicitDependencies": ["core", "oauth", "theme"],
+  "implicitDependencies": ["core", "components", "theme"],
   "targets": {
     "build": {
       "options": {
