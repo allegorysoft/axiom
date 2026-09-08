@@ -20,7 +20,7 @@ export function FormField<T extends FieldValues>({
   const content = (
     <>
       {children}
-      {error?.message && (
+      {localizedMessage && (
         <p className="text-red-400">
           {t(String(localizedMessage?.key), localizedMessage?.args)}
         </p>
