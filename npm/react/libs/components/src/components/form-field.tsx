@@ -1,10 +1,13 @@
+import type { ReactNode, ElementType } from 'react';
 import { useFormContext, type FieldValues, type Path } from 'react-hook-form';
 import { useTranslation } from '@axiomframework/react-core';
+import { tryParse } from '../utils/validation-message-parser';
+import { hasKeyProperty } from '../utils/key-util';
 
 type FormFieldProps<T extends FieldValues> = {
   name: Path<T>;
-  children: React.ReactNode;
-  Container?: React.ElementType;
+  children: ReactNode;
+  Container?: ElementType;
 };
 
 export function FormField<T extends FieldValues>({
@@ -15,47 +18,46 @@ export function FormField<T extends FieldValues>({
   const { getFieldState, formState } = useFormContext<T>();
   const { error } = getFieldState(name, formState);
   const t = useTranslation();
-  const localizedMessage = tryParse(error?.message);
+
+  const parsed = error?.message ? tryParse(error.message) : null;
+  const localized = localizeArgs(parsed, t);
 
   const content = (
     <>
       {children}
-      {localizedMessage && (
-        <p className="text-red-400">
-          {t(String(localizedMessage?.key), localizedMessage?.args)}
+      {localized && (
+        <p
+          id={`${name}-error`}
+          role="alert"
+          aria-live="polite"
+          className="text-red-400"
+        >
+          {t(String(localized.key), localized.args)}
         </p>
       )}
     </>
   );
 
-  if (!Container) {
-    return content;
-  }
-
-  return <Container>{content}</Container>;
+  return Container ? <Container>{content}</Container> : content;
 }
 
-type ParsedErrorMessage = {
-  key: string;
-  args?: Record<string, unknown> | readonly unknown[];
-};
-
-function tryParse(message: string | undefined): ParsedErrorMessage | null {
-  if (!message?.length) {
-    return null;
+function localizeArgs(
+  parsed: ReturnType<typeof tryParse> | null,
+  t: ReturnType<typeof useTranslation>,
+) {
+  if (!parsed) {
+    return '';
   }
 
-  try {
-    const parsed = JSON.parse(message);
-    if (parsed && typeof parsed === 'object' && 'key' in parsed) {
-      return {
-        key: String(parsed.key),
-        args: parsed.args ?? {},
-      };
-    }
-
-    return { key: message };
-  } catch {
-    return { key: message };
+  if (!parsed.args || !hasKeyProperty(parsed.args)) {
+    return parsed;
   }
+
+  return {
+    ...parsed,
+    args: {
+      ...parsed.args,
+      key: t(parsed.args.key as string),
+    },
+  };
 }
