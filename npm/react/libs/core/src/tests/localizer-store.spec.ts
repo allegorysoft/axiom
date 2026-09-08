@@ -5,6 +5,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  AxiomBase,
   localizerStore,
   setCultureReloadHandler,
 } from '../localization/localizer-store';
@@ -18,7 +19,7 @@ describe('localizer-store', () => {
   describe('state', () => {
     it('exposes the current localization state', () => {
       expect(localizerStore.get()).toEqual({
-        translations: {},
+        translations: { AxiomBase },
         culture: {
           name: 'en',
           displayName: 'English',
@@ -56,7 +57,7 @@ describe('localizer-store', () => {
     it('resets translations when the culture changes', () => {
       localizerStore.setTranslations({ Default: { Greeting: 'Hello' } });
       localizerStore.setCulture({ name: 'tr', displayName: 'Türkçe' });
-      expect(localizerStore.get().translations).toEqual({});
+      expect(localizerStore.get().translations).toEqual({ AxiomBase });
     });
   });
 
@@ -86,6 +87,7 @@ describe('localizer-store', () => {
       });
 
       expect(localizerStore.get().translations).toEqual({
+        AxiomBase,
         Default: {
           Greeting: 'Hello',
           GreetingWithParam: 'Hello, {name}',
@@ -128,6 +130,7 @@ describe('localizer-store', () => {
       });
 
       expect(localizerStore.get().translations).toEqual({
+        AxiomBase,
         Default: {
           Greeting: 'Hi',
           Welcome: 'Welcome',
