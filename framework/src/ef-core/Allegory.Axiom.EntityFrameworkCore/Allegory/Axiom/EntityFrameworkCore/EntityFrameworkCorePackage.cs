@@ -22,6 +22,8 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
         AssemblyDependencyRegistrar.IgnoredServiceTypes.Add(typeof(ISaveChangesInterceptor));
     }
 
+    // `Extensions` and `Options` folder stay in the root namespace — consumers need them without extra `using`s.
+
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.AddDeferredAction(CompleteRepositoryRegistration);

@@ -5,6 +5,13 @@
         <RootNamespace/>
     </PropertyGroup>
 
+    <!--
+        Namespace convention: `Extensions` and `Options` folders stay in the
+        root namespace consumers need them without extra usings.
+        Other folders (Repositories, Interceptors, etc.) get a namespace
+        suffix matching the folder name.
+    -->
+
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore"/>
     </ItemGroup>
