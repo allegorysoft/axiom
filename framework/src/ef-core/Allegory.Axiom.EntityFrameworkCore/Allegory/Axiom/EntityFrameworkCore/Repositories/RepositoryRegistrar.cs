@@ -107,7 +107,7 @@ internal class RepositoryRegistrar(
     {
         foreach (var descriptor in registrar.Descriptors)
         {
-            if (!descriptor.TenancySide.AppliesTo(TenancySide))
+            if (!TenancySide.HasFlag(descriptor.TenancySide))
             {
                 continue;
             }
