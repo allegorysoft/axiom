@@ -9,6 +9,8 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 public static class ModelBuilderExtensions
 {
+    private const string TenancySideAnnotation = $"{nameof(TenancySideAnnotation)}";
+
     private static readonly MethodInfo ConfigureMethod = typeof(ModelBuilderExtensions)
         .GetMethod(nameof(ConfigureAxiom), BindingFlags.NonPublic | BindingFlags.Static)!;
 
@@ -16,6 +18,10 @@ public static class ModelBuilderExtensions
     {
         public void ConfigureAxiom(DbContext context, bool createIndexes = true)
         {
+            builder.HasAnnotation(
+                TenancySideAnnotation,
+                TenancySideAttribute.Find(context.GetType()) ?? TenancySide.Hybrid);
+
             var parameters = new object[] {builder, context, createIndexes};
 
             foreach (var entity in builder.Model.GetEntityTypes())
@@ -23,6 +29,15 @@ public static class ModelBuilderExtensions
                 var method = ConfigureMethod.MakeGenericMethod(entity.ClrType);
                 method.Invoke(null, parameters);
             }
+        }
+
+        public TenancySide GetTenancySide()
+        {
+            var annotation = builder.Model.FindAnnotation(TenancySideAnnotation);
+            ArgumentNullException.ThrowIfNull(annotation);
+            ArgumentNullException.ThrowIfNull(annotation.Value);
+
+            return (TenancySide) annotation.Value;
         }
     }
 

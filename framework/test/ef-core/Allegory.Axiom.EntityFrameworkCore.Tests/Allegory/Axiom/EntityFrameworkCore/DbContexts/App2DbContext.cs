@@ -13,8 +13,6 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<App2Entity1>(builder =>
         {
             builder.HasKey(e => e.Id);
