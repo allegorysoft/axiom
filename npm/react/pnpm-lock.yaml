@@ -289,6 +289,15 @@ importers:
         specifier: 'catalog:'
         version: 19.2.8
 
+  libs/shared:
+    dependencies:
+      react:
+        specifier: 'catalog:'
+        version: 19.2.8
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.3
+
   libs/theme:
     dependencies:
       '@base-ui/react':
