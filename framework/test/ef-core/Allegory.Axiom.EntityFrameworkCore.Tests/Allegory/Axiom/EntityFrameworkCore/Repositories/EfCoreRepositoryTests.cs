@@ -1023,6 +1023,41 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
         });
     }
 
+    [Fact]
+    public async Task ShouldHardRemoveRange()
+    {
+        var numbers = new List<string>
+        {
+            GetNewNumber,
+            GetNewNumber,
+            GetNewNumber
+        };
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            foreach (var number in numbers)
+            {
+                await Repository.AddAsync(new App2Entity1(number));
+            }
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entities = await Repository.GetListAsync(e => numbers.Contains(e.Number), includeDetails: true);
+
+            await Repository.HardRemoveRangeAsync(entities, autoSave: true);
+
+            var result = await Repository.GetListAsync(e => numbers.Contains(e.Number), includeDetails: true);
+            result.ShouldBeEmpty();
+
+            using (FilterSwitch.Disable<ISoftDelete>())
+            {
+                result = await Repository.GetListAsync(e => numbers.Contains(e.Number), includeDetails: true);
+                result.ShouldBeEmpty();
+            }
+        });
+    }
+    
     // Query filter
 
     [Fact]
