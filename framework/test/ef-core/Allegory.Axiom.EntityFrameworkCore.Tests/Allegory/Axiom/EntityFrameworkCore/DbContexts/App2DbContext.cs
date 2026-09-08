@@ -79,6 +79,18 @@ public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationA
 
         Number = number;
     }
+
+    public void AddEvent(object payload, bool isLocal = false)
+    {
+        if (isLocal)
+        {
+            AddLocalEvent(payload);    
+        }
+        else
+        {
+            AddDistributedEvent(payload);
+        }
+    }
 }
 
 public class App2SubEntity1 : Entity<Guid>
