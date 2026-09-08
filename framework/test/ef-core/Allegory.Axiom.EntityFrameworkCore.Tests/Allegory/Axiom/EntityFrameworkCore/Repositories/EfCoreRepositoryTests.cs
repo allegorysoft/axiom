@@ -1057,7 +1057,7 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
             }
         });
     }
-    
+
     // Query filter
 
     [Fact]
@@ -1136,10 +1136,7 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
     [Fact]
     public async Task ShouldApplySoftDeleteFilter()
     {
-        await fixture.RunInUnitOfWorkAsync(async _ =>
-        {
-            await Repository.AddAsync(new App2Entity1(Number));
-        });
+        await fixture.RunInUnitOfWorkAsync(async _ => { await Repository.AddAsync(new App2Entity1(Number)); });
 
         await fixture.RunInUnitOfWorkAsync(async _ =>
         {
@@ -1174,6 +1171,7 @@ public class EfCoreRepositoryFixture : IntegrationTest
         builder.Services.AddAxiomDbContext<App2DbContext>(o =>
         {
             o.Configure(b => { b.UseNpgsql(container.GetConnectionString()); });
+            //o.Configure(b => { b.UseSqlite($"Data Source={Guid.NewGuid():N}.db"); });
 
             o.Entity<App2Entity1>(e => { e.IncludeDetails = q => q.Include(n => n.SubEntities); });
         });

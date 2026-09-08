@@ -3,6 +3,7 @@ using System.Reflection;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
@@ -33,6 +34,46 @@ public static class ModelBuilderExtensions
     {
         var entityBuilder = builder.Entity<TEntity>();
 
+        ConfigureAudit(entityBuilder);
+        ConfigureQueryFilter(entityBuilder, context, createIndexes);
+    }
+
+    private static void ConfigureAudit<TEntity>(EntityTypeBuilder<TEntity> entityBuilder) where TEntity : class
+    {
+        if (typeof(ICreationAudited).IsAssignableFrom(typeof(TEntity)))
+        {
+            entityBuilder
+                .Property<DateTime>(nameof(ICreationAudited.CreatedAt))
+                .HasConversion(
+                    static v => v, // interceptor already uses UTC
+                    static v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+        }
+
+        if (typeof(IModificationAudited).IsAssignableFrom(typeof(TEntity)))
+        {
+            entityBuilder
+                .Property<DateTime?>(nameof(IModificationAudited.ModifiedAt))
+                .HasConversion(
+                    static v => v, // interceptor already uses UTC
+                    static v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
+        }
+
+        if (typeof(IDeletionAudited).IsAssignableFrom(typeof(TEntity)))
+        {
+            entityBuilder
+                .Property<DateTime?>(nameof(IDeletionAudited.DeletedAt))
+                .HasConversion(
+                    static v => v, // interceptor already uses UTC
+                    static v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
+        }
+    }
+
+    private static void ConfigureQueryFilter<TEntity>(
+        EntityTypeBuilder<TEntity> entityBuilder,
+        DbContext context,
+        bool createIndexes)
+        where TEntity : class
+    {
         var isSoftDelete = typeof(ISoftDelete).IsAssignableFrom(typeof(TEntity));
         var isTenantOwned = typeof(ITenantOwned).IsAssignableFrom(typeof(TEntity));
 
