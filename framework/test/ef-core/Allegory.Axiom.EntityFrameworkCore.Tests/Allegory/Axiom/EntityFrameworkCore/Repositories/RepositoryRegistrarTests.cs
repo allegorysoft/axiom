@@ -20,14 +20,21 @@ public class RepositoryRegistrarTests : IntegrationTest
     public async Task ShouldRegisterRepositories()
     {
         await CreateServiceProviderAsync(
-            configure: builder => { builder.Services.AddAxiomDbContext<App1DbContext>(); },
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<App2DbContext>();
+            },
             postConfigure: builder =>
             {
                 var descriptor = builder.Services.Single(d => d.ServiceType == typeof(IApp1Entity1Repository));
-                descriptor.ImplementationType.ShouldBe(typeof(EfCoreApp1Entity1Repository));
-
                 var descriptor2 = builder.Services.Single(d => d.ServiceType == typeof(IRepository<App1Entity2, int>));
+                
+                descriptor.ImplementationType.ShouldBe(typeof(EfCoreApp1Entity1Repository));
                 descriptor2.ImplementationType.ShouldBe(typeof(EfCoreRepository<App1DbContext, App1Entity2, int>));
+
+                var descriptor3 = builder.Services.Single(d => d.ServiceType == typeof(EfCoreApp2Entity2Repository));
+                descriptor3.ImplementationType.ShouldBe(typeof(EfCoreApp2Entity2Repository));
             });
     }
 
@@ -140,6 +147,8 @@ public class RepositoryRegistrarTests : IntegrationTest
             });
     }
 
+    // ReplaceDbContext
+    
     [Fact]
     public async Task ShouldUseSpecifiedDbContextForReplacedDbContexts()
     {
@@ -279,7 +288,7 @@ public class RepositoryRegistrarTests : IntegrationTest
             });
     }
     
-     [Fact]
+    [Fact]
     public async Task ShouldRespectRepositorySpecifiedTenancySideWhenReplacingDbContext()
     {
         await CreateServiceProviderAsync(

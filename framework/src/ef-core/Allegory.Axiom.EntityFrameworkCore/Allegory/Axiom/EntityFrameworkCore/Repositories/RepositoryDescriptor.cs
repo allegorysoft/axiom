@@ -77,15 +77,10 @@ internal class RepositoryDescriptor
         entityType = null;
 
         // IEntityRepository; IProductRepository, IOrderRepository etc.
-        var nonGenericRepository = interfaces.SingleOrDefault(r =>
-            typeof(IRepository).IsAssignableFrom(r) && !r.IsGenericType && r != typeof(IRepository));
-        if (nonGenericRepository != null)
-            list.Add(nonGenericRepository);
+        RegisterRepositoryService(interfaces, type, list);
 
         // Entity type for IReadOnlyRepository<TEntity>; null when the repository has no explicit entity type
-        var readOnlyRepository = interfaces.SingleOrDefault(x =>
-            x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IReadOnlyRepository<>));
-        entityType = readOnlyRepository?.GenericTypeArguments[0];
+        var readOnlyRepository = TryGetReadOnlyGenericRepository(interfaces, out entityType);
 
         if (readOnlyRepository == null || !exposeGenericRepositories)
         {
@@ -107,6 +102,35 @@ internal class RepositoryDescriptor
 
         return list;
 
+        static void RegisterRepositoryService(IEnumerable<Type> interfaces, Type type, HashSet<Type> list)
+        {
+            var nonGenericRepository = interfaces.SingleOrDefault(r =>
+                typeof(IRepository).IsAssignableFrom(r) && !r.IsGenericType && r != typeof(IRepository));
+
+            if (nonGenericRepository == null)
+            {
+                // If repository implementation not generic (AppDbContext)
+                // Register implementation type as service type
+                if (!type.IsGenericType)
+                {
+                    list.Add(type);
+                }
+            }
+            else
+            {
+                list.Add(nonGenericRepository);
+            }
+        }
+
+        static Type? TryGetReadOnlyGenericRepository(IEnumerable<Type> interfaces, out Type? entityType)
+        {
+            var repository = interfaces.SingleOrDefault(x =>
+                x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IReadOnlyRepository<>));
+            entityType = repository?.GenericTypeArguments[0];
+
+            return repository;
+        }
+        
         static void AddIfMatch(IEnumerable<Type> interfaces, Type genericDefinition, HashSet<Type> list)
         {
             var match = interfaces.SingleOrDefault(x =>

@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
+using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +37,15 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
             builder.Property(e => e.SubNumber)
                 .IsRequired()
                 .HasMaxLength(App2SubEntity1.MaxNumberLength);
+        });
+        
+        modelBuilder.Entity<App2Entity2>(builder =>
+        {
+            builder.HasKey(e => e.Id);
+
+            builder.Property(e => e.Number)
+                .IsRequired()
+                .HasMaxLength(App2Entity2.MaxNumberLength);
         });
 
         modelBuilder.ConfigureAxiom(this);
@@ -119,5 +131,29 @@ public class App2SubEntity1 : Entity<Guid>
         ArgumentOutOfRangeException.ThrowIfGreaterThan(number.Length, MaxNumberLength);
 
         SubNumber = number;
+    }
+}
+
+public class App2Entity2 : AggregateRoot<Guid>
+{
+    public static byte MaxNumberLength { get; set; } = 100;
+    public string Number { get; protected set; } = null!;
+
+    public void SetNumber(string number)
+    {
+        ArgumentNullException.ThrowIfNull(number);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number.Length, MaxNumberLength);
+
+        Number = number;
+    }
+}
+
+public class EfCoreApp2Entity2Repository(
+    IServiceProvider serviceProvider) :
+    EfCoreRepository<App2DbContext, App2Entity2, Guid>(serviceProvider)
+{
+    public ValueTask<App2DbContext> GetAppDbContextAsync(CancellationToken cancellationToken = default)
+    {
+        return GetDbContextAsync(cancellationToken);
     }
 }
