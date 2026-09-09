@@ -17,6 +17,7 @@ export function PasswordInput({
 
       <InputGroupAddon align="inline-end">
         <button
+          id="togglePassword"
           type="button"
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? 'Hide password' : 'Show password'}
