@@ -1073,7 +1073,7 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
                 [new KeyValuePair<string, string?>("ConnectionStrings:App2", "app2")]);
         });
 
-        var t1 = new TenantContext(Guid.NewGuid(), "t-1", "T-1",
+        var tenant1 = new TenantContext(Guid.NewGuid(), "t-1", "T-1",
             new Dictionary<string, string>
             {
                 {"App2", "t1_app2"}
@@ -1099,11 +1099,11 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
         // Tenant side
         await fixture.RunInUnitOfWorkAsync(async uow =>
             {
-                tenantContextAccessor.Set(t1);
+                tenantContextAccessor.Set(tenant1);
 
                 var context = await repository.GetAppDbContextAsync();
                 context.Database.GetConnectionString().ShouldBe("app2");
-                tenantContextAccessor.Current.ShouldBe(t1);
+                tenantContextAccessor.Current.ShouldBe(tenant1);
 
                 var context2 = await dbContextProvider.GetAsync();
                 context2.Database.GetConnectionString().ShouldBe("t1_app2");
@@ -1251,9 +1251,8 @@ public class EfCoreRepositoryFixture : IntegrationTest
         await base.InitializeAsync();
         await using var _ = BeginAutoCompletingUnitOfWork();
 
-        var tenantStore = Host.Services.GetRequiredService<ITenantStore>();
-        Tenant1 = await tenantStore.GetAsync("T-1");
-        Tenant2 = await tenantStore.GetAsync("T-2");
+        Tenant1 = new TenantContext(Guid.NewGuid(), "t-1", "T-1");
+        Tenant2 = new TenantContext(Guid.NewGuid(), "t-2", "T-2");
 
         var provider = Host.Services.GetRequiredService<IDbContextProvider<App2DbContext>>();
         var dbContext = await provider.GetAsync();

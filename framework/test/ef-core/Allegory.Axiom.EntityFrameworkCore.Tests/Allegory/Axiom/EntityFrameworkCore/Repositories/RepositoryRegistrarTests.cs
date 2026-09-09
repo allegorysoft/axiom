@@ -29,7 +29,6 @@ public class RepositoryRegistrarTests : IntegrationTest
             {
                 var descriptor = builder.Services.Single(d => d.ServiceType == typeof(IApp1Entity1Repository));
                 var descriptor2 = builder.Services.Single(d => d.ServiceType == typeof(IRepository<App1Entity2, int>));
-                
                 descriptor.ImplementationType.ShouldBe(typeof(EfCoreApp1Entity1Repository));
                 descriptor2.ImplementationType.ShouldBe(typeof(EfCoreRepository<App1DbContext, App1Entity2, int>));
 
@@ -42,19 +41,40 @@ public class RepositoryRegistrarTests : IntegrationTest
     public async Task ShouldSetCorrectTenancySideAndConnectionString()
     {
         var provider = await CreateServiceProviderAsync(
-            configure: builder => { builder.Services.AddAxiomDbContext<App1DbContext>(); },
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<App2DbContext>();
+                builder.Services.AddAxiomDbContext<App3DbContext>();
+            },
             postConfigure: builder =>
             {
                 var properties = builder.Services.GetExtraProperties();
 
-                var module1 = properties.Registrars[typeof(App1DbContext)];
-                module1.TenancySide.ShouldBe(TenancySide.Hybrid);
-                module1.ConnectionStringName.ShouldBe("App1");
+                var app1 = properties.Registrars[typeof(App1DbContext)];
+                app1.TenancySide.ShouldBe(TenancySide.Hybrid);
+                app1.ConnectionStringName.ShouldBe("App1");
+
+                var app2 = properties.Registrars[typeof(App2DbContext)];
+                app2.TenancySide.ShouldBe(TenancySide.Hybrid);
+                app2.ConnectionStringName.ShouldBe("App2");
+
+                var app3 = properties.Registrars[typeof(App3DbContext)];
+                app3.TenancySide.ShouldBe(TenancySide.Tenant);
+                app3.ConnectionStringName.ShouldBe("App3AttributedConnection");
             });
 
         var options = provider.GetRequiredService<IOptions<AxiomDbContextOptions<App1DbContext>>>().Value;
         options.TenancySide.ShouldBe(TenancySide.Hybrid);
         options.ConnectionStringName.ShouldBe("App1");
+        
+        var options2 = provider.GetRequiredService<IOptions<AxiomDbContextOptions<App2DbContext>>>().Value;
+        options2.TenancySide.ShouldBe(TenancySide.Hybrid);
+        options2.ConnectionStringName.ShouldBe("App2");
+        
+        var options3 = provider.GetRequiredService<IOptions<AxiomDbContextOptions<App3DbContext>>>().Value;
+        options3.TenancySide.ShouldBe(TenancySide.Tenant);
+        options3.ConnectionStringName.ShouldBe("App3AttributedConnection");
     }
 
     [Fact]

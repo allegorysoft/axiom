@@ -45,7 +45,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
             ConfigureDbContextOptions(builder.Services, type, registrar);
         }
 
-        ConfigureConnectionStringOptions(builder);
+        ConfigureConnectionStringContextOptions(builder);
     }
 
     private static void ConfigureDbContextOptions(
@@ -66,7 +66,7 @@ internal sealed class EntityFrameworkCorePackage : IConfigureApplication
                 registrar.TenancySide)!);
     }
 
-    private static void ConfigureConnectionStringOptions(IHostApplicationBuilder builder)
+    private static void ConfigureConnectionStringContextOptions(IHostApplicationBuilder builder)
     {
         var properties = builder.Services.GetExtraProperties();
 
