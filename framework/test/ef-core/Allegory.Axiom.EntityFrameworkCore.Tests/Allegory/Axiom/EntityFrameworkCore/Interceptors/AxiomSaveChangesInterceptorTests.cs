@@ -212,7 +212,7 @@ public class AxiomSaveChangesInterceptorFixture : IntegrationTest
     {
         builder.Services.AddAxiomDbContext<App2DbContext>(o =>
         {
-            o.Configure(b => { b.UseSqlite($"Data Source={Guid.NewGuid():N}.db"); });
+            o.Configure(b => { b.UseSqlite("Data Source=AxiomSaveChangesInterceptor.db"); });
 
             o.Entity<App2Entity1>(e => { e.IncludeDetails = q => q.Include(n => n.SubEntities); });
         });
@@ -231,8 +231,9 @@ public class AxiomSaveChangesInterceptorFixture : IntegrationTest
         await base.InitializeAsync();
         await using var _ = BeginAutoCompletingUnitOfWork();
 
-        var provider = Host.Services.GetRequiredService<IDbContextProvider<App2DbContext>>();
+        var provider = Service<IDbContextProvider<App2DbContext>>();
         var dbContext = await provider.GetAsync();
+        await dbContext.Database.EnsureDeletedAsync();
         await dbContext.Database.EnsureCreatedAsync();
     }
 }
