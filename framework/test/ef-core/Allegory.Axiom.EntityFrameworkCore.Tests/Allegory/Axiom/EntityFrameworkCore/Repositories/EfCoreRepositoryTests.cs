@@ -10,9 +10,11 @@ using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.MultiTenancy;
+using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Testing.Platform.Services;
 using Shouldly;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -1058,7 +1060,60 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
         });
     }
 
-    // Query filter
+    // GetDbContextAsync
+
+    [Fact]
+    public async Task ShouldUseHostConnectionStringForTenantAgnosticEntityWhenCurrentTenantExists()
+    {
+        var provider = await fixture.CreateServiceProviderAsync(b =>
+        {
+            b.Services.AddAxiomDbContext<App2DbContext>();
+
+            b.Configuration.AddInMemoryCollection(
+                [new KeyValuePair<string, string?>("ConnectionStrings:App2", "app2")]);
+        });
+
+        var t1 = new TenantContext(Guid.NewGuid(), "t-1", "T-1",
+            new Dictionary<string, string>
+            {
+                {"App2", "t1_app2"}
+            });
+
+        var repository = provider.GetRequiredService<EfCoreApp2Entity2Repository>();
+        var dbContextProvider = provider.GetRequiredService<IDbContextProvider<App2DbContext>>();
+        var tenantContextAccessor = provider.GetRequiredService<ITenantContextAccessor>();
+
+        // Host side
+        await fixture.RunInUnitOfWorkAsync(async uow =>
+            {
+                var context = await repository.GetAppDbContextAsync();
+                context.Database.GetConnectionString().ShouldBe("app2");
+
+                var context2 = await dbContextProvider.GetAsync();
+                context2.Database.GetConnectionString().ShouldBe("app2");
+
+                uow.Dispose();
+            },
+            provider);
+        
+        // Tenant side
+        await fixture.RunInUnitOfWorkAsync(async uow =>
+            {
+                tenantContextAccessor.Set(t1);
+
+                var context = await repository.GetAppDbContextAsync();
+                context.Database.GetConnectionString().ShouldBe("app2");
+                tenantContextAccessor.Current.ShouldBe(t1);
+
+                var context2 = await dbContextProvider.GetAsync();
+                context2.Database.GetConnectionString().ShouldBe("t1_app2");
+
+                uow.Dispose();
+            },
+            provider);
+    }
+
+    // GetQueryableAsync
 
     [Fact]
     public async Task ShouldApplyTenantFilter()
@@ -1153,6 +1208,22 @@ public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixt
             }
         });
     }
+
+    [Fact]
+    public async Task ShouldGetEntityAsNoTrackingWhenUnitOfWorkIsSuppressed()
+    {
+        await fixture.RunInUnitOfWorkAsync(async _ => { await Repository.AddAsync(new App2Entity1(Number)); });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+            {
+                var entity = await Repository.GetAsync(e => e.Number == Number);
+                var dbContext = await DbContextProvider.GetAsync();
+
+                var entry = dbContext.Entry(entity);
+                entry.State.ShouldBe(EntityState.Detached);
+            },
+            options: UnitOfWorkOptions.Suppress);
+    }
 }
 
 public class EfCoreRepositoryFixture : IntegrationTest
@@ -1171,8 +1242,6 @@ public class EfCoreRepositoryFixture : IntegrationTest
         builder.Services.AddAxiomDbContext<App2DbContext>(o =>
         {
             o.Configure(b => { b.UseNpgsql(container.GetConnectionString()); });
-            //o.Configure(b => { b.UseSqlite($"Data Source={Guid.NewGuid():N}.db"); });
-
             o.Entity<App2Entity1>(e => { e.IncludeDetails = q => q.Include(n => n.SubEntities); });
         });
     }
