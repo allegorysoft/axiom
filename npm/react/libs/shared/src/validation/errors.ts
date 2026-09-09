@@ -1,6 +1,6 @@
 import type {
   RawIssue,
-  ZodIssueInvalidStringFormat,
+  InvalidStringFormat,
   AxiomInvalidFormatResolver,
 } from './models';
 
@@ -21,10 +21,10 @@ export const DEFAULT_ERRORS: Record<string, ValidationError> = {
   invalid_format: {
     key: 'AxiomBase:InvalidFormat',
     args: (issue) => {
-      let value = null;
+      let value: ReturnType<AxiomInvalidFormatResolver> = null;
 
       for (const resolver of Object.values(invalidFormatResolvers)) {
-        value = resolver(issue as ZodIssueInvalidStringFormat);
+        value = resolver(<InvalidStringFormat>issue);
       }
 
       return value;
