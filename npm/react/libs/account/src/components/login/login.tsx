@@ -53,56 +53,54 @@ export function Component() {
         onSubmit={handleSubmit(onSubmit)}
       >
         <FieldGroup>
-          <FieldGroup>
-            <header className="flex flex-col items-center gap-2 text-center">
-              <AxiomLogo />
+          <header className="flex flex-col items-center gap-2 text-center">
+            <AxiomLogo />
 
-              <h1 className="text-lg md:text-2xl font-bold">
-                {t('AxiomAccount:GetStartedWithAxiom')}
-              </h1>
-              <p>{t('AxiomAccount:SignInOrCreateAccount')}</p>
-            </header>
+            <h1 className="text-lg md:text-2xl font-bold">
+              {t('AxiomAccount:GetStartedWithAxiom')}
+            </h1>
+            <p>{t('AxiomAccount:SignInOrCreateAccount')}</p>
+          </header>
 
-            <FormField<LoginParams> name="usernameOrEmail" Container={Field}>
-              <FieldLabel htmlFor="usernameOrEmail">
-                {t('AxiomAccount:EmailOrUsername')}
-              </FieldLabel>
+          <FormField<LoginParams> name="usernameOrEmail" Container={Field}>
+            <FieldLabel htmlFor="usernameOrEmail">
+              {t('AxiomAccount:EmailOrUsername')}
+            </FieldLabel>
 
-              <InputGroup>
-                <InputGroupAddon>
-                  <MailIcon />
-                </InputGroupAddon>
+            <InputGroup>
+              <InputGroupAddon>
+                <MailIcon />
+              </InputGroupAddon>
 
-                <InputGroupInput
-                  {...register('usernameOrEmail')}
-                  id="usernameOrEmail"
-                  type="text"
-                  placeholder={t('AxiomAccount:EmailOrUsername')}
-                />
-              </InputGroup>
-            </FormField>
-
-            <FormField<LoginParams> name="password" Container={Field}>
-              <FieldLabel htmlFor="password">
-                {t('AxiomAccount:Password')}
-              </FieldLabel>
-              <PasswordInput
-                {...register('password')}
-                id="password"
-                placeholder={t('AxiomAccount:Password')}
+              <InputGroupInput
+                {...register('usernameOrEmail')}
+                id="usernameOrEmail"
+                type="text"
+                placeholder={t('AxiomAccount:EmailOrUsername')}
               />
-            </FormField>
+            </InputGroup>
+          </FormField>
 
-            <Field>
-              <Button className="h-10" type="submit">
-                {t('AxiomAccount:SignIn')}
-              </Button>
-            </Field>
+          <FormField<LoginParams> name="password" Container={Field}>
+            <FieldLabel htmlFor="password">
+              {t('AxiomAccount:Password')}
+            </FieldLabel>
+            <PasswordInput
+              {...register('password')}
+              id="password"
+              placeholder={t('AxiomAccount:Password')}
+            />
+          </FormField>
 
-            <FieldSeparator>{t('AxiomAccount:OrContinueWith')}</FieldSeparator>
+          <Field>
+            <Button className="h-10" type="submit">
+              {t('AxiomAccount:SignIn')}
+            </Button>
+          </Field>
 
-            <SocialLogins />
-          </FieldGroup>
+          <FieldSeparator>{t('AxiomAccount:OrContinueWith')}</FieldSeparator>
+
+          <SocialLogins />
         </FieldGroup>
       </form>
     </FormProvider>
