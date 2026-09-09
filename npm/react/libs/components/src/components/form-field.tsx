@@ -41,12 +41,14 @@ export function FormField<T extends FieldValues>({
   return Container ? <Container>{content}</Container> : content;
 }
 
+type LocalizedArgs = ReturnType<typeof tryParse> | null;
+
 function localizeArgs(
-  parsed: ReturnType<typeof tryParse> | null,
+  parsed: LocalizedArgs,
   t: ReturnType<typeof useTranslation>,
 ) {
   if (!parsed) {
-    return '';
+    return null;
   }
 
   if (!parsed.args || !hasKeyProperty(parsed.args)) {
