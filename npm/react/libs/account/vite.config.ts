@@ -41,9 +41,6 @@ export default defineConfig(() => ({
         'lucide-react',
         'react-hook-form',
         'zod',
-        'clsx',
-        'class-variance-authority',
-        'tailwind-merge',
       ],
       output: {
         preserveModules: true,

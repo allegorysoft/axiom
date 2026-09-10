@@ -26,10 +26,10 @@ catalog:
 
   tailwindcss: ~4.3.0
   '@tailwindcss/vite': ~4.3.0
-  shadcn: ~4.16.0
-  '@base-ui/react': ~1.7.0
+  shadcn: ~4.21.0
+  cn: ^0.2
+  '@base-ui/react': ~1.8.0
   lucide-react: ~1.17.0
-  clsx: ~2.1.0
 
   vite: ^8
   vitest: ~4.1.0

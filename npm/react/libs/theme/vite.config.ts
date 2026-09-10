@@ -42,9 +42,8 @@ export default defineConfig(() => ({
         /^@floating-ui/,
         /^@base-ui/,
         'lucide-react',
-        'clsx',
         'class-variance-authority',
-        'tailwind-merge',
+        'cn',
         'shadcn',
       ],
       output: {
