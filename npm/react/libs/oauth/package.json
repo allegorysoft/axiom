@@ -19,9 +19,6 @@
       "import": "./index.js"
     }
   },
-  "peerDependencies": {
-    "react": "catalog:"
-  },
   "dependencies": {
     "openid-client": "catalog:"
   }

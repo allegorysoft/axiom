@@ -30,7 +30,7 @@ export default defineConfig(() => ({
       formats: ['es' as const],
     },
     rolldownOptions: {
-      external: ['react', 'zod', '@axiomframework/react-core'],
+      external: ['zod', '@axiomframework/react-core'],
       output: {
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),
