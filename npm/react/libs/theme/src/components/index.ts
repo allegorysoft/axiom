@@ -7,4 +7,8 @@ export * from './ui/input-group';
 export * from './ui/textarea';
 export * from './ui/tabs';
 export * from './ui/card';
+export * from './ui/tooltip';
+export * from './ui/breadcrumb';
+export * from './ui/sidebar';
+export * from './ui/separator';
 export * from './password-input';
