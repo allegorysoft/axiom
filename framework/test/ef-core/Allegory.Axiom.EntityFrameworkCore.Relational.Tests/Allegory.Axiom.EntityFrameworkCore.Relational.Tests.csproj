@@ -6,14 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Testcontainers.PostgreSql"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
-        <!-- Repository tests require a direct reference to Allegory.Axiom.EntityFrameworkCore.Relational instead of Allegory.Axiom.EntityFrameworkCore -->
         <ProjectReference Include="..\..\..\src\ef-core\Allegory.Axiom.EntityFrameworkCore.Relational\Allegory.Axiom.EntityFrameworkCore.Relational.csproj"/>
     </ItemGroup>
 

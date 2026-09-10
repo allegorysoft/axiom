@@ -23,13 +23,11 @@ public class RelationalDbContextProvider<TContext>(
 
     public virtual async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {
-        //TODO: We might optimize here
-
         var unitOfWork = UnitOfWorkManager.RequiredCurrent;
         cancellationToken = cancellationToken.FallbackTo(unitOfWork.CancellationToken);
 
         var connectionString = await ConnectionStringProvider.FindAsync(Options.ConnectionStringName);
-        var key = $"{typeof(TContext).FullName!}_{connectionString}";
+        var key = $"{typeof(TContext).FullName!}_{connectionString}"; //TODO: We might optimize here
         if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
         {
             return dbHandle.GetDatabase<TContext>();

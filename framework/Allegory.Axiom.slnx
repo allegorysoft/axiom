@@ -92,6 +92,7 @@
     <Project Path="test/data/Allegory.Axiom.Data.Tests/Allegory.Axiom.Data.Tests.csproj" />
   </Folder>
   <Folder Name="/test/ef-core/">
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational.Tests/Allegory.Axiom.EntityFrameworkCore.Relational.Tests.csproj" />
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Tests/Allegory.Axiom.EntityFrameworkCore.Tests.csproj" />
   </Folder>
   <Folder Name="/test/event-bus/">
