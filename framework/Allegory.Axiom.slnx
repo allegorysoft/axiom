@@ -29,7 +29,7 @@
     <Project Path="src/data/Allegory.Axiom.Data/Allegory.Axiom.Data.csproj" />
   </Folder>
   <Folder Name="/src/ddd/">
-    <Project Path="src/ddd/Allegory.Axiom.Ddd.Domain/Allegory.Axiom.Ddd.Domain.csproj" />
+    <Project Path="src/ddd/Allegory.Axiom.Domain/Allegory.Axiom.Domain.csproj" />
   </Folder>
   <Folder Name="/src/ef-core/">
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB/Allegory.Axiom.EntityFrameworkCore.MongoDB.csproj" />
@@ -92,6 +92,7 @@
     <Project Path="test/data/Allegory.Axiom.Data.Tests/Allegory.Axiom.Data.Tests.csproj" />
   </Folder>
   <Folder Name="/test/ef-core/">
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational.Tests/Allegory.Axiom.EntityFrameworkCore.Relational.Tests.csproj" />
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Tests/Allegory.Axiom.EntityFrameworkCore.Tests.csproj" />
   </Folder>
   <Folder Name="/test/event-bus/">

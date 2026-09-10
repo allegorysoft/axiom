@@ -105,7 +105,7 @@ public abstract class IntegrationTest : IAsyncLifetime
         await using var uow = manager.Begin(options, provider);
         action(uow);
         
-        if (uow.State != UnitOfWorkState.Committed)
+        if (uow.State == UnitOfWorkState.Started)
         {
             await uow.TryCompleteAsync();
         }
@@ -121,7 +121,7 @@ public abstract class IntegrationTest : IAsyncLifetime
         await using var uow = manager.Begin(options, provider);
         await func(uow);
 
-        if (uow.State != UnitOfWorkState.Committed)
+        if (uow.State == UnitOfWorkState.Started)
         {
             await uow.TryCompleteAsync();
         }

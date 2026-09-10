@@ -1,8 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using Allegory.Axiom.Data;
+using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -12,39 +11,34 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 public class RelationalDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
     IUnitOfWorkManager unitOfWorkManager,
-    IConnectionStringProvider connectionStringProvider,
-    ITenantContextAccessor tenantContextAccessor,
-    IOptions<AxiomDbContextOptions<TContext>> options)
+    IOptions<AxiomDbContextOptions<TContext>> options,
+    IConnectionStringProvider connectionStringProvider)
     : IDbContextProvider<TContext>, ISingletonService
     where TContext : DbContext
 {
-    public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
-    public ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
-    public AxiomDbContextOptions<TContext> Options { get; } = options.Value;
     protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
+    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    protected AxiomDbContextOptions<TContext> Options { get; } = options.Value;
     protected IConnectionStringProvider ConnectionStringProvider { get; } = connectionStringProvider;
 
-    public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
+    public virtual async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
     {
         var unitOfWork = UnitOfWorkManager.RequiredCurrent;
         cancellationToken = cancellationToken.FallbackTo(unitOfWork.CancellationToken);
 
-        var itemKey = $"db_{TenantContextAccessor.Current?.Id.ToString() ?? "host"}_{typeof(TContext).FullName!}";
-        if (unitOfWork.Items.TryGetValue(itemKey, out var context))
-        {
-            return (TContext) context;
-        }
-
-        var connectionString = await ConnectionStringProvider.GetAsync(Options.ConnectionStringName);
-        var key = $"{typeof(TContext).FullName!}_{connectionString}";
+        var connectionString = await ConnectionStringProvider.FindAsync(Options.ConnectionStringName);
+        var key = $"{typeof(TContext).FullName!}_{connectionString}"; //TODO: We might optimize here
         if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
         {
             return dbHandle.GetDatabase<TContext>();
         }
 
         var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
-        dbContext.Database.SetConnectionString(connectionString);
-        unitOfWork.Items.Add(itemKey, dbContext);
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            dbContext.Database.SetConnectionString(connectionString);    
+        }
 
         dbHandle = await CreateHandleAsync(unitOfWork, dbContext, cancellationToken);
         unitOfWork.AddDatabase(key, dbHandle);

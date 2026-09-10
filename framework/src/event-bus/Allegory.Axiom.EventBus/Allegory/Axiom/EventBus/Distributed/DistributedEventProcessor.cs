@@ -41,7 +41,7 @@ public class DistributedEventProcessor(
             using var activity = TryGetActivity(queueName, entry, id, traceParent, messagingSystem);
             TenantContextAccessor.Set(await TryGetTenantContextAsync(tenantId));
             await using var uow = UnitOfWorkManager.Begin(
-                new UnitOfWorkOptions(UnitOfWorkTransactionBehavior.RequiresNew),
+                UnitOfWorkOptions.RequiresNew,
                 cancellationToken: cancellationToken);
 
             var context = new EventContext

@@ -34,9 +34,4 @@ public static class MultiTenancyAbstractionsExtensions
             return tenant;
         }
     }
-
-    extension(TenancySide side)
-    {
-        public bool AppliesTo(TenancySide current) => (side & current) != 0;
-    }
 }

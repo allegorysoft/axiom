@@ -12,8 +12,6 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-[SuppressMessage("Usage",
-    "xUnit1051:Calls to methods which accept CancellationToken should use TestContext.Current.CancellationToken")]
 public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFixture<UnitOfWorkManagerFixture>
 {
     protected IUnitOfWorkManager Manager { get; } = fixture.Service<IUnitOfWorkManager>();
@@ -21,7 +19,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldCreateUnitOfWork()
     {
-        using (var root = Manager.Begin())
+        using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldNotBeNull();
             Manager.Current.ShouldBe(root);
@@ -33,12 +31,12 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldCreateChildUnitOfWorkWhenParentExists()
     {
-        using (var root = Manager.Begin())
+        using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = Manager.Begin())
+            using (var child = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(child);
                 Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
@@ -50,11 +48,11 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldRestoreParentUnitOfWorkAfterChildUnitOfWorkDisposed()
     {
-        using (var root = Manager.Begin())
+        using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
 
-            using (var child = Manager.Begin())
+            using (var child = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(child);
             }
@@ -66,12 +64,13 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldRestoreParentUnitOfWorkAfterSubUnitOfWorkAsyncDisposed()
     {
-        await using (var root = Manager.Begin())
+        await using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
 
-            await using (var child = Manager.Begin(new UnitOfWorkOptions(
-                             transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+            await using (var child = Manager.Begin(
+                             UnitOfWorkOptions.RequiresNew,
+                             cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(child);
             }
@@ -98,7 +97,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         // corrupting the caller's ambient state, but disposing a unit of work still correctly
         // restores its parent everywhere that instance is observed.
 
-        await using (var root = Manager.Begin())
+        await using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             var rootSignal = new TaskCompletionSource();
             var childSignal = new TaskCompletionSource();
@@ -131,10 +130,10 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldUseParentPropertiesWhenUnitOfWorkIsChild()
     {
-        using (var root = Manager.Begin())
+        using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             root.Items["key"] = "value";
-            using (var child = Manager.Begin())
+            using (var child = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.RequiredCurrent.Items["key"].ShouldBe("value");
                 root.Items.ShouldBe(child.Items);
@@ -145,13 +144,14 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldCreateSubRootUnitOfWorkWhenTransactionBehaviorIsRequiresNew()
     {
-        using (var root = Manager.Begin())
+        using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+            using (var subRoot = Manager.Begin(
+                       UnitOfWorkOptions.RequiresNew,
+                       cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(subRoot);
                 Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -165,12 +165,12 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     public void ShouldCreateChildUnitOfWorkWhenTransactionBehaviorCompatible()
     {
         // Required, Required
-        using (var root = Manager.Begin())
+        using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = Manager.Begin())
+            using (var child = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(child);
                 Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
@@ -179,13 +179,14 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // RequiresNew, Required
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+        using (var root = Manager.Begin(
+                   UnitOfWorkOptions.RequiresNew,
+                   cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = Manager.Begin())
+            using (var child = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(child);
                 Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
@@ -194,14 +195,16 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // Suppress, Suppress
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+        using (var root = Manager.Begin(
+                   UnitOfWorkOptions.Suppress,
+                   cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var child = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+            using (var child = Manager.Begin(
+                       UnitOfWorkOptions.Suppress,
+                       cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(child);
                 Manager.Current.ShouldBeOfType<ChildUnitOfWork>();
@@ -214,13 +217,14 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     public void ShouldCreateSubRootUnitOfWorkWhenTransactionBehaviorIncompatible()
     {
         // Required, Suppress
-        using (var root = Manager.Begin())
+        using (var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+            using (var subRoot = Manager.Begin(
+                       UnitOfWorkOptions.Suppress,
+                       cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(subRoot);
                 Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -229,13 +233,14 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // Suppress, Required
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+        using (var root = Manager.Begin(
+                   UnitOfWorkOptions.Suppress,
+                   cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = Manager.Begin())
+            using (var subRoot = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(subRoot);
                 Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -244,14 +249,16 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         }
 
         // RequiresNew, Suppress
-        using (var root = Manager.Begin(new UnitOfWorkOptions(
-                   transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew)))
+        using (var root = Manager.Begin(
+                   UnitOfWorkOptions.RequiresNew,
+                   cancellationToken: TestContext.Current.CancellationToken))
         {
             Manager.Current.ShouldBe(root);
             Manager.Current.ShouldBeOfType<UnitOfWork>();
 
-            using (var subRoot = Manager.Begin(new UnitOfWorkOptions(
-                       transactionBehavior: UnitOfWorkTransactionBehavior.Suppress)))
+            using (var subRoot = Manager.Begin(
+                       UnitOfWorkOptions.Suppress,
+                       cancellationToken: TestContext.Current.CancellationToken))
             {
                 Manager.Current.ShouldBe(subRoot);
                 Manager.Current.ShouldBeOfType<UnitOfWork>();
@@ -265,11 +272,11 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldApplyDefaultOptionsWhenPreferredOptionsNull()
     {
-        var options = fixture.Service<IOptions<UnitOfWorkOptions>>().Value;
+        var options = fixture.Service<IOptions<UnitOfWorkDefaultOptions>>().Value;
 
-        using var uow = Manager.Begin();
+        using var uow = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
-        Manager.RequiredCurrent.Options.ShouldBe(options);
+        Manager.RequiredCurrent.Options.ShouldBe(options.Default);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 
@@ -277,22 +284,22 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     public void ShouldApplyPreferredOptionsWhenPreferredOptionsNotNull()
     {
         var preferred = new UnitOfWorkOptions(timeout: TimeSpan.FromMinutes(1));
-        using var uow = Manager.Begin(preferred);
+        using var uow = Manager.Begin(preferred, cancellationToken: TestContext.Current.CancellationToken);
 
-        Manager.RequiredCurrent.Options.ShouldBe(preferred);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(preferred.Timeout);
+        Manager.RequiredCurrent.Options.ShouldBeSameAs(preferred);
     }
 
     [Fact]
     public void ShouldFallbackDefaultOptionsWhenPreferredOptionsPropertyIsNull()
     {
-        var options = fixture.Service<IOptions<UnitOfWorkOptions>>().Value;
+        var options = fixture.Service<IOptions<UnitOfWorkDefaultOptions>>().Value;
 
         var preferred = new UnitOfWorkOptions(isolationLevel: IsolationLevel.ReadUncommitted);
-        using var uow = Manager.Begin(preferred);
+        using var uow = Manager.Begin(preferred, cancellationToken: TestContext.Current.CancellationToken);
 
-        Manager.RequiredCurrent.Options.ShouldBe(preferred);
         Manager.RequiredCurrent.Options.IsolationLevel.ShouldBe(preferred.IsolationLevel);
+        Manager.RequiredCurrent.Options.ShouldBeSameAs(preferred);
         Manager.RequiredCurrent.Options.Timeout.ShouldBe(options.Timeout);
     }
 
@@ -301,7 +308,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldCreateNewServiceProviderWhenNoneProvidedAndNoParent()
     {
-        using var uow = Manager.Begin();
+        using var uow = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         uow.ServiceProvider.ShouldNotBeNull();
     }
@@ -311,7 +318,9 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     {
         var customProvider = fixture.Service<IServiceProvider>();
 
-        using var uow = Manager.Begin(serviceProvider: customProvider);
+        using var uow = Manager.Begin(
+            serviceProvider: customProvider,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         uow.ServiceProvider.ShouldBe(customProvider);
     }
@@ -319,9 +328,9 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldUseParentServiceProviderWhenChildBegunWithoutExplicitProvider()
     {
-        using var root = Manager.Begin();
+        using var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
-        using var child = Manager.Begin();
+        using var child = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         child.ServiceProvider.ShouldBeSameAs(root.ServiceProvider);
     }
@@ -331,8 +340,10 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     {
         var customProvider = fixture.Service<IServiceProvider>();
 
-        using var root = Manager.Begin();
-        using var child = Manager.Begin(serviceProvider: customProvider);
+        using var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
+        using var child = Manager.Begin(
+            serviceProvider: customProvider,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         child.ServiceProvider.ShouldBeSameAs(customProvider);
         child.ServiceProvider.ShouldNotBe(root.ServiceProvider);
@@ -346,10 +357,11 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         // ServiceProvider. Callers needing scope isolation must create their own
         // IServiceScope and pass its provider explicitly to Begin.
 
-        using var root = Manager.Begin();
+        using var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
-        using var subRoot = Manager.Begin(new UnitOfWorkOptions(
-            transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+        using var subRoot = Manager.Begin(
+            UnitOfWorkOptions.RequiresNew,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         subRoot.ServiceProvider.ShouldBeSameAs(root.ServiceProvider);
     }
@@ -358,11 +370,12 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     public void ShouldUseExplicitServiceProviderForSubRootWhenProvided()
     {
         var customProvider = fixture.Service<IServiceProvider>();
-        using var root = Manager.Begin();
+        using var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
 
         using var subRoot = Manager.Begin(
-            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew),
-            serviceProvider: customProvider);
+            UnitOfWorkOptions.RequiresNew,
+            serviceProvider: customProvider,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         subRoot.ServiceProvider.ShouldBeSameAs(customProvider);
         subRoot.ServiceProvider.ShouldNotBe(root.ServiceProvider);
@@ -371,10 +384,11 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldResolveScopedServiceConsistentlyWithinSameAmbientScope()
     {
-        using var root = Manager.Begin();
-        using var child = Manager.Begin();
+        using var root = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
+        using var child = Manager.Begin(cancellationToken: TestContext.Current.CancellationToken);
         using var subRoot = Manager.Begin(
-            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+            UnitOfWorkOptions.RequiresNew,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         var first = root.ServiceProvider.GetRequiredService<ScopedImp>();
         var second = child.ServiceProvider.GetRequiredService<ScopedImp>();
@@ -389,7 +403,9 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     [Fact]
     public void ShouldUseCancellationTokenNoneWhenNotProvidedAndNoParent()
     {
+#pragma warning disable xUnit1051
         using var uow = Manager.Begin();
+#pragma warning restore xUnit1051
 
         uow.CancellationToken.ShouldBe(CancellationToken.None);
     }
@@ -410,7 +426,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         using var parentCts = new CancellationTokenSource();
 
         using var root = Manager.Begin(cancellationToken: parentCts.Token);
-        using var child = Manager.Begin();
+        using var child = Manager.Begin(cancellationToken: CancellationToken.None);
 
         child.CancellationToken.ShouldBe(parentCts.Token);
     }
@@ -420,7 +436,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
     {
         using var cts = new CancellationTokenSource();
 
-        using var root = Manager.Begin();
+        using var root = Manager.Begin(cancellationToken: CancellationToken.None);
         using var child = Manager.Begin(cancellationToken: cts.Token);
 
         child.CancellationToken.ShouldBe(cts.Token);
@@ -485,8 +501,7 @@ public class UnitOfWorkManagerTests(UnitOfWorkManagerFixture fixture) : IClassFi
         using var parentCts = new CancellationTokenSource();
 
         using var root = Manager.Begin(cancellationToken: parentCts.Token);
-        using var subRoot = Manager.Begin(
-            new UnitOfWorkOptions(transactionBehavior: UnitOfWorkTransactionBehavior.RequiresNew));
+        using var subRoot = Manager.Begin(UnitOfWorkOptions.RequiresNew, cancellationToken: CancellationToken.None);
 
         subRoot.CancellationToken.ShouldBe(parentCts.Token);
     }
@@ -496,7 +511,7 @@ public class UnitOfWorkManagerFixture : IntegrationTest
 {
     protected override Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<UnitOfWorkOptions>(options => { options.Timeout = TimeSpan.FromSeconds(30); });
+        builder.Services.Configure<UnitOfWorkDefaultOptions>(options => { options.Timeout = TimeSpan.FromSeconds(30); });
 
         return Task.CompletedTask;
     }

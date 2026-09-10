@@ -1,3 +1,4 @@
+using System;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
@@ -17,6 +18,6 @@ public class App1Entity2 : AggregateRoot<int> { }
 
 public interface IApp1Entity1Repository : IRepository<App1Entity1, int> { }
 
-public class EfCoreApp1Entity1Repository(
-    IDbContextProvider<App1DbContext> dbContextProvider)
-    : EfCoreRepository<App1DbContext, App1Entity1, int>(dbContextProvider), IApp1Entity1Repository { }
+public class EfCoreApp1Entity1Repository(IServiceProvider serviceProvider) :
+    EfCoreRepository<App1DbContext, App1Entity1, int>(serviceProvider),
+    IApp1Entity1Repository { }

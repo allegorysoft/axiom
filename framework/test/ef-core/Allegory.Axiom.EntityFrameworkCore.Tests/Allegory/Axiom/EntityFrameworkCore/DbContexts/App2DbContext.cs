@@ -1,33 +1,28 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
-using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 
-[ConnectionStringName("App2")]
 public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(options)
 {
     public DbSet<App2Entity1> Entity1 => Set<App2Entity1>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
-
         modelBuilder.Entity<App2Entity1>(builder =>
         {
             builder.HasKey(e => e.Id);
 
             builder.Property(e => e.Number)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(App2Entity1.MaxNumberLength);
 
             builder.HasMany(x => x.SubEntities)
                 .WithOne()
@@ -38,73 +33,127 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
         modelBuilder.Entity<App2SubEntity1>(builder =>
         {
             builder.HasKey(e => e.Id);
-        
+
             builder.Property(e => e.SubNumber)
                 .IsRequired()
-                .HasMaxLength(100);
+                .HasMaxLength(App2SubEntity1.MaxNumberLength);
+        });
+        
+        modelBuilder.Entity<App2Entity2>(builder =>
+        {
+            builder.HasKey(e => e.Id);
+
+            builder.Property(e => e.Number)
+                .IsRequired()
+                .HasMaxLength(App2Entity2.MaxNumberLength);
         });
 
-        // foreach (var entityType in modelBuilder.Model.GetEntityTypes())
-        // {
-        //     var clrType = entityType.ClrType;
-        //     var name = entityType.Name;
-        // }
+        modelBuilder.ConfigureAxiom(this);
     }
 }
 
-public class App2Entity1 : AggregateRoot<int>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned
+public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned
 {
+    public static byte MaxNumberLength { get; set; } = 100;
+
     protected App2Entity1() { }
 
-    public App2Entity1(string number)
+    public App2Entity1(string number, Guid? id = null)
     {
+        SetNumber(number);
+
+        if (id != null)
+        {
+            Id = id.Value;
+        }
+    }
+
+    public string Number { get; protected set; } = null!;
+
+    public DateTime CreatedAt { get; private set; }
+    public string? CreatedBy { get; private set; }
+
+    public DateTime? ModifiedAt { get; private set; }
+    public string? ModifiedBy { get; private set; }
+
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; private set; }
+    public string? DeletedBy { get; private set; }
+
+    public Guid? TenantId { get; private set; }
+
+    public List<App2SubEntity1> SubEntities { get; set; } = [];
+
+    public void SetNumber(string number)
+    {
+        ArgumentNullException.ThrowIfNull(number);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number.Length, MaxNumberLength);
+
         Number = number;
     }
 
-    public string Number { get; set; } = null!;
-
-    public DateTime CreatedAt { get; set; }
-    public string? CreatedBy { get; set; }
-
-    public DateTime? ModifiedAt { get; set; }
-    public string? ModifiedBy { get; set; }
-
-    public bool IsDeleted { get; set; }
-    public DateTime? DeletedAt { get; set; }
-    public string? DeletedBy { get; set; }
-
-    public Guid? TenantId { get; set; }
-
-    public List<App2SubEntity1> SubEntities { get; set; } = [];
-}
-
-public class App2SubEntity1 : Entity<int>
-{
-    public int AppEntity1Id { get; set; }
-
-    public string SubNumber { get; set; } = null!;
-}
-
-public interface IApp2Entity1Repository : IRepository<App2Entity1, int>
-{
-    ValueTask<IQueryable<App2Entity1>> GetQueryable();
-}
-
-public class EfCoreEntity1Repository(
-    IDbContextProvider<App2DbContext> dbContextProvider)
-    : EfCoreRepository<App2DbContext, App2Entity1, int>(dbContextProvider), IApp2Entity1Repository
-{
-    protected override IQueryable<App2Entity1> IncludeDetails(
-        IQueryable<App2Entity1> query,
-        bool includeDetails = true)
+    public void AddEvent(object payload, bool isLocal = false)
     {
-        return query.Include(q => q.SubEntities);
+        if (isLocal)
+        {
+            AddLocalEvent(payload);    
+        }
+        else
+        {
+            AddDistributedEvent(payload);
+        }
+    }
+}
+
+public class App2SubEntity1 : Entity<Guid>
+{
+    public static byte MaxNumberLength { get; set; } = 100;
+
+    protected App2SubEntity1() { }
+
+    public App2SubEntity1(string number, Guid? id = null)
+    {
+        SetSubNumber(number);
+
+        if (id != null)
+        {
+            Id = id.Value;
+        }
     }
 
-    public async ValueTask<IQueryable<App2Entity1>> GetQueryable()
+    public Guid AppEntity1Id { get; private init; }
+
+    public string SubNumber { get; protected set; } = null!;
+
+    public void SetSubNumber(string number)
     {
-        var set = await GetDbSetAsync();
-        var query = set.AsNoTracking().AsQueryable();
-        return query;
+        ArgumentNullException.ThrowIfNull(number);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number.Length, MaxNumberLength);
+
+        SubNumber = number;
+    }
+}
+
+public class App2Entity2 : AggregateRoot<Guid>
+{
+    public static byte MaxNumberLength { get; set; } = 100;
+    public string Number { get; protected set; } = null!;
+
+    public void SetNumber(string number)
+    {
+        ArgumentNullException.ThrowIfNull(number);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number.Length, MaxNumberLength);
+
+        Number = number;
+    }
+}
+
+public class EfCoreApp2Entity2Repository(
+    IServiceProvider serviceProvider) :
+    EfCoreRepository<App2DbContext, App2Entity2, Guid>(serviceProvider)
+{
+    public ValueTask<App2DbContext> GetAppDbContextAsync(CancellationToken cancellationToken = default)
+    {
+        return GetDbContextAsync(cancellationToken);
     }
 }

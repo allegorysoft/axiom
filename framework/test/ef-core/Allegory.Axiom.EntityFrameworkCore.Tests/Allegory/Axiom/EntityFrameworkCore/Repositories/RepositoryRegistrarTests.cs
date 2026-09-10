@@ -1,11 +1,12 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
 
@@ -19,15 +20,61 @@ public class RepositoryRegistrarTests : IntegrationTest
     public async Task ShouldRegisterRepositories()
     {
         await CreateServiceProviderAsync(
-            configure: builder => { builder.Services.AddAxiomDbContext<App1DbContext>(); },
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<App2DbContext>();
+            },
             postConfigure: builder =>
             {
                 var descriptor = builder.Services.Single(d => d.ServiceType == typeof(IApp1Entity1Repository));
-                descriptor.ImplementationType.ShouldBe(typeof(EfCoreApp1Entity1Repository));
-
                 var descriptor2 = builder.Services.Single(d => d.ServiceType == typeof(IRepository<App1Entity2, int>));
+                descriptor.ImplementationType.ShouldBe(typeof(EfCoreApp1Entity1Repository));
                 descriptor2.ImplementationType.ShouldBe(typeof(EfCoreRepository<App1DbContext, App1Entity2, int>));
+
+                var descriptor3 = builder.Services.Single(d => d.ServiceType == typeof(EfCoreApp2Entity2Repository));
+                descriptor3.ImplementationType.ShouldBe(typeof(EfCoreApp2Entity2Repository));
             });
+    }
+
+    [Fact]
+    public async Task ShouldSetCorrectTenancySideAndConnectionString()
+    {
+        var provider = await CreateServiceProviderAsync(
+            configure: builder =>
+            {
+                builder.Services.AddAxiomDbContext<App1DbContext>();
+                builder.Services.AddAxiomDbContext<App2DbContext>();
+                builder.Services.AddAxiomDbContext<App3DbContext>();
+            },
+            postConfigure: builder =>
+            {
+                var properties = builder.Services.GetExtraProperties();
+
+                var app1 = properties.Registrars[typeof(App1DbContext)];
+                app1.TenancySide.ShouldBe(TenancySide.Hybrid);
+                app1.ConnectionStringName.ShouldBe("App1");
+
+                var app2 = properties.Registrars[typeof(App2DbContext)];
+                app2.TenancySide.ShouldBe(TenancySide.Hybrid);
+                app2.ConnectionStringName.ShouldBe("App2");
+
+                var app3 = properties.Registrars[typeof(App3DbContext)];
+                app3.TenancySide.ShouldBe(TenancySide.Tenant);
+                app3.ConnectionStringName.ShouldBe("App3AttributedConnection");
+            });
+
+        var options = provider.GetRequiredService<IOptions<AxiomDbContextOptions<App1DbContext>>>().Value;
+        options.TenancySide.ShouldBe(TenancySide.Hybrid);
+        options.ConnectionStringName.ShouldBe("App1");
+        
+        var options2 = provider.GetRequiredService<IOptions<AxiomDbContextOptions<App2DbContext>>>().Value;
+        options2.TenancySide.ShouldBe(TenancySide.Hybrid);
+        options2.ConnectionStringName.ShouldBe("App2");
+        
+        var options3 = provider.GetRequiredService<IOptions<AxiomDbContextOptions<App3DbContext>>>().Value;
+        options3.TenancySide.ShouldBe(TenancySide.Tenant);
+        options3.ConnectionStringName.ShouldBe("App3AttributedConnection");
     }
 
     [Fact]
@@ -120,6 +167,8 @@ public class RepositoryRegistrarTests : IntegrationTest
             });
     }
 
+    // ReplaceDbContext
+    
     [Fact]
     public async Task ShouldUseSpecifiedDbContextForReplacedDbContexts()
     {
@@ -215,7 +264,7 @@ public class RepositoryRegistrarTests : IntegrationTest
                 {
                     o.AddRepository(typeof(EfCoreModule1Entity1Repository<>));
                     o.AddRepository(typeof(EfCoreModule1Entity2Repository<>));
-                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>));
+                    o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Host);
                 });
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
                 builder.Services.AddAxiomDbContext<Module3DbContext>(o => { o.RegisterAsGenericDbContext = true; });
@@ -259,7 +308,7 @@ public class RepositoryRegistrarTests : IntegrationTest
             });
     }
     
-     [Fact]
+    [Fact]
     public async Task ShouldRespectRepositorySpecifiedTenancySideWhenReplacingDbContext()
     {
         await CreateServiceProviderAsync(
@@ -267,7 +316,6 @@ public class RepositoryRegistrarTests : IntegrationTest
             {
                 builder.Services.AddAxiomDbContext<Module1DbContext>(o =>
                 {
-                    // If the tenancy side is not specified, it defaults to the DbContext's tenancy side
                     o.AddRepository(typeof(EfCoreModule1ReportRepository<>), TenancySide.Tenant);
                 });
                 builder.Services.AddAxiomDbContext<Module2DbContext>(o => { o.RegisterAsGenericDbContext = true; });
@@ -303,6 +351,6 @@ file class HostSideDbContext : DbContext { }
 file class TenantSideDbContext : DbContext { }
 
 file class CustomEfCoreModule1Entity1Repository<TDbContext>(
-    IDbContextProvider<TDbContext> dbContextProvider)
-    : EfCoreModule1Entity1Repository<TDbContext>(dbContextProvider)
+    IServiceProvider serviceProvider) : 
+    EfCoreModule1Entity1Repository<TDbContext>(serviceProvider)
     where TDbContext : DbContext { }

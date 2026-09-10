@@ -11,10 +11,10 @@ namespace Allegory.Axiom.UnitOfWork;
 
 public class UnitOfWorkTests
 {
-    private static UnitOfWork CreateUnitOfWork(UnitOfWorkOptions? options = null)
+    private static UnitOfWork CreateUnitOfWork()
     {
         return new UnitOfWork(
-            options ?? new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider(),
             cancellationToken: TestContext.Current.CancellationToken);
     }
@@ -579,7 +579,7 @@ public class UnitOfWorkTests
         await cts.CancelAsync();
 
         var uow = new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider(),
             cancellationToken: cts.Token);
 
@@ -594,7 +594,7 @@ public class UnitOfWorkTests
         await ambientCts.CancelAsync();
 
         var uow = new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider(),
             cancellationToken: ambientCts.Token);
 
@@ -619,7 +619,7 @@ public class UnitOfWorkTests
         await cts.CancelAsync();
 
         var uow = new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider(),
             cancellationToken: cts.Token);
 
@@ -636,7 +636,7 @@ public class UnitOfWorkTests
         await ambientCts.CancelAsync();
 
         var uow = new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider(),
             cancellationToken: ambientCts.Token);
 
@@ -664,7 +664,7 @@ public class UnitOfWorkTests
         await cts.CancelAsync();
 
         var uow = new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider(),
             cancellationToken: cts.Token);
 
@@ -691,7 +691,7 @@ public class UnitOfWorkTests
         // so rollback can still proceed even if that token is already canceled.
 
         var uow = new UnitOfWork(
-            new UnitOfWorkOptions(),
+            UnitOfWorkOptions.Required,
             new ServiceCollection().BuildServiceProvider());
 
         var rolledBack = false;
