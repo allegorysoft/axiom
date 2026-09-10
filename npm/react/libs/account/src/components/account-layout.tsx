@@ -20,10 +20,6 @@ import {
 const TABS = ['login', 'sign-up'] as const;
 type Tab = (typeof TABS)[number];
 
-export function loader() {
-  return null;
-}
-
 export function ErrorBoundary() {
   return <div>Failed to load account page!</div>;
 }
