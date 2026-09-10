@@ -1,11 +1,10 @@
 import {
   createBrowserRouter,
   isRouteErrorResponse,
-  Outlet,
   useRouteError,
 } from 'react-router';
 import { accountRoutes } from '@axiomframework/react-account';
-import { Header } from './header';
+import Layout from './layout';
 
 export const routes = createBrowserRouter([
   {
@@ -34,18 +33,7 @@ export const routes = createBrowserRouter([
   },
 ]);
 
-function Layout() {
-  return (
-    <>
-      <Header />
-      <main className="mx-3 my-2">
-        <Outlet />
-      </main>
-    </>
-  );
-}
-
-export function ErrorBoundary() {
+function ErrorBoundary() {
   const error = useRouteError();
 
   if (isRouteErrorResponse(error)) {

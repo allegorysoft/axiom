@@ -12,3 +12,5 @@ export * from './ui/breadcrumb';
 export * from './ui/sidebar';
 export * from './ui/separator';
 export * from './password-input';
+export * from './app-sidebar';
+export * from './header';
