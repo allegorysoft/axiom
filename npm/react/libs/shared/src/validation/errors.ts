@@ -13,7 +13,7 @@ export const DEFAULT_ERRORS: Record<string, ValidationError> = {
   too_small: {
     key: 'AxiomBase:Min',
     args: (issue) => {
-      //TODO: check issue.origin return per type
+      //TODO: normalize/update response by issue.origin types
       return { length: issue.minimum };
     },
   },

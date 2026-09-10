@@ -1,5 +1,4 @@
-import type { OAuthToken } from '@axiomframework/react-core';
-import { AxiomStore } from '../../core/src/models/common';
+import { type OAuthToken, AxiomStore } from '@axiomframework/react-core';
 
 export interface OAuthState {
   token: OAuthToken | null;
