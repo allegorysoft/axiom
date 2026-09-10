@@ -7,3 +7,4 @@ export * from './ui/input-group';
 export * from './ui/textarea';
 export * from './ui/tabs';
 export * from './ui/card';
+export * from './password-input';

@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { type Environment, environmentStore } from '../environment';
+import { type Environment } from '../environment/environment';
+import { environmentStore } from '../environment/environment-store';
 
 const makeEnvironment = (
   overrides: Partial<Environment> = {},

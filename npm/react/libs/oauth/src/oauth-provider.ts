@@ -1,4 +1,4 @@
-import { type AuthProvider } from '@axiomframework/react-core';
+import type { AuthProvider } from '@axiomframework/react-core';
 import { BaseAuthFlow } from './base-auth-flow';
 import { PasswordAuthFlow } from './password-auth-flow';
 import { CodeAuthFlow } from './code-auth-flow';

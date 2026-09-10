@@ -1,13 +1,15 @@
+import { isPlatformServer } from '../utils/platform-utils';
+import { createStore } from '../store/axiom-store';
 import type {
   LocalizerState,
   CultureInfo,
   Translations,
   LocalizerStore,
 } from './localization';
-import { createStore } from '../store/axiom-store';
 
+export const AxiomBase = { InvalidFormat: '{key}' };
 const initialState: LocalizerState = {
-  translations: {},
+  translations: { AxiomBase },
   culture: {
     name: 'en',
     displayName: 'English',
@@ -62,11 +64,16 @@ export const localizerStore: LocalizerStore = Object.assign(baseStore, {
         ([key, value]) => prev.culture[key as keyof CultureInfo] === value,
       );
 
-      return changed ? { culture, translations: {}, error: null } : {};
+      return changed
+        ? { culture, translations: { AxiomBase }, error: null }
+        : {};
     });
 
     if (changed) {
-      document.documentElement.lang = culture.name;
+      if (!isPlatformServer()) {
+        document.documentElement.lang = culture.name;
+      }
+
       void reloadHandler?.(culture);
     }
   },

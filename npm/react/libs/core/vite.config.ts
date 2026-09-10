@@ -20,13 +20,10 @@ export default defineConfig(() => ({
   ],
   build: {
     target: 'esnext',
-    cssCodeSplit: true,
     outDir: '../../dist/libs/core',
     emptyOutDir: true,
     lib: {
-      entry: {
-        index: 'src/index',
-      },
+      entry: { index: 'src/index' },
       name: 'core',
       formats: ['es' as const],
     },
@@ -35,6 +32,9 @@ export default defineConfig(() => ({
       output: {
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),
+      },
+      treeshake: {
+        moduleSideEffects: false,
       },
     },
   },

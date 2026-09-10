@@ -17,6 +17,7 @@
     "app/**/*.ts",
     "app/**/*.tsx",
     "../../libs/core/src/index.ts",
+    "../../libs/shared/src/index.ts",
     "../../libs/oauth/src/index.ts",
     "../../libs/account/src/index.ts",
     "../../libs/theme/src/components/index.ts"

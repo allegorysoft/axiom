@@ -41,6 +41,7 @@ export default defineConfig(() => ({
         /^react\/jsx-runtime$/,
         /^@floating-ui/,
         /^@base-ui/,
+        'lucide-react',
         'clsx',
         'class-variance-authority',
         'tailwind-merge',

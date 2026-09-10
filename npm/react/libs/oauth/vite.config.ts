@@ -20,7 +20,6 @@ export default defineConfig(() => ({
   ],
   build: {
     target: 'esnext',
-    cssCodeSplit: true,
     outDir: '../../dist/libs/oauth',
     emptyOutDir: true,
     lib: {
@@ -31,7 +30,7 @@ export default defineConfig(() => ({
       formats: ['es' as const],
     },
     rolldownOptions: {
-      external: ['react', 'openid-client', '@axiomframework/react-core'],
+      external: ['openid-client', '@axiomframework/react-core'],
       output: {
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),

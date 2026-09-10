@@ -8,7 +8,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 export default defineConfig(() => ({
   root: import.meta.dirname,
   resolve: { tsconfigPaths: true },
-  cacheDir: '../../node_modules/.vite/libs/account',
+  cacheDir: '../../node_modules/.vite/libs/shared',
   plugins: [
     react(),
     viteStaticCopy({ targets: [{ src: ['*.md', 'package.json'], dest: '.' }] }),
@@ -20,34 +20,23 @@ export default defineConfig(() => ({
   ],
   build: {
     target: 'esnext',
-    outDir: '../../dist/libs/account',
+    outDir: '../../dist/libs/shared',
     emptyOutDir: true,
     lib: {
       entry: {
         index: 'src/index',
       },
-      name: 'account',
+      name: 'shared',
       formats: ['es' as const],
     },
     rolldownOptions: {
-      external: [
-        /^react$/,
-        /^react-dom(\/.*)?$/,
-        /^react\/jsx-runtime$/,
-        /^@base-ui/,
-        /^@hookform/,
-        /^@axiomframework/,
-        'react-router',
-        'lucide-react',
-        'react-hook-form',
-        'zod',
-        'clsx',
-        'class-variance-authority',
-        'tailwind-merge',
-      ],
+      external: ['zod', '@axiomframework/react-core'],
       output: {
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),
+      },
+      treeshake: {
+        moduleSideEffects: false,
       },
     },
   },
