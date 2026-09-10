@@ -4,11 +4,11 @@ export type Translations = Record<string, Record<string, string>>;
 
 export interface CultureInfo {
   /**
-   * The culture code (e.g: `en-US`, `tr-TR`)
+   * The culture code (e.g: `en`, `tr`)
    */
   name: string;
   /**
-   * The full culture name in your local language (e.g: `English (United States)`)
+   * The full culture name in your local language (e.g: `English`, `Türkçe`)
    */
   displayName: string;
 }
