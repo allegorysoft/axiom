@@ -1,6 +1,7 @@
 {
   "AxiomBase": {
     "Min": "Must be {length} or more characters (client)",
+    "Max": "Must be {length} or less characters (client)",
     "InvalidFormatPassword": "Must contain a lowercase letter, uppercase letter, number, and symbol."
   },
   "AxiomAccount": {

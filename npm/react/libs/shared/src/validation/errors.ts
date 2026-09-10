@@ -18,6 +18,14 @@ export const DEFAULT_ERRORS: Record<string, ValidationError> = {
     },
   },
 
+  too_big: {
+    key: 'AxiomBase:Max',
+    args: (issue) => {
+      //TODO: normalize/update response by issue.origin types
+      return { length: issue.maximum };
+    },
+  },
+
   invalid_format: {
     key: 'AxiomBase:InvalidFormat',
     args: (issue) => {
