@@ -15,15 +15,14 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
         IOptions<ConnectionStringContextsOptions> options,
         ITenantContextAccessor tenantContextAccessor)
     {
-        Configuration = configuration;
         TenantContextAccessor = tenantContextAccessor;
 
-        BuildContexts(options.Value.Contexts);
+        BuildContexts(options.Value.Contexts, configuration);
     }
 
     public FrozenDictionary<string, ConnectionStringContextOptions> Contexts { get; private set; } = null!;
 
-    protected IConfiguration Configuration { get; }
+    protected FrozenDictionary<string, string> ConnectionStrings { get; private set; } = null!;
     protected ITenantContextAccessor TenantContextAccessor { get; }
 
     public virtual async ValueTask<string> GetAsync(string name)
@@ -70,7 +69,7 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
 
     protected virtual string? FindByConfiguration(string name)
     {
-        return Configuration.GetConnectionString(name);
+        return ConnectionStrings.GetValueOrDefault(name);
     }
 
     protected virtual string? FindByTenant(TenantContext tenant, string name)
@@ -84,10 +83,9 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
         return FindByConfiguration(name);
     }
 
-    private void BuildContexts(HashSet<ConnectionStringContextOptions> contexts)
+    private void BuildContexts(HashSet<ConnectionStringContextOptions> contexts, IConfiguration configuration)
     {
         var dictionary = new Dictionary<string, ConnectionStringContextOptions>();
-
         foreach (var context in contexts)
         {
             dictionary.Add(context.Name, context);
@@ -97,7 +95,12 @@ public class ConnectionStringProvider : IConnectionStringProvider, ISingletonSer
                 dictionary.TryAdd(connection, context);
             }
         }
-
         Contexts = dictionary.ToFrozenDictionary();
+        
+        // Avoid redundant heap allocation from IConfiguration.GetConnectionString
+        var connectionStringsSection = configuration.GetSection("ConnectionStrings");
+        ConnectionStrings = connectionStringsSection
+            .GetChildren()
+            .ToFrozenDictionary(x => x.Key, x => x.Value ?? string.Empty);
     }
 }
