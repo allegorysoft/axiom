@@ -1,5 +1,5 @@
 import { Separator as SeparatorPrimitive } from "@base-ui/react/separator"
-import { cn } from "@axiomframework/react-theme/lib/utils"
+import { cn } from "cn"
 
 function Separator({
   className,
