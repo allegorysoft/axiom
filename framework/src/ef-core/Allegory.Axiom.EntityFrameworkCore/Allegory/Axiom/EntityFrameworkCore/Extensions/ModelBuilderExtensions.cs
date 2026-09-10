@@ -62,6 +62,10 @@ public static class ModelBuilderExtensions
                 .HasConversion(
                     static v => v, // interceptor already uses UTC
                     static v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            entityBuilder
+                .Property(nameof(ICreationAudited.CreatedBy))
+                .HasMaxLength(AuditingConstants.UserIdMaxLength);
         }
 
         if (typeof(IModificationAudited).IsAssignableFrom(typeof(TEntity)))
@@ -71,6 +75,10 @@ public static class ModelBuilderExtensions
                 .HasConversion(
                     static v => v, // interceptor already uses UTC
                     static v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
+
+            entityBuilder
+                .Property(nameof(IModificationAudited.ModifiedBy))
+                .HasMaxLength(AuditingConstants.UserIdMaxLength);
         }
 
         if (typeof(IDeletionAudited).IsAssignableFrom(typeof(TEntity)))
@@ -80,6 +88,10 @@ public static class ModelBuilderExtensions
                 .HasConversion(
                     static v => v, // interceptor already uses UTC
                     static v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
+
+            entityBuilder
+                .Property(nameof(IDeletionAudited.DeletedBy))
+                .HasMaxLength(AuditingConstants.UserIdMaxLength);
         }
     }
 
