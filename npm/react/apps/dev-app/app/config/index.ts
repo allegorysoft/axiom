@@ -15,7 +15,7 @@ export async function loadEnvironment() {
 }
 
 export function configureApplication() {
-  configureCore();
+  configureCore({localization:{remote:{skipProvider:true}}});
   configureShared();
-  configureOAuth();
+  configureOAuth({skipDiscovery:true});
 }
