@@ -6,4 +6,5 @@ public static class DomainExceptionCodes
 
     public const string EntityNotFound = $"{Resource}:EntityNotFound";
     public const string EntityNotFoundByIdentifier = $"{Resource}:EntityNotFoundByIdentifier";
+    public const string ConcurrencyConflict = $"{Resource}:ConcurrencyConflict";
 }

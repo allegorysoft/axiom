@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
@@ -13,6 +14,7 @@ namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
 public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(options)
 {
     public DbSet<App2Entity1> Entity1 => Set<App2Entity1>();
+    public DbSet<App2Entity2> Entity2 => Set<App2Entity2>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,13 +48,15 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
             builder.Property(e => e.Number)
                 .IsRequired()
                 .HasMaxLength(App2Entity2.MaxNumberLength);
+
+            builder.Property(e => e.ConcurrencyStamp).IsConcurrencyToken();
         });
 
         modelBuilder.ConfigureAxiom(this);
     }
 }
 
-public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned
+public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned, IConcurrencyCheck
 {
     public static byte MaxNumberLength { get; set; } = 100;
 
@@ -103,6 +107,8 @@ public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationA
             AddDistributedEvent(payload);
         }
     }
+
+    public uint Revision { get; set; }
 }
 
 public class App2SubEntity1 : Entity<Guid>
@@ -137,7 +143,22 @@ public class App2SubEntity1 : Entity<Guid>
 public class App2Entity2 : AggregateRoot<Guid>
 {
     public static byte MaxNumberLength { get; set; } = 100;
+
+    protected App2Entity2() { }
+
+    public App2Entity2(string number, Guid? id = null)
+    {
+        SetNumber(number);
+
+        if (id != null)
+        {
+            Id = id.Value;
+        }
+    }
+
     public string Number { get; protected set; } = null!;
+
+    public Guid ConcurrencyStamp { get; set; } = Guid.NewGuid();
 
     public void SetNumber(string number)
     {

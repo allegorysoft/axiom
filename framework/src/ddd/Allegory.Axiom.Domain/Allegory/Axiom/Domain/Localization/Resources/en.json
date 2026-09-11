@@ -1,4 +1,5 @@
 {
   "Axiom.Domain:EntityNotFound" : "The specified entity was not found.",
-  "Axiom.Domain:EntityNotFoundByIdentifier" : "The specified entity with identifier '{identifier}' was not found."
+  "Axiom.Domain:EntityNotFoundByIdentifier" : "The specified entity with identifier '{identifier}' was not found.",
+  "Axiom.Domain:ConcurrencyConflict": "The operation could not be completed because the entity was modified or deleted by another operation."
 }

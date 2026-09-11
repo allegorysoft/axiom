@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -49,11 +50,11 @@ public static class ModelBuilderExtensions
     {
         var entityBuilder = builder.Entity<TEntity>();
 
-        ConfigureAudit(entityBuilder);
+        ConfigureProperties(entityBuilder);
         ConfigureQueryFilter(entityBuilder, context, createIndexes);
     }
 
-    private static void ConfigureAudit<TEntity>(EntityTypeBuilder<TEntity> entityBuilder) where TEntity : class
+    private static void ConfigureProperties<TEntity>(EntityTypeBuilder<TEntity> entityBuilder) where TEntity : class
     {
         if (typeof(ICreationAudited).IsAssignableFrom(typeof(TEntity)))
         {
@@ -92,6 +93,13 @@ public static class ModelBuilderExtensions
             entityBuilder
                 .Property(nameof(IDeletionAudited.DeletedBy))
                 .HasMaxLength(AuditingConstants.UserIdMaxLength);
+        }
+
+        if (typeof(IConcurrencyCheck).IsAssignableFrom(typeof(TEntity)))
+        {
+            entityBuilder
+                .Property(nameof(IConcurrencyCheck.Revision))
+                .IsConcurrencyToken();
         }
     }
 

@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.Domain;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.Domain.Entities.Events;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.EventBus.Local;
+using Allegory.Axiom.Exceptions;
 using Allegory.Axiom.Security.Principal;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +65,41 @@ public class AxiomSaveChangesInterceptor(
         return result;
     }
 
+    public override void SaveChangesFailed(DbContextErrorEventData eventData)
+    {
+        if (eventData.Exception.InnerException is AxiomException axiomException)
+        {
+            throw axiomException;
+        }
+    }
+
+    public override Task SaveChangesFailedAsync(
+        DbContextErrorEventData eventData,
+        CancellationToken cancellationToken = default)
+    {
+        SaveChangesFailed(eventData);
+        return Task.CompletedTask;
+    }
+
+    public override InterceptionResult ThrowingConcurrencyException(
+        ConcurrencyExceptionEventData eventData,
+        InterceptionResult result)
+    {
+        ThrowConcurrencyException(eventData);
+        return result;
+    }
+
+    public override ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+        ConcurrencyExceptionEventData eventData,
+        InterceptionResult result,
+        CancellationToken cancellationToken = default)
+    {
+        ThrowConcurrencyException(eventData);
+        return ValueTask.FromResult(result);
+    }
+
+    // Handle
+
     protected virtual async Task HandleAsync(DbContext? context)
     {
         if (context is null)
@@ -104,6 +143,7 @@ public class AxiomSaveChangesInterceptor(
         await PublishAggregateEventsAsync(entry);
         await PublishEntityUpdatedEventAsync(entry);
         ApplyModificationAudit(entry);
+        ApplyModificationConcurrencyCheck(entry);
     }
 
     protected virtual async Task HandleDeletionAsync(EntityEntry entry)
@@ -114,6 +154,8 @@ public class AxiomSaveChangesInterceptor(
         await PublishEntityDeletedEventAsync(entry);
         ApplyDeletionAudit(entry);
     }
+
+    // Event publishing
 
     protected virtual async Task PublishAggregateEventsAsync(EntityEntry entry)
     {
@@ -179,6 +221,8 @@ public class AxiomSaveChangesInterceptor(
             await LocalEventBus.PublishAsync(descriptor.Deleted(entry.Entity));
         }
     }
+
+    // Audit stamps
 
     protected virtual void ApplyCreationAudit(EntityEntry entry)
     {
@@ -259,5 +303,30 @@ public class AxiomSaveChangesInterceptor(
 
         entry.Property(nameof(IDeletionAudited.DeletedBy)).CurrentValue =
             PrincipalAccessor.Current?.Identity?.FindNameIdentifier();
+    }
+
+    // Concurrency check
+
+    protected virtual void ApplyModificationConcurrencyCheck(EntityEntry entry)
+    {
+        if (entry.Entity is not IConcurrencyCheck entity)
+        {
+            return;
+        }
+
+        var property = entry.Property(nameof(IConcurrencyCheck.Revision));
+
+        property.OriginalValue = entity.Revision;
+        entity.Revision++;
+    }
+
+    protected virtual void ThrowConcurrencyException(ConcurrencyExceptionEventData eventData)
+    {
+        if (!eventData.Entries.Any(e => typeof(IConcurrencyCheck).IsAssignableFrom(e.Metadata.ClrType)))
+        {
+            return;
+        }
+
+        throw new BusinessException(code: DomainExceptionCodes.ConcurrencyConflict);
     }
 }
