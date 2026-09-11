@@ -45,7 +45,13 @@ export function NavUser({
           >
             <Avatar>
               <AvatarImage src={user.avatar} alt={user.name} />
-              <AvatarFallback>CN</AvatarFallback>
+              <AvatarFallback>
+                {user.name.at(0)?.toString().toLocaleUpperCase()}
+                {user.name
+                  .at(user.name.length - 1)
+                  ?.toString()
+                  .toLocaleUpperCase()}
+              </AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight">
               <span className="truncate font-medium">{user.name}</span>
@@ -54,7 +60,7 @@ export function NavUser({
             <ChevronsUpDownIcon className="ml-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-fit"
+            className="min-w-56"
             side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
