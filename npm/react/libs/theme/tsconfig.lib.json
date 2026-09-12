@@ -1,5 +1,6 @@
 {
   "extends": "./tsconfig.json",
+  "references": [{ "path": "../core/tsconfig.lib.json" }],
   "compilerOptions": {
     "lib": ["DOM"],
     "declaration": true,

@@ -41,6 +41,7 @@ export default defineConfig(() => ({
         /^react\/jsx-runtime$/,
         /^@floating-ui/,
         /^@base-ui/,
+        '@axiomframework/react-core',
         'lucide-react',
         'class-variance-authority',
         'cn',
