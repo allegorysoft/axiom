@@ -1,3 +1,4 @@
+import { getCookie } from '@axiomframework/react-core';
 import {
   AppSidebar,
   Header,
@@ -7,8 +8,9 @@ import {
 import { Outlet } from 'react-router';
 
 export default function Layout() {
+  const state = getCookie<boolean>('sidebar_state');
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={state ?? true}>
       <AppSidebar />
       <SidebarInset>
         <Header />
