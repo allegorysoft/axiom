@@ -28,7 +28,7 @@ export default defineConfig(() => ({
       formats: ['es' as const],
     },
     rolldownOptions: {
-      external: ['react'],
+      external: ['react', /^react\/jsx-runtime$/],
       output: {
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),
