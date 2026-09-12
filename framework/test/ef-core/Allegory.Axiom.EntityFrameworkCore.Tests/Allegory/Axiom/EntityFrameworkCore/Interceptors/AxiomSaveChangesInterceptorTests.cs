@@ -5,11 +5,13 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.Domain;
 using Allegory.Axiom.Domain.Entities.Events;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.EventBus.Local;
+using Allegory.Axiom.Exceptions;
 using Allegory.Axiom.Security.Principal;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -203,6 +205,156 @@ public class AxiomSaveChangesInterceptorTests(
         });
 
         EntityEventHandler.Changed.ShouldContain((entity.Id, EntityChangeType.Deleted));
+    }
+
+    // Concurrency check
+
+    [Fact]
+    public async Task ShouldIncrementRevisionOnEachUpdate()
+    {
+        await fixture.RunInUnitOfWorkAsync(async uow =>
+        {
+            var entity = new App2Entity1(Number);
+            await Repository.AddAsync(entity);
+            await uow.TryCompleteAsync();
+            entity.Revision.ShouldBe((uint) 0);
+        });
+
+        for (var i = 1; i <= 3; i++)
+        {
+            await fixture.RunInUnitOfWorkAsync(async uow =>
+            {
+                var entity = await Repository.GetAsync(e => e.Number == Number);
+                await Repository.UpdateAsync(entity);
+                await uow.TryCompleteAsync();
+                entity.Revision.ShouldBe((uint) i);
+            });
+        }
+    }
+
+    [Fact]
+    public async Task ShouldThrowConcurrencyExceptionWhenUpdatingWithStaleRevision()
+    {
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = new App2Entity1(Number);
+            await Repository.AddAsync(entity);
+        });
+
+        var request1 = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var request2 = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var task1 = fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+
+            request1.SetResult();
+            await request2.Task;
+
+            await Repository.UpdateAsync(entity);
+        });
+
+        var task2 = fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+
+            request2.SetResult();
+            await request1.Task;
+
+            await Repository.UpdateAsync(entity);
+        });
+
+        // Concurrent writes are synchronized by SQL and each update executes atomically.
+        // Whichever transaction executes the update first succeeds; the other gets a concurrency conflict.
+        var exception = await Should.ThrowAsync<BusinessException>(async () => { await Task.WhenAll(task1, task2); });
+
+        exception.Code.ShouldBe(DomainExceptionCodes.ConcurrencyConflict);
+    }
+
+    [Fact]
+    public async Task ShouldThrowConcurrencyExceptionWhenRemovingWithStaleRevision()
+    {
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = new App2Entity1(Number);
+            await Repository.AddAsync(entity);
+        });
+
+        var deleteRead = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var updateCompleted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var updateTask = fixture.RunInUnitOfWorkAsync(async uow =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+
+            await deleteRead.Task;
+
+            entity.SetNumber(GetNewNumber);
+            await Repository.UpdateAsync(entity);
+
+            await uow.TryCompleteAsync();
+
+            updateCompleted.SetResult();
+        });
+
+        var deleteTask = fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await Repository.GetAsync(e => e.Number == Number);
+
+            deleteRead.SetResult();
+            await updateCompleted.Task;
+
+            await Repository.RemoveAsync(entity);
+        });
+
+        var exception = await Should.ThrowAsync<BusinessException>(async () =>
+        {
+            await Task.WhenAll(updateTask, deleteTask);
+        });
+
+        exception.Code.ShouldBe(DomainExceptionCodes.ConcurrencyConflict);
+    }
+
+    [Fact]
+    public async Task ShouldThrowDbUpdateConcurrencyExceptionWhenConcurrencyCheckNotImplemented()
+    {
+        var repository = fixture.Service<EfCoreApp2Entity2Repository>();
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = new App2Entity2(Number);
+            await repository.AddAsync(entity);
+        });
+
+        var request1 = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var request2 = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var task1 = fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await repository.GetAsync(e => e.Number == Number);
+
+            request1.SetResult();
+            await request2.Task;
+
+            entity.ConcurrencyStamp = Guid.NewGuid();
+
+            await repository.UpdateAsync(entity);
+        });
+
+        var task2 = fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var entity = await repository.GetAsync(e => e.Number == Number);
+
+            request2.SetResult();
+            await request1.Task;
+
+            entity.ConcurrencyStamp = Guid.NewGuid();
+
+            await repository.UpdateAsync(entity);
+        });
+
+        // If IConcurrencyCheck is not implemented on the entity, EF Core throws a DbUpdateConcurrencyException by default.
+        await Should.ThrowAsync<DbUpdateConcurrencyException>(async () => { await Task.WhenAll(task1, task2); });
     }
 }
 

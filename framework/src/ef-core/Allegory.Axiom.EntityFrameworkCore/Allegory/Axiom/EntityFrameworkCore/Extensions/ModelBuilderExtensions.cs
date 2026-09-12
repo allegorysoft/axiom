@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -49,11 +50,11 @@ public static class ModelBuilderExtensions
     {
         var entityBuilder = builder.Entity<TEntity>();
 
-        ConfigureAudit(entityBuilder);
+        ConfigureProperties(entityBuilder);
         ConfigureQueryFilter(entityBuilder, context, createIndexes);
     }
 
-    private static void ConfigureAudit<TEntity>(EntityTypeBuilder<TEntity> entityBuilder) where TEntity : class
+    private static void ConfigureProperties<TEntity>(EntityTypeBuilder<TEntity> entityBuilder) where TEntity : class
     {
         if (typeof(ICreationAudited).IsAssignableFrom(typeof(TEntity)))
         {
@@ -62,6 +63,10 @@ public static class ModelBuilderExtensions
                 .HasConversion(
                     static v => v, // interceptor already uses UTC
                     static v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+            entityBuilder
+                .Property(nameof(ICreationAudited.CreatedBy))
+                .HasMaxLength(AuditingConstants.UserIdMaxLength);
         }
 
         if (typeof(IModificationAudited).IsAssignableFrom(typeof(TEntity)))
@@ -71,6 +76,10 @@ public static class ModelBuilderExtensions
                 .HasConversion(
                     static v => v, // interceptor already uses UTC
                     static v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
+
+            entityBuilder
+                .Property(nameof(IModificationAudited.ModifiedBy))
+                .HasMaxLength(AuditingConstants.UserIdMaxLength);
         }
 
         if (typeof(IDeletionAudited).IsAssignableFrom(typeof(TEntity)))
@@ -80,6 +89,17 @@ public static class ModelBuilderExtensions
                 .HasConversion(
                     static v => v, // interceptor already uses UTC
                     static v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : null);
+
+            entityBuilder
+                .Property(nameof(IDeletionAudited.DeletedBy))
+                .HasMaxLength(AuditingConstants.UserIdMaxLength);
+        }
+
+        if (typeof(IConcurrencyCheck).IsAssignableFrom(typeof(TEntity)))
+        {
+            entityBuilder
+                .Property(nameof(IConcurrencyCheck.Revision))
+                .IsConcurrencyToken();
         }
     }
 
