@@ -15,6 +15,8 @@ import {
   HomeIcon,
 } from 'lucide-react';
 
+import { useTranslation } from '@axiomframework/react-core';
+
 import {
   Sidebar,
   SidebarContent,
@@ -30,7 +32,7 @@ import {
 
 import { NavMain } from './nav-main';
 import { NavProjects } from './nav-projects';
-import { NavUser } from './nav-user';
+// import { NavUser } from './nav-user';
 import { TeamSwitcher } from './team-switcher';
 
 // This is sample data.
@@ -164,6 +166,8 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const t = useTranslation();
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -176,7 +180,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <SidebarMenuItem key="home">
                 <SidebarMenuButton tooltip="Home" size="default">
                   <HomeIcon />
-                  <span>Home</span>
+                  <span>{t('AxiomBase:Home')}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -185,9 +189,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <NavUser user={data.user} />
-      </SidebarFooter>
+      </SidebarFooter> */}
       <SidebarRail />
     </Sidebar>
   );
