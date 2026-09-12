@@ -12,7 +12,7 @@ import {
 import { Separator } from './ui/separator';
 import { SidebarTrigger } from './ui/sidebar';
 
-// import { CurrentUserDropdown } from './current-user-dropdown';
+import { CurrentUserDropdown } from './current-user-dropdown';
 import { Languages } from './languages';
 
 export function Header() {
@@ -46,7 +46,7 @@ export function Header() {
 
       <div className="ml-auto flex min-w-0 items-center gap-2">
         <Languages />
-        {/* <CurrentUserDropdown /> */}
+        <CurrentUserDropdown />
       </div>
     </header>
   );
