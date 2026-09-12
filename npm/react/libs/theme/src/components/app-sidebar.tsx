@@ -6,7 +6,8 @@ import {
   ChevronDown,
   Settings,
   Building2,
-  ChevronRightIcon,
+  ChevronRight,
+  CircleDot,
 } from 'lucide-react';
 
 import {
@@ -48,7 +49,16 @@ const items: Nav[] = [
     title: 'Tenant Management',
     icon: <Building2 />,
     isActive: false,
-    children: [{ title: 'Tenants', url: '/tenant-management' }],
+    children: [
+      {
+        title: 'Tenants',
+        url: '/tenant-management',
+      },
+      {
+        title: 'Edition parent',
+        children: [{ title: 'Editions', url: '/tenant-management/editions' }],
+      },
+    ],
   },
   {
     title: 'Setting Management',
@@ -116,8 +126,14 @@ type GroupProps = {
   pathname: string;
 };
 function NavGroupSection({ group, pathname }: GroupProps) {
+  const initialOpen =
+    group.isActive ||
+    group.items.some((item) => isBranchActive(item, pathname));
+
+  const [open, setOpen] = React.useState(initialOpen);
+
   return (
-    <Collapsible defaultOpen={group.isActive} className="group/section">
+    <Collapsible open={open} onOpenChange={setOpen} className="group/section">
       <SidebarGroup>
         <SidebarGroupLabel
           render={<CollapsibleTrigger />}
@@ -139,11 +155,13 @@ function NavGroupSection({ group, pathname }: GroupProps) {
                   />
                 ))
               ) : (
-                <SidebarMenuItem>
-                  <SidebarMenuButton>
-                    <span>No item found</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton>
+                      <span className="cursor-pointer">No item found</span>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
               )}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -160,24 +178,26 @@ type NodeProps = {
 };
 function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
   const hasChildren = Boolean(item.children?.length);
-  const isActive = item.isActive ?? (item.url ? item.url === pathname : false);
-  const isLeaf = variant === 'sub' && !hasChildren;
+  const branchActive = isBranchActive(item, pathname);
+  const isSub = variant === 'sub';
 
-  const Item: React.ElementType = isLeaf ? SidebarMenuSubItem : SidebarMenuItem;
-  const Button: React.ElementType = isLeaf
+  const Item: React.ElementType = isSub ? SidebarMenuSubItem : SidebarMenuItem;
+  const Button: React.ElementType = isSub
     ? SidebarMenuSubButton
     : SidebarMenuButton;
+
+  const [open, setOpen] = React.useState(branchActive);
 
   if (!hasChildren) {
     return (
       <Item>
         <Button
-          tooltip={isLeaf ? undefined : item.title}
-          isActive={isActive}
+          tooltip={isSub ? undefined : item.title}
+          isActive={branchActive}
           render={item.url ? <a href={item.url} /> : undefined}
         >
-          {!isLeaf && item.icon}
-          <span>{item.title}</span>
+          {!isSub && (item.icon ?? <CircleDot />)}
+          <span className="truncate">{item.title}</span>
         </Button>
       </Item>
     );
@@ -185,22 +205,28 @@ function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
 
   return (
     <Collapsible
-      defaultOpen={isActive}
-      className={variant === 'main' ? 'group/item' : 'group/subitem'}
+      open={open}
+      onOpenChange={setOpen}
+      className={isSub ? 'group/subitem' : 'group/item'}
       render={<Item />}
     >
-      <CollapsibleTrigger render={<Button tooltip={item.title} />}>
+      <CollapsibleTrigger
+        render={
+          <Button tooltip={isSub ? undefined : item.title} className="w-full" />
+        }
+      >
         {item.icon}
-        <span>{item.title}</span>
-        {variant === 'main' ? (
-          <ChevronDown className="ml-auto transition-transform group-data-open/item:rotate-180" />
+        <span className="truncate cursor-pointer">{item.title}</span>
+
+        {isSub ? (
+          <ChevronDown className="ml-auto size-4 shrink-0 transition-transform duration-200 group-data-open/subitem:rotate-180" />
         ) : (
-          <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-open/subitem:rotate-90" />
+          <ChevronDown className="ml-auto transition-transform group-data-open/item:rotate-180" />
         )}
       </CollapsibleTrigger>
 
       <CollapsibleContent>
-        <SidebarMenuSub>
+        <SidebarMenuSub className="mr-0 pr-0">
           {item.children!.map((child) => (
             <NavItemNode
               key={child.title}
@@ -212,5 +238,12 @@ function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
         </SidebarMenuSub>
       </CollapsibleContent>
     </Collapsible>
+  );
+}
+
+function isBranchActive(item: Nav, pathname: string): boolean {
+  if (item.url && item.url === pathname) return true;
+  return (
+    item.children?.some((child) => isBranchActive(child, pathname)) ?? false
   );
 }

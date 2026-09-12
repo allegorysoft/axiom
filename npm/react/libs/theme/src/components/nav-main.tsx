@@ -1,4 +1,4 @@
-import { ChevronRightIcon } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import {
   Collapsible,
   CollapsibleContent,
@@ -45,7 +45,7 @@ export function NavMain({
             >
               {item.icon}
               <span>{item.title}</span>
-              <ChevronRightIcon className="ml-auto transition-transform duration-200 group-data-open/collapsible:rotate-90" />
+              <ChevronDown className="ml-auto transition-transform duration-200 group-data-open/collapsible:rotate-180" />
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarMenuSub>
