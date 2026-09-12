@@ -77,7 +77,7 @@ export class CodeAuthFlow extends BaseAuthFlow {
     window.location.assign(authorizationUrl.href);
   }
 
-  override redirectToLogin(navigator?: () => void, returnUrl?: string): void {
+  override redirectToLogin(navigator?: () => void): void {
     this.login();
   }
 }
