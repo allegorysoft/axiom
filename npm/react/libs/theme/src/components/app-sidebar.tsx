@@ -11,7 +11,7 @@ import {
 
 import {
   type NavGroup,
-  type NavItem,
+  type Nav,
   useTranslation,
 } from '@axiomframework/react-core';
 
@@ -43,7 +43,7 @@ import { NavProjects } from './nav-projects';
 import { TeamSwitcher } from './team-switcher';
 import { DATA } from './data';
 
-const items: NavItem[] = [
+const items: Nav[] = [
   {
     title: 'Tenant Management',
     icon: <Building2 />,
@@ -70,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const t = useTranslation();
   const pathname = usePathname();
 
-  const homeItem: NavItem = {
+  const homeItem: Nav = {
     title: t('AxiomBase:Home'),
     url: '/',
     icon: <HomeIcon />,
@@ -111,13 +111,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   );
 }
 
-function NavGroupSection({
-  group,
-  pathname,
-}: {
+type GroupProps = {
   group: NavGroup;
   pathname: string;
-}) {
+};
+function NavGroupSection({ group, pathname }: GroupProps) {
   return (
     <Collapsible defaultOpen={group.isActive} className="group/section">
       <SidebarGroup>
@@ -155,15 +153,12 @@ function NavGroupSection({
   );
 }
 
-function NavItemNode({
-  item,
-  pathname,
-  variant = 'main',
-}: {
-  item: NavItem;
+type NodeProps = {
+  item: Nav;
   pathname: string;
   variant?: 'main' | 'sub';
-}) {
+};
+function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
   const hasChildren = Boolean(item.children?.length);
   const isActive = item.isActive ?? (item.url ? item.url === pathname : false);
   const isLeaf = variant === 'sub' && !hasChildren;
