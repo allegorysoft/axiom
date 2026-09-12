@@ -8,4 +8,5 @@ export * from './localization/index';
 export * from './models/index';
 export * from './storage/index';
 export * from './store/index';
+export * from './theme/index';
 export * from './utils/index';

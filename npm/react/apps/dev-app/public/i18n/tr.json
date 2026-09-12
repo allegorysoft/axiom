@@ -2,7 +2,14 @@
   "AxiomBase": {
     "Min": "{length} veya daha uzun karakter olmalı (client)",
     "Max": "{length} veya daha kısa karakter olmalı (client)",
-    "InvalidFormatPassword": "Küçük harf, büyük harf, rakam, ve sembol içermelidir."
+    "InvalidFormatPassword": "Küçük harf, büyük harf, rakam, ve sembol içermelidir.",
+    "Home": "Ana sayfa"
+  },
+  "AxiomTheme": {
+    "Theme": "Tema",
+    "Light": "Açık",
+    "Dark": "Koyu",
+    "System": "Sistem"
   },
   "AxiomAccount": {
     "SignIn": "Giriş yap (client)",
