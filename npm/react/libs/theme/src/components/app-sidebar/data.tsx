@@ -9,7 +9,10 @@ import {
   FrameIcon,
   PieChartIcon,
   MapIcon,
+  Building2,
+  Settings,
 } from 'lucide-react';
+import { Nav, NavGroup } from '@axiomframework/react-core';
 
 export const DATA = {
   user: {
@@ -139,3 +142,36 @@ export const DATA = {
     },
   ],
 };
+
+const NAV_ITEMS: Nav[] = [
+  {
+    title: 'Tenant Management',
+    icon: <Building2 />,
+    isActive: false,
+    children: [
+      {
+        title: 'Tenants',
+        url: '/tenant-management',
+      },
+      {
+        title: 'Edition parent',
+        children: [{ title: 'Editions', url: '/tenant-management/editions' }],
+      },
+    ],
+  },
+  {
+    title: 'Setting Management',
+    icon: <Settings />,
+    children: [
+      {
+        title: 'Settings',
+        url: '/setting-management',
+      },
+    ],
+  },
+];
+
+export const NAV_GROUPS: NavGroup[] = [
+  { title: 'Analytics', isActive: false, items: [] },
+  { title: 'Administrator', isActive: false, items: NAV_ITEMS },
+];
