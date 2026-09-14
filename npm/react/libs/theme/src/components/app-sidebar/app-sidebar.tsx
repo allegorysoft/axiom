@@ -15,12 +15,13 @@ import {
   SidebarRail,
 } from '../ui/sidebar';
 
-import { NavMain } from '../nav-main';
-import { NavProjects } from '../nav-projects';
+import { NavMain } from './nav-main';
+import { NavProjects } from './nav-projects';
 // import { NavUser } from './nav-user';
-import { TeamSwitcher } from '../team-switcher';
 
 import { DATA, NAV_GROUPS } from './data';
+import { TeamSwitcher } from './team-switcher';
+import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
 
@@ -36,6 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={DATA.teams} />
+        <SidebarHeaderSearch />
       </SidebarHeader>
 
       <SidebarContent>
@@ -55,7 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
 
         <NavMain items={DATA.navMain} />
-        <NavProjects projects={DATA.projects} />
+        {/* <NavProjects projects={DATA.projects} /> */}
 
         {NAV_GROUPS.map((group) => (
           <NavGroupSection
