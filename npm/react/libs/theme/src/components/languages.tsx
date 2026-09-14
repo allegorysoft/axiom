@@ -49,9 +49,9 @@ export function Languages() {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="lg" className="cursor-pointer">
+          <Button variant="outline" size="icon" className="cursor-pointer">
             <LanguagesIcon />
-            {languages.find((l) => l.name === name)?.label}
+            {/* {languages.find((l) => l.name === name)?.label} */}
           </Button>
         }
       />
