@@ -37,6 +37,20 @@ export const DATA = {
       plan: 'Free',
     },
   ],
+  tenants: [
+    {
+      id: '1234-5678-9010',
+      name: 'Allegorysoft',
+      logo: 'AS',
+      edition: 'Enterprise',
+    },
+    {
+      id: '0987-6543-2109',
+      name: 'GitHub',
+      logo: 'GH',
+      edition: 'Enterprise',
+    },
+  ],
   navMain: [
     {
       title: 'Playground',

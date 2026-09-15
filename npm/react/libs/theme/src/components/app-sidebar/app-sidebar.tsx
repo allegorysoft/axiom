@@ -20,10 +20,10 @@ import { NavProjects } from './nav-projects';
 // import { NavUser } from './nav-user';
 
 import { DATA, NAV_GROUPS } from './data';
-import { TeamSwitcher } from './team-switcher';
 import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
+import { TenantSwitcher } from './tenant-switcher';
 
 function usePathname() {
   return typeof window === 'undefined' ? '' : window.location.pathname;
@@ -36,7 +36,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={DATA.teams} />
+        <TenantSwitcher tenants={DATA.tenants} />
+
+        <SidebarMenu className="gap-1"></SidebarMenu>
         <SidebarHeaderSearch />
       </SidebarHeader>
 
