@@ -6,6 +6,7 @@ using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.EntityFrameworkCore.Repositories;
+using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
@@ -56,7 +57,7 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
     }
 }
 
-public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned, IConcurrencyCheck
+public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned, IConcurrencyCheck, IExtraProperties
 {
     public static byte MaxNumberLength { get; set; } = 100;
 
@@ -109,6 +110,8 @@ public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationA
     }
 
     public uint Revision { get; set; }
+
+    public IDictionary<string, object?> ExtraProperties { get; } = new Dictionary<string, object?>();
 }
 
 public class App2SubEntity1 : Entity<Guid>

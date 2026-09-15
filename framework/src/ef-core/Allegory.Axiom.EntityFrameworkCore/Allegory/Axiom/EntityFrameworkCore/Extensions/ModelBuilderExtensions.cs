@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities.Auditing;
+using Allegory.Axiom.EntityFrameworkCore.Extensibility;
+using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -100,6 +103,14 @@ public static class ModelBuilderExtensions
             entityBuilder
                 .Property(nameof(IConcurrencyCheck.Revision))
                 .IsConcurrencyToken();
+        }
+
+        if (typeof(IExtraProperties).IsAssignableFrom(typeof(TEntity)))
+        {
+            entityBuilder
+                .Property<IDictionary<string, object?>>(nameof(IExtraProperties.ExtraProperties))
+                .HasConversion(new ExtraPropertiesValueConverter())
+                .Metadata.SetValueComparer(new ExtraPropertiesValueComparer());
         }
     }
 
