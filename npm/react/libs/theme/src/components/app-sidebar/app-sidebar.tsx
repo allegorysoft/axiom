@@ -1,9 +1,6 @@
-'use client';
+import { useSyncExternalStore, useMemo } from 'react';
 
-import * as React from 'react';
-import { HomeIcon } from 'lucide-react';
-
-import { useTranslation } from '@axiomframework/react-core';
+import { AxiomNavManager } from '@axiomframework/react-core';
 
 import {
   Sidebar,
@@ -14,53 +11,56 @@ import {
   SidebarMenu,
 } from '../ui/sidebar';
 
-import { NavMain } from './nav-main';
-import { NavProjects } from './nav-projects';
-// import { NavUser } from './nav-user';
-
-import { DATA, NAV_GROUPS } from './data';
+import { DATA } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
 import { TenantSwitcher } from './tenant-switcher';
 
-function usePathname() {
-  return typeof window === 'undefined' ? '' : window.location.pathname;
-}
+const DEFAULT_GROUP = 'Default';
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const t = useTranslation();
-  const pathname = usePathname();
+export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
+  const pathname = useSyncExternalStore(
+    subscribe,
+    () => window.location.pathname,
+    () => '',
+  );
+
+  const [defaultGroup, otherGroups] = useMemo(() => {
+    const groups = AxiomNavManager.groups;
+    const index = groups.findIndex((g) => g.title === DEFAULT_GROUP);
+
+    return [
+      index === -1 ? null : groups[index],
+      index === -1 ? groups : groups.filter((_, i) => i !== index),
+    ] as const;
+  }, []);
 
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>
       <SidebarHeader>
         <TenantSwitcher tenants={DATA.tenants} />
-
-        <SidebarMenu className="gap-1"></SidebarMenu>
         <SidebarHeaderSearch />
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent className="flex flex-col gap-2">
-            <SidebarMenu>
-              <NavItemNode
-                item={{
-                  title: t('AxiomBase:Home'),
-                  url: '/',
-                  icon: <HomeIcon />,
-                }}
-                pathname={pathname}
-              />
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {defaultGroup?.items.length ? (
+          <SidebarGroup>
+            <SidebarGroupContent className="flex flex-col gap-2">
+              <SidebarMenu>
+                {defaultGroup.items.map((item) => (
+                  <NavItemNode
+                    key={item.url ?? item.title}
+                    item={item}
+                    pathname={pathname}
+                  />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
 
-        <NavMain items={DATA.navMain} />
-        <NavProjects projects={DATA.projects} />
-
-        {NAV_GROUPS.map((group) => (
+        {otherGroups.map((group) => (
           <NavGroupSection
             key={group.title}
             group={group}
@@ -68,10 +68,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           />
         ))}
       </SidebarContent>
-
-      {/* <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter> */}
     </Sidebar>
   );
+}
+
+function subscribe(callback: () => void) {
+  window.addEventListener('popstate', callback);
+  return () => window.removeEventListener('popstate', callback);
 }

@@ -1,7 +1,7 @@
-import * as React from 'react';
+import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 
-import { type NavGroup } from '@axiomframework/react-core';
+import { type NavGroup, useTranslation } from '@axiomframework/react-core';
 
 import {
   SidebarGroup,
@@ -28,11 +28,12 @@ type GroupProps = {
 };
 
 export function NavGroupSection({ group, pathname }: GroupProps) {
+  const t = useTranslation();
   const initialOpen =
     group.isActive ||
     group.items.some((item) => isBranchActive(item, pathname));
 
-  const [open, setOpen] = React.useState(initialOpen);
+  const [open, setOpen] = useState(initialOpen);
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="group/section">
@@ -41,7 +42,7 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
           render={<CollapsibleTrigger />}
           className="uppercase text-muted-foreground/70 cursor-pointer hover:text-muted-foreground"
         >
-          {group.title}
+          {t(group.title)}
           <ChevronDown className="ml-auto transition-transform group-data-open/section:rotate-180" />
         </SidebarGroupLabel>
 

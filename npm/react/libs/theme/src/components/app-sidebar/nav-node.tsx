@@ -1,8 +1,8 @@
-import * as React from 'react';
+import { useState } from 'react';
 import { ChevronDown, CircleDot } from 'lucide-react';
 import { cn } from 'cn';
 
-import { type Nav } from '@axiomframework/react-core';
+import { useTranslation, type Nav } from '@axiomframework/react-core';
 
 import {
   SidebarMenuButton,
@@ -25,11 +25,12 @@ type NodeProps = {
   variant?: 'main' | 'sub';
 };
 export function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
+  const t = useTranslation();
   const hasChildren = Boolean(item.children?.length);
   const branchActive = isBranchActive(item, pathname);
   const isSub = variant === 'sub';
 
-  const [open, setOpen] = React.useState(branchActive);
+  const [open, setOpen] = useState(branchActive);
 
   if (!hasChildren) {
     const buttonProps = {
@@ -40,14 +41,14 @@ export function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
     return isSub ? (
       <SidebarMenuSubItem>
         <SidebarMenuSubButton {...buttonProps}>
-          <span className="truncate">{item.title}</span>
+          <span className="truncate">{t(item.title)}</span>
         </SidebarMenuSubButton>
       </SidebarMenuSubItem>
     ) : (
       <SidebarMenuItem>
-        <SidebarMenuButton tooltip={item.title} {...buttonProps}>
+        <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
           {item.icon ?? <CircleDot />}
-          <span className="truncate">{item.title}</span>
+          <span className="truncate">{t(item.title)}</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
     );
@@ -63,20 +64,18 @@ export function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
       <CollapsibleTrigger
         render={
           <SidebarMenuButton
-            tooltip={isSub ? undefined : item.title}
+            tooltip={isSub ? undefined : t(item.title)}
             className="w-full"
           />
         }
       >
         {item.icon}
-        <span className="truncate cursor-pointer">{item.title}</span>
+        <span className="truncate cursor-pointer">{t(item.title)}</span>
 
         <ChevronDown
           className={cn(
-            'ml-auto transition-transform',
-            !isSub && 'group-data-open/item:rotate-180',
-            isSub &&
-              'group-data-open/subitem:rotate-180 size-4 shrink-0 duration-200',
+            'ml-auto transition-transform size-4 shrink-0 duration-200',
+            open && 'rotate-180',
           )}
         />
       </CollapsibleTrigger>
