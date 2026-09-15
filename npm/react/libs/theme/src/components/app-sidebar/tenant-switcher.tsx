@@ -67,6 +67,7 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
               <SidebarMenuButton
                 size="lg"
                 className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
+                tooltip={activeTenant.name}
               />
             }
           >
