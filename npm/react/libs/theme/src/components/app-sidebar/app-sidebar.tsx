@@ -57,7 +57,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
 
         <NavMain items={DATA.navMain} />
-        {/* <NavProjects projects={DATA.projects} /> */}
+        <NavProjects projects={DATA.projects} />
 
         {NAV_GROUPS.map((group) => (
           <NavGroupSection

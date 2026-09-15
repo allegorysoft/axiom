@@ -32,26 +32,20 @@ export function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
   const [open, setOpen] = React.useState(branchActive);
 
   if (!hasChildren) {
-    if (isSub) {
-      return (
-        <SidebarMenuSubItem>
-          <SidebarMenuSubButton
-            isActive={branchActive}
-            render={item.url ? <a href={item.url} /> : undefined}
-          >
-            <span className="truncate">{item.title}</span>
-          </SidebarMenuSubButton>
-        </SidebarMenuSubItem>
-      );
-    }
+    const buttonProps = {
+      isActive: branchActive,
+      render: item.url ? <a href={item.url} /> : undefined,
+    };
 
-    return (
+    return isSub ? (
+      <SidebarMenuSubItem>
+        <SidebarMenuSubButton {...buttonProps}>
+          <span className="truncate">{item.title}</span>
+        </SidebarMenuSubButton>
+      </SidebarMenuSubItem>
+    ) : (
       <SidebarMenuItem>
-        <SidebarMenuButton
-          tooltip={item.title}
-          isActive={branchActive}
-          render={item.url ? <a href={item.url} /> : undefined}
-        >
+        <SidebarMenuButton tooltip={item.title} {...buttonProps}>
           {item.icon ?? <CircleDot />}
           <span className="truncate">{item.title}</span>
         </SidebarMenuButton>
