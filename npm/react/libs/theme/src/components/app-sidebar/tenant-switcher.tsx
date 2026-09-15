@@ -1,14 +1,11 @@
 'use client';
 
 import * as React from 'react';
-import { Check, ChevronsUpDownIcon, PlusIcon, SearchIcon } from 'lucide-react';
+import { ChevronsUpDownIcon, PlusIcon } from 'lucide-react';
 
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import {
@@ -18,7 +15,15 @@ import {
   useSidebar,
 } from '../ui/sidebar';
 import { Avatar, AvatarFallback } from '../ui/avatar';
-import { Input } from '../ui/input';
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from '../ui/command';
 
 type Tenant = {
   id: string;
@@ -31,23 +36,32 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
   const { isMobile } = useSidebar();
   const [activeTenant, setActiveTenant] = React.useState(tenants[0]);
   const [tenantQuery, setTenantQuery] = React.useState('');
+  const [open, setOpen] = React.useState(false);
 
   if (!activeTenant) {
     return null;
   }
 
-  const filteredTenants = tenants.filter((tenant) =>
-    tenant.name.toLowerCase().includes(tenantQuery.trim().toLowerCase()),
-  );
+  const filteredTenants = tenants
+    .filter((tenant) =>
+      tenant.name.toLowerCase().includes(tenantQuery.trim().toLowerCase()),
+    )
+    .sort((a, b) => {
+      if (a.id === activeTenant.id) return -1;
+      if (b.id === activeTenant.id) return 1;
+      return 0;
+    });
+
+  React.useEffect(() => {
+    if (!open) {
+      setTenantQuery('');
+    }
+  }, [open]);
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu
-          onOpenChange={(open) => {
-            if (!open) setTenantQuery('');
-          }}
-        >
+        <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger
             render={
               <SidebarMenuButton
@@ -63,61 +77,63 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
             </div>
             <ChevronsUpDownIcon className="ml-auto" />
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
-            className="min-w-56 px-2"
+            className="min-w-60"
             align="start"
             side={isMobile ? 'bottom' : 'right'}
             sideOffset={4}
           >
-            <div className="p-1 pb-2">
-              <div className="relative">
-                <SearchIcon className="pointer-events-none absolute top-1/2 left-2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
+            <div onKeyDown={(e) => e.stopPropagation()}>
+              <Command
+                key={open ? 'open' : 'closed'}
+                shouldFilter={false}
+                className="p-0 [&_[cmdk-group-items]]:space-y-1 [&_[data-slot=command-item]]:gap-2 [&_[data-slot=command-item]]:px-2 [&_[data-slot=command-item]]:py-2"
+              >
+                <CommandInput
+                  autoFocus
+                  placeholder="Find Tenant"
                   value={tenantQuery}
-                  onChange={(e) => setTenantQuery(e.target.value)}
-                  onKeyDown={(e) => e.stopPropagation()}
-                  placeholder="Find tenant"
-                  className="h-8 pl-8"
-                />
-              </div>
-            </div>
-
-            <DropdownMenuGroup>
-              {filteredTenants.length === 0 ? (
-                <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                  No tenants found.
-                </div>
-              ) : (
-                filteredTenants.map((tenant) => (
-                  <DropdownMenuItem
-                    key={tenant.name}
-                    onClick={() => setActiveTenant(tenant)}
-                    className={
-                      'gap-2 mb-1 ' +
-                      (tenant.name === activeTenant.name && 'bg-sidebar-accent')
+                  onValueChange={setTenantQuery}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setOpen(false);
                     }
-                  >
-                    <TenantAvatar tenant={tenant} />
-
-                    {tenant.name}
-                    {tenant.name === activeTenant.name && (
-                      <Check className="ml-auto size-4 shrink-0" />
-                    )}
-                  </DropdownMenuItem>
-                ))
-              )}
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator className="mx-1" />
-            <DropdownMenuGroup>
-              <DropdownMenuItem className="gap-2">
-                <div className="flex size-7 items-center justify-center rounded-md border bg-transparent">
-                  <PlusIcon className="size-4" />
-                </div>
-                <div className="font-medium text-muted-foreground">
-                  Add tenant
-                </div>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+                  }}
+                />
+                <CommandList className="max-h-none">
+                  <CommandEmpty>No tenant found.</CommandEmpty>
+                  <CommandGroup>
+                    {filteredTenants.map((tenant) => (
+                      <CommandItem
+                        key={tenant.id}
+                        value={tenant.name}
+                        data-checked={tenant.id === activeTenant.id}
+                        className={
+                          tenant.id === activeTenant.id
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground data-selected:bg-sidebar-accent'
+                            : undefined
+                        }
+                        onSelect={() => {
+                          setActiveTenant(tenant);
+                          setOpen(false);
+                        }}
+                      >
+                        <TenantAvatar tenant={tenant} className="size-5 p-3" />
+                        <span>{tenant.name}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                  <CommandSeparator className="mx-1 my-1" />
+                  <CommandGroup>
+                    <CommandItem onSelect={() => setOpen(false)}>
+                      <PlusIcon />
+                      Add Tenant
+                    </CommandItem>
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </div>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
@@ -125,10 +141,10 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
   );
 }
 
-type TenantAvatarProps = { tenant: Tenant };
-function TenantAvatar({ tenant }: TenantAvatarProps) {
+type TenantAvatarProps = { tenant: Tenant; className?: string };
+function TenantAvatar({ tenant, className = 'size-8' }: TenantAvatarProps) {
   return (
-    <Avatar className="size-7">
+    <Avatar className={className}>
       <AvatarFallback className="text-xs font-semibold">
         {tenant.logo}
       </AvatarFallback>
