@@ -12,7 +12,7 @@ import {
 import { Separator } from './ui/separator';
 import { SidebarTrigger } from './ui/sidebar';
 
-import { CurrentUserDropdown } from './current-user-dropdown';
+import { CurrentUserDropdown } from './current-user/current-user-dropdown';
 import { Languages } from './languages';
 import { ThemeToggle } from './theme/theme-toggle';
 

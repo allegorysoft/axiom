@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   ChevronRight,
   CircleGauge,
@@ -8,67 +7,29 @@ import {
   UserRound,
 } from 'lucide-react';
 
-import { useTranslation } from '@axiomframework/react-core';
-
-import { Button } from './ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
+  getAvatarFallbackText,
+  useTranslation,
+} from '@axiomframework/react-core';
+
+import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
-import { Avatar, AvatarFallback } from './ui/avatar';
-import { ThemeSelect } from './theme/theme-select';
+} from '../ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
-type UserMenuPage = 'main' | 'theme';
-
-export function CurrentUserDropdown() {
-  const [open, setOpen] = useState(false);
-  const [page, setPage] = useState<UserMenuPage>('main');
-
-  return (
-    <DropdownMenu
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (next) {
-          setPage('main');
-        }
-      }}
-    >
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon-lg" className="cursor-pointer" />
-        }
-      >
-        <Avatar>
-          <AvatarFallback>MU</AvatarFallback>
-        </Avatar>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent
-        align="end"
-        className="w-64 space-y-1 p-2 [&_[data-slot=dropdown-menu-item]]:gap-2 [&_[data-slot=dropdown-menu-item]]:px-2 [&_[data-slot=dropdown-menu-item]]:py-2"
-      >
-        {page === 'theme' ? (
-          <ThemeSelect onBack={() => setPage('main')} />
-        ) : (
-          <MainContent onOpenTheme={() => setPage('theme')} />
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
+const USER = {
+  name: 'Masum ULU',
+  email: 'masumulu@allegorysoft.com',
+};
 const NAV_ITEMS = [
   { title: 'Profile', icon: UserRound },
   { title: 'Settings', icon: Settings },
   { title: 'Usage', icon: CircleGauge },
 ] as const;
-function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
+export function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
   const t = useTranslation();
 
   return (
@@ -77,14 +38,17 @@ function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
         <DropdownMenuLabel className="px-2 py-2">
           <div className="flex items-center gap-3 py-1">
             <Avatar className="size-8">
-              <AvatarFallback>MU</AvatarFallback>
+              <AvatarFallback>
+                {getAvatarFallbackText(USER.name)}
+              </AvatarFallback>
             </Avatar>
+
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold leading-tight text-foreground">
-                Masum ULU
+                {USER.name}
               </p>
               <p className="mt-1 truncate text-xs font-normal text-muted-foreground">
-                masumulu@allegorysoft.com
+                {USER.email}
               </p>
             </div>
           </div>
