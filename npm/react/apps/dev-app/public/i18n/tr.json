@@ -9,7 +9,9 @@
     "Theme": "Tema",
     "Light": "Açık",
     "Dark": "Koyu",
-    "System": "Sistem"
+    "System": "Sistem",
+    "Preferences": "Tercihler",
+    "PreferencesDescription": "Tercihlerinizi özelleştirin"
   },
   "AxiomAccount": {
     "SignIn": "Giriş yap (client)",

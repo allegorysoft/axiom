@@ -9,7 +9,9 @@
     "Theme": "Theme",
     "Light": "Light",
     "Dark": "Dark",
-    "System": "System"
+    "System": "System",
+    "Preferences": "Preferences",
+    "PreferencesDescription": "Customize your preferences"
   },
   "AxiomAccount": {
     "SignIn": "Sign in (client)",

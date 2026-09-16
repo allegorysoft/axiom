@@ -15,6 +15,7 @@ import { SidebarTrigger } from './ui/sidebar';
 import { CurrentUserDropdown } from './current-user/current-user-dropdown';
 import { Languages } from './languages';
 import { ThemeToggle } from './theme/theme-toggle';
+import { Preferences } from './preferences/preferences';
 
 export function Header() {
   const label = useDecodedHash();
@@ -46,6 +47,7 @@ export function Header() {
       </Breadcrumb>
 
       <div className="ml-auto flex min-w-0 items-center gap-2">
+        <Preferences />
         <ThemeToggle />
         <Languages />
         <CurrentUserDropdown />
