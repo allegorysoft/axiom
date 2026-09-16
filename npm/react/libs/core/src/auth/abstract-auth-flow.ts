@@ -1,5 +1,5 @@
-import type { OAuth } from '../models/oauth';
-import { type OAuthStorage, oAuthStorage } from '../storage/auth-storage';
+import type { OAuth } from './oauth';
+import { type OAuthStorage, oAuthStorage } from './auth-storage';
 
 export type AuthProvider = {
   get(): AbstractAuthFlow;

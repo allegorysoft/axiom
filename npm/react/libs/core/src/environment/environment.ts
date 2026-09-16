@@ -1,5 +1,5 @@
 import type { AxiomStore } from '../models/common';
-import type { OAuth } from '../models/oauth';
+import type { OAuth } from '../auth/oauth';
 
 export interface Environment {
   production: boolean;

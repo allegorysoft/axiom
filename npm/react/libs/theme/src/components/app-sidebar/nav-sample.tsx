@@ -10,20 +10,20 @@ import {
   Building2,
   Home,
 } from 'lucide-react';
-import { AxiomNavManager } from '@axiomframework/react-core';
+import { navStore } from '@axiomframework/react-core';
 
 const PRODUCT = 'Product Management';
 const ADMIN = 'Administration';
 const USER = 'User';
 
-AxiomNavManager.add({
+navStore.add({
   title: 'AxiomBase:Home',
   url: '/',
   icon: <Home />,
 });
 
-AxiomNavManager.addGroup(PRODUCT);
-AxiomNavManager.add(
+navStore.addGroup(PRODUCT);
+navStore.add(
   {
     title: 'AxiomProductManagement:Dashboard',
     url: '/product-management/dashboard',
@@ -31,7 +31,7 @@ AxiomNavManager.add(
   },
   PRODUCT,
 );
-AxiomNavManager.add(
+navStore.add(
   {
     title: 'Products',
     icon: <List />,
@@ -39,8 +39,8 @@ AxiomNavManager.add(
   PRODUCT,
 );
 
-AxiomNavManager.addGroup(ADMIN);
-AxiomNavManager.add(
+navStore.addGroup(ADMIN);
+navStore.add(
   {
     title: 'Tenant Management',
     url: '/tenant-management',
@@ -48,7 +48,7 @@ AxiomNavManager.add(
   },
   ADMIN,
 );
-AxiomNavManager.add(
+navStore.add(
   {
     title: 'Setting Management',
     icon: <Cog />,
@@ -61,8 +61,8 @@ AxiomNavManager.add(
   ADMIN,
 );
 
-AxiomNavManager.addGroup(USER);
-AxiomNavManager.add(
+navStore.addGroup(USER);
+navStore.add(
   {
     title: 'Settings',
     icon: <Settings />,

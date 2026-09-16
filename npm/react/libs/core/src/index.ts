@@ -6,6 +6,7 @@ export * from './http/index';
 export * from './initializer/index';
 export * from './localization/index';
 export * from './models/index';
+export * from './nav/index';
 export * from './storage/index';
 export * from './store/index';
 export * from './theme/index';

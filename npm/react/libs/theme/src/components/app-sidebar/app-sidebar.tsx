@@ -1,6 +1,6 @@
-import { useSyncExternalStore, useMemo } from 'react';
+import { useSyncExternalStore } from 'react';
 
-import { AxiomNavManager } from '@axiomframework/react-core';
+import { useNavGroups } from '@axiomframework/react-core';
 
 import {
   Sidebar,
@@ -26,15 +26,12 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     () => '',
   );
 
-  const [defaultGroup, otherGroups] = useMemo(() => {
-    const groups = AxiomNavManager.groups;
-    const index = groups.findIndex((g) => g.title === DEFAULT_GROUP);
+  const groups = useNavGroups();
 
-    return [
-      index === -1 ? null : groups[index],
-      index === -1 ? groups : groups.filter((_, i) => i !== index),
-    ] as const;
-  }, []);
+  const index = groups.findIndex((group) => group.title === DEFAULT_GROUP);
+  const defaultGroup = index === -1 ? null : groups[index];
+  const otherGroups =
+    index === -1 ? groups : groups.filter((_, i) => i !== index);
 
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>

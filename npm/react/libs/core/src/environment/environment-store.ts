@@ -1,5 +1,5 @@
 import { createStore } from '../store/axiom-store';
-import type { OAuth } from '../models/oauth';
+import type { OAuth } from '../auth/oauth';
 import type {
   Environment,
   Endpoint,
