@@ -51,20 +51,12 @@ export function CurrentUserDropdown() {
     >
       <DropdownMenuTrigger
         render={
-          <Button
-            variant="ghost"
-            size="lg"
-            className="gap-2 px-2 py-5 cursor-pointer"
-          />
+          <Button variant="ghost" size="icon-lg" className="cursor-pointer" />
         }
       >
         <Avatar>
           <AvatarFallback>MU</AvatarFallback>
         </Avatar>
-        <span className="hidden sm:inline">Masum ULU</span>
-        <ChevronDown
-          className={`transition-transform ${open ? 'rotate-180' : ''}`}
-        />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
