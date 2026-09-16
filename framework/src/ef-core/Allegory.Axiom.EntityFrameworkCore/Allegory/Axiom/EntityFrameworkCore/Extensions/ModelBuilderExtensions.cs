@@ -114,7 +114,7 @@ public static class ModelBuilderExtensions
                 static value => ExtraPropertiesJsonSerializer.Instance.Deserialize(value));
 
             var comparer = new ValueComparer<IDictionary<string, object>>(
-                (left, right) => ExtraPropertiesJsonSerializer.Instance.AreEqual(left, right),
+                static (left, right) => ExtraPropertiesJsonSerializer.Instance.AreEqual(left, right),
                 static value => ExtraPropertiesJsonSerializer.Instance.GetHashCode(value),
                 static value => ExtraPropertiesJsonSerializer.Instance.Clone(value));
 

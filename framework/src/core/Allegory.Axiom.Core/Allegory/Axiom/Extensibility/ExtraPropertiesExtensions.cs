@@ -25,7 +25,7 @@ public static class ExtraPropertiesExtensions
 
             if (value is JsonElement jsonElement)
             {
-                value = jsonElement.Deserialize<T>();
+                value = jsonElement.Deserialize<T>(ExtraPropertiesJsonSerializer.Instance.Options);
             }
             else
             {
@@ -61,7 +61,7 @@ public static class ExtraPropertiesExtensions
 
             if (value is JsonElement jsonElement)
             {
-                value = jsonElement.Deserialize<T>();
+                value = jsonElement.Deserialize<T>(ExtraPropertiesJsonSerializer.Instance.Options);
             }
             else
             {

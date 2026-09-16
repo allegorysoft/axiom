@@ -9,7 +9,7 @@ public class ExtraPropertiesJsonSerializer
 {
     public static ExtraPropertiesJsonSerializer Instance { get; set; } = new();
 
-    public JsonSerializerOptions Options { get; set; } = new(JsonSerializerDefaults.General);
+    public JsonSerializerOptions Options { get; set; } = new(JsonSerializerDefaults.Web);
 
     public virtual string Serialize(IDictionary<string, object> value)
     {
@@ -52,11 +52,9 @@ public class ExtraPropertiesJsonSerializer
     {
         var hash = new HashCode();
 
-        foreach (var pair in value.OrderBy(x => x.Key, StringComparer.Ordinal))
+        foreach (var key in value.Keys.Order(StringComparer.Ordinal))
         {
-            hash.Add(pair.Key, StringComparer.Ordinal);
-
-            hash.Add(JsonSerializer.Serialize(pair.Value, Options), StringComparer.Ordinal);
+            hash.Add(key, StringComparer.Ordinal);
         }
 
         return hash.ToHashCode();
