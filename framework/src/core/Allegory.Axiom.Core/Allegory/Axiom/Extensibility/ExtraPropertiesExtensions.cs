@@ -7,7 +7,7 @@ public static class ExtraPropertiesExtensions
 {
     extension(IReadOnlyExtraProperties entity)
     {
-        public T? GetProperty<T>(string name, bool convert = true)
+        public T GetProperty<T>(string name, bool convert = true)
         {
             var value = entity.ExtraProperties[name];
 
