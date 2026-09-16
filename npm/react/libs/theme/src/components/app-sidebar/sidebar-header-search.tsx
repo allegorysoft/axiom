@@ -1,5 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
+
+import { useNavGroups } from '@axiomframework/react-core';
+
 import {
   InputGroup,
   InputGroupAddon,
@@ -15,25 +18,44 @@ import {
   CommandItem,
   CommandList,
 } from '../ui/command';
-import { NAV_GROUPS } from './data';
 
 const shortcutModifier = /Mac|iPhone|iPad/.test(navigator.userAgent)
   ? '⌘'
   : 'Ctrl';
 
-const pages = new Set(
-  deepFlatMap(
-    NAV_GROUPS.flatMap((g) => g.items),
-    (item) => item.children,
-    (item) => (item.url ? item : undefined),
-  ).filter((i) => i?.url?.length),
-);
-
 export function SidebarHeaderSearch() {
   const [searchOpen, setSearchOpen] = useState(false);
+  const groups = useNavGroups();
+
+  const pages = deepFlatMap(
+    groups.flatMap((group) => group.items),
+    (item) => item.children,
+    (item) => (item.url ? item : undefined),
+  ).filter((item): item is { title: string; url: string } =>
+    Boolean(item?.url?.length),
+  );
+
   function navigate(url: string) {
     window.location.href = url;
   }
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key.toLowerCase() !== 'k') {
+        return;
+      }
+
+      if (!(event.metaKey || event.ctrlKey)) {
+        return;
+      }
+
+      event.preventDefault();
+      setSearchOpen((open) => !open);
+    }
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   return (
     <>
@@ -63,7 +85,11 @@ export function SidebarHeaderSearch() {
         </InputGroupAddon>
       </InputGroup>
 
-      <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
+      <CommandDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        className="w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] sm:max-w-lg"
+      >
         <Command>
           <div className="relative">
             <CommandInput placeholder="Search pages…" className="pr-14" />
@@ -71,16 +97,16 @@ export function SidebarHeaderSearch() {
               ESC
             </Kbd>
           </div>
-          <CommandList>
+          <CommandList className="max-h-[min(60vh,20rem)]">
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Pages">
-              {[...pages].map((value) => (
+              {pages.map((page) => (
                 <CommandItem
-                  key={value?.title}
-                  onSelect={() => navigate(value?.url || '')}
+                  key={page.title}
+                  onSelect={() => navigate(page.url)}
                 >
                   <Search />
-                  {value?.title}
+                  {page.title}
                 </CommandItem>
               ))}
             </CommandGroup>

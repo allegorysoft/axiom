@@ -44,6 +44,7 @@ export default defineConfig(() => ({
         '@axiomframework/react-core',
         'lucide-react',
         'class-variance-authority',
+        'cmdk',
         'cn',
         'shadcn',
       ],

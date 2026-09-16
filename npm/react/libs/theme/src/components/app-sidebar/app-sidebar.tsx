@@ -1,3 +1,5 @@
+import './nav-sample';
+
 import { useSyncExternalStore } from 'react';
 
 import { useNavGroups } from '@axiomframework/react-core';
@@ -11,7 +13,7 @@ import {
   SidebarMenu,
 } from '../ui/sidebar';
 
-import { DATA } from './data';
+import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
@@ -36,7 +38,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" variant="floating" {...props}>
       <SidebarHeader>
-        <TenantSwitcher tenants={DATA.tenants} />
+        <TenantSwitcher tenants={TENANTS} />
         <SidebarHeaderSearch />
       </SidebarHeader>
 
