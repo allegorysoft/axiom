@@ -109,10 +109,6 @@ public static class ModelBuilderExtensions
         if (typeof(IExtraProperties).IsAssignableFrom(typeof(TEntity)))
         {
             //TODO: We might optimize here
-            var converter = new ValueConverter<IDictionary<string, object>, string>(
-                static value => ExtraPropertiesJsonSerializer.Instance.Serialize(value),
-                static value => ExtraPropertiesJsonSerializer.Instance.Deserialize(value));
-
             var comparer = new ValueComparer<IDictionary<string, object>>(
                 static (left, right) => ExtraPropertiesJsonSerializer.Instance.AreEqual(left, right),
                 static value => ExtraPropertiesJsonSerializer.Instance.GetHashCode(value),
@@ -120,7 +116,9 @@ public static class ModelBuilderExtensions
 
             entityBuilder
                 .Property<IDictionary<string, object>>(nameof(IExtraProperties.ExtraProperties))
-                .HasConversion(converter)
+                .HasConversion(
+                    static v => ExtraPropertiesJsonSerializer.Instance.Serialize(v),
+                    static v => ExtraPropertiesJsonSerializer.Instance.Deserialize(v))
                 .Metadata.SetValueComparer(comparer);
         }
     }
