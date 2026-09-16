@@ -4,7 +4,6 @@ import React, {
   useEffect,
   useState,
   useCallback,
-  useMemo,
 } from 'react';
 
 import type { CookieOptions } from '../storage/cookie-storage';
@@ -67,10 +66,12 @@ export function ThemeProvider({ children, cookieOptions }: ThemeProviderProps) {
     updateTheme(next);
   }, [theme, updateTheme]);
 
-  const value = useMemo<ThemeContextValue>(
-    () => ({ theme, activeTheme, setTheme: updateTheme, toggleTheme }),
-    [theme, activeTheme, updateTheme, toggleTheme],
-  );
+  const value: ThemeContextValue = {
+    theme,
+    activeTheme,
+    setTheme: updateTheme,
+    toggleTheme,
+  };
 
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
