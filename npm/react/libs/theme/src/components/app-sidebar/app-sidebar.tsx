@@ -1,5 +1,3 @@
-import './nav-sample';
-
 import { useSyncExternalStore } from 'react';
 
 import { useNavGroups } from '@axiomframework/react-core';
@@ -18,8 +16,11 @@ import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
 import { TenantSwitcher } from './tenant-switcher';
+import { provideNavItems } from './provide-nav-items';
 
 const DEFAULT_GROUP = 'Default';
+
+provideNavItems();
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = useSyncExternalStore(
