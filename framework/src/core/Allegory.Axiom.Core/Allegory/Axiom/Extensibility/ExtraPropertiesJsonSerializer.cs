@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Extensibility;
+namespace Allegory.Axiom.Extensibility;
 
 public class ExtraPropertiesJsonSerializer
 {

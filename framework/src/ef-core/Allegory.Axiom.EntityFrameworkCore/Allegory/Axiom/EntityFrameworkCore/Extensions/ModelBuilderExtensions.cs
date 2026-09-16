@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities.Auditing;
-using Allegory.Axiom.EntityFrameworkCore.Extensibility;
 using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
