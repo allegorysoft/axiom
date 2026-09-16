@@ -1,22 +1,15 @@
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@axiomframework/react-core';
 
-import { Button } from './ui/button';
-
-export const THEME_OPTIONS = [
-  { value: 'light', icon: Sun, label: 'AxiomTheme:Light' },
-  { value: 'dark', icon: Moon, label: 'AxiomTheme:Dark' },
-] as const;
+import { Button } from '../ui/button';
 
 export function ThemeToggle() {
   const { activeTheme, setTheme } = useTheme();
 
   const isDark = activeTheme === 'dark';
-  const ThemeIcon = isDark ? Moon : Sun;
+  const ThemeIcon = isDark ? Sun : Moon;
 
-  const toggleTheme = () => {
-    setTheme(isDark ? 'light' : 'dark');
-  };
+  const toggleTheme = () => setTheme(isDark ? 'light' : 'dark');
 
   return (
     <Button

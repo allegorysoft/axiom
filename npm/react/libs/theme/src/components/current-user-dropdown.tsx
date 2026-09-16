@@ -1,23 +1,14 @@
 import { useState } from 'react';
 import {
-  ChevronDown,
-  ChevronLeft,
   ChevronRight,
   CircleGauge,
   LogOut,
-  Monitor,
-  Moon,
   Palette,
   Settings,
-  Sun,
   UserRound,
 } from 'lucide-react';
 
-import {
-  type Theme,
-  useTheme,
-  useTranslation,
-} from '@axiomframework/react-core';
+import { useTranslation } from '@axiomframework/react-core';
 
 import { Button } from './ui/button';
 import {
@@ -26,12 +17,11 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback } from './ui/avatar';
+import { ThemeSelect } from './theme/theme-select';
 
 type UserMenuPage = 'main' | 'theme';
 
@@ -64,7 +54,7 @@ export function CurrentUserDropdown() {
         className="w-64 space-y-1 p-2 [&_[data-slot=dropdown-menu-item]]:gap-2 [&_[data-slot=dropdown-menu-item]]:px-2 [&_[data-slot=dropdown-menu-item]]:py-2"
       >
         {page === 'theme' ? (
-          <ThemeContent onBack={() => setPage('main')} />
+          <ThemeSelect onBack={() => setPage('main')} />
         ) : (
           <MainContent onOpenTheme={() => setPage('theme')} />
         )}
@@ -127,50 +117,6 @@ function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
         <LogOut />
         {t('AxiomAccount:Logout')}
       </DropdownMenuItem>
-    </>
-  );
-}
-
-const THEME_OPTIONS = [
-  { value: 'light', icon: Sun, label: 'AxiomTheme:Light' },
-  { value: 'dark', icon: Moon, label: 'AxiomTheme:Dark' },
-  { value: 'system', icon: Monitor, label: 'AxiomTheme:System' },
-] as const;
-function ThemeContent({ onBack }: { onBack: () => void }) {
-  const t = useTranslation();
-  const { theme, setTheme } = useTheme();
-
-  return (
-    <>
-      <DropdownMenuItem
-        className="gap-2 px-2 py-2 font-semibold"
-        closeOnClick={false}
-        onClick={onBack}
-        aria-label="Back to user menu"
-      >
-        <ChevronLeft />
-        <span>{t('AxiomTheme:Theme')}</span>
-      </DropdownMenuItem>
-
-      <DropdownMenuSeparator className="mx-1 my-1" />
-
-      <DropdownMenuRadioGroup
-        value={theme}
-        onValueChange={(value) => setTheme(value as Theme)}
-        aria-label="Theme"
-      >
-        {THEME_OPTIONS.map(({ value, icon: Icon, label }) => (
-          <DropdownMenuRadioItem
-            key={value}
-            value={value}
-            className="gap-2 py-2"
-            closeOnClick={false}
-          >
-            <Icon />
-            <span>{t(label)}</span>
-          </DropdownMenuRadioItem>
-        ))}
-      </DropdownMenuRadioGroup>
     </>
   );
 }

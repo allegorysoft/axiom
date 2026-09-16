@@ -4,6 +4,17 @@ export type Theme = 'light' | 'dark' | 'system';
 /** A theme that has been resolved — never 'system'. */
 export type ActiveTheme = Exclude<Theme, 'system'>;
 
+type ThemeOption = {
+  value: Theme;
+  label: string;
+};
+
+export const THEME_OPTIONS: ThemeOption[] = [
+  { value: 'light', label: 'AxiomTheme:Light' },
+  { value: 'dark', label: 'AxiomTheme:Dark' },
+  { value: 'system', label: 'AxiomTheme:System' },
+];
+
 const COOKIE_NAME = 'axiom_theme';
 
 export function getTheme(): Theme {

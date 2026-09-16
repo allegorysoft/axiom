@@ -14,7 +14,7 @@ import { SidebarTrigger } from './ui/sidebar';
 
 import { CurrentUserDropdown } from './current-user-dropdown';
 import { Languages } from './languages';
-import { ThemeToggle } from './theme-toggle';
+import { ThemeToggle } from './theme/theme-toggle';
 
 export function Header() {
   const label = useDecodedHash();
