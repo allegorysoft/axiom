@@ -12,7 +12,7 @@ public sealed class TenantContext(
     string name,
     string normalizedName,
     IReadOnlyDictionary<string, string>? connectionStrings = null,
-    IReadOnlyDictionary<string, object?>? extraProperties = null,
+    IReadOnlyDictionary<string, object>? extraProperties = null,
     bool isActive = true)
     : IReadOnlyExtraProperties
 {
@@ -24,6 +24,6 @@ public sealed class TenantContext(
     public IReadOnlyDictionary<string, string> ConnectionStrings { get; } =
         connectionStrings ?? FrozenDictionary<string, string>.Empty;
 
-    public IReadOnlyDictionary<string, object?> ExtraProperties { get; } =
-        extraProperties ?? FrozenDictionary<string, object?>.Empty;
+    public IReadOnlyDictionary<string, object> ExtraProperties { get; } =
+        extraProperties ?? FrozenDictionary<string, object>.Empty;
 }

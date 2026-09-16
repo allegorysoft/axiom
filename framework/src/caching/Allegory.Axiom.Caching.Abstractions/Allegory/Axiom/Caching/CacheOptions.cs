@@ -9,7 +9,7 @@ public class CacheOptions : IExtraProperties
 {
     public string? KeyPrefix { get; set; }
     public Dictionary<Type, CacheTypeOptions> Types { get; set; } = [];
-    public IDictionary<string, object?> ExtraProperties { get; } = new Dictionary<string, object?>();
+    public IDictionary<string, object> ExtraProperties { get; } = new Dictionary<string, object>();
 }
 
 public class CacheTypeOptions

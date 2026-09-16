@@ -13,7 +13,7 @@ public static class RabbitMqEventBusOptionsExtensions
                 EventBusRabbitMqPackage.RabbitMqOptionsKey,
                 static () => new RabbitMqEventBusOptions());
 
-            set => options.ExtraProperties[EventBusRabbitMqPackage.RabbitMqOptionsKey] = value;
+            set => options.SetProperty(EventBusRabbitMqPackage.RabbitMqOptionsKey, value);
         }
     }
 }

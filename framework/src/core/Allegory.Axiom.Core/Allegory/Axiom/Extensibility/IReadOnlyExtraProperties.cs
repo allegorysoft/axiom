@@ -4,5 +4,5 @@ namespace Allegory.Axiom.Extensibility;
 
 public interface IReadOnlyExtraProperties
 {
-    IReadOnlyDictionary<string, object?> ExtraProperties { get; }
+    IReadOnlyDictionary<string, object> ExtraProperties { get; }
 }

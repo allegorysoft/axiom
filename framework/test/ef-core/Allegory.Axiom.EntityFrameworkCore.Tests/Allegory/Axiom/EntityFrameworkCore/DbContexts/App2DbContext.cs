@@ -41,7 +41,7 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
                 .IsRequired()
                 .HasMaxLength(App2SubEntity1.MaxNumberLength);
         });
-        
+
         modelBuilder.Entity<App2Entity2>(builder =>
         {
             builder.HasKey(e => e.Id);
@@ -57,7 +57,12 @@ public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(
     }
 }
 
-public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationAudited, IDeletionAudited, ITenantOwned, IConcurrencyCheck, IExtraProperties
+public class App2Entity1 :
+    AggregateRoot<Guid>,
+    ICreationAudited, IModificationAudited, IDeletionAudited,
+    ITenantOwned,
+    IConcurrencyCheck,
+    IExtraProperties
 {
     public static byte MaxNumberLength { get; set; } = 100;
 
@@ -87,6 +92,10 @@ public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationA
 
     public Guid? TenantId { get; private set; }
 
+    public uint Revision { get; set; }
+
+    public IDictionary<string, object> ExtraProperties { get; } = new Dictionary<string, object>();
+
     public List<App2SubEntity1> SubEntities { get; set; } = [];
 
     public void SetNumber(string number)
@@ -101,17 +110,13 @@ public class App2Entity1 : AggregateRoot<Guid>, ICreationAudited, IModificationA
     {
         if (isLocal)
         {
-            AddLocalEvent(payload);    
+            AddLocalEvent(payload);
         }
         else
         {
             AddDistributedEvent(payload);
         }
     }
-
-    public uint Revision { get; set; }
-
-    public IDictionary<string, object?> ExtraProperties { get; } = new Dictionary<string, object?>();
 }
 
 public class App2SubEntity1 : Entity<Guid>
