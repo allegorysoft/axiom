@@ -11,11 +11,11 @@ export const defaultPreferences: Preferences = {
     color: '#000000',
   },
   font: {
-    value: 'Inter',
-    title: 'Inter',
+    value: 'geist',
+    title: 'Geist',
   },
   navbarBehavior: 'sticky',
-  sidebarStyle: 'Floating',
+  sidebarStyle: 'floating',
   radius: {
     name: 'md',
     value: '8rem',

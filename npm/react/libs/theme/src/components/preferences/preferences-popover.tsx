@@ -21,7 +21,12 @@ import {
   PopoverTrigger,
 } from '../ui/popover';
 
-import type { BaseSize, NavbarBehavior, SidebarVariants } from './preferences';
+import type {
+  BaseSize,
+  NavbarBehavior,
+  RadiusSize,
+  SidebarVariants,
+} from './preferences';
 import { preferencesStore } from './preferences-store';
 import { usePreferences } from './use-preferences';
 
@@ -38,9 +43,9 @@ const PRESET_OPTIONS = [
 ] as const;
 
 const FONT_OPTIONS = [
-  { label: 'Geist', value: 'Geist' },
-  { label: 'System', value: 'System' },
-  { label: 'Inter', value: 'Inter' },
+  { value: 'geist', label: 'Geist' },
+  { value: 'system', label: 'System' },
+  { value: 'inter', label: 'Inter' },
 ] as const;
 
 const SEGMENTED_OPTIONS: Record<string, SegmentedOption[]> = {
@@ -49,9 +54,9 @@ const SEGMENTED_OPTIONS: Record<string, SegmentedOption[]> = {
     { value: 'scroll', label: 'Scroll' },
   ],
   sidebar: [
-    { value: 'Inset', label: 'Inset' },
-    { value: 'Sidebar', label: 'Sidebar' },
-    { value: 'Floating', label: 'Floating' },
+    { value: 'inset', label: 'Inset' },
+    { value: 'sidebar', label: 'Sidebar' },
+    { value: 'floating', label: 'Floating' },
   ],
   radius: [
     { value: 'none', label: 'None', icon: CircleOff },
@@ -74,7 +79,12 @@ export function PreferencesPopover() {
     <Popover>
       <PopoverTrigger
         render={
-          <Button variant="outline" size="icon" className="cursor-pointer">
+          <Button
+            variant="outline"
+            size="icon"
+            className="cursor-pointer"
+            aria-label="Preferences"
+          >
             <Palette />
           </Button>
         }
@@ -145,13 +155,24 @@ export function PreferencesPopover() {
               onValueChange={(value) => {
                 if (value) {
                   preferencesStore.patchPreferences({
-                    font: { value, title: value },
+                    font: {
+                      value,
+                      title:
+                        FONT_OPTIONS.find((option) => option.value === value)
+                          ?.label || '',
+                    },
                   });
                 }
               }}
             >
               <SelectTrigger className="w-full" size="sm">
-                <SelectValue />
+                <SelectValue
+                  render={() => (
+                    <span className="flex items-center gap-2">
+                      {preferences.font.title}
+                    </span>
+                  )}
+                />
               </SelectTrigger>
               <SelectContent>
                 {FONT_OPTIONS.map((option) => (
@@ -183,12 +204,7 @@ export function PreferencesPopover() {
               })
             }
           />
-          <SegmentedControl
-            label="Radius"
-            options={SEGMENTED_OPTIONS.radius}
-            value={preferences.radius.name}
-            onChange={(value) => {}}
-          />
+
           <SegmentedControl
             label="Scale"
             options={SEGMENTED_OPTIONS.scale}
@@ -196,6 +212,22 @@ export function PreferencesPopover() {
             onChange={(value) =>
               preferencesStore.patchPreferences({
                 scale: value as BaseSize,
+              })
+            }
+          />
+
+          <SegmentedControl
+            label="Radius"
+            options={SEGMENTED_OPTIONS.radius}
+            value={preferences.radius.name}
+            onChange={(value) =>
+              preferencesStore.patchPreferences({
+                radius: {
+                  value: value,
+                  name: SEGMENTED_OPTIONS.radius.find(
+                    (option) => option.value === value,
+                  )?.value as RadiusSize,
+                },
               })
             }
           />
@@ -235,7 +267,7 @@ function SegmentedControl({
               key={option.value}
               variant="ghost"
               className={cn(
-                'h-9 flex-1 rounded-sm border last:border-r-0 px-2 font-medium shadow-none',
+                'h-8 flex-1 rounded-sm border px-1 font-medium shadow-none',
                 isActive && 'bg-muted hover:bg-muted',
               )}
               onClick={() => onChange(option.value)}

@@ -13,7 +13,7 @@ export type Font = {
   title: string;
 };
 
-export type SidebarVariants = 'Inset' | 'Sidebar' | 'Floating';
+export type SidebarVariants = 'inset' | 'sidebar' | 'floating';
 export type NavbarBehavior = 'sticky' | 'scroll';
 
 export interface Preferences {
