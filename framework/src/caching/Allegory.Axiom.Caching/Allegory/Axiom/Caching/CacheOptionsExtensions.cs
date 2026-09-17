@@ -1,4 +1,5 @@
 using System;
+using Allegory.Axiom.Extensibility;
 using Microsoft.Extensions.Caching.Hybrid;
 
 namespace Allegory.Axiom.Caching;
@@ -11,11 +12,8 @@ public static class CacheOptionsExtensions
     {
         public Action<HybridCacheOptions>? ConfigureHybrid
         {
-            get => options.ExtraProperties.TryGetValue(ConfigureHybridKey, out var value)
-                ? (Action<HybridCacheOptions>?) value
-                : null;
-
-            set => options.ExtraProperties[ConfigureHybridKey] = value;
+            get => options.TryGetProperty<Action<HybridCacheOptions>>(ConfigureHybridKey);
+            set => options.SetProperty(ConfigureHybridKey, value);
         }
     }
 }

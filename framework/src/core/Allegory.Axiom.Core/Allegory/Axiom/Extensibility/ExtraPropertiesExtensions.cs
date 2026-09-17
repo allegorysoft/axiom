@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Text.Json;
 
 namespace Allegory.Axiom.Extensibility;
 
@@ -7,86 +7,95 @@ public static class ExtraPropertiesExtensions
 {
     extension(IReadOnlyExtraProperties entity)
     {
-        public bool HasProperty(string name)
+        public T GetProperty<T>(string name, bool convert = true)
         {
-            return entity.ExtraProperties.ContainsKey(name);
-        }
+            var value = entity.ExtraProperties[name];
 
-        public object? GetProperty(string name, object? defaultValue = null)
-        {
-            return entity.ExtraProperties.GetValueOrDefault(name, defaultValue);
-        }
-
-        public T? GetProperty<T>(string name, T? defaultValue = default, bool convert = true)
-        {
-            if (entity.ExtraProperties.TryGetValue(name, out var value))
+            if (value is T typedValue)
             {
-                if (value is T typedValue)
-                {
-                    return typedValue;
-                }
-
-                if (convert)
-                {
-                    return Convert.ChangeType(value, typeof(T)) is T convertedValue ? convertedValue : defaultValue;
-                }
+                return typedValue;
             }
 
-            return defaultValue;
+            if (!convert)
+            {
+                throw new ArgumentException(
+                    $"Cannot get property '{name}': stored value is of type '{value.GetType().FullName}' " +
+                    $"but requested type is '{typeof(T).FullName}'. Conversion is disabled (convert = false).");
+            }
+
+            if (value is JsonElement jsonElement)
+            {
+                value = jsonElement.Deserialize<T>(ExtraPropertiesJsonSerializer.Instance.Options);
+            }
+            else
+            {
+                value = (T) Convert.ChangeType(value, typeof(T));
+            }
+
+            return (T) (value ?? throw new InvalidCastException($"Conversion of property '{name}' returned null."));
+        }
+
+        public T? TryGetProperty<T>(string name, T? defaultValue = default, bool convert = true)
+        {
+            return entity.ExtraProperties.ContainsKey(name) ? entity.GetProperty<T>(name, convert) : defaultValue;
         }
     }
 
     extension(IExtraProperties entity)
     {
-        public bool HasProperty(string name)
+        public T GetProperty<T>(string name, bool convert = true)
         {
-            return entity.ExtraProperties.ContainsKey(name);
-        }
+            var value = entity.ExtraProperties[name];
 
-        public object? GetProperty(string name, object? defaultValue = null)
-        {
-            return entity.ExtraProperties.TryGetValue(name, out var value) ? value : defaultValue;
-        }
-
-        public T? GetProperty<T>(string name, T? defaultValue = default, bool convert = true)
-        {
-            if (entity.ExtraProperties.TryGetValue(name, out var value))
+            if (value is T typedValue)
             {
-                if (value is T typedValue)
-                {
-                    return typedValue;
-                }
-
-                if (convert)
-                {
-                    return Convert.ChangeType(value, typeof(T)) is T convertedValue ? convertedValue : defaultValue;
-                }
+                return typedValue;
             }
 
-            return defaultValue;
-        }
-        
-        public T GetOrAddProperty<T>(string name, Func<T> factory)
-        {
-            var property = entity.GetProperty<T>(name);
-
-            if (property != null)
+            if (!convert)
             {
-                return property;
+                throw new ArgumentException(
+                    $"Cannot get property '{name}': stored value is of type '{value.GetType().FullName}' " +
+                    $"but requested type is '{typeof(T).FullName}'. Conversion is disabled (convert = false).");
             }
 
-            property = factory();
+            if (value is JsonElement jsonElement)
+            {
+                value = jsonElement.Deserialize<T>(ExtraPropertiesJsonSerializer.Instance.Options);
+            }
+            else
+            {
+                value = (T) Convert.ChangeType(value, typeof(T));
+            }
+
+            entity.ExtraProperties[name] =
+                value ?? throw new InvalidCastException($"Conversion of property '{name}' returned null.");
+
+            return (T) value;
+        }
+
+        public T? TryGetProperty<T>(string name, T? defaultValue = default, bool convert = true)
+        {
+            return entity.ExtraProperties.ContainsKey(name) ? entity.GetProperty<T>(name, convert) : defaultValue;
+        }
+
+        public T GetOrAddProperty<T>(string name, Func<T> factory) where T : notnull
+        {
+            if (entity.ExtraProperties.ContainsKey(name))
+            {
+                return entity.GetProperty<T>(name);
+            }
+
+            var property = factory();
             entity.ExtraProperties[name] = property;
             return property;
         }
 
-        public T GetOrAddProperty<T>(string name, T value)
+        public T GetOrAddProperty<T>(string name, T value) where T : notnull
         {
-            var property = entity.GetProperty<T>(name);
-
-            if (property != null)
+            if (entity.ExtraProperties.ContainsKey(name))
             {
-                return property;
+                return entity.GetProperty<T>(name);
             }
 
             entity.ExtraProperties[name] = value;
@@ -95,12 +104,13 @@ public static class ExtraPropertiesExtensions
 
         public void SetProperty(string name, object? value)
         {
-            entity.ExtraProperties[name] = value;
-        }
+            if (value == null)
+            {
+                entity.ExtraProperties.Remove(name);
+                return;
+            }
 
-        public bool RemoveProperty(string name)
-        {
-            return entity.ExtraProperties.Remove(name);
+            entity.ExtraProperties[name] = value;
         }
     }
 }

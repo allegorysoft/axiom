@@ -1,4 +1,5 @@
 using System;
+using Allegory.Axiom.Extensibility;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 namespace Allegory.Axiom.Caching;
@@ -11,11 +12,8 @@ public static class StackExchangeRedisCacheOptionsExtensions
     {
         public Action<RedisCacheOptions>? ConfigureRedis
         {
-            get => options.ExtraProperties.TryGetValue(ConfigureRedisKey, out var value)
-                ? (Action<RedisCacheOptions>?) value
-                : null;
-
-            set => options.ExtraProperties[ConfigureRedisKey] = value;
+            get => options.TryGetProperty<Action<RedisCacheOptions>>(ConfigureRedisKey);
+            set => options.SetProperty(ConfigureRedisKey, value);
         }
     }
 }
