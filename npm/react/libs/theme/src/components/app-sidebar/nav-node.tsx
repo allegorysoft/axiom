@@ -23,8 +23,9 @@ type NodeProps = {
   item: Nav;
   pathname: string;
   variant?: 'main' | 'sub';
+  parent?: Nav | null;
 };
-export function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
+export function NavItemNode({ item, pathname, variant = 'main', parent = null }: NodeProps) {
   const t = useTranslation();
   const hasChildren = Boolean(item.children?.length);
   const branchActive = isBranchActive(item, pathname);
@@ -69,7 +70,7 @@ export function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
           />
         }
       >
-        {item.icon}
+        {!parent && item.icon}
         <span className="truncate cursor-pointer">{t(item.title)}</span>
 
         <ChevronDown
@@ -87,6 +88,7 @@ export function NavItemNode({ item, pathname, variant = 'main' }: NodeProps) {
               key={child.title}
               item={child}
               pathname={pathname}
+              parent={item}
               variant="sub"
             />
           ))}

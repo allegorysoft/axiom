@@ -1,7 +1,6 @@
 import {
   LayoutDashboard,
   Settings,
-  User,
   Shield,
   Cog,
   Server,
@@ -26,7 +25,7 @@ export function provideNavItems() {
   navStore.addGroup(PRODUCT);
   navStore.add(
     {
-      title: 'AxiomProductManagement:Dashboard',
+      title: 'Dashboard',
       url: '/product-management/dashboard',
       icon: <LayoutDashboard />,
     },
@@ -35,6 +34,7 @@ export function provideNavItems() {
   navStore.add(
     {
       title: 'Products',
+      url: '/product-management',
       icon: <List />,
     },
     PRODUCT,
@@ -71,7 +71,10 @@ export function provideNavItems() {
         {
           title: 'Profile',
           url: '/user/settings/profile',
-          icon: <User />,
+        },
+        {
+          title: 'Security',
+          url: '/user/settings/security',
         },
         {
           title: 'Preferences',
