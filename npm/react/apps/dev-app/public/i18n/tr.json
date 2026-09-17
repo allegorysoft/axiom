@@ -11,7 +11,9 @@
     "Dark": "Koyu",
     "System": "Sistem",
     "Preferences": "Tercihler",
-    "PreferencesDescription": "Tercihlerinizi özelleştirin"
+    "PreferencesDescription": "Tercihlerinizi özelleştirin",
+    "ThemePreset": "Tema Ön Ayarı",
+    "Font": "Yazı Tipi"
   },
   "AxiomAccount": {
     "SignIn": "Giriş yap (client)",

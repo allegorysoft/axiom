@@ -11,7 +11,9 @@
     "Dark": "Dark",
     "System": "System",
     "Preferences": "Preferences",
-    "PreferencesDescription": "Customize your preferences"
+    "PreferencesDescription": "Customize your preferences",
+    "ThemePreset": "Theme Preset",
+    "Font": "Font"
   },
   "AxiomAccount": {
     "SignIn": "Sign in (client)",
