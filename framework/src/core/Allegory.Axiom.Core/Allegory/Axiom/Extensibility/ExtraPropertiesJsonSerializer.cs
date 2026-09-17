@@ -13,7 +13,7 @@ public class ExtraPropertiesJsonSerializer
 
     public virtual string Serialize(IDictionary<string, object> value)
     {
-        return JsonSerializer.Serialize(value, Options);
+        return value.Count == 0 ? string.Empty : JsonSerializer.Serialize(value, Options);
     }
 
     public virtual Dictionary<string, object> Deserialize(string? value)
