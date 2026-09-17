@@ -11,6 +11,8 @@ import {
   SidebarMenu,
 } from '../ui/sidebar';
 
+import { usePreferences } from '../preferences/use-preferences';
+
 import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
@@ -28,6 +30,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     () => window.location.pathname,
     () => '',
   );
+  const preferences = usePreferences((state) => state.preferences);
 
   const groups = useNavGroups();
 
@@ -37,7 +40,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     index === -1 ? groups : groups.filter((_, i) => i !== index);
 
   return (
-    <Sidebar collapsible="icon" variant="floating" {...props}>
+    <Sidebar collapsible="icon" variant={preferences.sidebarStyle} {...props}>
       <SidebarHeader>
         <TenantSwitcher tenants={TENANTS} />
         <SidebarHeaderSearch />
