@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { Palette, CircleOff, LucideIcon } from 'lucide-react';
 
 import { useTranslation } from '@axiomframework/react-core';
 
+import { cn } from '@axiomframework/react-theme/lib/utils';
 import { Button } from '../ui/button';
 import {
   Select,
@@ -20,7 +20,10 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '../ui/popover';
-import { cn } from '@axiomframework/react-theme/lib/utils';
+
+import type { BaseSize, NavbarBehavior, SidebarVariants } from './preferences';
+import { preferencesStore } from './preferences-store';
+import { usePreferences } from './use-preferences';
 
 type SegmentedOption = {
   label: string;
@@ -28,19 +31,10 @@ type SegmentedOption = {
   icon?: LucideIcon;
 };
 
-const defaults = {
-  preset: 'Default',
-  font: 'Geist',
-  navbar: 'Sticky',
-  sidebar: 'Inset',
-  radius: 'MD',
-  scale: 'MD',
-};
-
 const PRESET_OPTIONS = [
-  { label: 'Default', value: 'Default' },
-  { label: 'Neutral', value: 'Neutral' },
-  { label: 'Vibrant', value: 'Vibrant' },
+  { name: 'Default', color: '#000000' },
+  { name: 'Neutral', color: '#808080' },
+  { name: 'Vibrant', color: '#FF0000' },
 ] as const;
 
 const FONT_OPTIONS = [
@@ -51,34 +45,30 @@ const FONT_OPTIONS = [
 
 const SEGMENTED_OPTIONS: Record<string, SegmentedOption[]> = {
   navbar: [
-    { label: 'Sticky', value: 'Sticky' },
-    { label: 'Scroll', value: 'Scroll' },
+    { value: 'sticky', label: 'Sticky' },
+    { value: 'scroll', label: 'Scroll' },
   ],
   sidebar: [
-    { label: 'Inset', value: 'Inset' },
-    { label: 'Sidebar', value: 'Sidebar' },
-    { label: 'Floating', value: 'Floating' },
+    { value: 'Inset', label: 'Inset' },
+    { value: 'Sidebar', label: 'Sidebar' },
+    { value: 'Floating', label: 'Floating' },
   ],
   radius: [
-    { label: 'None', value: 'None', icon: CircleOff },
-    { label: 'SM', value: 'SM' },
-    { label: 'MD', value: 'MD' },
-    { label: 'LG', value: 'LG' },
+    { value: 'none', label: 'None', icon: CircleOff },
+    { value: 'sm', label: 'SM' },
+    { value: 'md', label: 'MD' },
+    { value: 'lg', label: 'LG' },
   ],
   scale: [
-    { label: 'SM', value: 'SM' },
-    { label: 'MD', value: 'MD' },
-    { label: 'LG', value: 'LG' },
+    { value: 'sm', label: 'SM' },
+    { value: 'md', label: 'MD' },
+    { value: 'lg', label: 'LG' },
   ],
 };
 
-export function Preferences() {
+export function PreferencesPopover() {
   const t = useTranslation();
-  const [preferences, setPreferences] = useState(defaults);
-
-  const updatePreference = (key: keyof typeof defaults, value: string) => {
-    setPreferences((current) => ({ ...current, [key]: value }));
-  };
+  const preferences = usePreferences((state) => state.preferences);
 
   return (
     <Popover>
@@ -100,20 +90,48 @@ export function Preferences() {
 
         <div className="flex flex-col gap-3">
           <Label className="flex-col items-stretch gap-1.5 text-xs font-semibold">
-            Theme Preset
+            {t('AxiomTheme:ThemePreset')}
             <Select
-              value={preferences.preset}
+              value={preferences.themePreset.name}
               onValueChange={(value) => {
-                if (value) updatePreference('preset', value);
+                if (value) {
+                  preferencesStore.patchPreferences({
+                    themePreset: {
+                      ...preferences.themePreset,
+                      name: value,
+                      color:
+                        PRESET_OPTIONS.find((option) => option.name === value)
+                          ?.color || '',
+                    },
+                  });
+                }
               }}
             >
               <SelectTrigger className="w-full" size="sm">
-                <SelectValue />
+                <SelectValue
+                  render={() => (
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-4 h-4 rounded-full border border-gray-300"
+                        style={{
+                          backgroundColor: preferences.themePreset.color,
+                        }}
+                      />
+                      {preferences.themePreset.name}
+                    </div>
+                  )}
+                />
               </SelectTrigger>
+
               <SelectContent>
                 {PRESET_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                  <SelectItem key={option.name} value={option.name}>
+                    {/* Color example */}
+                    <div
+                      className="w-4 h-4 rounded-full border border-gray-300"
+                      style={{ backgroundColor: option.color }}
+                    />
+                    {option.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -121,11 +139,15 @@ export function Preferences() {
           </Label>
 
           <Label className="flex-col items-stretch gap-1.5 text-xs font-semibold">
-            Font
+            {t('AxiomTheme:Font')}
             <Select
-              value={preferences.font}
+              value={preferences.font.value}
               onValueChange={(value) => {
-                if (value) updatePreference('font', value);
+                if (value) {
+                  preferencesStore.patchPreferences({
+                    font: { value, title: value },
+                  });
+                }
               }}
             >
               <SelectTrigger className="w-full" size="sm">
@@ -144,32 +166,44 @@ export function Preferences() {
           <SegmentedControl
             label="Navbar Behavior"
             options={SEGMENTED_OPTIONS.navbar}
-            value={preferences.navbar}
-            onChange={(value) => updatePreference('navbar', value)}
+            value={preferences.navbarBehavior}
+            onChange={(value) =>
+              preferencesStore.patchPreferences({
+                navbarBehavior: value as NavbarBehavior,
+              })
+            }
           />
           <SegmentedControl
             label="Sidebar Style"
             options={SEGMENTED_OPTIONS.sidebar}
-            value={preferences.sidebar}
-            onChange={(value) => updatePreference('sidebar', value)}
+            value={preferences.sidebarStyle}
+            onChange={(value) =>
+              preferencesStore.patchPreferences({
+                sidebarStyle: value as SidebarVariants,
+              })
+            }
           />
           <SegmentedControl
             label="Radius"
             options={SEGMENTED_OPTIONS.radius}
-            value={preferences.radius}
-            onChange={(value) => updatePreference('radius', value)}
+            value={preferences.radius.name}
+            onChange={(value) => {}}
           />
           <SegmentedControl
             label="Scale"
             options={SEGMENTED_OPTIONS.scale}
             value={preferences.scale}
-            onChange={(value) => updatePreference('scale', value)}
+            onChange={(value) =>
+              preferencesStore.patchPreferences({
+                scale: value as BaseSize,
+              })
+            }
           />
 
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => setPreferences(defaults)}
+            onClick={() => preferencesStore.resetPreferences()}
           >
             Restore Defaults
           </Button>
