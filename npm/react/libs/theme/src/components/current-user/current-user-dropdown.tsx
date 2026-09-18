@@ -33,7 +33,7 @@ export function CurrentUserDropdown() {
           />
         }
       >
-        <Avatar >
+        <Avatar>
           <AvatarFallback>{getAvatarFallbackText('Masum ULU')}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
