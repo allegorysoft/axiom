@@ -125,28 +125,41 @@ public class ExtraPropertiesTests(ExtraPropertiesFixture fixture) : IClassFixtur
     }
 
     [Fact]
-    public async Task ShouldNotDetectChangeWhenExtraPropertiesAreReplacedWithEquivalentValues()
+    public async Task ShouldNotDetectChangeWhenEntityStateIsNotExplicitlySettedToModified()
     {
+        // ExtraProperties is persisted as a JSON column. Without a custom ValueComparer,
+        // EF Core cannot compare the contents of the dictionary — it falls back to reference
+        // equality. As a result, modifying the dictionary in place will NOT be detected by automatic change tracking.
+        //
+        // This test demonstrates the failure mode: if we modify ExtraProperties and do NOT
+        // explicitly set the entity state to Modified (e.g., by calling Repository.Update),
+        // EF will leave the entity in the Unchanged state, and the changes will never be saved.
+        //
+        // Always call Repository.Update when modifying ExtraProperties.
+
         await fixture.RunInUnitOfWorkAsync(async _ =>
         {
             var entity = new App2Entity1(Number);
             entity.SetProperty("key", "initial");
-            entity.SetProperty("second", 2);
 
             await Repository.AddAsync(entity);
         });
 
-        // The ValueComparer should treat this as no change, so no update should be persisted.
         await fixture.RunInUnitOfWorkAsync(async _ =>
         {
             var entity = await Repository.GetAsync(e => e.Number == Number);
 
-            entity.ExtraProperties.Clear();
-            entity.SetProperty("key", "initial");
-            entity.SetProperty("second", 2);
+            // Make change
+            entity.SetProperty("key", "changed");
+
+            // Intentionally DO NOT call Repository.Update or set the state to Modified
 
             var provider = fixture.Service<IDbContextProvider<App2DbContext>>();
             var dbContext = await provider.GetAsync();
+
+            // Because the state was never explicitly set to Modified, EF change detection
+            // does not recognize the modification to the JSON column. The entity remains Unchanged,
+            // meaning SaveChanges would persist nothing.
             dbContext.Entity1.Entry(entity).State.ShouldBe(EntityState.Unchanged);
         });
     }
