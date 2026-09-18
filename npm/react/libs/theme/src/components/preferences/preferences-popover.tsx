@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { Palette, CircleOff, LucideIcon } from 'lucide-react';
 
 import { useTranslation } from '@axiomframework/react-core';
@@ -60,10 +60,10 @@ const SEGMENTED_OPTIONS: Record<string, SegmentedOption[]> = {
     { value: 'floating', label: 'Floating' },
   ],
   radius: [
-    { value: 'none', label: 'None', icon: CircleOff },
-    { value: 'sm', label: 'SM' },
-    { value: 'md', label: 'MD' },
-    { value: 'lg', label: 'LG' },
+    { value: '0', label: 'None', icon: CircleOff },
+    { value: '0.375rem', label: 'SM' },
+    { value: '0.5rem', label: 'MD' },
+    { value: '1rem', label: 'LG' },
   ],
   scale: [
     { value: 'sm', label: 'SM' },
@@ -92,6 +92,13 @@ export function PreferencesPopover() {
       previousThemePresetClassRef.current = themePresetClass;
     }
   }, [themePresetClass]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      '--radius',
+      preferences.radius.value,
+    );
+  }, [preferences.radius.name]);
 
   return (
     <Popover>
@@ -238,14 +245,14 @@ export function PreferencesPopover() {
           <SegmentedControl
             label="Radius"
             options={SEGMENTED_OPTIONS.radius}
-            value={preferences.radius.name}
+            value={preferences.radius.value}
             onChange={(value) =>
               preferencesStore.patchPreferences({
                 radius: {
                   value: value,
                   name: SEGMENTED_OPTIONS.radius.find(
                     (option) => option.value === value,
-                  )?.value as RadiusSize,
+                  )?.label as RadiusSize,
                 },
               })
             }
