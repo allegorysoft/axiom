@@ -173,7 +173,7 @@ export function PreferencesPopover() {
           </Label>
 
           <PreferenceOption
-            label="Navbar Behavior"
+            label={t('AxiomTheme:NavbarBehavior')}
             options={SEGMENTED_OPTIONS.navbar}
             value={preferences.navbarBehavior}
             onChange={(value) =>
@@ -182,8 +182,9 @@ export function PreferencesPopover() {
               })
             }
           />
+
           <PreferenceOption
-            label="Sidebar Style"
+            label={t('AxiomTheme:SidebarStyle')}
             options={SEGMENTED_OPTIONS.sidebar}
             value={preferences.sidebarStyle}
             onChange={(value) =>
@@ -194,7 +195,7 @@ export function PreferencesPopover() {
           />
 
           <PreferenceOption
-            label="Scale"
+            label={t('AxiomTheme:Scale')}
             options={SEGMENTED_OPTIONS.scale}
             value={preferences.scale}
             onChange={(value) =>
@@ -205,7 +206,7 @@ export function PreferencesPopover() {
           />
 
           <PreferenceOption
-            label="Radius"
+            label={t('AxiomTheme:Radius')}
             options={SEGMENTED_OPTIONS.radius}
             value={preferences.radius.value}
             onChange={(value) =>
@@ -225,7 +226,7 @@ export function PreferencesPopover() {
             className="w-full"
             onClick={() => preferencesStore.resetPreferences()}
           >
-            Restore Defaults
+            {t('AxiomTheme:RestoreDefaults')}
           </Button>
         </div>
       </PopoverContent>

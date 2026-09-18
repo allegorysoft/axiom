@@ -12,8 +12,13 @@
     "System": "Sistem",
     "Preferences": "Tercihler",
     "PreferencesDescription": "Tercihlerinizi özelleştirin",
-    "ThemePreset": "Tema Ön Ayarı",
-    "Font": "Yazı Tipi"
+    "ThemePreset": "Tema ön ayarı",
+    "Font": "Yazı tipi",
+    "NavbarBehavior": "Gezinme çubuğu davranışı",
+    "SidebarStyle": "Yan menü stili",
+    "Scale": "Ölçek",
+    "Radius": "Köşe yuvarlaklığı",
+    "RestoreDefaults": "Varsayılanları geri yükle"
   },
   "AxiomAccount": {
     "SignIn": "Giriş yap (client)",
