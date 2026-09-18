@@ -1,4 +1,5 @@
 import { createStore } from '@axiomframework/react-core';
+
 import type {
   Preferences,
   PreferencesState,
@@ -6,20 +7,11 @@ import type {
 } from './preferences';
 
 export const defaultPreferences: Preferences = {
-  themePreset: {
-    name: 'Default',
-    color: '#000000',
-  },
-  font: {
-    value: 'geist',
-    title: 'Geist',
-  },
+  themePreset: 'default',
+  font: 'geist',
   navbarBehavior: 'sticky',
   sidebarStyle: 'floating',
-  radius: {
-    name: 'md',
-    value: '0.625rem',
-  },
+  radius: '0.625rem',
   scale: 'md',
 };
 

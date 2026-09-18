@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import { Palette } from 'lucide-react';
 
 import { useTranslation } from '@axiomframework/react-core';
@@ -21,50 +21,39 @@ import {
   PopoverTrigger,
 } from '../ui/popover';
 
-import type {
-  BaseSize,
-  NavbarBehavior,
-  RadiusSize,
-  SidebarVariants,
-} from './preferences';
-import { preferencesStore } from './preferences-store';
-import { usePreferences } from './use-preferences';
 import {
   FONT_OPTIONS,
-  getFontLabel,
+  PRESET_CLASSES,
   PRESET_OPTIONS,
-  getPresetColor,
   SEGMENTED_OPTIONS,
+  getOption,
+  type BaseSize,
+  type FontName,
+  type NavbarBehavior,
+  type PresetName,
+  type RadiusValue,
+  type SidebarVariants,
 } from './options';
 import { PreferenceOption } from './preference-option';
+import { preferencesStore } from './preferences-store';
+import { usePreferences } from './use-preferences';
 
 export function PreferencesPopover() {
   const t = useTranslation();
   const preferences = usePreferences((state) => state.preferences);
 
-  const themePresetClass = getThemePresetClass(preferences.themePreset.name);
-  const previousThemePresetClassRef = useRef<string | null>(null);
+  const preset = getOption(PRESET_OPTIONS, preferences.themePreset);
+  const font = getOption(FONT_OPTIONS, preferences.font);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
-    const previous = previousThemePresetClassRef.current;
-
-    if (previous !== themePresetClass) {
-      const others = [...root.classList].filter(
-        (c) => c !== previous && c !== themePresetClass,
-      );
-
-      root.className = [themePresetClass, ...others].join(' ');
-      previousThemePresetClassRef.current = themePresetClass;
-    }
-  }, [themePresetClass]);
+    root.classList.remove(...PRESET_CLASSES);
+    root.classList.add(preferences.themePreset);
+  }, [preferences.themePreset]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      '--radius',
-      preferences.radius.value,
-    );
-  }, [preferences.radius.name]);
+    document.documentElement.style.setProperty('--radius', preferences.radius);
+  }, [preferences.radius]);
 
   return (
     <Popover>
@@ -93,15 +82,11 @@ export function PreferencesPopover() {
           <Label className="flex-col items-stretch gap-1.5 text-xs font-semibold">
             {t('AxiomTheme:ThemePreset')}
             <Select
-              value={preferences.themePreset.name}
+              value={preferences.themePreset}
               onValueChange={(value) => {
                 if (value) {
                   preferencesStore.patchPreferences({
-                    themePreset: {
-                      ...preferences.themePreset,
-                      name: value,
-                      color: getPresetColor(value) || '#000000',
-                    },
+                    themePreset: value as PresetName,
                   });
                 }
               }}
@@ -112,11 +97,9 @@ export function PreferencesPopover() {
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2 h-2 rounded-full"
-                        style={{
-                          backgroundColor: preferences.themePreset.color,
-                        }}
+                        style={{ backgroundColor: preset?.color }}
                       />
-                      {preferences.themePreset.name}
+                      {preset?.label}
                     </div>
                   )}
                 />
@@ -124,13 +107,13 @@ export function PreferencesPopover() {
 
               <SelectContent>
                 {PRESET_OPTIONS.map((option) => (
-                  <SelectItem key={option.name} value={option.name}>
+                  <SelectItem key={option.value} value={option.value}>
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2 h-2 rounded-full"
                         style={{ backgroundColor: option.color }}
                       />
-                      {option.name}
+                      {option.label}
                     </div>
                   </SelectItem>
                 ))}
@@ -141,26 +124,17 @@ export function PreferencesPopover() {
           <Label className="flex-col items-stretch gap-1.5 text-xs font-semibold">
             {t('AxiomTheme:Font')}
             <Select
-              value={preferences.font.value}
+              value={preferences.font}
               onValueChange={(value) => {
                 if (value) {
                   preferencesStore.patchPreferences({
-                    font: {
-                      value,
-                      title: getFontLabel(value) || 'Geist',
-                    },
+                    font: value as FontName,
                   });
                 }
               }}
             >
               <SelectTrigger className="w-full" size="sm">
-                <SelectValue
-                  render={() => (
-                    <span className="flex items-center gap-2">
-                      {preferences.font.title}
-                    </span>
-                  )}
-                />
+                <SelectValue render={() => <span>{font?.label}</span>} />
               </SelectTrigger>
               <SelectContent>
                 {FONT_OPTIONS.map((option) => (
@@ -208,15 +182,10 @@ export function PreferencesPopover() {
           <PreferenceOption
             label={t('AxiomTheme:Radius')}
             options={SEGMENTED_OPTIONS.radius}
-            value={preferences.radius.value}
+            value={preferences.radius}
             onChange={(value) =>
               preferencesStore.patchPreferences({
-                radius: {
-                  value: value,
-                  name: SEGMENTED_OPTIONS.radius.find(
-                    (option) => option.value === value,
-                  )?.label as RadiusSize,
-                },
+                radius: value as RadiusValue,
               })
             }
           />
@@ -232,8 +201,4 @@ export function PreferencesPopover() {
       </PopoverContent>
     </Popover>
   );
-}
-
-function getThemePresetClass(name: string) {
-  return `${name.trim().toLowerCase().replace(/\s+/g, '-')}`;
 }

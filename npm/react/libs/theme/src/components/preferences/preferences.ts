@@ -1,30 +1,19 @@
 import { AxiomStore } from '@axiomframework/react-core';
-
-export type BaseSize = 'sm' | 'md' | 'lg';
-export type RadiusSize = 'none' | BaseSize;
-
-export type ThemePreset = {
-  name: string;
-  color: string;
-};
-
-export type Font = {
-  value: string;
-  title: string;
-};
-
-export type SidebarVariants = 'inset' | 'sidebar' | 'floating';
-export type NavbarBehavior = 'sticky' | 'scroll';
+import type {
+  BaseSize,
+  FontName,
+  NavbarBehavior,
+  PresetName,
+  RadiusValue,
+  SidebarVariants,
+} from './options';
 
 export interface Preferences {
-  themePreset: ThemePreset;
-  font: Font;
+  themePreset: PresetName;
+  font: FontName;
   navbarBehavior: NavbarBehavior;
   sidebarStyle: SidebarVariants;
-  radius: {
-    name: RadiusSize;
-    value: string;
-  };
+  radius: RadiusValue;
   scale: BaseSize;
 }
 

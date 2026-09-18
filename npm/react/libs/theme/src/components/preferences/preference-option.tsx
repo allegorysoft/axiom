@@ -1,11 +1,13 @@
 import { cn } from 'cn';
+
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
-import { SegmentedOption } from './options';
+
+import type { Option } from './options';
 
 type PreferenceOptionProps = {
   label: string;
-  options: SegmentedOption[];
+  options: readonly Option[];
   value: string;
   onChange: (value: string) => void;
 };
@@ -22,6 +24,7 @@ export function PreferenceOption({
       <div className="flex w-full overflow-hidden rounded-md border border-input">
         {options.map((option) => {
           const isActive = value === option.value;
+          const Icon = option.icon;
 
           return (
             <Button
@@ -33,8 +36,8 @@ export function PreferenceOption({
               )}
               onClick={() => onChange(option.value)}
             >
-              {option.icon ? (
-                <option.icon className="size-4" />
+              {Icon ? (
+                <Icon className="size-4" />
               ) : (
                 <span className="truncate">{option.label}</span>
               )}
