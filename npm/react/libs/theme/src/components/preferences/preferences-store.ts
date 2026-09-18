@@ -18,7 +18,7 @@ export const defaultPreferences: Preferences = {
   sidebarStyle: 'floating',
   radius: {
     name: 'md',
-    value: '0.5rem',
+    value: '0.625rem',
   },
   scale: 'md',
 };

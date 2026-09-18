@@ -1,9 +1,8 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { Palette, CircleOff, LucideIcon } from 'lucide-react';
+import { Palette } from 'lucide-react';
 
 import { useTranslation } from '@axiomframework/react-core';
 
-import { cn } from '@axiomframework/react-theme/lib/utils';
 import { Button } from '../ui/button';
 import {
   Select,
@@ -30,47 +29,14 @@ import type {
 } from './preferences';
 import { preferencesStore } from './preferences-store';
 import { usePreferences } from './use-preferences';
-
-type SegmentedOption = {
-  label: string;
-  value: string;
-  icon?: LucideIcon;
-};
-
-const PRESET_OPTIONS = [
-  { name: 'Default', color: '#000000' },
-  { name: 'Neutral', color: '#808080' },
-  { name: 'Vibrant', color: '#FF0000' },
-] as const;
-
-const FONT_OPTIONS = [
-  { value: 'geist', label: 'Geist' },
-  { value: 'system', label: 'System' },
-  { value: 'inter', label: 'Inter' },
-] as const;
-
-const SEGMENTED_OPTIONS: Record<string, SegmentedOption[]> = {
-  navbar: [
-    { value: 'sticky', label: 'Sticky' },
-    { value: 'scroll', label: 'Scroll' },
-  ],
-  sidebar: [
-    { value: 'inset', label: 'Inset' },
-    { value: 'sidebar', label: 'Sidebar' },
-    { value: 'floating', label: 'Floating' },
-  ],
-  radius: [
-    { value: '0', label: 'None', icon: CircleOff },
-    { value: '0.375rem', label: 'SM' },
-    { value: '0.5rem', label: 'MD' },
-    { value: '1rem', label: 'LG' },
-  ],
-  scale: [
-    { value: 'sm', label: 'SM' },
-    { value: 'md', label: 'MD' },
-    { value: 'lg', label: 'LG' },
-  ],
-};
+import {
+  FONT_OPTIONS,
+  getFontLabel,
+  PRESET_OPTIONS,
+  getPresetColor,
+  SEGMENTED_OPTIONS,
+} from './options';
+import { PreferenceOption } from './preference-option';
 
 export function PreferencesPopover() {
   const t = useTranslation();
@@ -134,9 +100,7 @@ export function PreferencesPopover() {
                     themePreset: {
                       ...preferences.themePreset,
                       name: value,
-                      color:
-                        PRESET_OPTIONS.find((option) => option.name === value)
-                          ?.color || '',
+                      color: getPresetColor(value) || '#000000',
                     },
                   });
                 }
@@ -183,9 +147,7 @@ export function PreferencesPopover() {
                   preferencesStore.patchPreferences({
                     font: {
                       value,
-                      title:
-                        FONT_OPTIONS.find((option) => option.value === value)
-                          ?.label || '',
+                      title: getFontLabel(value) || 'Geist',
                     },
                   });
                 }
@@ -210,7 +172,7 @@ export function PreferencesPopover() {
             </Select>
           </Label>
 
-          <SegmentedControl
+          <PreferenceOption
             label="Navbar Behavior"
             options={SEGMENTED_OPTIONS.navbar}
             value={preferences.navbarBehavior}
@@ -220,7 +182,7 @@ export function PreferencesPopover() {
               })
             }
           />
-          <SegmentedControl
+          <PreferenceOption
             label="Sidebar Style"
             options={SEGMENTED_OPTIONS.sidebar}
             value={preferences.sidebarStyle}
@@ -231,7 +193,7 @@ export function PreferencesPopover() {
             }
           />
 
-          <SegmentedControl
+          <PreferenceOption
             label="Scale"
             options={SEGMENTED_OPTIONS.scale}
             value={preferences.scale}
@@ -242,7 +204,7 @@ export function PreferencesPopover() {
             }
           />
 
-          <SegmentedControl
+          <PreferenceOption
             label="Radius"
             options={SEGMENTED_OPTIONS.radius}
             value={preferences.radius.value}
@@ -268,46 +230,6 @@ export function PreferencesPopover() {
         </div>
       </PopoverContent>
     </Popover>
-  );
-}
-
-function SegmentedControl({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: SegmentedOption[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <fieldset className="flex flex-col gap-1.5">
-      <Label className="w-full">{label}</Label>
-      <div className="flex w-full overflow-hidden rounded-md border border-input">
-        {options.map((option) => {
-          const isActive = value === option.value;
-          return (
-            <Button
-              key={option.value}
-              variant="ghost"
-              className={cn(
-                'h-8 flex-1 rounded-sm border px-1 font-medium shadow-none',
-                isActive && 'bg-muted hover:bg-muted',
-              )}
-              onClick={() => onChange(option.value)}
-            >
-              {option.icon ? (
-                <option.icon className="size-4" />
-              ) : (
-                <span className="truncate">{option.label}</span>
-              )}
-            </Button>
-          );
-        })}
-      </div>
-    </fieldset>
   );
 }
 
