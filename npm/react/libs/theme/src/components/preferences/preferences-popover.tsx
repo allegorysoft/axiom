@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from 'react';
 import { Palette, CircleOff, LucideIcon } from 'lucide-react';
 
 import { useTranslation } from '@axiomframework/react-core';
@@ -75,6 +76,23 @@ export function PreferencesPopover() {
   const t = useTranslation();
   const preferences = usePreferences((state) => state.preferences);
 
+  const themePresetClass = getThemePresetClass(preferences.themePreset.name);
+  const previousThemePresetClassRef = useRef<string | null>(null);
+
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const previous = previousThemePresetClassRef.current;
+
+    if (previous !== themePresetClass) {
+      const others = [...root.classList].filter(
+        (c) => c !== previous && c !== themePresetClass,
+      );
+
+      root.className = [themePresetClass, ...others].join(' ');
+      previousThemePresetClassRef.current = themePresetClass;
+    }
+  }, [themePresetClass]);
+
   return (
     <Popover>
       <PopoverTrigger
@@ -122,7 +140,7 @@ export function PreferencesPopover() {
                   render={() => (
                     <div className="flex items-center gap-2">
                       <span
-                        className="w-4 h-4 rounded-full border border-gray-300"
+                        className="w-2 h-2 rounded-full"
                         style={{
                           backgroundColor: preferences.themePreset.color,
                         }}
@@ -136,12 +154,13 @@ export function PreferencesPopover() {
               <SelectContent>
                 {PRESET_OPTIONS.map((option) => (
                   <SelectItem key={option.name} value={option.name}>
-                    {/* Color example */}
-                    <div
-                      className="w-4 h-4 rounded-full border border-gray-300"
-                      style={{ backgroundColor: option.color }}
-                    />
-                    {option.name}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full"
+                        style={{ backgroundColor: option.color }}
+                      />
+                      {option.name}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -283,4 +302,8 @@ function SegmentedControl({
       </div>
     </fieldset>
   );
+}
+
+function getThemePresetClass(name: string) {
+  return `${name.trim().toLowerCase().replace(/\s+/g, '-')}`;
 }
