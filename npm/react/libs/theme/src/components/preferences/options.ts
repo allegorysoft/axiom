@@ -64,6 +64,11 @@ export const FONT_OPTIONS = [
 ];
 
 export const SEGMENTED_OPTIONS = {
+  theme: [
+    { value: 'system', label: 'System' },
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+  ],
   navbar: [
     { value: 'sticky', label: 'Sticky' },
     { value: 'scroll', label: 'Scroll' },

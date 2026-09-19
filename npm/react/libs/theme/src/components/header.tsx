@@ -13,19 +13,19 @@ import {
 import { Separator } from './ui/separator';
 import { SidebarTrigger } from './ui/sidebar';
 
+import type { NavbarBehavior } from './preferences/options';
 import { CurrentUserDropdown } from './current-user/current-user-dropdown';
 import { Languages } from './languages';
 import { ThemeToggle } from './theme/theme-toggle';
 import { PreferencesPopover } from './preferences/preferences-popover';
 import { usePreferences } from './preferences/use-preferences';
-import type { NavbarBehavior } from './preferences/options';
 
 const HEADER_CLASS_NAMES =
-  'flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-3 md:px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60';
+  'flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-3 md:px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-t-l';
 
 const NAVBAR_BEHAVIOR_CLASS_NAMES: Record<NavbarBehavior, string> = {
   sticky: 'sticky top-2 z-50 border mx-2 my-2 rounded-lg',
-  scroll: 'border-b',
+  scroll: 'border-b rounded-t-lg',
 };
 
 export function Header() {

@@ -2,7 +2,11 @@ import { useEffect, useLayoutEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PaletteIcon as Palette } from '@hugeicons/core-free-icons';
 
-import { useTranslation } from '@axiomframework/react-core';
+import {
+  type Theme,
+  useTheme,
+  useTranslation,
+} from '@axiomframework/react-core';
 
 import { Button } from '../ui/button';
 import {
@@ -64,13 +68,12 @@ const GOOGLE_FONTS: Partial<Record<string, string>> = {
     'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
 
   // Serif
-  aleo:
-    'https://fonts.googleapis.com/css2?family=Aleo:wght@400;500;600;700;800&display=swap',
+  aleo: 'https://fonts.googleapis.com/css2?family=Aleo:wght@400;500;600;700;800&display=swap',
   'noto-serif':
     'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700;800&display=swap',
   playfair:
     'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap',
-    
+
   // Monospace
   'ibm-plex-mono':
     'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap',
@@ -84,6 +87,7 @@ const GOOGLE_FONTS: Partial<Record<string, string>> = {
 
 export function PreferencesPopover() {
   const t = useTranslation();
+  const { theme, setTheme } = useTheme();
   const preferences = usePreferences((state) => state.preferences);
 
   const colorTheme = getOption(COLOR_THEME_OPTIONS, preferences.colorTheme);
@@ -247,6 +251,13 @@ export function PreferencesPopover() {
               </SelectContent>
             </Select>
           </div>
+
+          <PreferenceOption
+            label={t('AxiomTheme:Theme')}
+            options={SEGMENTED_OPTIONS.theme}
+            value={theme}
+            onChange={(value) => setTheme(value as Theme)}
+          />
 
           <PreferenceOption
             label={t('AxiomTheme:NavbarBehavior')}
