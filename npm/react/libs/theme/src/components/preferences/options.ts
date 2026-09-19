@@ -18,7 +18,7 @@ export function getOption<T extends Option>(
   return options.find((option) => option.value === value);
 }
 
-export const PRESET_OPTIONS = [
+export const COLOR_THEME_OPTIONS = [
   { value: 'default', label: 'Default', color: '#000000' },
   { value: 'axiom', label: 'Axiom', color: '#0096FC' },
   { value: 'amber', label: 'Amber', color: '#f59e0b' },
@@ -36,8 +36,8 @@ export const PRESET_OPTIONS = [
   { value: 'wintry', label: 'Wintry', color: '#0265FD' },
 ] as const;
 
-export const PRESET_CLASSES: readonly PresetName[] = PRESET_OPTIONS.map(
-  (preset) => preset.value,
+export const COLOR_THEME_CLASSES: readonly ColorThemeName[] = COLOR_THEME_OPTIONS.map(
+  (colorTheme) => colorTheme.value,
 );
 
 export const FONT_OPTIONS = [
@@ -71,7 +71,7 @@ export const SEGMENTED_OPTIONS = {
   ],
 } satisfies Record<string, readonly Option[] | readonly ScaleOption[]>;
 
-export type PresetName = (typeof PRESET_OPTIONS)[number]['value'];
+export type ColorThemeName = (typeof COLOR_THEME_OPTIONS)[number]['value'];
 export type FontName = (typeof FONT_OPTIONS)[number]['value'];
 
 type SegmentedOptions = typeof SEGMENTED_OPTIONS;

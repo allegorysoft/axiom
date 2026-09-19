@@ -3,13 +3,13 @@ import type {
   BaseSize,
   FontName,
   NavbarBehavior,
-  PresetName,
+  ColorThemeName,
   RadiusValue,
   SidebarVariants,
 } from './options';
 
 export interface Preferences {
-  themePreset: PresetName;
+  colorTheme: ColorThemeName;
   font: FontName;
   navbarBehavior: NavbarBehavior;
   sidebarStyle: SidebarVariants;

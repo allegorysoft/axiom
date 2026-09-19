@@ -24,14 +24,14 @@ import {
 
 import {
   FONT_OPTIONS,
-  PRESET_CLASSES,
-  PRESET_OPTIONS,
+  COLOR_THEME_CLASSES,
+  COLOR_THEME_OPTIONS,
   SEGMENTED_OPTIONS,
   getOption,
   type BaseSize,
   type FontName,
   type NavbarBehavior,
-  type PresetName,
+  type ColorThemeName,
   type RadiusValue,
   type SidebarVariants,
 } from './options';
@@ -59,21 +59,21 @@ export function PreferencesPopover() {
   const t = useTranslation();
   const preferences = usePreferences((state) => state.preferences);
 
-  const preset = getOption(PRESET_OPTIONS, preferences.themePreset);
+  const colorTheme = getOption(COLOR_THEME_OPTIONS, preferences.colorTheme);
   const font = getOption(FONT_OPTIONS, preferences.font);
 
   useLayoutEffect(() => {
     const root = document.documentElement;
-    const others = PRESET_CLASSES.filter((c) => c !== preferences.themePreset);
+    const others = COLOR_THEME_CLASSES.filter((c) => c !== preferences.colorTheme);
 
-    root.classList.remove(...others, preferences.themePreset);
+    root.classList.remove(...others, preferences.colorTheme);
 
-    root.classList.add(preferences.themePreset);
-    root.dataset.theme = preferences.themePreset;
+    root.classList.add(preferences.colorTheme);
+    root.dataset.colorTheme = preferences.colorTheme;
 
-    const href = PALETTE_URLS[`../../styles/${preferences.themePreset}.css`];
+    const href = PALETTE_URLS[`../../styles/${preferences.colorTheme}.css`];
     let link = document.head.querySelector<HTMLLinkElement>(
-      'link[data-theme-preset]',
+      'link[data-color-theme]',
     );
 
     if (!href) {
@@ -87,9 +87,9 @@ export function PreferencesPopover() {
       document.head.appendChild(link);
     }
 
-    link.dataset.themePreset = preferences.themePreset;
+    link.dataset.colorTheme = preferences.colorTheme;
     link.href = href;
-  }, [preferences.themePreset]);
+  }, [preferences.colorTheme]);
 
   useEffect(() => {
     document.documentElement.dataset.font = preferences.font;
@@ -145,11 +145,11 @@ export function PreferencesPopover() {
           <div className="flex flex-col gap-1">
             <Label>{t('AxiomTheme:ColorTheme')}</Label>
             <Select
-              value={preferences.themePreset}
+              value={preferences.colorTheme}
               onValueChange={(value) => {
                 if (value) {
                   preferencesStore.patchPreferences({
-                    themePreset: value as PresetName,
+                    colorTheme: value as ColorThemeName,
                   });
                 }
               }}
@@ -160,16 +160,16 @@ export function PreferencesPopover() {
                     <div className="flex items-center gap-2">
                       <span
                         className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: preset?.color }}
+                        style={{ backgroundColor: colorTheme?.color }}
                       />
-                      {preset?.label}
+                      {colorTheme?.label}
                     </div>
                   )}
                 />
               </SelectTrigger>
 
               <SelectContent>
-                {PRESET_OPTIONS.map((option) => (
+                {COLOR_THEME_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     <div className="flex items-center gap-2">
                       <span
