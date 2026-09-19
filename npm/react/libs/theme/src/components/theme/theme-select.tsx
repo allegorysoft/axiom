@@ -1,5 +1,10 @@
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
-import { ChevronLeftIcon as ChevronLeft, MonitorIcon as Monitor, MoonIcon as Moon, SunIcon as Sun } from '@hugeicons/core-free-icons';
+import {
+  ChevronLeftIcon as ChevronLeft,
+  MonitorIcon as Monitor,
+  Moon02Icon as Moon,
+  SunIcon as Sun,
+} from '@hugeicons/core-free-icons';
 
 import {
   type Theme,
@@ -15,10 +20,7 @@ import {
   DropdownMenuSeparator,
 } from '../ui/dropdown-menu';
 
-const THEME_ICONS: Record<
-  Theme,
-  IconSvgElement
-> = {
+const THEME_ICONS: Record<Theme, IconSvgElement> = {
   light: Sun,
   dark: Moon,
   system: Monitor,

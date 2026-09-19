@@ -1,5 +1,5 @@
 import { HugeiconsIcon } from '@hugeicons/react';
-import { MoonIcon as Moon, SunIcon as Sun } from '@hugeicons/core-free-icons';
+import { Moon02Icon as Moon, SunIcon as Sun } from '@hugeicons/core-free-icons';
 import { useTheme } from '@axiomframework/react-core';
 
 import { Button } from '../ui/button';
