@@ -95,13 +95,28 @@
 :root[data-radius='none'] { --radius: 0; }
 :root[data-radius='sm'] { --radius: 0.375rem; }
 :root[data-radius='md'] { --radius: 0.625rem; }
-:root[data-radius='lg'] { --radius: 1rem; }
+:root[data-radius='lg'] { --radius: 1.5rem; }
 
-:root[data-font='geist'] { --font-family: 'Geist'; }
+/* Sans Serif */
 :root[data-font='system'] { --font-family: system-ui, sans-serif; }
+:root[data-font='figtree'] { --font-family: 'Figtree'; }
+:root[data-font='geist'] { --font-family: 'Geist'; }
+:root[data-font='inter'] { --font-family: 'Inter'; }
 :root[data-font='manrope'] { --font-family: 'Manrope'; }
+:root[data-font='montserrat'] { --font-family: 'Montserrat'; }
+:root[data-font='plus-jakarta-sans'] { --font-family: 'Plus Jakarta Sans'; }
+:root[data-font='poppins'] { --font-family: 'Poppins'; }
+
+/* Serif */
+:root[data-font='aleo'] { --font-family: 'Aleo'; }
 :root[data-font='noto-serif'] { --font-family: 'Noto Serif'; }
+:root[data-font='playfair'] { --font-family: 'Playfair Display'; }
+
+/* Monospace */
+:root[data-font='ibm-plex-mono'] { --font-family: 'IBM Plex Mono'; }
 :root[data-font='jetbrains-mono'] { --font-family: 'JetBrains Mono'; }
+:root[data-font='source-code-pro'] { --font-family: 'Source Code Pro'; }
+:root[data-font='space-mono'] { --font-family: 'Space Mono'; }
 
 :root {
   --background: oklch(1 0 0);
