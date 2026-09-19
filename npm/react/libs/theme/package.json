@@ -35,7 +35,6 @@
     "tailwindcss": "catalog:"
   },
   "dependencies": {
-    "@fontsource-variable/geist": "^5",
     "class-variance-authority": "~0.7.0",
     "cmdk": "catalog:",
     "lucide-react": "catalog:",

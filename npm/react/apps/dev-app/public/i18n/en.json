@@ -12,8 +12,13 @@
     "System": "System",
     "Preferences": "Preferences",
     "PreferencesDescription": "Customize your preferences",
-    "ThemePreset": "Theme Preset",
-    "Font": "Font"
+    "ThemePreset": "Theme preset",
+    "Font": "Font",
+    "NavbarBehavior": "Navbar behavior",
+    "SidebarStyle": "Sidebar style",
+    "Scale": "Scale",
+    "Radius": "Radius",
+    "RestoreDefaults": "Restore defaults"
   },
   "AxiomAccount": {
     "SignIn": "Sign in (client)",

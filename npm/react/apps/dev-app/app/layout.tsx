@@ -16,7 +16,7 @@ export default function Layout() {
       <SidebarInset>
         <Header />
 
-        <main className="flex flex-1 flex-col gap-4 p-4 pt-1">
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-1">
           <Outlet />
         </main>
       </SidebarInset>
