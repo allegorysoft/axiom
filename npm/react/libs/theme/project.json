@@ -4,6 +4,7 @@
   "sourceRoot": "libs/theme/src",
   "projectType": "library",
   "tags": ["scope:framework"],
+  "implicitDependencies": ["core"],
   "targets": {
     "build": {
       "options": {

@@ -19,15 +19,6 @@
         },
         "AxiomIdentity": {
           "Welcome": "Welcome i18n, {name}"
-        },
-        "AxiomSettingManagement": {
-          "Title": "Settings",
-          "General": "General",
-          "Language": "Language",
-          "Theme": "Theme",
-          "Save": "Save",
-          "Cancel": "Cancel",
-          "SavedSuccessfully": "Settings saved successfully."
         }
       }
     },
@@ -50,15 +41,6 @@
         },
         "AxiomIdentity": {
           "Welcome": "Hoşgeldin i18n, {name}"
-        },
-        "AxiomSettingManagement": {
-          "Title": "Ayarlar",
-          "General": "Genel",
-          "Language": "Dil",
-          "Theme": "Tema",
-          "Save": "Kaydet",
-          "Cancel": "İptal",
-          "SavedSuccessfully": "Ayarlar başarıyla kaydedildi."
         }
       }
     }

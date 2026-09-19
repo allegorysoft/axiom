@@ -1,3 +1,6 @@
+import { useTranslation } from '@axiomframework/react-core';
+
 export function Component() {
-  return <h1>Home</h1>;
+  const t = useTranslation();
+  return <h1>{t('AxiomBase:Home')}</h1>;
 }

@@ -5,7 +5,7 @@ export const environment: Environment = {
   oauth: {
     authority: 'http://127.0.0.1:8080/realms/master',
     clientId: 'account',
-    flow: 'code',
+    flow: 'password',
     scope: 'openid profile email',
     redirectUri: 'http://localhost:5173',
   },

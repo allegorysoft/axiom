@@ -10,7 +10,7 @@
     "cssVariables": true,
     "prefix": ""
   },
-  "iconLibrary": "lucide",
+  "iconLibrary": "hugeicons",
   "aliases": {
     "components": "@axiomframework/react-theme/components",
     "utils": "@axiomframework/react-theme/lib/utils",

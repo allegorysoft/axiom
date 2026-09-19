@@ -8,11 +8,25 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
+  base: './',
   resolve: { tsconfigPaths: true },
   cacheDir: '../../node_modules/.vite/libs/theme',
   plugins: [
     react(),
-    viteStaticCopy({ targets: [{ src: ['*.md', 'package.json'], dest: '.' }] }),
+    viteStaticCopy({
+      targets: [
+        { src: '*.md', dest: '.' },
+        {
+          src: 'package.json',
+          dest: '.',
+          transform: (content) => {
+            const manifest = JSON.parse(content.toString());
+            manifest.exports['./index.css'] = './index.css';
+            return JSON.stringify(manifest, null, 2);
+          },
+        },
+      ],
+    }),
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
@@ -41,16 +55,20 @@ export default defineConfig(() => ({
         /^react\/jsx-runtime$/,
         /^@floating-ui/,
         /^@base-ui/,
-        'lucide-react',
-        'clsx',
+        'recharts',
+        '@axiomframework/react-core',
+        '@hugeicons/react',
+        '@hugeicons/core-free-icons',
         'class-variance-authority',
-        'tailwind-merge',
+        'cmdk',
+        'cn',
         'shadcn',
       ],
       output: {
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),
         assetFileNames: '[name].[ext]',
+        entryFileNames: (chunk) => `${chunk.name.replace(/[?&]/g, '_')}.js`,
       },
     },
   },

@@ -29,7 +29,7 @@ export class PasswordAuthFlow extends BaseAuthFlow {
     this.setToken(token);
   }
 
-  override redirectToLogin(navigator?: () => void, returnUrl?: string): void {
+  override redirectToLogin(navigator?: () => void): void {
     navigator?.();
   }
 }
