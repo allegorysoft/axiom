@@ -41,11 +41,11 @@ export const COLOR_THEME_CLASSES: readonly ColorThemeName[] = COLOR_THEME_OPTION
 );
 
 export const FONT_OPTIONS = [
-  { value: 'system', label: 'System' },
-  { value: 'geist', label: 'Geist' },
-  { value: 'manrope', label: 'Manrope' },
-  { value: 'noto-serif', label: 'Noto Serif' },
-  { value: 'jetbrains-mono', label: 'JetBrains Mono' },
+  { value: 'system', label: 'System', group: 'Sans Serif' },
+  { value: 'geist', label: 'Geist', group: 'Sans Serif' },
+  { value: 'manrope', label: 'Manrope', group: 'Sans Serif' },
+  { value: 'noto-serif', label: 'Noto Serif', group: 'Serif' },
+  { value: 'jetbrains-mono', label: 'JetBrains Mono', group: 'Monospace' },
 ];
 
 export const SEGMENTED_OPTIONS = {
