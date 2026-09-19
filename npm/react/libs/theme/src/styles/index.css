@@ -100,6 +100,8 @@
 :root[data-font='geist'] { --font-family: 'Geist'; }
 :root[data-font='system'] { --font-family: system-ui, sans-serif; }
 :root[data-font='manrope'] { --font-family: 'Manrope'; }
+:root[data-font='noto-serif'] { --font-family: 'Noto Serif'; }
+:root[data-font='jetbrains-mono'] { --font-family: 'JetBrains Mono'; }
 
 :root {
   --background: oklch(1 0 0);
