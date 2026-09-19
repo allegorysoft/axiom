@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
-import { Palette } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { PaletteIcon as Palette } from '@hugeicons/core-free-icons';
 
 import { useTranslation } from '@axiomframework/react-core';
 
@@ -38,11 +39,20 @@ import { PreferenceOption } from './preference-option';
 import { preferencesStore } from './preferences-store';
 import { usePreferences } from './use-preferences';
 
+const PALETTE_URLS = import.meta.glob<string>(
+  ['../../styles/*.css', '!../../styles/index.css'],
+  { eager: true, query: '?url&no-inline', import: 'default' },
+);
+
 const GOOGLE_FONTS: Partial<Record<string, string>> = {
   manrope:
     'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
   geist:
     'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap',
+  'noto-serif':
+    'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700;800&display=swap',
+  'jetbrains-mono':
+    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap',
 };
 
 export function PreferencesPopover() {
@@ -59,7 +69,26 @@ export function PreferencesPopover() {
     root.classList.remove(...others, preferences.themePreset);
 
     root.classList.add(preferences.themePreset);
-    document.documentElement.dataset.theme = preferences.themePreset;
+    root.dataset.theme = preferences.themePreset;
+
+    const href = PALETTE_URLS[`../../styles/${preferences.themePreset}.css`];
+    let link = document.head.querySelector<HTMLLinkElement>(
+      'link[data-theme-preset]',
+    );
+
+    if (!href) {
+      link?.remove();
+      return;
+    }
+
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+
+    link.dataset.themePreset = preferences.themePreset;
+    link.href = href;
   }, [preferences.themePreset]);
 
   useEffect(() => {
@@ -99,7 +128,7 @@ export function PreferencesPopover() {
             className="cursor-pointer"
             aria-label="Preferences"
           >
-            <Palette />
+            <HugeiconsIcon icon={Palette} strokeWidth={2} />
           </Button>
         }
       />
@@ -114,7 +143,7 @@ export function PreferencesPopover() {
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <Label>{t('AxiomTheme:ThemePreset')}</Label>
+            <Label>{t('AxiomTheme:ColorTheme')}</Label>
             <Select
               value={preferences.themePreset}
               onValueChange={(value) => {

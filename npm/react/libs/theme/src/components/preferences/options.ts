@@ -1,9 +1,10 @@
-import { CircleOff, type LucideIcon } from 'lucide-react';
+import { type IconSvgElement } from '@hugeicons/react';
+import { CircleOffIcon as CircleOff } from '@hugeicons/core-free-icons';
 
 export type Option<T = string> = {
   readonly value: T;
   readonly label: string;
-  readonly icon?: LucideIcon;
+  readonly icon?: IconSvgElement;
 };
 
 type ScaleOption<T = string> = Option<T> & {
@@ -19,8 +20,20 @@ export function getOption<T extends Option>(
 
 export const PRESET_OPTIONS = [
   { value: 'default', label: 'Default', color: '#000000' },
-  { value: 'neutral', label: 'Neutral', color: '#808080' },
-  { value: 'vibrant', label: 'Vibrant', color: '#FF0000' },
+  { value: 'axiom', label: 'Axiom', color: '#0096FC' },
+  { value: 'amber', label: 'Amber', color: '#f59e0b' },
+  { value: 'amethyst', label: 'Amethyst', color: '#8c5cff' },
+  { value: 'bubblegum', label: 'Bubblegum', color: '#c67b96' },
+  { value: 'caffeine', label: 'Caffeine', color: '#FCDFC2' },
+  { value: 'claude', label: 'Claude', color: '#D87657' },
+  { value: 'crimson', label: 'Crimson', color: '#D40C1A' },
+  { value: 'cyberpunk', label: 'Cyberpunk', color: '#ff00c8' },
+  { value: 'ghibli-studio', label: 'Ghibli Studio', color: '#8A906E' },
+  { value: 'nature', label: 'Nature', color: '#4dae50' },
+  { value: 'rose', label: 'Rose', color: '#d87bac' },
+  { value: 'soft-pop', label: 'Soft Pop', color: '#2dd4bf' },
+  { value: 'tangerine', label: 'Tangerine', color: '#e05d38' },
+  { value: 'wintry', label: 'Wintry', color: '#0265FD' },
 ] as const;
 
 export const PRESET_CLASSES: readonly PresetName[] = PRESET_OPTIONS.map(
@@ -31,6 +44,8 @@ export const FONT_OPTIONS = [
   { value: 'system', label: 'System' },
   { value: 'geist', label: 'Geist' },
   { value: 'manrope', label: 'Manrope' },
+  { value: 'noto-serif', label: 'Noto Serif' },
+  { value: 'jetbrains-mono', label: 'JetBrains Mono' },
 ];
 
 export const SEGMENTED_OPTIONS = {
