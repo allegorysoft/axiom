@@ -1,4 +1,5 @@
-import { Check, Languages as LanguagesIcon } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { CheckIcon as Check, LanguagesIcon } from '@hugeicons/core-free-icons';
 
 import { localizerStore, useLocalizer } from '@axiomframework/react-core';
 import {
@@ -28,7 +29,7 @@ export function Languages() {
       <DropdownMenuTrigger
         render={
           <Button variant="outline" size="icon" className="cursor-pointer">
-            <LanguagesIcon />
+            <HugeiconsIcon icon={LanguagesIcon} strokeWidth={2} />
           </Button>
         }
       />
@@ -37,7 +38,7 @@ export function Languages() {
         {languages.map(({ name: lang, label }) => (
           <DropdownMenuItem key={lang} onClick={() => handleSelect(lang)}>
             {label}
-            {lang === name && <Check />}
+            {lang === name && <HugeiconsIcon icon={Check} strokeWidth={2} />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

@@ -24,7 +24,8 @@
     "react-router": "catalog:"
   },
   "dependencies": {
-    "lucide-react": "catalog:",
+    "@hugeicons/react": "catalog:",
+    "@hugeicons/core-free-icons": "catalog:",
     "react-hook-form": "catalog:",
     "@hookform/resolvers": "catalog:",
     "zod": "catalog:"

@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ChevronDownIcon as ChevronDown } from '@hugeicons/core-free-icons';
 
 import { type NavGroup, useTranslation } from '@axiomframework/react-core';
 
@@ -43,7 +44,7 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
           className="uppercase text-muted-foreground/70 cursor-pointer hover:text-muted-foreground"
         >
           {t(group.title)}
-          <ChevronDown className="ml-auto transition-transform group-data-open/section:rotate-180" />
+          <HugeiconsIcon icon={ChevronDown} strokeWidth={2} className="ml-auto transition-transform group-data-open/section:rotate-180" />
         </SidebarGroupLabel>
 
         <CollapsibleContent>

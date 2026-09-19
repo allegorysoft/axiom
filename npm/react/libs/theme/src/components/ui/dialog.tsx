@@ -3,7 +3,8 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { cn } from "cn"
 
 import { Button } from "@axiomframework/react-theme/components/ui/button"
-import { XIcon } from "lucide-react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { XIcon } from "@hugeicons/core-free-icons"
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />
@@ -68,7 +69,7 @@ function DialogContent({
               />
             }
           >
-            <XIcon
+            <HugeiconsIcon icon={XIcon} strokeWidth={2}
             />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>

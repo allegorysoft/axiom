@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronsUpDownIcon, PlusIcon } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowUpDownIcon as ChevronsUpDownIcon, PlusIcon } from '@hugeicons/core-free-icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,7 +53,7 @@ export function TeamSwitcher({
               <span className="truncate font-medium">{activeTeam.name}</span>
               <span className="truncate text-xs">{activeTeam.plan}</span>
             </div>
-            <ChevronsUpDownIcon className="ml-auto" />
+            <HugeiconsIcon icon={ChevronsUpDownIcon} strokeWidth={2} className="ml-auto" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="min-w-56"
@@ -82,7 +83,7 @@ export function TeamSwitcher({
             <DropdownMenuGroup>
               <DropdownMenuItem className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
-                  <PlusIcon className="size-4" />
+                  <HugeiconsIcon icon={PlusIcon} strokeWidth={2} className="size-4" />
                 </div>
                 <div className="font-medium text-muted-foreground">
                   Add team

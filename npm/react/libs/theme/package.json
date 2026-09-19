@@ -37,7 +37,8 @@
   "dependencies": {
     "class-variance-authority": "~0.7.0",
     "cmdk": "catalog:",
-    "lucide-react": "catalog:",
+    "@hugeicons/react": "catalog:",
+    "@hugeicons/core-free-icons": "catalog:",
     "@base-ui/react": "catalog:",
     "shadcn": "catalog:",
     "cn": "catalog:",

@@ -1,14 +1,5 @@
-import {
-  LayoutDashboard,
-  Settings,
-  Shield,
-  Cog,
-  Server,
-  Palette,
-  List,
-  Building2,
-  Home,
-} from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { LayoutDashboardIcon as LayoutDashboard, SettingsIcon as Settings, ShieldIcon as Shield, CogIcon as Cog, ServerIcon as Server, PaletteIcon as Palette, ListIcon as List, Building02Icon as Building2, HomeIcon as Home } from '@hugeicons/core-free-icons';
 import { navStore } from '@axiomframework/react-core';
 
 const PRODUCT = 'Product Management';
@@ -19,7 +10,7 @@ export function provideNavItems() {
   navStore.add({
     title: 'AxiomBase:Home',
     url: '/',
-    icon: <Home />,
+    icon: <HugeiconsIcon icon={Home} strokeWidth={2} />,
   });
 
   navStore.addGroup(PRODUCT);
@@ -27,7 +18,7 @@ export function provideNavItems() {
     {
       title: 'Dashboard',
       url: '/product-management/dashboard',
-      icon: <LayoutDashboard />,
+      icon: <HugeiconsIcon icon={LayoutDashboard} strokeWidth={2} />,
     },
     PRODUCT,
   );
@@ -35,7 +26,7 @@ export function provideNavItems() {
     {
       title: 'Products',
       url: '/product-management',
-      icon: <List />,
+      icon: <HugeiconsIcon icon={List} strokeWidth={2} />,
     },
     PRODUCT,
   );
@@ -45,18 +36,18 @@ export function provideNavItems() {
     {
       title: 'Tenant Management',
       url: '/tenant-management',
-      icon: <Building2 />,
+      icon: <HugeiconsIcon icon={Building2} strokeWidth={2} />,
     },
     ADMIN,
   );
   navStore.add(
     {
       title: 'Setting Management',
-      icon: <Cog />,
+      icon: <HugeiconsIcon icon={Cog} strokeWidth={2} />,
       children: [
         { title: 'Settings', url: '/setting-management' },
-        { title: 'Profile', url: '/admin/settings/profile', icon: <Shield /> },
-        { title: 'System', icon: <Server />, url: '/admin/settings/system' },
+        { title: 'Profile', url: '/admin/settings/profile', icon: <HugeiconsIcon icon={Shield} strokeWidth={2} /> },
+        { title: 'System', icon: <HugeiconsIcon icon={Server} strokeWidth={2} />, url: '/admin/settings/system' },
       ],
     },
     ADMIN,
@@ -66,7 +57,7 @@ export function provideNavItems() {
   navStore.add(
     {
       title: 'Settings',
-      icon: <Settings />,
+      icon: <HugeiconsIcon icon={Settings} strokeWidth={2} />,
       children: [
         {
           title: 'Profile',
@@ -78,12 +69,12 @@ export function provideNavItems() {
         },
         {
           title: 'Preferences',
-          icon: <Palette />,
+          icon: <HugeiconsIcon icon={Palette} strokeWidth={2} />,
           children: [
             {
               title: 'Theme',
               url: '/user/settings/preferences/theme',
-              icon: <Palette />,
+              icon: <HugeiconsIcon icon={Palette} strokeWidth={2} />,
             },
           ],
         },

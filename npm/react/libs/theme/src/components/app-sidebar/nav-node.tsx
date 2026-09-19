@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronDown, CircleDot } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ChevronDownIcon as ChevronDown, CircleDotIcon as CircleDot } from '@hugeicons/core-free-icons';
 import { cn } from 'cn';
 
 import { useTranslation, type Nav } from '@axiomframework/react-core';
@@ -48,7 +49,7 @@ export function NavItemNode({ item, pathname, variant = 'main', parent = null }:
     ) : (
       <SidebarMenuItem>
         <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
-          {item.icon ?? <CircleDot />}
+          {item.icon ?? <HugeiconsIcon icon={CircleDot} strokeWidth={2} />}
           <span className="truncate">{t(item.title)}</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -73,7 +74,7 @@ export function NavItemNode({ item, pathname, variant = 'main', parent = null }:
         {!parent && item.icon}
         <span className="truncate cursor-pointer">{t(item.title)}</span>
 
-        <ChevronDown
+        <HugeiconsIcon icon={ChevronDown} strokeWidth={2}
           className={cn(
             'ml-auto transition-transform size-4 shrink-0 duration-200',
             open && 'rotate-180',

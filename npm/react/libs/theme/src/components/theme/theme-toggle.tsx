@@ -1,4 +1,5 @@
-import { Moon, Sun } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { MoonIcon as Moon, SunIcon as Sun } from '@hugeicons/core-free-icons';
 import { useTheme } from '@axiomframework/react-core';
 
 import { Button } from '../ui/button';
@@ -18,7 +19,7 @@ export function ThemeToggle() {
       className="cursor-pointer"
       onClick={toggleTheme}
     >
-      <ThemeIcon className="size-4" />
+      <HugeiconsIcon icon={ThemeIcon} strokeWidth={2} className="size-4" />
     </Button>
   );
 }

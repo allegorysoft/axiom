@@ -1,11 +1,12 @@
+import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  ChevronRight,
-  CircleGauge,
-  LogOut,
-  Palette,
-  Settings,
-  UserRound,
-} from 'lucide-react';
+  ChevronRightIcon as ChevronRight,
+  CircleGaugeIcon as CircleGauge,
+  LogOutIcon as LogOut,
+  PaletteIcon as Palette,
+  SettingsIcon as Settings,
+  UserRoundIcon as UserRound,
+} from '@hugeicons/core-free-icons';
 
 import {
   getAvatarFallbackText,
@@ -59,9 +60,13 @@ export function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
 
       {NAV_ITEMS.map((item) => (
         <DropdownMenuItem key={item.title} className="gap-2 px-2 py-2">
-          <item.icon />
+          <HugeiconsIcon icon={item.icon} strokeWidth={2} />
           <span>{item.title}</span>
-          <ChevronRight className="ml-auto" />
+          <HugeiconsIcon
+            icon={ChevronRight}
+            strokeWidth={2}
+            className="ml-auto"
+          />
         </DropdownMenuItem>
       ))}
 
@@ -70,15 +75,19 @@ export function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
         closeOnClick={false}
         onClick={onOpenTheme}
       >
-        <Palette />
+        <HugeiconsIcon icon={Palette} strokeWidth={2} />
         <span>{t('AxiomTheme:Theme')}</span>
-        <ChevronRight className="ml-auto" />
+        <HugeiconsIcon
+          icon={ChevronRight}
+          strokeWidth={2}
+          className="ml-auto"
+        />
       </DropdownMenuItem>
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
       <DropdownMenuItem variant="destructive" className="gap-2 px-2 py-2">
-        <LogOut />
+        <HugeiconsIcon icon={LogOut} strokeWidth={2} />
         {t('AxiomAccount:Logout')}
       </DropdownMenuItem>
     </>

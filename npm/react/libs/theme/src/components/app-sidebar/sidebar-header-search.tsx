@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { SearchIcon as Search } from '@hugeicons/core-free-icons';
 
 import { useNavGroups } from '@axiomframework/react-core';
 
@@ -64,7 +65,7 @@ export function SidebarHeaderSearch() {
         onClick={() => setSearchOpen(true)}
       >
         <InputGroupAddon>
-          <Search />
+          <HugeiconsIcon icon={Search} strokeWidth={2} />
         </InputGroupAddon>
         <InputGroupInput
           aria-label="Search pages"
@@ -105,7 +106,7 @@ export function SidebarHeaderSearch() {
                   key={page.title}
                   onSelect={() => navigate(page.url)}
                 >
-                  <Search />
+                  <HugeiconsIcon icon={Search} strokeWidth={2} />
                   {page.title}
                 </CommandItem>
               ))}

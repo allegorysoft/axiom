@@ -1,3 +1,4 @@
+import { HugeiconsIcon } from '@hugeicons/react';
 import { cn } from 'cn';
 
 import { Button } from '../ui/button';
@@ -37,7 +38,7 @@ export function PreferenceOption({
               onClick={() => onChange(option.value)}
             >
               {Icon ? (
-                <Icon className="size-4" />
+                <HugeiconsIcon icon={Icon} strokeWidth={2} className="size-4" />
               ) : (
                 <span className="truncate">{option.label}</span>
               )}

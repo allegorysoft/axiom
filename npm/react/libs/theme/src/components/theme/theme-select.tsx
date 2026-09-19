@@ -1,4 +1,5 @@
-import { ChevronLeft, Monitor, Moon, Sun } from 'lucide-react';
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+import { ChevronLeftIcon as ChevronLeft, MonitorIcon as Monitor, MoonIcon as Moon, SunIcon as Sun } from '@hugeicons/core-free-icons';
 
 import {
   type Theme,
@@ -16,7 +17,7 @@ import {
 
 const THEME_ICONS: Record<
   Theme,
-  React.ComponentType<{ className?: string }>
+  IconSvgElement
 > = {
   light: Sun,
   dark: Moon,
@@ -34,7 +35,7 @@ export function ThemeSelect({ onBack }: { onBack: () => void }) {
         onClick={onBack}
         aria-label="Back to user menu"
       >
-        <ChevronLeft />
+        <HugeiconsIcon icon={ChevronLeft} strokeWidth={2} />
         <span>{t('AxiomTheme:Theme')}</span>
       </DropdownMenuItem>
 
@@ -54,7 +55,7 @@ export function ThemeSelect({ onBack }: { onBack: () => void }) {
               className="gap-2 py-2"
               closeOnClick={false}
             >
-              <Icon />
+              <HugeiconsIcon icon={Icon} strokeWidth={2} />
               <span>{t(label)}</span>
             </DropdownMenuRadioItem>
           );

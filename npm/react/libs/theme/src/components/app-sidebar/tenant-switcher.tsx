@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronsUpDownIcon, PlusIcon } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowUpDownIcon as ChevronsUpDownIcon, PlusIcon } from '@hugeicons/core-free-icons';
 
 import {
   DropdownMenu,
@@ -76,7 +77,7 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
               <span className="truncate font-medium">{activeTenant.name}</span>
               <span className="truncate text-xs">{activeTenant.edition}</span>
             </div>
-            <ChevronsUpDownIcon className="ml-auto" />
+            <HugeiconsIcon icon={ChevronsUpDownIcon} strokeWidth={2} className="ml-auto" />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
@@ -128,7 +129,7 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
                   <CommandSeparator className="mx-1 my-1" />
                   <CommandGroup>
                     <CommandItem onSelect={() => setOpen(false)}>
-                      <PlusIcon />
+                      <HugeiconsIcon icon={PlusIcon} strokeWidth={2} />
                       Add Tenant
                     </CommandItem>
                   </CommandGroup>

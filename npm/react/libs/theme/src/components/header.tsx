@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { House } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { HouseIcon as House } from '@hugeicons/core-free-icons';
 
 import {
   Breadcrumb,
@@ -17,7 +18,7 @@ import { Languages } from './languages';
 import { ThemeToggle } from './theme/theme-toggle';
 import { PreferencesPopover } from './preferences/preferences-popover';
 import { usePreferences } from './preferences/use-preferences';
-import type { NavbarBehavior } from './preferences/preferences'; // adjust path
+import type { NavbarBehavior } from './preferences/options';
 
 const HEADER_CLASS_NAMES =
   'flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-3 md:px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60';
@@ -48,7 +49,7 @@ export function Header() {
         <BreadcrumbList>
           <BreadcrumbItem className="hidden md:block">
             <BreadcrumbLink href="/">
-              <House className="size-4" />
+              <HugeiconsIcon icon={House} strokeWidth={2} className="size-4" />
             </BreadcrumbLink>
           </BreadcrumbItem>
 
