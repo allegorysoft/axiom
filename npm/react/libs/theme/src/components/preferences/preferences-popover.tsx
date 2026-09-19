@@ -88,6 +88,7 @@ export function PreferencesPopover() {
   useEffect(() => {
     document.documentElement.dataset.radius = preferences.radius;
   }, [preferences.radius]);
+
   return (
     <Popover>
       <PopoverTrigger
@@ -112,8 +113,8 @@ export function PreferencesPopover() {
         </PopoverHeader>
 
         <div className="flex flex-col gap-3">
-          <Label className="flex-col items-stretch gap-1.5">
-            {t('AxiomTheme:ThemePreset')}
+          <div className="flex flex-col gap-1">
+            <Label>{t('AxiomTheme:ThemePreset')}</Label>
             <Select
               value={preferences.themePreset}
               onValueChange={(value) => {
@@ -152,10 +153,10 @@ export function PreferencesPopover() {
                 ))}
               </SelectContent>
             </Select>
-          </Label>
+          </div>
 
-          <Label className="flex-col items-stretch gap-1.5">
-            {t('AxiomTheme:Font')}
+          <div className="flex flex-col gap-1">
+            <Label>{t('AxiomTheme:Font')}</Label>
             <Select
               value={preferences.font}
               onValueChange={(value) => {
@@ -178,7 +179,7 @@ export function PreferencesPopover() {
                 ))}
               </SelectContent>
             </Select>
-          </Label>
+          </div>
 
           <PreferenceOption
             label={t('AxiomTheme:NavbarBehavior')}
