@@ -1,9 +1,13 @@
 import { CircleOff, type LucideIcon } from 'lucide-react';
 
-export type Option<T extends string = string> = {
+export type Option<T = string> = {
   readonly value: T;
   readonly label: string;
   readonly icon?: LucideIcon;
+};
+
+type ScaleOption<T = string> = Option<T> & {
+  readonly scale: number;
 };
 
 export function getOption<T extends Option>(
@@ -19,21 +23,15 @@ export const PRESET_OPTIONS = [
   { value: 'vibrant', label: 'Vibrant', color: '#FF0000' },
 ] as const;
 
-export type PresetOption = (typeof PRESET_OPTIONS)[number];
-export type PresetName = PresetOption['value'];
-
 export const PRESET_CLASSES: readonly PresetName[] = PRESET_OPTIONS.map(
   (preset) => preset.value,
 );
 
 export const FONT_OPTIONS = [
-  { value: 'geist', label: 'Geist' },
   { value: 'system', label: 'System' },
-  { value: 'inter', label: 'Inter' },
-] as const;
-
-export type FontOption = (typeof FONT_OPTIONS)[number];
-export type FontName = FontOption['value'];
+  { value: 'geist', label: 'Geist' },
+  { value: 'manrope', label: 'Manrope' },
+];
 
 export const SEGMENTED_OPTIONS = {
   navbar: [
@@ -46,35 +44,24 @@ export const SEGMENTED_OPTIONS = {
     { value: 'floating', label: 'Floating' },
   ],
   radius: [
-    { value: '0', label: 'None', icon: CircleOff },
-    { value: '0.375rem', label: 'SM' },
-    { value: '0.625rem', label: 'MD' },
-    { value: '1rem', label: 'LG' },
+    { value: 'none', label: 'None', icon: CircleOff },
+    { value: 'sm', label: 'SM' },
+    { value: 'md', label: 'MD' },
+    { value: 'lg', label: 'LG' },
   ],
   scale: [
     { value: 'sm', label: 'SM' },
     { value: 'md', label: 'MD' },
     { value: 'lg', label: 'LG' },
   ],
-} as const satisfies Record<string, readonly Option[]>;
+} satisfies Record<string, readonly Option[] | readonly ScaleOption[]>;
 
-export type SegmentedOptions = typeof SEGMENTED_OPTIONS;
+export type PresetName = (typeof PRESET_OPTIONS)[number]['value'];
+export type FontName = (typeof FONT_OPTIONS)[number]['value'];
+
+type SegmentedOptions = typeof SEGMENTED_OPTIONS;
 
 export type NavbarBehavior = SegmentedOptions['navbar'][number]['value'];
 export type SidebarVariants = SegmentedOptions['sidebar'][number]['value'];
 export type RadiusValue = SegmentedOptions['radius'][number]['value'];
 export type BaseSize = SegmentedOptions['scale'][number]['value'];
-
-export const SEGMENTED_FIELDS = [
-  {
-    key: 'navbarBehavior',
-    label: 'Navbar Behavior',
-    options: SEGMENTED_OPTIONS.navbar,
-  },
-  {
-    key: 'sidebarStyle',
-    label: 'Sidebar Style',
-    options: SEGMENTED_OPTIONS.sidebar,
-  },
-  { key: 'scale', label: 'Scale', options: SEGMENTED_OPTIONS.scale },
-] as const;

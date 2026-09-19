@@ -31,7 +31,7 @@ export function PreferenceOption({
               key={option.value}
               variant="ghost"
               className={cn(
-                'h-8 flex-1 rounded-sm border px-1 font-medium shadow-none',
+                'h-8 flex-1 rounded-sm border px-1 shadow-none',
                 isActive && 'bg-muted hover:bg-muted',
               )}
               onClick={() => onChange(option.value)}

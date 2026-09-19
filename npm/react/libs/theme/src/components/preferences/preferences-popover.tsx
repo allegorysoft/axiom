@@ -38,6 +38,13 @@ import { PreferenceOption } from './preference-option';
 import { preferencesStore } from './preferences-store';
 import { usePreferences } from './use-preferences';
 
+const GOOGLE_FONTS: Partial<Record<string, string>> = {
+  manrope:
+    'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
+  geist:
+    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap',
+};
+
 export function PreferencesPopover() {
   const t = useTranslation();
   const preferences = usePreferences((state) => state.preferences);
@@ -47,14 +54,40 @@ export function PreferencesPopover() {
 
   useLayoutEffect(() => {
     const root = document.documentElement;
-    root.classList.remove(...PRESET_CLASSES);
+    const others = PRESET_CLASSES.filter((c) => c !== preferences.themePreset);
+
+    root.classList.remove(...others, preferences.themePreset);
+
     root.classList.add(preferences.themePreset);
+    document.documentElement.dataset.theme = preferences.themePreset;
   }, [preferences.themePreset]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--radius', preferences.radius);
-  }, [preferences.radius]);
+    document.documentElement.dataset.font = preferences.font;
 
+    document.head
+      .querySelectorAll('link[data-font]')
+      .forEach((link) => link.remove());
+
+    const href = GOOGLE_FONTS[preferences.font];
+    if (!href) {
+      return;
+    }
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.dataset.font = preferences.font;
+    document.head.appendChild(link);
+  }, [preferences.font]);
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.scale = preferences.scale;
+  }, [preferences.scale]);
+
+  useEffect(() => {
+    document.documentElement.dataset.radius = preferences.radius;
+  }, [preferences.radius]);
   return (
     <Popover>
       <PopoverTrigger
@@ -79,7 +112,7 @@ export function PreferencesPopover() {
         </PopoverHeader>
 
         <div className="flex flex-col gap-3">
-          <Label className="flex-col items-stretch gap-1.5 text-xs font-semibold">
+          <Label className="flex-col items-stretch gap-1.5">
             {t('AxiomTheme:ThemePreset')}
             <Select
               value={preferences.themePreset}
@@ -91,7 +124,7 @@ export function PreferencesPopover() {
                 }
               }}
             >
-              <SelectTrigger className="w-full" size="sm">
+              <SelectTrigger className="w-full">
                 <SelectValue
                   render={() => (
                     <div className="flex items-center gap-2">
@@ -121,7 +154,7 @@ export function PreferencesPopover() {
             </Select>
           </Label>
 
-          <Label className="flex-col items-stretch gap-1.5 text-xs font-semibold">
+          <Label className="flex-col items-stretch gap-1.5">
             {t('AxiomTheme:Font')}
             <Select
               value={preferences.font}
@@ -133,9 +166,10 @@ export function PreferencesPopover() {
                 }
               }}
             >
-              <SelectTrigger className="w-full" size="sm">
+              <SelectTrigger className="w-full">
                 <SelectValue render={() => <span>{font?.label}</span>} />
               </SelectTrigger>
+
               <SelectContent>
                 {FONT_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>

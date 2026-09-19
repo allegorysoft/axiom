@@ -8,10 +8,10 @@ import type {
 
 export const defaultPreferences: Preferences = {
   themePreset: 'default',
-  font: 'geist',
+  font: 'system',
   navbarBehavior: 'sticky',
   sidebarStyle: 'floating',
-  radius: '0.625rem',
+  radius: 'md',
   scale: 'md',
 };
 
