@@ -31,7 +31,7 @@ catalog:
   cmdk: ^1.1
   '@base-ui/react': ~1.8.0
   '@hugeicons/react': ~1.1.10
-  '@hugeicons/core-free-icons': ~4.3.4
+  '@hugeicons/core-free-icons': 4.3.3
 
   vite: ^8
   vitest: ~4.1.0
@@ -51,6 +51,3 @@ catalog:
 
   typescript: ~6.0.0
   json-server: ~0.17.0
-
-minimumReleaseAgeExclude:
-  - '@hugeicons/core-free-icons@4.3.4'
