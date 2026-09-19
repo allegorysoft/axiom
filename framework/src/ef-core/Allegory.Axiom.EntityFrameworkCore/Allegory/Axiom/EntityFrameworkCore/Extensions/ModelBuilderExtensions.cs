@@ -6,9 +6,7 @@ using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
@@ -108,18 +106,11 @@ public static class ModelBuilderExtensions
 
         if (typeof(IExtraProperties).IsAssignableFrom(typeof(TEntity)))
         {
-            //TODO: We might optimize here
-            var comparer = new ValueComparer<IDictionary<string, object>>(
-                static (left, right) => ExtraPropertiesJsonSerializer.Instance.AreEqual(left, right),
-                static value => ExtraPropertiesJsonSerializer.Instance.GetHashCode(value),
-                static value => ExtraPropertiesJsonSerializer.Instance.Clone(value));
-
             entityBuilder
                 .Property<IDictionary<string, object>>(nameof(IExtraProperties.ExtraProperties))
                 .HasConversion(
-                    static v => ExtraPropertiesJsonSerializer.Instance.Serialize(v),
-                    static v => ExtraPropertiesJsonSerializer.Instance.Deserialize(v))
-                .Metadata.SetValueComparer(comparer);
+                    static v => ExtraPropertiesManager.Instance.Serialize(v),
+                    static v => ExtraPropertiesManager.Instance.Deserialize(v));
         }
     }
 
