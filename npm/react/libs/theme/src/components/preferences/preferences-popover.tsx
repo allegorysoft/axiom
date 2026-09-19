@@ -47,14 +47,39 @@ const PALETTE_URLS = import.meta.glob<string>(
 );
 
 const GOOGLE_FONTS: Partial<Record<string, string>> = {
+  // Sans Serif
+  figtree:
+    'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap',
+  geist:
+    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap',
+  inter:
+    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
   manrope:
     'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
-  geist:
-    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap',
+  montserrat:
+    'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap',
+  'plus-jakarta-sans':
+    'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
+  poppins:
+    'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
+
+  // Serif
+  aleo:
+    'https://fonts.googleapis.com/css2?family=Aleo:wght@400;500;600;700;800&display=swap',
   'noto-serif':
     'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700;800&display=swap',
+  playfair:
+    'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap',
+    
+  // Monospace
+  'ibm-plex-mono':
+    'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap',
   'jetbrains-mono':
     'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap',
+  'source-code-pro':
+    'https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700;800&display=swap',
+  'space-mono':
+    'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap',
 };
 
 export function PreferencesPopover() {
@@ -66,7 +91,9 @@ export function PreferencesPopover() {
 
   useLayoutEffect(() => {
     const root = document.documentElement;
-    const others = COLOR_THEME_CLASSES.filter((c) => c !== preferences.colorTheme);
+    const others = COLOR_THEME_CLASSES.filter(
+      (c) => c !== preferences.colorTheme,
+    );
 
     root.classList.remove(...others, preferences.colorTheme);
 
@@ -203,10 +230,14 @@ export function PreferencesPopover() {
               </SelectTrigger>
 
               <SelectContent>
-                {Array.from(new Set(FONT_OPTIONS.map((option) => option.group))).map((group) => (
+                {Array.from(
+                  new Set(FONT_OPTIONS.map((option) => option.group)),
+                ).map((group) => (
                   <SelectGroup key={group}>
                     <SelectLabel>{group}</SelectLabel>
-                    {FONT_OPTIONS.filter((option) => option.group === group).map((option) => (
+                    {FONT_OPTIONS.filter(
+                      (option) => option.group === group,
+                    ).map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>

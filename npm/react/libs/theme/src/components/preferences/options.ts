@@ -31,21 +31,36 @@ export const COLOR_THEME_OPTIONS = [
   { value: 'ghibli-studio', label: 'Ghibli Studio', color: '#8A906E' },
   { value: 'nature', label: 'Nature', color: '#4dae50' },
   { value: 'rose', label: 'Rose', color: '#d87bac' },
-  { value: 'soft-pop', label: 'Soft Pop', color: '#2dd4bf' },
+  { value: 'seafoam', label: 'Seafoam', color: '#0D8989' },
+  { value: 'soft-pop', label: 'Soft Pop', color: '#FFC716' },
   { value: 'tangerine', label: 'Tangerine', color: '#e05d38' },
   { value: 'wintry', label: 'Wintry', color: '#0265FD' },
 ] as const;
 
-export const COLOR_THEME_CLASSES: readonly ColorThemeName[] = COLOR_THEME_OPTIONS.map(
-  (colorTheme) => colorTheme.value,
-);
+export const COLOR_THEME_CLASSES: readonly ColorThemeName[] =
+  COLOR_THEME_OPTIONS.map((colorTheme) => colorTheme.value);
 
 export const FONT_OPTIONS = [
+  // Sans Serif
   { value: 'system', label: 'System', group: 'Sans Serif' },
+  { value: 'figtree', label: 'Figtree', group: 'Sans Serif' },
   { value: 'geist', label: 'Geist', group: 'Sans Serif' },
+  { value: 'inter', label: 'Inter', group: 'Sans Serif' },
   { value: 'manrope', label: 'Manrope', group: 'Sans Serif' },
+  { value: 'montserrat', label: 'Montserrat', group: 'Sans Serif' },
+  { value: 'plus-jakarta-sans', label: 'Plus Jakarta Sans', group: 'Sans Serif' },
+  { value: 'poppins', label: 'Poppins', group: 'Sans Serif' },
+
+  // Serif
+  { value: 'aleo', label: 'Aleo', group: 'Serif' },
   { value: 'noto-serif', label: 'Noto Serif', group: 'Serif' },
+  { value: 'playfair', label: 'Playfair', group: 'Serif' },
+
+  // Monospace
+  { value: 'ibm-plex-mono', label: 'IBM Plex Mono', group: 'Monospace' },
   { value: 'jetbrains-mono', label: 'JetBrains Mono', group: 'Monospace' },
+  { value: 'source-code-pro', label: 'Source Code Pro', group: 'Monospace' },
+  { value: 'space-mono', label: 'Space Mono', group: 'Monospace' },
 ];
 
 export const SEGMENTED_OPTIONS = {
