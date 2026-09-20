@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities.Auditing;
+using Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
 using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -14,22 +15,23 @@ public static class ModelBuilderExtensions
 {
     private const string TenancySideAnnotation = $"{nameof(TenancySideAnnotation)}";
 
-    private static readonly MethodInfo ConfigureMethod = typeof(ModelBuilderExtensions)
-        .GetMethod(nameof(ConfigureAxiom), BindingFlags.NonPublic | BindingFlags.Static)!;
+    private static readonly MethodInfo ConfigureEntityMethod = typeof(ModelBuilderExtensions)
+        .GetMethod(nameof(ConfigureEntity), BindingFlags.NonPublic | BindingFlags.Static)!;
 
     extension(ModelBuilder builder)
     {
         public void ConfigureAxiom(DbContext context, bool createIndexes = true)
         {
-            builder.HasAnnotation(
-                TenancySideAnnotation,
-                TenancySideAttribute.Find(context.GetType()) ?? TenancySide.Hybrid);
+            var contextType = context.GetType();
+
+            builder.SetTenancySide(contextType);
+            builder.ApplyContributors(contextType, context, createIndexes);
 
             var parameters = new object[] {builder, context, createIndexes};
 
             foreach (var entity in builder.Model.GetEntityTypes())
             {
-                var method = ConfigureMethod.MakeGenericMethod(entity.ClrType);
+                var method = ConfigureEntityMethod.MakeGenericMethod(entity.ClrType);
                 method.Invoke(null, parameters);
             }
         }
@@ -42,9 +44,58 @@ public static class ModelBuilderExtensions
 
             return (TenancySide) annotation.Value;
         }
+
+        private void SetTenancySide(Type contextType)
+        {
+            builder.HasAnnotation(
+                TenancySideAnnotation,
+                TenancySideAttribute.Find(contextType) ?? TenancySide.Hybrid);
+        }
+
+        private void ApplyContributors(Type contextType, DbContext context, bool createIndexes)
+        {
+            ApplyContributors(contextType, builder, context, createIndexes);
+
+            var contexts = ReplaceDbContextAttribute.Find(contextType);
+            if (contexts == null)
+            {
+                return;
+            }
+
+            foreach (var type in contexts)
+            {
+                ApplyContributors(type, builder, context, createIndexes);
+            }
+        }
     }
 
-    private static void ConfigureAxiom<TEntity>(
+    private static void ApplyContributors(
+        Type contextType,
+        ModelBuilder builder,
+        DbContext context,
+        bool createIndexes)
+    {
+        if (!typeof(IModelBuilderContributorProvider).IsAssignableFrom(contextType))
+        {
+            return;
+        }
+
+        if (contextType
+                .GetProperty(
+                    nameof(IModelBuilderContributorProvider.Contributors),
+                    BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)!
+                .GetValue(null) is not IList<IModelBuilderContributor> contributors)
+        {
+            return;
+        }
+
+        foreach (var contributor in contributors)
+        {
+            contributor.Contribute(builder, context, createIndexes);
+        }
+    }
+
+    private static void ConfigureEntity<TEntity>(
         ModelBuilder builder,
         DbContext context,
         bool createIndexes)
