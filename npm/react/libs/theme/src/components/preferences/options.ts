@@ -42,25 +42,100 @@ export const COLOR_THEME_CLASSES: readonly ColorThemeName[] =
 
 export const FONT_OPTIONS = [
   // Sans Serif
-  { value: 'system', label: 'System', group: 'Sans Serif' },
-  { value: 'figtree', label: 'Figtree', group: 'Sans Serif' },
-  { value: 'geist', label: 'Geist', group: 'Sans Serif' },
-  { value: 'inter', label: 'Inter', group: 'Sans Serif' },
-  { value: 'manrope', label: 'Manrope', group: 'Sans Serif' },
-  { value: 'montserrat', label: 'Montserrat', group: 'Sans Serif' },
-  { value: 'plus-jakarta-sans', label: 'Plus Jakarta Sans', group: 'Sans Serif' },
-  { value: 'poppins', label: 'Poppins', group: 'Sans Serif' },
+  {
+    value: 'system',
+    label: 'System',
+    group: 'Sans Serif',
+    url: '',
+  },
+  {
+    value: 'figtree',
+    label: 'Figtree',
+    group: 'Sans Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'geist',
+    label: 'Geist',
+    group: 'Sans Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'inter',
+    label: 'Inter',
+    group: 'Sans Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'manrope',
+    label: 'Manrope',
+    group: 'Sans Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'montserrat',
+    label: 'Montserrat',
+    group: 'Sans Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'plus-jakarta-sans',
+    label: 'Plus Jakarta Sans',
+    group: 'Sans Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'poppins',
+    label: 'Poppins',
+    group: 'Sans Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
+  },
 
   // Serif
-  { value: 'aleo', label: 'Aleo', group: 'Serif' },
-  { value: 'noto-serif', label: 'Noto Serif', group: 'Serif' },
-  { value: 'playfair', label: 'Playfair', group: 'Serif' },
+  {
+    value: 'aleo',
+    label: 'Aleo',
+    group: 'Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Aleo:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'noto-serif',
+    label: 'Noto Serif',
+    group: 'Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'playfair',
+    label: 'Playfair',
+    group: 'Serif',
+    url: 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap',
+  },
 
   // Monospace
-  { value: 'ibm-plex-mono', label: 'IBM Plex Mono', group: 'Monospace' },
-  { value: 'jetbrains-mono', label: 'JetBrains Mono', group: 'Monospace' },
-  { value: 'source-code-pro', label: 'Source Code Pro', group: 'Monospace' },
-  { value: 'space-mono', label: 'Space Mono', group: 'Monospace' },
+  {
+    value: 'ibm-plex-mono',
+    label: 'IBM Plex Mono',
+    group: 'Monospace',
+    url: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap',
+  },
+  {
+    value: 'jetbrains-mono',
+    label: 'JetBrains Mono',
+    group: 'Monospace',
+    url: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'source-code-pro',
+    label: 'Source Code Pro',
+    group: 'Monospace',
+    url: 'https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700;800&display=swap',
+  },
+  {
+    value: 'space-mono',
+    label: 'Space Mono',
+    group: 'Monospace',
+    url: 'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap',
+  },
 ];
 
 export const SEGMENTED_OPTIONS = {

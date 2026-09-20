@@ -41,6 +41,7 @@ import {
   type RadiusValue,
   type SidebarVariants,
 } from './options';
+import type { Preferences } from './preferences';
 import { PreferenceOption } from './preference-option';
 import { preferencesStore } from './preferences-store';
 import { usePreferences } from './use-preferences';
@@ -50,98 +51,10 @@ const PALETTE_URLS = import.meta.glob<string>(
   { eager: true, query: '?url&no-inline', import: 'default' },
 );
 
-const GOOGLE_FONTS: Partial<Record<string, string>> = {
-  // Sans Serif
-  figtree:
-    'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap',
-  geist:
-    'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap',
-  inter:
-    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
-  manrope:
-    'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
-  montserrat:
-    'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap',
-  'plus-jakarta-sans':
-    'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap',
-  poppins:
-    'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap',
-
-  // Serif
-  aleo: 'https://fonts.googleapis.com/css2?family=Aleo:wght@400;500;600;700;800&display=swap',
-  'noto-serif':
-    'https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700;800&display=swap',
-  playfair:
-    'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap',
-
-  // Monospace
-  'ibm-plex-mono':
-    'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap',
-  'jetbrains-mono':
-    'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap',
-  'source-code-pro':
-    'https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600;700;800&display=swap',
-  'space-mono':
-    'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap',
-};
-
 export function PreferencesPopover() {
   const t = useTranslation();
   const { theme, setTheme } = useTheme();
   const preferences = usePreferences((state) => state.preferences);
-
-  const colorTheme = getOption(COLOR_THEME_OPTIONS, preferences.colorTheme);
-  const font = getOption(FONT_OPTIONS, preferences.font);
-
-  useLayoutEffect(() => {
-    const root = document.documentElement;
-    const others = COLOR_THEME_CLASSES.filter(
-      (c) => c !== preferences.colorTheme,
-    );
-
-    root.classList.remove(...others, preferences.colorTheme);
-
-    root.classList.add(preferences.colorTheme);
-    root.dataset.colorTheme = preferences.colorTheme;
-
-    const href = PALETTE_URLS[`../../styles/${preferences.colorTheme}.css`];
-    let link = document.head.querySelector<HTMLLinkElement>(
-      'link[data-color-theme]',
-    );
-
-    if (!href) {
-      link?.remove();
-      return;
-    }
-
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-
-    link.dataset.colorTheme = preferences.colorTheme;
-    link.href = href;
-  }, [preferences.colorTheme]);
-
-  useEffect(() => {
-    document.documentElement.dataset.font = preferences.font;
-
-    document.head
-      .querySelectorAll('link[data-font]')
-      .forEach((link) => link.remove());
-
-    const href = GOOGLE_FONTS[preferences.font];
-    if (!href) {
-      return;
-    }
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    link.dataset.font = preferences.font;
-    document.head.appendChild(link);
-  }, [preferences.font]);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.scale = preferences.scale;
@@ -175,82 +88,9 @@ export function PreferencesPopover() {
         </PopoverHeader>
 
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <Label>{t('AxiomTheme:ColorTheme')}</Label>
-            <Select
-              value={preferences.colorTheme}
-              onValueChange={(value) => {
-                if (value) {
-                  preferencesStore.patchPreferences({
-                    colorTheme: value as ColorThemeName,
-                  });
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue
-                  render={() => (
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: colorTheme?.color }}
-                      />
-                      {colorTheme?.label}
-                    </div>
-                  )}
-                />
-              </SelectTrigger>
+          <ColorTheme preferences={preferences} />
 
-              <SelectContent>
-                {COLOR_THEME_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2 h-2 rounded-full"
-                        style={{ backgroundColor: option.color }}
-                      />
-                      {option.label}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <Label>{t('AxiomTheme:Font')}</Label>
-            <Select
-              value={preferences.font}
-              onValueChange={(value) => {
-                if (value) {
-                  preferencesStore.patchPreferences({
-                    font: value as FontName,
-                  });
-                }
-              }}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue render={() => <span>{font?.label}</span>} />
-              </SelectTrigger>
-
-              <SelectContent>
-                {Array.from(
-                  new Set(FONT_OPTIONS.map((option) => option.group)),
-                ).map((group) => (
-                  <SelectGroup key={group}>
-                    <SelectLabel>{group}</SelectLabel>
-                    {FONT_OPTIONS.filter(
-                      (option) => option.group === group,
-                    ).map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Font preferences={preferences} />
 
           <PreferenceOption
             label={t('AxiomTheme:Theme')}
@@ -314,4 +154,150 @@ export function PreferencesPopover() {
       </PopoverContent>
     </Popover>
   );
+}
+
+function ColorTheme({ preferences }: { preferences: Preferences }) {
+  const t = useTranslation();
+  const colorTheme = getOption(COLOR_THEME_OPTIONS, preferences.colorTheme);
+
+  useColorTheme(preferences.colorTheme);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Label>{t('AxiomTheme:ColorTheme')}</Label>
+      <Select
+        value={preferences.colorTheme}
+        onValueChange={(value) => {
+          if (value) {
+            preferencesStore.patchPreferences({
+              colorTheme: value as ColorThemeName,
+            });
+          }
+        }}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue
+            render={() => (
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: colorTheme?.color }}
+                />
+                {colorTheme?.label}
+              </div>
+            )}
+          />
+        </SelectTrigger>
+
+        <SelectContent>
+          {COLOR_THEME_OPTIONS.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: option.color }}
+                />
+                {option.label}
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function useColorTheme(colorTheme: ColorThemeName) {
+  useLayoutEffect(() => {
+    const root = document.documentElement;
+    const others = COLOR_THEME_CLASSES.filter((c) => c !== colorTheme);
+
+    root.classList.remove(...others, colorTheme);
+    root.classList.add(colorTheme);
+    root.dataset.colorTheme = colorTheme;
+
+    const href = PALETTE_URLS[`../../styles/${colorTheme}.css`];
+    let link = document.head.querySelector<HTMLLinkElement>(
+      'link[data-color-theme]',
+    );
+
+    if (!href) {
+      link?.remove();
+      return;
+    }
+
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+
+    link.dataset.colorTheme = colorTheme;
+    link.href = href;
+  }, [colorTheme]);
+}
+
+function Font({ preferences }: { preferences: Preferences }) {
+  const t = useTranslation();
+  const font = getOption(FONT_OPTIONS, preferences.font);
+
+  useFont(preferences.font);
+
+  return (
+    <div className="flex flex-col gap-1">
+      <Label>{t('AxiomTheme:Font')}</Label>
+      <Select
+        value={preferences.font}
+        onValueChange={(value) => {
+          if (value) {
+            preferencesStore.patchPreferences({
+              font: value as FontName,
+            });
+          }
+        }}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue render={() => <span>{font?.label}</span>} />
+        </SelectTrigger>
+
+        <SelectContent>
+          {Array.from(new Set(FONT_OPTIONS.map((option) => option.group))).map(
+            (group) => (
+              <SelectGroup key={group}>
+                <SelectLabel>{group}</SelectLabel>
+                {FONT_OPTIONS.filter((option) => option.group === group).map(
+                  (option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ),
+                )}
+              </SelectGroup>
+            ),
+          )}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function useFont(font: FontName) {
+  useEffect(() => {
+    document.documentElement.dataset.font = font;
+
+    document.head
+      .querySelectorAll('link[data-font]')
+      .forEach((link) => link.remove());
+
+    const href = FONT_OPTIONS.find((f) => f.value === font)?.url;
+    if (!href) {
+      return;
+    }
+
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.dataset.font = font;
+    document.head.appendChild(link);
+  }, [font]);
 }
