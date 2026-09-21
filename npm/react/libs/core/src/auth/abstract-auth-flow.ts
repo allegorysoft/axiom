@@ -1,5 +1,5 @@
-import type { OAuth } from '../models/oauth';
-import { type OAuthStorage, oAuthStorage } from '../storage/auth-storage';
+import type { OAuth } from './oauth';
+import { type OAuthStorage, oAuthStorage } from './auth-storage';
 
 export type AuthProvider = {
   get(): AbstractAuthFlow;
@@ -30,8 +30,5 @@ export abstract class AbstractAuthFlow {
   abstract initialize(): void | Promise<void>;
   abstract login(...args: unknown[]): Promise<void>;
   abstract logout(): Promise<void>;
-  abstract redirectToLogin(
-    navigator?: () => void,
-    returnUrl?: string,
-  ): void | Promise<void>;
+  abstract redirectToLogin(navigator?: () => void): void | Promise<void>;
 }

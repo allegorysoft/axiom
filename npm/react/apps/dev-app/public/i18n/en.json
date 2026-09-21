@@ -2,7 +2,23 @@
   "AxiomBase": {
     "Min": "Must be {length} or more characters (client)",
     "Max": "Must be {length} or less characters (client)",
-    "InvalidFormatPassword": "Must contain a lowercase letter, uppercase letter, number, and symbol."
+    "InvalidFormatPassword": "Must contain a lowercase letter, uppercase letter, number, and symbol.",
+    "Home": "Home"
+  },
+  "AxiomTheme": {
+    "Theme": "Theme",
+    "Light": "Light",
+    "Dark": "Dark",
+    "System": "System",
+    "Preferences": "Preferences",
+    "PreferencesDescription": "Customize your preferences",
+    "ColorTheme": "Color theme",
+    "Font": "Font",
+    "NavbarBehavior": "Navbar behavior",
+    "SidebarStyle": "Sidebar style",
+    "Scale": "Scale",
+    "Radius": "Radius",
+    "RestoreDefaults": "Restore defaults"
   },
   "AxiomAccount": {
     "SignIn": "Sign in (client)",

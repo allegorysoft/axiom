@@ -3,6 +3,7 @@ import {
   environmentStore,
   configureCore,
 } from '@axiomframework/react-core';
+import { configureShared } from '@axiomframework/react-shared';
 import { configureOAuth } from '@axiomframework/react-oauth';
 
 export async function loadEnvironment() {
@@ -14,6 +15,7 @@ export async function loadEnvironment() {
 }
 
 export function configureApplication() {
-  configureCore();
-  configureOAuth();
+  configureCore({localization:{remote:{skipProvider:true}}});
+  configureShared();
+  configureOAuth({skipDiscovery:true});
 }

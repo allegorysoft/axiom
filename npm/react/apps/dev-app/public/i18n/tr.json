@@ -2,7 +2,23 @@
   "AxiomBase": {
     "Min": "{length} veya daha uzun karakter olmalı (client)",
     "Max": "{length} veya daha kısa karakter olmalı (client)",
-    "InvalidFormatPassword": "Küçük harf, büyük harf, rakam, ve sembol içermelidir."
+    "InvalidFormatPassword": "Küçük harf, büyük harf, rakam, ve sembol içermelidir.",
+    "Home": "Ana sayfa"
+  },
+  "AxiomTheme": {
+    "Theme": "Tema",
+    "Light": "Açık",
+    "Dark": "Koyu",
+    "System": "Sistem",
+    "Preferences": "Tercihler",
+    "PreferencesDescription": "Tercihlerinizi özelleştirin",
+    "ColorTheme": "Renk teması",
+    "Font": "Yazı tipi",
+    "NavbarBehavior": "Gezinme çubuğu davranışı",
+    "SidebarStyle": "Yan menü stili",
+    "Scale": "Ölçek",
+    "Radius": "Köşe yuvarlaklığı",
+    "RestoreDefaults": "Varsayılanları geri yükle"
   },
   "AxiomAccount": {
     "SignIn": "Giriş yap (client)",

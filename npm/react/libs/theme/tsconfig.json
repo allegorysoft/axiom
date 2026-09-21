@@ -12,6 +12,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "paths": {
+      "@axiomframework/react-core": ["../core/src/index"],
       "@axiomframework/react-theme/*": ["./src/*"]
     }
   }

@@ -1,5 +1,6 @@
 import { useNavigate, useSearchParams } from 'react-router';
-import { MailIcon } from 'lucide-react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { MailIcon } from '@hugeicons/core-free-icons';
 
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -69,7 +70,7 @@ export function Component() {
 
             <InputGroup>
               <InputGroupAddon>
-                <MailIcon />
+                <HugeiconsIcon icon={MailIcon} strokeWidth={2} />
               </InputGroupAddon>
 
               <InputGroupInput
