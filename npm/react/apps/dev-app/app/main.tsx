@@ -1,6 +1,6 @@
 import './root.css';
 
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { initializeApplication } from '@axiomframework/react-core';
 
 import { configureApplication, loadEnvironment } from './config';
@@ -16,5 +16,5 @@ configureApplication();
 
 await initializeApplication();
 
-const root = ReactDOM.createRoot(container);
+const root = createRoot(container);
 root.render(<App />);
