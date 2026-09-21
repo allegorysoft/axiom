@@ -90,6 +90,9 @@ catalogs:
     react-router:
       specifier: ^8
       version: 8.3.1
+    recharts:
+      specifier: 3.8.0
+      version: 3.8.0
     shadcn:
       specifier: ~4.21.0
       version: 4.21.0
@@ -331,7 +334,7 @@ importers:
         specifier: 'catalog:'
         version: 19.3.0(react@19.3.0)
       recharts:
-        specifier: 3.8.0
+        specifier: 'catalog:'
         version: 3.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react-is@17.0.2)(react@19.3.0)(redux@5.0.1)
       shadcn:
         specifier: 'catalog:'
