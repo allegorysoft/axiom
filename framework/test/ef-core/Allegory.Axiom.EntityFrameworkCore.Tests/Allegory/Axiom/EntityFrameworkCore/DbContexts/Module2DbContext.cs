@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
+using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
+using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,9 +37,27 @@ public class Module2DbContextModelBuilderContributor : IModelBuilderContributor
     }
 }
 
-public class Module2Entity1 : Entity<int>, ITenantOwned
+public class Module2Entity1 : Entity<int>,
+    ICreationAudited, IModificationAudited, IDeletionAudited,
+    ITenantOwned,
+    IConcurrencyCheck,
+    IExtraProperties
 {
-    public Guid? TenantId { get; }
+    public DateTime CreatedAt { get; private set; }
+    public string? CreatedBy { get; private set; }
+
+    public DateTime? ModifiedAt { get; private set; }
+    public string? ModifiedBy { get; private set; }
+
+    public bool IsDeleted { get; private set; }
+    public DateTime? DeletedAt { get; private set; }
+    public string? DeletedBy { get; private set; }
+
+    public Guid? TenantId { get; private set; }
+
+    public uint Revision { get; set; }
+
+    public IDictionary<string, object> ExtraProperties { get; } = new Dictionary<string, object>();
 }
 
 public class Module2Entity2 : Entity<int>, ITenantOwned

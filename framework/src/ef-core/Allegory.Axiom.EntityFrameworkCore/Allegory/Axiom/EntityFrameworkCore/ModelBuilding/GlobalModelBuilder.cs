@@ -14,14 +14,13 @@ namespace Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
 public class GlobalModelBuilder
 {
     public static GlobalModelBuilder Instance { get; set; } = new();
+    public static IList<IModelBuilderContributor> Contributors { get; } = [];
 
     protected static readonly MethodInfo GetContributorProviderMethod = typeof(IModelBuilderContributorProvider)
         .GetProperty(nameof(IModelBuilderContributorProvider.Contributors))!
         .GetMethod!;
 
     protected GlobalModelBuilder() { }
-
-    public IList<IModelBuilderContributor> Contributors { get; } = [];
 
     public virtual void Build(ModelBuilder builder, DbContext context)
     {

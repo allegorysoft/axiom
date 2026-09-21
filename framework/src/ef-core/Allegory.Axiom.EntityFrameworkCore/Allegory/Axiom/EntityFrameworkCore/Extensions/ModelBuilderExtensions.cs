@@ -22,6 +22,7 @@ public static class ModelBuilderExtensions
     extension(ModelBuilder builder)
     {
         public bool ShouldCreateIndexes => builder.Model.ShouldCreateIndexes;
+
         public TenancySide TenancySide => builder.Model.TenancySide;
 
         public void ConfigureAxiom(DbContext context, bool createIndexes = true)
