@@ -1,4 +1,4 @@
-:root.soft-pop {
+[data-color-theme='soft-pop'] {
   --background: oklch(0.975 0.01 120);
   --foreground: oklch(0.19 0.01 285);
   --card: oklch(0.992 0.006 115);
@@ -33,7 +33,7 @@
   --sidebar-ring: oklch(0.7 0.11 278);
 }
 
-:root.soft-pop.dark {
+[data-color-theme='soft-pop'].dark {
   --background: oklch(0.17 0.018 255);
   --foreground: oklch(0.96 0.008 280);
   --card: oklch(0.225 0.022 255);

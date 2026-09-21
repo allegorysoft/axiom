@@ -1,4 +1,4 @@
-:root.rose {
+[data-color-theme='rose'] {
   --background: oklch(0.975 0.012 345);
   --foreground: oklch(0.24 0.025 335);
   --card: oklch(0.995 0.006 345);
@@ -32,7 +32,7 @@
   --sidebar-ring: oklch(0.7 0.2 350);
 }
 
-:root.rose.dark {
+[data-color-theme='rose'].dark {
   --background: oklch(0.22 0.025 330);
   --foreground: oklch(0.96 0.015 345);
   --card: oklch(0.275 0.035 332);

@@ -1,4 +1,4 @@
-:root.tangerine {
+[data-color-theme='tangerine'] {
   --background: oklch(0.978 0.01 68);
   --foreground: oklch(0.24 0.02 42);
   --card: oklch(0.995 0.005 65);
@@ -33,7 +33,7 @@
   --sidebar-ring: oklch(0.68 0.235 42);
 }
 
-:root.tangerine.dark {
+[data-color-theme='tangerine'].dark {
   --background: oklch(0.19 0.018 42);
   --foreground: oklch(0.96 0.012 65);
   --card: oklch(0.245 0.025 43);

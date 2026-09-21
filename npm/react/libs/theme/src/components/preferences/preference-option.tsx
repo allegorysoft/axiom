@@ -22,6 +22,7 @@ export function PreferenceOption({
   return (
     <fieldset className="flex flex-col gap-1.5">
       <Label className="w-full">{label}</Label>
+      
       <div className="flex w-full overflow-hidden rounded-md border border-input">
         {options.map((option) => {
           const isActive = value === option.value;

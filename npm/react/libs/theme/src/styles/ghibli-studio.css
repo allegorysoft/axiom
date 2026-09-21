@@ -1,4 +1,4 @@
-:root.ghibli-studio {
+[data-color-theme='ghibli-studio'] {
   --background: oklch(0.945 0.035 84);
   --foreground: oklch(0.28 0.045 72);
   --card: oklch(0.965 0.028 85);
@@ -32,7 +32,7 @@
   --sidebar-ring: oklch(0.62 0.11 112);
 }
 
-:root.ghibli-studio.dark {
+[data-color-theme='ghibli-studio'].dark {
   --background: oklch(0.2 0.01 48.35);
   --foreground: oklch(0.88 0.05 79.26);
   --card: oklch(0.25 0.01 56.14);

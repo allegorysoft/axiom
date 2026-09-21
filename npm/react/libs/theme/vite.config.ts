@@ -12,7 +12,21 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/libs/theme',
   plugins: [
     react(),
-    viteStaticCopy({ targets: [{ src: ['*.md', 'package.json'], dest: '.' }] }),
+    viteStaticCopy({
+      targets: [
+        { src: '*.md', dest: '.' },
+        {
+          src: 'package.json',
+          dest: '.',
+          transform: (content, fileName) => {
+            const manifest = JSON.parse(content.toString());
+            manifest.exports['./index.css'] = './index.css';
+            manifest.exports['./*.css'] = './*.css';
+            return JSON.stringify(manifest, null, 2);
+          },
+        },
+      ],
+    }),
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),

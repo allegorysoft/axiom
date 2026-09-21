@@ -1,4 +1,4 @@
-:root.nature {
+[data-color-theme='nature'] {
   --background: oklch(0.975 0.012 105);
   --foreground: oklch(0.22 0.035 145);
   --card: oklch(0.992 0.008 110);
@@ -33,7 +33,7 @@
   --sidebar-ring: oklch(0.56 0.17 145);
 }
 
-:root.nature.dark {
+[data-color-theme='nature'].dark {
   --background: oklch(0.16 0.022 150);
   --foreground: oklch(0.945 0.02 125);
   --card: oklch(0.215 0.032 148);

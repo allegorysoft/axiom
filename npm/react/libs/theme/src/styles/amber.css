@@ -1,4 +1,4 @@
-:root.amber {
+[data-color-theme='amber'] {
   --background: oklch(0.978 0.008 92);
   --foreground: oklch(0.24 0.015 265);
   --card: oklch(0.995 0.004 90);
@@ -33,7 +33,7 @@
   --sidebar-ring: oklch(0.75 0.18 78);
 }
 
-:root.amber.dark {
+[data-color-theme='amber'].dark {
   --background: oklch(0.19 0.008 264);
   --foreground: oklch(0.94 0.006 264);
   --card: oklch(0.235 0.01 264);

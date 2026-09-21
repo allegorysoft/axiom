@@ -1,4 +1,4 @@
-:root.bubblegum {
+[data-color-theme='bubblegum'] {
   --background: oklch(0.972 0.035 345);
   --foreground: oklch(0.24 0.045 330);
   --card: oklch(0.992 0.018 350);
@@ -33,7 +33,7 @@
   --sidebar-ring: oklch(0.7 0.23 350);
 }
 
-:root.bubblegum.dark {
+[data-color-theme='bubblegum'].dark {
   --background: oklch(0.175 0.045 325);
   --foreground: oklch(0.965 0.025 345);
   --card: oklch(0.23 0.055 325);

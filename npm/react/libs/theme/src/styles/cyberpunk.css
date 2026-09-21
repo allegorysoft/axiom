@@ -1,4 +1,4 @@
-:root.cyberpunk {
+[data-color-theme='cyberpunk'] {
   --background: oklch(0.9816 0.0017 247.839);
   --foreground: oklch(0.1649 0.0352 281.8285);
   --card: oklch(1 0 0);
@@ -32,7 +32,8 @@
   --sidebar-border: oklch(0.9205 0.0086 225.0878);
   --sidebar-ring: oklch(0.6726 0.2904 341.4084);
 }
-:root.cyberpunk.dark {
+
+[data-color-theme='cyberpunk'].dark {
   --background: oklch(0.1649 0.0352 281.8285);
   --foreground: oklch(0.9513 0.0074 260.7315);
   --card: oklch(0.2542 0.0611 281.1423);

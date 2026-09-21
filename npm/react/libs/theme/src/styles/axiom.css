@@ -1,4 +1,4 @@
-:root.axiom {
+[data-color-theme='axiom'] {
   --background: oklch(0.9825 0.0054 274.9671);
   --foreground: oklch(0.2081 0.0447 287.8433);
   --card: oklch(1 0 0);
@@ -33,7 +33,7 @@
   --sidebar-ring: oklch(0.5512 0.1781 254.445);
 }
 
-:root.axiom.dark {
+[data-color-theme='axiom'].dark {
   --background: oklch(0.1482 0.0257 286.7525);
   --foreground: oklch(0.9696 0.008 293.9115);
   --card: oklch(0.1837 0.042 285.8222);

@@ -207,13 +207,9 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
 type ColorThemeNoDefault = Exclude<ColorThemeName, 'default'>;
 function useColorTheme(preferences: Preferences) {
   useLayoutEffect(() => {
-    const root = document.documentElement;
     const colorTheme = preferences.colorTheme;
-    const others = COLOR_THEME_CLASSES.filter((c) => c !== colorTheme);
 
-    root.classList.remove(...others, colorTheme);
-    root.classList.add(colorTheme);
-    root.dataset.colorTheme = colorTheme;
+    document.documentElement.dataset.colorTheme = colorTheme;
 
     const href = COLOR_THEME_URLS[colorTheme as ColorThemeNoDefault];
     let link = document.head.querySelector<HTMLLinkElement>(

@@ -1,4 +1,4 @@
-:root.seafoam {
+[data-color-theme='seafoam'] {
   --background: oklch(0.975 0.014 198);
   --foreground: oklch(0.22 0.035 210);
   --card: oklch(0.992 0.008 195);
@@ -32,7 +32,7 @@
   --sidebar-ring: oklch(0.62 0.14 195);
 }
 
-:root.seafoam.dark {
+[data-color-theme='seafoam'].dark {
   --background: oklch(0.165 0.018 210);
   --foreground: oklch(0.955 0.012 205);
   --card: oklch(0.22 0.028 208);

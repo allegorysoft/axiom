@@ -1,4 +1,4 @@
-:root.claude {
+[data-color-theme='claude'] {
   --background: oklch(0.98 0.01 95.1);
   --foreground: oklch(0.34 0.03 95.72);
   --card: oklch(0.98 0.01 95.1);
@@ -32,7 +32,7 @@
   --sidebar-ring: oklch(0.77 0 0);
 }
 
-:root.claude.dark {
+[data-color-theme='claude'].dark {
   --background: oklch(0.27 0 106.64);
   --foreground: oklch(0.81 0.01 93.01);
   --card: oklch(0.24 0 67.71);

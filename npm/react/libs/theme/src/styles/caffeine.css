@@ -1,4 +1,4 @@
-:root.caffeine {
+[data-color-theme='caffeine'] {
   --background: oklch(0.9821 0 0);
   --foreground: oklch(0.2435 0 0);
   --card: oklch(0.9911 0 0);
@@ -33,7 +33,7 @@
   --sidebar-ring: oklch(0.7731 0 0);
 }
 
-:root.caffeine.dark {
+[data-color-theme='caffeine'].dark {
   --background: oklch(0.1776 0 0);
   --foreground: oklch(0.9491 0 0);
   --card: oklch(0.2134 0 0);
