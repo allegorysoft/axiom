@@ -8,25 +8,11 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig(() => ({
   root: import.meta.dirname,
-  base: './',
   resolve: { tsconfigPaths: true },
   cacheDir: '../../node_modules/.vite/libs/theme',
   plugins: [
     react(),
-    viteStaticCopy({
-      targets: [
-        { src: '*.md', dest: '.' },
-        {
-          src: 'package.json',
-          dest: '.',
-          transform: (content) => {
-            const manifest = JSON.parse(content.toString());
-            manifest.exports['./index.css'] = './index.css';
-            return JSON.stringify(manifest, null, 2);
-          },
-        },
-      ],
-    }),
+    viteStaticCopy({ targets: [{ src: ['*.md', 'package.json'], dest: '.' }] }),
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
@@ -68,7 +54,6 @@ export default defineConfig(() => ({
         preserveModules: true,
         preserveModulesRoot: path.join(import.meta.dirname, 'src'),
         assetFileNames: '[name].[ext]',
-        entryFileNames: (chunk) => `${chunk.name.replace(/[?&]/g, '_')}.js`,
       },
     },
   },

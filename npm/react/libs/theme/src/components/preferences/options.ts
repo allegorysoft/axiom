@@ -7,10 +7,6 @@ export type Option<T = string> = {
   readonly icon?: IconSvgElement;
 };
 
-type ScaleOption<T = string> = Option<T> & {
-  readonly scale: number;
-};
-
 export function getOption<T extends Option>(
   options: readonly T[],
   value: T['value'],
@@ -39,6 +35,24 @@ export const COLOR_THEME_OPTIONS = [
 
 export const COLOR_THEME_CLASSES: readonly ColorThemeName[] =
   COLOR_THEME_OPTIONS.map((colorTheme) => colorTheme.value);
+
+export const COLOR_THEME_URLS: Record<Exclude<ColorThemeName, 'default'>, string> = {
+  axiom:           new URL('../../styles/axiom.css?no-inline',         import.meta.url).href,
+  amber:           new URL('../../styles/amber.css?no-inline',         import.meta.url).href,
+  amethyst:        new URL('../../styles/amethyst.css?no-inline',      import.meta.url).href,
+  bubblegum:       new URL('../../styles/bubblegum.css?no-inline',     import.meta.url).href,
+  caffeine:        new URL('../../styles/caffeine.css?no-inline',      import.meta.url).href,
+  claude:          new URL('../../styles/claude.css?no-inline',        import.meta.url).href,
+  crimson:         new URL('../../styles/crimson.css?no-inline',       import.meta.url).href,
+  cyberpunk:       new URL('../../styles/cyberpunk.css?no-inline',     import.meta.url).href,
+  'ghibli-studio': new URL('../../styles/ghibli-studio.css?no-inline', import.meta.url).href,
+  nature:          new URL('../../styles/nature.css?no-inline',        import.meta.url).href,
+  rose:            new URL('../../styles/rose.css?no-inline',          import.meta.url).href,
+  seafoam:         new URL('../../styles/seafoam.css?no-inline',       import.meta.url).href,
+  'soft-pop':      new URL('../../styles/soft-pop.css?no-inline',      import.meta.url).href,
+  tangerine:       new URL('../../styles/tangerine.css?no-inline',     import.meta.url).href,
+  wintry:          new URL('../../styles/wintry.css?no-inline',        import.meta.url).href,
+};
 
 export const FONT_OPTIONS = [
   // Sans Serif
@@ -164,13 +178,12 @@ export const SEGMENTED_OPTIONS = {
     { value: 'md', label: 'MD' },
     { value: 'lg', label: 'LG' },
   ],
-} satisfies Record<string, readonly Option[] | readonly ScaleOption[]>;
+} satisfies Record<string, readonly Option[]>;
 
 export type ColorThemeName = (typeof COLOR_THEME_OPTIONS)[number]['value'];
 export type FontName = (typeof FONT_OPTIONS)[number]['value'];
 
 type SegmentedOptions = typeof SEGMENTED_OPTIONS;
-
 export type NavbarBehavior = SegmentedOptions['navbar'][number]['value'];
 export type SidebarVariants = SegmentedOptions['sidebar'][number]['value'];
 export type RadiusValue = SegmentedOptions['radius'][number]['value'];

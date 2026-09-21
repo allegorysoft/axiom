@@ -29,32 +29,31 @@ import {
 } from '../ui/popover';
 
 import {
-  FONT_OPTIONS,
-  COLOR_THEME_CLASSES,
-  COLOR_THEME_OPTIONS,
-  SEGMENTED_OPTIONS,
-  getOption,
-  type BaseSize,
+  type ColorThemeName,
   type FontName,
   type NavbarBehavior,
-  type ColorThemeName,
-  type RadiusValue,
   type SidebarVariants,
+  type BaseSize,
+  type RadiusValue,
+  COLOR_THEME_CLASSES,
+  COLOR_THEME_OPTIONS,
+  FONT_OPTIONS,
+  SEGMENTED_OPTIONS,
+  getOption,
+  COLOR_THEME_URLS,
 } from './options';
 import type { Preferences } from './preferences';
 import { PreferenceOption } from './preference-option';
 import { preferencesStore } from './preferences-store';
 import { usePreferences } from './use-preferences';
 
-const PALETTE_URLS = import.meta.glob<string>(
-  ['../../styles/*.css', '!../../styles/index.css'],
-  { eager: true, query: '?url&no-inline', import: 'default' },
-);
-
 export function PreferencesPopover() {
   const t = useTranslation();
   const { theme, setTheme } = useTheme();
   const preferences = usePreferences((state) => state.preferences);
+
+  useColorTheme(preferences);
+  useFont(preferences);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.scale = preferences.scale;
@@ -160,8 +159,6 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
   const t = useTranslation();
   const colorTheme = getOption(COLOR_THEME_OPTIONS, preferences.colorTheme);
 
-  useColorTheme(preferences.colorTheme);
-
   return (
     <div className="flex flex-col gap-1">
       <Label>{t('AxiomTheme:ColorTheme')}</Label>
@@ -207,16 +204,18 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
   );
 }
 
-function useColorTheme(colorTheme: ColorThemeName) {
+type ColorThemeNoDefault = Exclude<ColorThemeName, 'default'>;
+function useColorTheme(preferences: Preferences) {
   useLayoutEffect(() => {
     const root = document.documentElement;
+    const colorTheme = preferences.colorTheme;
     const others = COLOR_THEME_CLASSES.filter((c) => c !== colorTheme);
 
     root.classList.remove(...others, colorTheme);
     root.classList.add(colorTheme);
     root.dataset.colorTheme = colorTheme;
 
-    const href = PALETTE_URLS[`../../styles/${colorTheme}.css`];
+    const href = COLOR_THEME_URLS[colorTheme as ColorThemeNoDefault];
     let link = document.head.querySelector<HTMLLinkElement>(
       'link[data-color-theme]',
     );
@@ -232,16 +231,14 @@ function useColorTheme(colorTheme: ColorThemeName) {
       document.head.appendChild(link);
     }
 
-    link.dataset.colorTheme = colorTheme;
+    link.dataset.colorTheme = preferences.colorTheme;
     link.href = href;
-  }, [colorTheme]);
+  }, [preferences.colorTheme]);
 }
 
 function Font({ preferences }: { preferences: Preferences }) {
   const t = useTranslation();
   const font = getOption(FONT_OPTIONS, preferences.font);
-
-  useFont(preferences.font);
 
   return (
     <div className="flex flex-col gap-1">
@@ -281,15 +278,15 @@ function Font({ preferences }: { preferences: Preferences }) {
   );
 }
 
-function useFont(font: FontName) {
+function useFont(preferences: Preferences) {
   useEffect(() => {
-    document.documentElement.dataset.font = font;
+    document.documentElement.dataset.font = preferences.font;
 
     document.head
       .querySelectorAll('link[data-font]')
       .forEach((link) => link.remove());
 
-    const href = FONT_OPTIONS.find((f) => f.value === font)?.url;
+    const href = FONT_OPTIONS.find((f) => f.value === preferences.font)?.url;
     if (!href) {
       return;
     }
@@ -297,7 +294,7 @@ function useFont(font: FontName) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
-    link.dataset.font = font;
+    link.dataset.font = preferences.font;
     document.head.appendChild(link);
-  }, [font]);
+  }, [preferences.font]);
 }
