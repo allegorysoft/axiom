@@ -36,9 +36,9 @@ public class GlobalModelBuilderTests
         model.FindEntityType(typeof(Module1Entity1)).ShouldNotBeNull();
         model.FindEntityType(typeof(Module1Entity2)).ShouldNotBeNull();
         model.FindEntityType(typeof(Module2Entity1)).ShouldNotBeNull();
-        model.FindEntityType(typeof(Module1Entity2)).ShouldNotBeNull();
+        model.FindEntityType(typeof(Module2Entity2)).ShouldNotBeNull();
         model.FindEntityType(typeof(Module3Entity1)).ShouldNotBeNull();
-        model.FindEntityType(typeof(Module1Entity2)).ShouldNotBeNull();
+        model.FindEntityType(typeof(Module3Entity2)).ShouldNotBeNull();
     }
 
     [Fact]
