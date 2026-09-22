@@ -1,0 +1,5 @@
+[*.cs]
+# Applies only to the EF Core projects.
+# Disables folder-to-namespace matching so we can use flat namespaces instead of folder-based ones
+dotnet_style_namespace_match_folder = false
+resharper_check_namespace_highlighting = none

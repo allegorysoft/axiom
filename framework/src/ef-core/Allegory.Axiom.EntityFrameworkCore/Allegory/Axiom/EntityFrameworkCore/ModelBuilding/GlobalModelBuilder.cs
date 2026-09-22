@@ -9,7 +9,7 @@ using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class GlobalModelBuilder
 {

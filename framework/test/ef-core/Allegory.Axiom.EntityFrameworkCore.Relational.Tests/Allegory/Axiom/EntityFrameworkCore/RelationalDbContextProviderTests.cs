@@ -8,10 +8,7 @@ using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Org.BouncyCastle.Bcpg.OpenPgp;
 using Shouldly;
 using Xunit;
 

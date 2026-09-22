@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;

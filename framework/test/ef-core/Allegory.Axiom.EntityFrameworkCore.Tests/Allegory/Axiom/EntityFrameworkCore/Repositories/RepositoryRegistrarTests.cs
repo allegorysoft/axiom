@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Repositories;
-using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +9,7 @@ using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class RepositoryRegistrarTests : IntegrationTest
 {

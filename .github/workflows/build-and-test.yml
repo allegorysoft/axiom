@@ -39,5 +39,16 @@ jobs:
         shell: pwsh
 
       - name: Test
-        run: ./etc/scripts/test.ps1
+        run: ./etc/scripts/test.ps1 -Coverage
         shell: pwsh
+
+      - name: Code Coverage Report
+        uses: clearlyip/code-coverage-report-action@v7
+        if: always()
+        id: coverage
+        with:
+          filename: '${{ github.workspace }}/TestResults/coverage.cobertura.xml'
+          badge: true
+          # fail_on_negative_difference: true
+          # overall_coverage_fail_threshold: 70
+          artifact_download_workflow_names: 'build-and-test'

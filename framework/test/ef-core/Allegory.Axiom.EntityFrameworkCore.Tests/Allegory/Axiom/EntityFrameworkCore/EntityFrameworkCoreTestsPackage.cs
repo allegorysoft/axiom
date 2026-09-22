@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Allegory.Axiom.EntityFrameworkCore.DbContexts;
-using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Priority;
 using Microsoft.EntityFrameworkCore;

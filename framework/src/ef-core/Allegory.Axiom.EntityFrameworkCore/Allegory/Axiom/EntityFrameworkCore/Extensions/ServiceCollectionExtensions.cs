@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Allegory.Axiom.EntityFrameworkCore.Interceptors;
-using Allegory.Axiom.EntityFrameworkCore.Repositories;
-using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;

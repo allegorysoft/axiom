@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Allegory.Axiom.Domain;
 using Allegory.Axiom.Domain.Entities.Events;
 using Allegory.Axiom.Domain.Repositories;
-using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.EventBus.Local;
 using Allegory.Axiom.Exceptions;
@@ -21,7 +20,7 @@ using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Interceptors;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class AxiomSaveChangesInterceptorTests(
     AxiomSaveChangesInterceptorFixture fixture)

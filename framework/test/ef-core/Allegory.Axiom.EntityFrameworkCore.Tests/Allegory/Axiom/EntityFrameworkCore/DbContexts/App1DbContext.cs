@@ -1,10 +1,9 @@
 using System;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
-using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class App1DbContext : DbContext
 {

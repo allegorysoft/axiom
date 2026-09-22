@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public interface IModelBuilderContributor
 {

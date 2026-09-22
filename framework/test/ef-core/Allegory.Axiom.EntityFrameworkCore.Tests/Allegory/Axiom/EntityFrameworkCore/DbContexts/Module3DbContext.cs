@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using Allegory.Axiom.Domain.Entities;
-using Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class Module3DbContext : DbContext, IModelBuilderContributorProvider
 {
