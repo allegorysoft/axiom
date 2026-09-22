@@ -1,4 +1,3 @@
-using Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

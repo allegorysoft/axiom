@@ -7,7 +7,7 @@ using Allegory.Axiom.MultiTenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 internal class RepositoryRegistrar(
     Type dbContextType,

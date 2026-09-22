@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities.Auditing;
-using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EntityFrameworkCore.ModelBuilding;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class GlobalModelBuilderTests
 {

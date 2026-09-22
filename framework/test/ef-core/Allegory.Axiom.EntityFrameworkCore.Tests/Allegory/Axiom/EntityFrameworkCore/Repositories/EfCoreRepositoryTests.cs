@@ -8,7 +8,6 @@ using Allegory.Axiom.Domain;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.Domain.Repositories;
-using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -19,7 +18,7 @@ using Shouldly;
 using Testcontainers.PostgreSql;
 using Xunit;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class EfCoreRepositoryTests(EfCoreRepositoryFixture fixture) : IClassFixture<EfCoreRepositoryFixture>
 {

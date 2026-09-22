@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class EfCoreRepository<TDbContext, TEntity> : IRepository<TEntity>
     where TDbContext : DbContext

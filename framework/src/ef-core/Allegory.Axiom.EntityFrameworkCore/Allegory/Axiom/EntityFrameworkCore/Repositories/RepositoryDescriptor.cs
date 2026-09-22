@@ -5,7 +5,7 @@ using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.MultiTenancy;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Repositories;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 internal class RepositoryDescriptor
 {

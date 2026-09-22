@@ -3,14 +3,13 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Allegory.Axiom.Domain.Repositories;
-using Allegory.Axiom.EntityFrameworkCore.DbContexts;
 using Allegory.Axiom.Extensibility;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Extensibility;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class ExtraPropertiesTests(ExtraPropertiesFixture fixture) : IClassFixture<ExtraPropertiesFixture>
 {

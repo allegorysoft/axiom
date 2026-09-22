@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Allegory.Axiom.EntityFrameworkCore.Interceptors;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class AxiomSaveChangesInterceptor(
     IUnitOfWorkManager unitOfWorkManager,

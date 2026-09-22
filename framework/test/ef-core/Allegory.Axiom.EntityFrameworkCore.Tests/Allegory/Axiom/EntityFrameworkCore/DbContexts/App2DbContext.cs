@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 using Allegory.Axiom.Data;
 using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.Domain.Entities.Auditing;
-using Allegory.Axiom.EntityFrameworkCore.Repositories;
 using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
 
-namespace Allegory.Axiom.EntityFrameworkCore.DbContexts;
+namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class App2DbContext(DbContextOptions<App2DbContext> options) : DbContext(options)
 {
