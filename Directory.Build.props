@@ -16,7 +16,7 @@
 
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\axiom-logo.png"
-              Pack="true" Visible="false" PackagePath="\"/>
+            Pack="true" Visible="false" PackagePath="\"/>
     </ItemGroup>
 
     <ItemGroup Condition="$(MSBuildProjectName.Contains('AspNetCore'))">
@@ -33,11 +33,13 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' == 'true'">
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit.v3"/>
-        <PackageReference Include="xunit.runner.visualstudio"/>
         <PackageReference Include="Shouldly"/>
         <PackageReference Include="NSubstitute"/>
     </ItemGroup>
 
+    <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+        <OutputType>Exe</OutputType>
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    </PropertyGroup>
 </Project>

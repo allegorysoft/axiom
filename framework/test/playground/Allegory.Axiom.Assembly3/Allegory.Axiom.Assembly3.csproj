@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>$(DotnetVersion)</TargetFramework>
         <RootNamespace/>
+        <OutputType>Library</OutputType>
     </PropertyGroup>
 
     <ItemGroup>

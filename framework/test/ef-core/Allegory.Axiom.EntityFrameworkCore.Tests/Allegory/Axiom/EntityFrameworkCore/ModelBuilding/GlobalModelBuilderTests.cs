@@ -12,6 +12,11 @@ namespace Allegory.Axiom.EntityFrameworkCore;
 
 public class GlobalModelBuilderTests
 {
+    static GlobalModelBuilderTests()
+    {
+        GlobalModelBuilder.Contributors.Add(GlobalContributor1.Instance);
+    }
+
     // Apply contributors
 
     [Fact]
@@ -199,22 +204,15 @@ public class GlobalModelBuilderTests
     [Fact]
     public void ShouldApplyGlobalContributors()
     {
-        var contributor = new GlobalContributor1();
-        GlobalModelBuilder.Contributors.Add(contributor);
+        // The global contributor is added in the static constructor
+        // because the DbContext.Model is created only once for all `GlobalModelBuilderTests` methods.
 
-        try
-        {
-            var dbContext = new HybridDbContext();
-            var model = dbContext.Model;
+        var dbContext = new HybridDbContext();
+        var model = dbContext.Model;
 
-            var annotation = model.FindAnnotation(GlobalContributor1.Annotation);
-            annotation.ShouldNotBeNull();
-            annotation.Value.ShouldBe(true);
-        }
-        finally
-        {
-            GlobalModelBuilder.Contributors.Remove(contributor);
-        }
+        var annotation = model.FindAnnotation(GlobalContributor1.Annotation);
+        annotation.ShouldNotBeNull();
+        annotation.Value.ShouldBe(true);
     }
 }
 
@@ -277,6 +275,9 @@ file class HybridDbContextContributor : IModelBuilderContributor
 file class GlobalContributor1 : IModelBuilderContributor
 {
     public const string Annotation = nameof(GlobalContributor1);
+    public static GlobalContributor1 Instance { get; } = new();
+
+    private GlobalContributor1() { }
 
     public void Contribute(ModelBuilder modelBuilder, DbContext dbContext)
     {
