@@ -27,7 +27,7 @@ export function PreferenceOption({
     <fieldset className="flex flex-col gap-1.5">
       <Label className="w-full">{label}</Label>
 
-      <div className="flex w-full overflow-hidden rounded-md border border-input">
+      <div className="flex w-full overflow-hidden rounded-md border border-input p-0.5">
         {options.map((option) => {
           const isActive = value === option.value;
           const Icon = option.icon;
@@ -37,7 +37,7 @@ export function PreferenceOption({
               key={option.value}
               variant="ghost"
               className={cn(
-                'h-8 flex-1 rounded-sm border px-1 shadow-none',
+                'h-7 flex-1 rounded-sm border px-1 shadow-none',
                 isActive && 'bg-muted hover:bg-muted',
               )}
               onClick={() => onChange(option.value)}
