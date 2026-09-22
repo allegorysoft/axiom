@@ -52,10 +52,3 @@ jobs:
           # fail_on_negative_difference: true
           # overall_coverage_fail_threshold: 70
           artifact_download_workflow_names: 'build-and-test'
-
-      - name: Post Coverage Comment
-        uses: marocchino/sticky-pull-request-comment@v3
-        if: steps.coverage.outputs.file != '' && (success() || failure())
-        with:
-          recreate: true
-          path: code-coverage-results.md

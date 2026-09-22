@@ -1,14 +1,14 @@
 param(
     [Alias("c")]
     [string]$configuration = "Debug",
-    [switch]$Coverage,
-    [string]$CoverageOutput
+    [switch]$coverage,
+    [string]$coverageOutput
 )
 
 . "$PSScriptRoot/base.ps1"
 
-if (-not $CoverageOutput) {
-    $CoverageOutput = Join-Path $root "TestResults/coverage.cobertura.xml"
+if (-not $coverageOutput) {
+    $coverageOutput = Join-Path $root "TestResults/coverage.cobertura.xml"
 }
 
 foreach ($solution in $solutions) {
@@ -21,11 +21,11 @@ foreach ($solution in $solutions) {
         "--report-gh"
     )
 
-    if ($Coverage) {
+    if ($coverage) {
         $testArgs += @(
             "--coverage",
             "--coverage-output-format", "cobertura",
-            "--coverage-output", $CoverageOutput
+            "--coverage-output", $coverageOutput
         )
     }
 
