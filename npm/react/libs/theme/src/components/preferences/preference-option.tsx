@@ -1,6 +1,8 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import { cn } from 'cn';
 
+import { useTranslation } from '@axiomframework/react-core';
+
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 
@@ -19,10 +21,12 @@ export function PreferenceOption({
   value,
   onChange,
 }: PreferenceOptionProps) {
+  const t = useTranslation();
+
   return (
     <fieldset className="flex flex-col gap-1.5">
       <Label className="w-full">{label}</Label>
-      
+
       <div className="flex w-full overflow-hidden rounded-md border border-input">
         {options.map((option) => {
           const isActive = value === option.value;
@@ -41,7 +45,7 @@ export function PreferenceOption({
               {Icon ? (
                 <HugeiconsIcon icon={Icon} strokeWidth={2} className="size-4" />
               ) : (
-                <span className="truncate">{option.label}</span>
+                <span className="truncate">{t(option.label)}</span>
               )}
             </Button>
           );

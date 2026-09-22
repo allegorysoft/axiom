@@ -18,7 +18,7 @@ export default defineConfig(() => ({
         {
           src: 'package.json',
           dest: '.',
-          transform: (content, fileName) => {
+          transform: (content) => {
             const manifest = JSON.parse(content.toString());
             manifest.exports['./index.css'] = './index.css';
             manifest.exports['./*.css'] = './*.css';

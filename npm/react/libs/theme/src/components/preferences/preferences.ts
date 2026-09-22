@@ -1,20 +1,20 @@
-import { AxiomStore } from '@axiomframework/react-core';
+import type { AxiomStore } from '@axiomframework/react-core';
 import type {
-  BaseSize,
-  FontName,
+  ColorThemeVariants,
+  FontVariants,
   NavbarBehavior,
-  ColorThemeName,
-  RadiusValue,
   SidebarVariants,
+  BaseSize,
+  RadiusValue,
 } from './options';
 
 export interface Preferences {
-  colorTheme: ColorThemeName;
-  font: FontName;
+  colorTheme: ColorThemeVariants;
+  font: FontVariants;
   navbarBehavior: NavbarBehavior;
   sidebarStyle: SidebarVariants;
-  radius: RadiusValue;
   scale: BaseSize;
+  radius: RadiusValue;
 }
 
 export interface PreferencesState {

@@ -15,44 +15,24 @@ export function getOption<T extends Option>(
 }
 
 export const COLOR_THEME_OPTIONS = [
-  { value: 'default', label: 'Default', color: '#000000' },
-  { value: 'axiom', label: 'Axiom', color: '#0096FC' },
-  { value: 'amber', label: 'Amber', color: '#f59e0b' },
-  { value: 'amethyst', label: 'Amethyst', color: '#8c5cff' },
-  { value: 'bubblegum', label: 'Bubblegum', color: '#c67b96' },
-  { value: 'caffeine', label: 'Caffeine', color: '#FCDFC2' },
-  { value: 'claude', label: 'Claude', color: '#D87657' },
-  { value: 'crimson', label: 'Crimson', color: '#D40C1A' },
-  { value: 'cyberpunk', label: 'Cyberpunk', color: '#ff00c8' },
-  { value: 'ghibli-studio', label: 'Ghibli Studio', color: '#8A906E' },
-  { value: 'nature', label: 'Nature', color: '#4dae50' },
-  { value: 'rose', label: 'Rose', color: '#d87bac' },
-  { value: 'seafoam', label: 'Seafoam', color: '#0D8989' },
-  { value: 'soft-pop', label: 'Soft Pop', color: '#FFC716' },
-  { value: 'tangerine', label: 'Tangerine', color: '#e05d38' },
-  { value: 'wintry', label: 'Wintry', color: '#0265FD' },
+  { value: 'default',         label: 'Default',      color: '#000000', url: new URL('../../styles/default.css?no-inline',       import.meta.url).href },
+  { value: 'axiom',           label: 'Axiom',        color: '#0096FC', url: new URL('../../styles/axiom.css?no-inline',         import.meta.url).href },
+  { value: 'amber',           label: 'Amber',        color: '#f59e0b', url: new URL('../../styles/amber.css?no-inline',         import.meta.url).href },
+  { value: 'amethyst',        label: 'Amethyst',     color: '#8c5cff', url: new URL('../../styles/amethyst.css?no-inline',      import.meta.url).href },
+  { value: 'bubblegum',       label: 'Bubblegum',    color: '#c67b96', url: new URL('../../styles/bubblegum.css?no-inline',     import.meta.url).href },
+  { value: 'caffeine',        label: 'Caffeine',     color: '#FCDFC2', url: new URL('../../styles/caffeine.css?no-inline',      import.meta.url).href },
+  { value: 'claude',          label: 'Claude',       color: '#D87657', url: new URL('../../styles/claude.css?no-inline',        import.meta.url).href },
+  { value: 'crimson',         label: 'Crimson',      color: '#D40C1A', url: new URL('../../styles/crimson.css?no-inline',       import.meta.url).href },
+  { value: 'cyberpunk',       label: 'Cyberpunk',    color: '#ff00c8', url: new URL('../../styles/cyberpunk.css?no-inline',     import.meta.url).href },
+  { value: 'ghibli-studio',   label: 'Ghibli Studio',color: '#8A906E', url: new URL('../../styles/ghibli-studio.css?no-inline', import.meta.url).href },
+  { value: 'nature',          label: 'Nature',       color: '#4dae50', url: new URL('../../styles/nature.css?no-inline',        import.meta.url).href },
+  { value: 'rose',            label: 'Rose',         color: '#d87bac', url: new URL('../../styles/rose.css?no-inline',          import.meta.url).href },
+  { value: 'seafoam',         label: 'Seafoam',      color: '#0D8989', url: new URL('../../styles/seafoam.css?no-inline',       import.meta.url).href },
+  { value: 'soft-pop',        label: 'Soft Pop',     color: '#FFC716', url: new URL('../../styles/soft-pop.css?no-inline',      import.meta.url).href },
+  { value: 'tangerine',       label: 'Tangerine',    color: '#e05d38', url: new URL('../../styles/tangerine.css?no-inline',     import.meta.url).href },
+  { value: 'wintry',          label: 'Wintry',       color: '#0265FD', url: new URL('../../styles/wintry.css?no-inline',        import.meta.url).href },
 ] as const;
 
-export const COLOR_THEME_CLASSES: readonly ColorThemeName[] =
-  COLOR_THEME_OPTIONS.map((colorTheme) => colorTheme.value);
-
-export const COLOR_THEME_URLS: Record<Exclude<ColorThemeName, 'default'>, string> = {
-  axiom:           new URL('../../styles/axiom.css?no-inline',         import.meta.url).href,
-  amber:           new URL('../../styles/amber.css?no-inline',         import.meta.url).href,
-  amethyst:        new URL('../../styles/amethyst.css?no-inline',      import.meta.url).href,
-  bubblegum:       new URL('../../styles/bubblegum.css?no-inline',     import.meta.url).href,
-  caffeine:        new URL('../../styles/caffeine.css?no-inline',      import.meta.url).href,
-  claude:          new URL('../../styles/claude.css?no-inline',        import.meta.url).href,
-  crimson:         new URL('../../styles/crimson.css?no-inline',       import.meta.url).href,
-  cyberpunk:       new URL('../../styles/cyberpunk.css?no-inline',     import.meta.url).href,
-  'ghibli-studio': new URL('../../styles/ghibli-studio.css?no-inline', import.meta.url).href,
-  nature:          new URL('../../styles/nature.css?no-inline',        import.meta.url).href,
-  rose:            new URL('../../styles/rose.css?no-inline',          import.meta.url).href,
-  seafoam:         new URL('../../styles/seafoam.css?no-inline',       import.meta.url).href,
-  'soft-pop':      new URL('../../styles/soft-pop.css?no-inline',      import.meta.url).href,
-  tangerine:       new URL('../../styles/tangerine.css?no-inline',     import.meta.url).href,
-  wintry:          new URL('../../styles/wintry.css?no-inline',        import.meta.url).href,
-};
 
 export const FONT_OPTIONS = [
   // Sans Serif
@@ -60,7 +40,7 @@ export const FONT_OPTIONS = [
     value: 'system',
     label: 'System',
     group: 'Sans Serif',
-    url: '',
+    url: undefined,
   },
   {
     value: 'figtree',
@@ -154,9 +134,9 @@ export const FONT_OPTIONS = [
 
 export const SEGMENTED_OPTIONS = {
   theme: [
-    { value: 'system', label: 'System' },
-    { value: 'light', label: 'Light' },
-    { value: 'dark', label: 'Dark' },
+    { value: 'system', label: 'AxiomTheme:System' },
+    { value: 'light', label: 'AxiomTheme:Light' },
+    { value: 'dark', label: 'AxiomTheme:Dark' },
   ],
   navbar: [
     { value: 'sticky', label: 'Sticky' },
@@ -180,8 +160,8 @@ export const SEGMENTED_OPTIONS = {
   ],
 } satisfies Record<string, readonly Option[]>;
 
-export type ColorThemeName = (typeof COLOR_THEME_OPTIONS)[number]['value'];
-export type FontName = (typeof FONT_OPTIONS)[number]['value'];
+export type ColorThemeVariants = (typeof COLOR_THEME_OPTIONS)[number]['value'];
+export type FontVariants = (typeof FONT_OPTIONS)[number]['value'];
 
 type SegmentedOptions = typeof SEGMENTED_OPTIONS;
 export type NavbarBehavior = SegmentedOptions['navbar'][number]['value'];

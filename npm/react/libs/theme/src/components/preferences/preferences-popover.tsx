@@ -29,18 +29,16 @@ import {
 } from '../ui/popover';
 
 import {
-  type ColorThemeName,
-  type FontName,
+  type ColorThemeVariants,
+  type FontVariants,
   type NavbarBehavior,
   type SidebarVariants,
   type BaseSize,
   type RadiusValue,
-  COLOR_THEME_CLASSES,
   COLOR_THEME_OPTIONS,
   FONT_OPTIONS,
   SEGMENTED_OPTIONS,
   getOption,
-  COLOR_THEME_URLS,
 } from './options';
 import type { Preferences } from './preferences';
 import { PreferenceOption } from './preference-option';
@@ -167,7 +165,7 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
         onValueChange={(value) => {
           if (value) {
             preferencesStore.patchPreferences({
-              colorTheme: value as ColorThemeName,
+              colorTheme: value as ColorThemeVariants,
             });
           }
         }}
@@ -204,14 +202,13 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
   );
 }
 
-type ColorThemeNoDefault = Exclude<ColorThemeName, 'default'>;
 function useColorTheme(preferences: Preferences) {
   useLayoutEffect(() => {
     const colorTheme = preferences.colorTheme;
 
     document.documentElement.dataset.colorTheme = colorTheme;
 
-    const href = COLOR_THEME_URLS[colorTheme as ColorThemeNoDefault];
+    const href = COLOR_THEME_OPTIONS.find((f) => f.value === colorTheme)?.url;
     let link = document.head.querySelector<HTMLLinkElement>(
       'link[data-color-theme]',
     );
@@ -227,7 +224,7 @@ function useColorTheme(preferences: Preferences) {
       document.head.appendChild(link);
     }
 
-    link.dataset.colorTheme = preferences.colorTheme;
+    link.dataset.colorTheme = colorTheme;
     link.href = href;
   }, [preferences.colorTheme]);
 }
@@ -244,7 +241,7 @@ function Font({ preferences }: { preferences: Preferences }) {
         onValueChange={(value) => {
           if (value) {
             preferencesStore.patchPreferences({
-              font: value as FontName,
+              font: value as FontVariants,
             });
           }
         }}
