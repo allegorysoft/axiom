@@ -1,5 +1,5 @@
 import { HugeiconsIcon } from '@hugeicons/react';
-import { LayoutDashboardIcon as LayoutDashboard, SettingsIcon as Settings, ShieldIcon as Shield, CogIcon as Cog, ServerIcon as Server, PaletteIcon as Palette, ListIcon as List, Building02Icon as Building2, HomeIcon as Home } from '@hugeicons/core-free-icons';
+import { LayoutDashboardIcon as LayoutDashboard, SettingsIcon as Settings, ShieldIcon as Shield, CogIcon as Cog, ServerIcon as Server, PaletteIcon as Palette, ListIcon as List, Building02Icon as Building2, Home03Icon as Home } from '@hugeicons/core-free-icons';
 import { navStore } from '@axiomframework/react-core';
 
 const PRODUCT = 'Product Management';

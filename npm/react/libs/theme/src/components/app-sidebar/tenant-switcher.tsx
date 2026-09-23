@@ -2,7 +2,10 @@
 
 import * as React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowUpDownIcon as ChevronsUpDownIcon, PlusIcon } from '@hugeicons/core-free-icons';
+import {
+  UnfoldMoreIcon as ChevronsUpDownIcon,
+  PlusIcon,
+} from '@hugeicons/core-free-icons';
 
 import {
   DropdownMenu,
@@ -34,7 +37,8 @@ type Tenant = {
 };
 
 export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
-  const { isMobile } = useSidebar();
+  const { isMobile, state } = useSidebar();
+  const collapsedSidebar = !isMobile && state === 'collapsed';
   const [activeTenant, setActiveTenant] = React.useState(tenants[0]);
   const [tenantQuery, setTenantQuery] = React.useState('');
   const [open, setOpen] = React.useState(false);
@@ -65,19 +69,28 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
         <DropdownMenu open={open} onOpenChange={setOpen}>
           <DropdownMenuTrigger
             render={
-              <SidebarMenuButton
-                size="lg"
-                className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
-                tooltip={activeTenant.name}
-              />
+              collapsedSidebar ? (
+                <button
+                  type="button"
+                  aria-label={activeTenant.name}
+                  title={activeTenant.name}
+                  className="cursor-pointer rounded-full outline-none transition-transform active:scale-95"
+                />
+              ) : (
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-open:bg-sidebar-accent data-open:text-sidebar-accent-foreground"
+                  tooltip={activeTenant.name}
+                />
+              )
             }
           >
             <TenantAvatar tenant={activeTenant} />
-            <div className="grid flex-1 text-left text-sm leading-tight">
+            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
               <span className="truncate font-medium">{activeTenant.name}</span>
               <span className="truncate text-xs">{activeTenant.edition}</span>
             </div>
-            <HugeiconsIcon icon={ChevronsUpDownIcon} strokeWidth={2} className="ml-auto" />
+            <HugeiconsIcon icon={ChevronsUpDownIcon} strokeWidth={2} className="ml-auto group-data-[collapsible=icon]:hidden" />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
