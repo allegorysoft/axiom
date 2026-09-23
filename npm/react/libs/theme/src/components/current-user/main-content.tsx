@@ -1,9 +1,6 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  ChevronRightIcon as ChevronRight,
-  CircleGaugeIcon as CircleGauge,
   LogOutIcon as LogOut,
-  PaletteIcon as Palette,
   SettingsIcon as Settings,
   UserRoundIcon as UserRound,
 } from '@hugeicons/core-free-icons';
@@ -19,18 +16,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '../ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
-const USER = {
-  name: 'Masum ULU',
-  email: 'masumulu@allegorysoft.com',
-};
+import { useUserProfile } from './user-profile-store';
+
 const NAV_ITEMS = [
-  { title: 'Profile', icon: UserRound },
-  { title: 'Settings', icon: Settings },
-  { title: 'Usage', icon: CircleGauge },
+  { id: 'profile', title: 'Profile', icon: UserRound },
+  { id: 'settings', title: 'Settings', icon: Settings },
 ] as const;
-export function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
+export function MainContent({
+  onOpenSettings,
+}: {
+  onOpenSettings: (section: 'profile' | 'settings') => void;
+}) {
+  const user = useUserProfile((state) => state);
   const t = useTranslation();
 
   return (
@@ -39,17 +38,18 @@ export function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
         <DropdownMenuLabel className="px-2 py-2">
           <div className="flex items-center gap-3 py-1">
             <Avatar className="size-8">
+              <AvatarImage src={user.photo || undefined} alt={user.name} />
               <AvatarFallback>
-                {getAvatarFallbackText(USER.name)}
+                {getAvatarFallbackText(user.name)}
               </AvatarFallback>
             </Avatar>
 
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold leading-tight text-foreground">
-                {USER.name}
+                {user.name}
               </p>
               <p className="mt-1 truncate text-xs font-normal text-muted-foreground">
-                {USER.email}
+                {user.email}
               </p>
             </div>
           </div>
@@ -59,30 +59,15 @@ export function MainContent({ onOpenTheme }: { onOpenTheme: () => void }) {
       <DropdownMenuSeparator className="mx-1 my-1" />
 
       {NAV_ITEMS.map((item) => (
-        <DropdownMenuItem key={item.title} className="gap-2 px-2 py-2">
+        <DropdownMenuItem
+          key={item.title}
+          className="gap-2 px-2 py-2"
+          onClick={() => onOpenSettings(item.id)}
+        >
           <HugeiconsIcon icon={item.icon} strokeWidth={2} />
           <span>{item.title}</span>
-          <HugeiconsIcon
-            icon={ChevronRight}
-            strokeWidth={2}
-            className="ml-auto"
-          />
         </DropdownMenuItem>
       ))}
-
-      <DropdownMenuItem
-        className="gap-2 px-2 py-2"
-        closeOnClick={false}
-        onClick={onOpenTheme}
-      >
-        <HugeiconsIcon icon={Palette} strokeWidth={2} />
-        <span>{t('AxiomTheme:Theme')}</span>
-        <HugeiconsIcon
-          icon={ChevronRight}
-          strokeWidth={2}
-          className="ml-auto"
-        />
-      </DropdownMenuItem>
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
