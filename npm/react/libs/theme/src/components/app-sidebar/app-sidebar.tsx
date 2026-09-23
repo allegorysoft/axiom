@@ -9,9 +9,11 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
+  SidebarFooter,
 } from '../ui/sidebar';
 
 import { usePreferences } from '../preferences/use-preferences';
+import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
 import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
@@ -71,6 +73,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           />
         ))}
       </SidebarContent>
+
+      {preferences.userMenuPosition === 'sidebar' && (
+        <SidebarFooter>
+          <SidebarMenu>
+            <CurrentUserDropdown placement="sidebar" />
+          </SidebarMenu>
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }

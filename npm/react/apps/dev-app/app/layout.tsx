@@ -5,6 +5,7 @@ import {
   Header,
   SidebarInset,
   SidebarProvider,
+  UserMenuProvider,
 } from '@axiomframework/react-theme/components';
 
 export default function Layout() {
@@ -12,14 +13,16 @@ export default function Layout() {
 
   return (
     <SidebarProvider defaultOpen={state ?? true}>
-      <AppSidebar />
-      <SidebarInset>
-        <Header />
+      <UserMenuProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <Header />
 
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-1">
-          <Outlet />
-        </div>
-      </SidebarInset>
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-1">
+            <Outlet />
+          </div>
+        </SidebarInset>
+      </UserMenuProvider>
     </SidebarProvider>
   );
 }
