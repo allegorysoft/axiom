@@ -8,7 +8,7 @@ import type {
 
 export const defaultPreferences: Preferences = {
   colorTheme: 'default',
-  font: 'manrope',
+  font: 'system',
   navbarBehavior: 'sticky',
   sidebarStyle: 'floating',
   userMenuPosition: 'navbar',
