@@ -34,7 +34,7 @@ export function Languages() {
         }
       />
 
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent className="pace-y-1 p-2" align="end">
         {languages.map(({ name: lang, label }) => (
           <DropdownMenuItem key={lang} onClick={() => handleSelect(lang)}>
             {label}

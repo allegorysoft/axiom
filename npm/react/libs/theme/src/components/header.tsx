@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { HouseIcon as House } from '@hugeicons/core-free-icons';
+import { Home03Icon as House } from '@hugeicons/core-free-icons';
 
 import {
   Breadcrumb,
@@ -30,6 +30,9 @@ const NAVBAR_BEHAVIOR_CLASS_NAMES: Record<NavbarBehavior, string> = {
 
 export function Header() {
   const label = useDecodedHash();
+  const userMenuPosition = usePreferences(
+    (state) => state.preferences.userMenuPosition ?? 'navbar',
+  );
   const navbarBehavior = usePreferences(
     (state) => state.preferences.navbarBehavior,
   );
@@ -68,7 +71,7 @@ export function Header() {
         <PreferencesPopover />
         <ThemeToggle />
         <Languages />
-        <CurrentUserDropdown />
+        {userMenuPosition === 'navbar' && <CurrentUserDropdown />}
       </div>
     </header>
   );

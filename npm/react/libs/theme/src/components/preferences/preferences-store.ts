@@ -11,6 +11,7 @@ export const defaultPreferences: Preferences = {
   font: 'manrope',
   navbarBehavior: 'sticky',
   sidebarStyle: 'floating',
+  userMenuPosition: 'navbar',
   radius: 'md',
   scale: 'md',
 };
