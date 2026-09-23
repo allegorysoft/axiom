@@ -37,7 +37,12 @@ public class RelationalDbContextProvider<TContext>(
 
         if (!string.IsNullOrWhiteSpace(connectionString))
         {
-            dbContext.Database.SetConnectionString(connectionString);    
+            dbContext.Database.SetConnectionString(connectionString);
+        }
+
+        if (unitOfWork.Options.Timeout.HasValue)
+        {
+            dbContext.Database.SetCommandTimeout(unitOfWork.Options.Timeout.Value);
         }
 
         dbHandle = await CreateHandleAsync(unitOfWork, dbContext, cancellationToken);

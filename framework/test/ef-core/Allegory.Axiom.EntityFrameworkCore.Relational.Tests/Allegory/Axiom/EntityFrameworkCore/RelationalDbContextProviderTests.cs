@@ -8,6 +8,7 @@ using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Hosting;
 using Shouldly;
 using Xunit;
@@ -142,7 +143,7 @@ public class RelationalDbContextProviderTests(
         });
     }
 
-    // Transaction behavior
+    // UnitOfWork options
 
     [Fact]
     public async Task ShouldNotOpenTransactionEagerlyWhenTransactionBehaviorIsDefault()
@@ -199,8 +200,22 @@ public class RelationalDbContextProviderTests(
                 // IsolationLevel forces BeginTransactionAsync eagerly inside CreateHandleAsync,
                 // unlike the default lazy path, so the transaction should already be open.
                 context.Database.CurrentTransaction.ShouldNotBeNull();
+                context.Database.CurrentTransaction.GetDbTransaction()
+                    .IsolationLevel.ShouldBe(System.Data.IsolationLevel.Serializable);
             },
-            options: new UnitOfWorkOptions(isolationLevel: System.Data.IsolationLevel.ReadCommitted));
+            options: new UnitOfWorkOptions(isolationLevel: System.Data.IsolationLevel.Serializable));
+    }
+
+    [Fact]
+    public async Task ShouldSetCommandTimeoutWhenTimeoutSpecified()
+    {
+        await fixture.RunInUnitOfWorkAsync(
+            async _ =>
+            {
+                var context = await Provider.GetAsync();
+                context.Database.GetCommandTimeout().ShouldBe(30);
+            },
+            options: new UnitOfWorkOptions(timeout: TimeSpan.FromSeconds(30)));
     }
 }
 
