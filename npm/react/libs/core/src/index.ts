@@ -8,6 +8,7 @@ export * from './localization/index';
 export * from './models/index';
 export * from './menu/index';
 export * from './nav/index';
+export * from './tab/index';
 export * from './storage/index';
 export * from './store/index';
 export * from './theme/index';

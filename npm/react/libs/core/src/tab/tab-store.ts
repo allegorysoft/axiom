@@ -1,26 +1,27 @@
 import { createStore } from '../store/axiom-store';
 import { DEFAULT_MENU_GROUP } from '../menu/menu';
 import { edit, find, findGroup } from '../menu/menu-utils';
-import type { Nav, NavGroup, NavPatch, NavState, NavStore } from './nav';
+import type { Tab, TabGroup, TabPatch, TabState, TabStore } from './tab';
 
-const initialState: NavState = {
+const initialState: TabState = {
   groups: [{ title: DEFAULT_MENU_GROUP, isActive: false, children: [] }],
 };
 
-const baseStore = createStore<NavState>(initialState);
+const baseStore = createStore<TabState>(initialState);
 
-export const navStore: NavStore = Object.assign({}, baseStore, {
-  getGroup(title = DEFAULT_MENU_GROUP): NavGroup | undefined {
+export const tabStore: TabStore = Object.assign({}, baseStore, {
+  getGroup(title = DEFAULT_MENU_GROUP): TabGroup | undefined {
     return findGroup(baseStore.get().groups, title);
   },
-  addGroup(title: string): NavGroup {
+
+  addGroup(title: string): TabGroup {
     const existing = findGroup(baseStore.get().groups, title);
 
     if (existing) {
       return existing;
     }
 
-    const group: NavGroup = { title, isActive: false, children: [] };
+    const group: TabGroup = { title, isActive: false, children: [] };
 
     baseStore.set((prev) => ({
       groups: [...prev.groups, group],
@@ -28,6 +29,7 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
 
     return group;
   },
+
   removeGroup(title: string): void {
     baseStore.set((prev) => {
       const groups = prev.groups.filter((group) => group.title !== title);
@@ -36,10 +38,11 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
     });
   },
 
-  find(title: string, group = DEFAULT_MENU_GROUP): Nav | undefined {
+  find(title: string, group = DEFAULT_MENU_GROUP): Tab | undefined {
     return find(getGroup(group)?.children ?? [], title);
   },
-  add(item: Nav, group = DEFAULT_MENU_GROUP, parentTitle?: string): void {
+
+  add(item: Tab, group = DEFAULT_MENU_GROUP, parentTitle?: string): void {
     baseStore.set((prev) => {
       const target = findGroup(prev.groups, group);
 
@@ -67,22 +70,25 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
 
       if (children === target.children) {
         throw new Error(
-          `navStore.add: parent "${parentTitle}" not found in group "${group}"`,
+          `tabStore.add: parent "${parentTitle}" not found in group "${group}"`,
         );
       }
 
       return updateGroup(prev, target, children);
     });
   },
+
   remove(title: string, group = DEFAULT_MENU_GROUP): void {
     updateNode(group, title, () => undefined);
   },
-  update(title: string, patch: NavPatch, group = DEFAULT_MENU_GROUP): void {
+
+  update(title: string, patch: TabPatch, group = DEFAULT_MENU_GROUP): void {
     updateNode(group, title, (node) => ({
       ...node,
       ...(typeof patch === 'function' ? patch(node) : patch),
     }));
   },
+
   toggle(title: string, group = DEFAULT_MENU_GROUP): void {
     updateNode(group, title, (node) => ({
       ...node,
@@ -91,15 +97,15 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
   },
 });
 
-function getGroup(title: string): NavGroup | undefined {
+function getGroup(title: string): TabGroup | undefined {
   return findGroup(baseStore.get().groups, title);
 }
 
 function updateGroup(
-  state: NavState,
-  group: NavGroup,
-  children: Nav[],
-): NavState {
+  state: TabState,
+  group: TabGroup,
+  children: Tab[],
+): TabState {
   return {
     groups: state.groups.map((item) =>
       item === group ? { ...item, children } : item,
@@ -110,7 +116,7 @@ function updateGroup(
 function updateNode(
   group: string,
   title: string,
-  update: (node: Nav) => Nav | undefined,
+  update: (node: Tab) => Tab | undefined,
 ): void {
   baseStore.set((prev) => {
     const target = findGroup(prev.groups, group);
