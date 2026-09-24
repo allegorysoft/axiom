@@ -33,48 +33,67 @@ public class RelationalDbContextProvider<TContext>(
             return dbHandle.GetDatabase<TContext>();
         }
 
-        var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
-
-        if (!string.IsNullOrWhiteSpace(connectionString))
-        {
-            dbContext.Database.SetConnectionString(connectionString);    
-        }
-
-        dbHandle = await CreateHandleAsync(unitOfWork, dbContext, cancellationToken);
-        unitOfWork.AddDatabase(key, dbHandle);
+        var dbContext = await CreateDbContextAsync(unitOfWork, connectionString, cancellationToken);
+        await AddDatabaseHandleAsync(unitOfWork, key, dbContext, cancellationToken);
 
         return dbContext;
     }
 
-    protected virtual async ValueTask<UnitOfWorkDatabaseHandle> CreateHandleAsync(
+    protected virtual async ValueTask<TContext> CreateDbContextAsync(
         IUnitOfWork unitOfWork,
+        string? connectionString,
+        CancellationToken cancellationToken = default)
+    {
+        var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            dbContext.Database.SetConnectionString(connectionString);
+        }
+
+        if (unitOfWork.Options.Timeout.HasValue)
+        {
+            dbContext.Database.SetCommandTimeout(unitOfWork.Options.Timeout.Value);
+        }
+
+        return dbContext;
+    }
+
+    protected virtual async Task AddDatabaseHandleAsync(
+        IUnitOfWork unitOfWork,
+        string key,
         TContext dbContext,
         CancellationToken cancellationToken = default)
     {
+        UnitOfWorkDatabaseHandle handle;
+
         if (unitOfWork.Options.IsolationLevel.HasValue)
         {
             var transaction = await dbContext.Database.BeginTransactionAsync(
                 unitOfWork.Options.IsolationLevel.Value,
                 cancellationToken);
-            return new UnitOfWorkDatabaseHandle(
+            handle = new UnitOfWorkDatabaseHandle(
                 dbContext,
                 transaction,
                 UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
                 UnitOfWorkDatabaseHandleExtensions.CommitAsync,
                 UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
         }
-
-        if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
+        else if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
         {
-            return new UnitOfWorkDatabaseHandle(dbContext, UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync);
+            handle = new UnitOfWorkDatabaseHandle(dbContext, UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync);
+        }
+        else
+        {
+            handle = new UnitOfWorkDatabaseHandle(
+                dbContext,
+                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
+                // When IsolationLevel exists it handled in first if condition
+                UnitOfWorkDatabaseHandleExtensions.BeginTransactionAsync,
+                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
+                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
         }
 
-        return new UnitOfWorkDatabaseHandle(
-            dbContext,
-            UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
-            // When IsolationLevel exists it handled in first if condition
-            UnitOfWorkDatabaseHandleExtensions.BeginTransactionAsync,
-            UnitOfWorkDatabaseHandleExtensions.CommitAsync,
-            UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
+        unitOfWork.AddDatabase(key, handle);
     }
 }

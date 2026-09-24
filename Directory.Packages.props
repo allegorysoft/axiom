@@ -75,6 +75,7 @@
         <PackageVersion Include="NSubstitute" Version="6.2.0"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
         <PackageVersion Include="Testcontainers" Version="$(TestcontainersVersion)"/>
+        <PackageVersion Include="Testcontainers.MongoDb" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="Testcontainers.RabbitMq" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="Testcontainers.PostgreSql" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="xunit.v3" Version="$(XUnitVersion)"/>
