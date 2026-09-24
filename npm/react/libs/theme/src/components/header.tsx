@@ -14,11 +14,12 @@ import { Separator } from './ui/separator';
 import { SidebarTrigger } from './ui/sidebar';
 
 import type { NavbarBehavior } from './preferences/options';
-import { CurrentUserDropdown } from './current-user/current-user-dropdown';
-import { Languages } from './languages';
-import { ThemeToggle } from './theme/theme-toggle';
 import { PreferencesPopover } from './preferences/preferences-popover';
 import { usePreferences } from './preferences/use-preferences';
+
+import { ThemeToggle } from './theme/theme-toggle';
+import { Languages } from './languages';
+import { CurrentUserDropdown } from './current-user/current-user-dropdown';
 
 const HEADER_CLASS_NAMES =
   'flex h-14 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 px-3 md:px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-t-l';
@@ -31,7 +32,7 @@ const NAVBAR_BEHAVIOR_CLASS_NAMES: Record<NavbarBehavior, string> = {
 export function Header() {
   const label = useDecodedHash();
   const userMenuPosition = usePreferences(
-    (state) => state.preferences.userMenuPosition ?? 'navbar',
+    (state) => state.preferences.userMenuPosition,
   );
   const navbarBehavior = usePreferences(
     (state) => state.preferences.navbarBehavior,
