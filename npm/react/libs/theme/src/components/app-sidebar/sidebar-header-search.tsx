@@ -29,7 +29,7 @@ export function SidebarHeaderSearch() {
   const groups = useNavGroups();
 
   const pages = deepFlatMap(
-    groups.flatMap((group) => group.items),
+    groups.flatMap((group) => group.children),
     (item) => item.children,
     (item) => (item.url ? item : undefined),
   ).filter((item): item is { title: string; url: string } =>
@@ -103,7 +103,7 @@ export function SidebarHeaderSearch() {
             <CommandGroup heading="Pages">
               {pages.map((page) => (
                 <CommandItem
-                  key={page.title}
+                  key={page.url}
                   onSelect={() => navigate(page.url)}
                 >
                   <HugeiconsIcon icon={Search} strokeWidth={2} />

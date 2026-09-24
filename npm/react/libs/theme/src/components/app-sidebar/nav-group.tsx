@@ -32,7 +32,7 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
   const t = useTranslation();
   const initialOpen =
     group.isActive ||
-    group.items.some((item) => isBranchActive(item, pathname));
+    group.children.some((item) => isBranchActive(item, pathname));
 
   const [open, setOpen] = useState(initialOpen);
 
@@ -50,8 +50,8 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
         <CollapsibleContent>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {group.items.length ? (
-                group.items.map((item) => (
+              {group.children.length ? (
+                group.children.map((item) => (
                   <NavItemNode
                     key={item.title}
                     item={item}
