@@ -43,6 +43,7 @@ type SettingField = {
   required?: boolean;
 };
 type FormDefinition = { id: string; fields: SettingField[] };
+
 const draftStore = createStore<{
   saved: Record<string, Record<string, Value>>;
 }>({ saved: {} });
@@ -226,6 +227,7 @@ const toggle = (key: string, label: string, initial = false): SettingField => ({
   type: 'checkbox',
   initial,
 });
+
 const number = (
   key: string,
   label: string,
@@ -241,12 +243,14 @@ const number = (
   max,
   required: true,
 });
+
 const text = (
   key: string,
   label: string,
   initial = '',
   required = false,
 ): SettingField => ({ key, label, type: 'text', initial, required });
+
 function form(id: string, fields: SettingField[]) {
   const definition = { id, fields };
   return function SettingsPage() {

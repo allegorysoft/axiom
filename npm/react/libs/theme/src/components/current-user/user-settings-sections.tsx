@@ -1,4 +1,3 @@
-import { userProfileStore, useUserProfile } from './user-profile-store';
 import type { ReactNode } from 'react';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
@@ -11,6 +10,7 @@ import {
   TimeZoneIcon,
   TextFontIcon,
 } from '@hugeicons/core-free-icons';
+
 import {
   localizerStore,
   THEME_OPTIONS,
@@ -37,11 +37,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+
 import {
   ProfilePhotoSection,
   AccountInfoSection,
   SecuritySection,
 } from './account-sections';
+import { userProfileStore, useUserProfile } from './user-profile-store';
 
 function SettingRow({
   title,
@@ -121,6 +123,33 @@ function AppearanceContent({ children }: { children: ReactNode }) {
     </>
   );
 }
+
+const ACCOUNT_DATA = {
+  profile: {
+    id: 'profile',
+    label: 'Profile Photo',
+    group: 'Account',
+    description: 'Choose how you appear across your workspace.',
+    icon: SquareUserRoundIcon,
+    component: ProfilePhotoSection,
+  },
+  accountInfo: {
+    id: 'account-info',
+    label: 'Account Details',
+    group: 'Account',
+    description: 'Manage your personal details and contact information.',
+    icon: UserAccountIcon,
+    component: AccountInfoSection,
+  },
+  security: {
+    id: 'security',
+    label: 'Password & Security',
+    group: 'Account',
+    description: 'Manage your password and protect your account.',
+    icon: KeyRoundIcon,
+    component: SecuritySection,
+  },
+} as const;
 
 function LayoutSection() {
   const preferences = usePreferences((state) => state.preferences);
@@ -319,19 +348,64 @@ function TypographySection() {
   );
 }
 
-const LANGUAGE_OPTIONS = [
-  { value: 'en', label: 'English' },
-  { value: 'tr', label: 'Türkçe' },
-  { value: 'es', label: 'Español' },
-  { value: 'zh', label: '中文' },
-  { value: 'de', label: 'Deutsch' },
-  { value: 'fr', label: 'Français' },
-  { value: 'ja', label: '日本語' },
-];
+const APPEARANCE_DATA = {
+  layout: {
+    id: 'layout',
+    label: 'Layout',
+    group: 'Appearance',
+    description: 'Make your workspace work for you.',
+    icon: Layout01Icon,
+    component: LayoutSection,
+  },
+  theme: {
+    id: 'appearance',
+    label: 'Theme',
+    group: 'Appearance',
+    description: 'Choose the colors and theme for your workspace.',
+    icon: PaletteIcon,
+    component: ThemeSection,
+  },
+  typography: {
+    id: 'typography',
+    label: 'Typography',
+    group: 'Appearance',
+    description: 'Choose your font and a comfortable interface size.',
+    icon: TextFontIcon,
+    component: TypographySection,
+  },
+} as const;
+
+const LANGUAGE_REGION_DATA = {
+  languages: [
+    { value: 'en', label: 'English' },
+    { value: 'tr', label: 'Türkçe' },
+    { value: 'es', label: 'Español' },
+    { value: 'zh', label: '中文' },
+    { value: 'de', label: 'Deutsch' },
+    { value: 'fr', label: 'Français' },
+    { value: 'ja', label: '日本語' },
+  ],
+  language: {
+    id: 'language',
+    label: 'Language',
+    group: 'Language & Region',
+    description: 'Use the application in your preferred language.',
+    icon: LanguagesIcon,
+    component: null,
+  },
+  timeZone: {
+    id: 'time-zone',
+    label: 'Time Zone',
+    group: 'Language & Region',
+    description: 'Set your preferred time zone.',
+    icon: TimeZoneIcon,
+    component: null,
+  },
+} as const;
 
 function LanguageSection() {
   const { name } = useLocalizer((state) => state.culture);
-  const selectedLanguage = LANGUAGE_OPTIONS.find(
+  const selectedLanguage = LANGUAGE_REGION_DATA.languages.find(
     (language) => language.value === name,
   );
   return (
@@ -341,10 +415,10 @@ function LanguageSection() {
         description="Choose your preferred application language."
       >
         <Select
-          items={LANGUAGE_OPTIONS}
+          items={LANGUAGE_REGION_DATA.languages}
           value={name}
           onValueChange={(value) => {
-            const language = LANGUAGE_OPTIONS.find(
+            const language = LANGUAGE_REGION_DATA.languages.find(
               (option) => option.value === value,
             );
             if (language)
@@ -364,7 +438,7 @@ function LanguageSection() {
             />
           </SelectTrigger>
           <SelectContent>
-            {LANGUAGE_OPTIONS.map((language) => (
+            {LANGUAGE_REGION_DATA.languages.map((language) => (
               <SelectItem key={language.value} value={language.value}>
                 <span className="flex items-center gap-2">
                   {language.label}
@@ -423,72 +497,26 @@ function TimeZoneSection() {
   );
 }
 
-// Register new sections here to keep navigation and content in sync.
-export const USER_SETTINGS_SECTIONS = [
-  {
-    id: 'profile',
-    label: 'Profile Photo',
-    group: 'Account',
-    description: 'Choose how you appear across your workspace.',
-    icon: SquareUserRoundIcon,
-    component: ProfilePhotoSection,
-  },
-  {
-    id: 'account-info',
-    label: 'Account Details',
-    group: 'Account',
-    description: 'Manage your personal details and contact information.',
-    icon: UserAccountIcon,
-    component: AccountInfoSection,
-  },
-  {
-    id: 'security',
-    label: 'Password & Security',
-    group: 'Account',
-    description: 'Manage your password and protect your account.',
-    icon: KeyRoundIcon,
-    component: SecuritySection,
-  },
-  {
-    id: 'layout',
-    label: 'Layout',
-    group: 'Appearance',
-    description: 'Make your workspace work for you.',
-    icon: Layout01Icon,
-    component: LayoutSection,
-  },
-  {
-    id: 'appearance',
-    label: 'Theme',
-    group: 'Appearance',
-    description: 'Choose the colors and theme for your workspace.',
-    icon: PaletteIcon,
-    component: ThemeSection,
-  },
-  {
-    id: 'typography',
-    label: 'Typography',
-    group: 'Appearance',
-    description: 'Choose your font and a comfortable interface size.',
-    icon: TextFontIcon,
-    component: TypographySection,
-  },
-  {
-    id: 'language',
-    label: 'Language',
-    group: 'Language & Region',
-    description: 'Use the application in your preferred language.',
-    icon: LanguagesIcon,
+const LANGUAGE_REGION_SECTIONS = {
+  language: {
+    ...LANGUAGE_REGION_DATA.language,
     component: LanguageSection,
   },
-  {
-    id: 'time-zone',
-    label: 'Time Zone',
-    group: 'Language & Region',
-    description: 'Set your preferred time zone.',
-    icon: TimeZoneIcon,
+  timeZone: {
+    ...LANGUAGE_REGION_DATA.timeZone,
     component: TimeZoneSection,
   },
+} as const;
+
+export const USER_SETTINGS_SECTIONS = [
+  ACCOUNT_DATA.profile,
+  ACCOUNT_DATA.accountInfo,
+  ACCOUNT_DATA.security,
+  APPEARANCE_DATA.layout,
+  APPEARANCE_DATA.theme,
+  APPEARANCE_DATA.typography,
+  LANGUAGE_REGION_SECTIONS.language,
+  LANGUAGE_REGION_SECTIONS.timeZone,
 ] as const;
 
 export type UserSettingsSection = (typeof USER_SETTINGS_SECTIONS)[number]['id'];
