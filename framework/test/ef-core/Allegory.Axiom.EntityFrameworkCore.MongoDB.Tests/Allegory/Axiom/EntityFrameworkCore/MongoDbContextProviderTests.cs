@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -8,16 +8,20 @@ using Allegory.Axiom.Domain.Entities;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Driver;
+using MongoDB.EntityFrameworkCore.Storage;
 using Shouldly;
+using Testcontainers.MongoDb;
 using Xunit;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
-public class RelationalDbContextProviderTests(
-    RelationalDbContextProviderFixture fixture)
-    : IClassFixture<RelationalDbContextProviderFixture>
+public class MongoDbContextProviderTests(
+    MongoDbContextProviderFixture fixture)
+    : IClassFixture<MongoDbContextProviderFixture>
 {
     protected IDbContextProvider<AppDbContext> Provider => fixture.Service<IDbContextProvider<AppDbContext>>();
 
@@ -57,11 +61,13 @@ public class RelationalDbContextProviderTests(
     public async Task ShouldReturnDifferentDbContextInstancesForDifferentConnectionStringsWithinSameUnitOfWork()
     {
         var t1 = new TenantContext(
-            Guid.NewGuid(), "t-1", "T-1", new Dictionary<string, string> {{"App", "t1_app1"}});
+            Guid.NewGuid(), "t-1", "T-1",
+            new Dictionary<string, string> {{"App", "mongodb://admin:admin@localhost:27017/t1_app1"}});
 
         var t2 = new TenantContext(
             Guid.NewGuid(), "t-2", "T-2",
-            new Dictionary<string, string> {{IConnectionStringProvider.DefaultName, "t2_default"}});
+            new Dictionary<string, string>
+                {{IConnectionStringProvider.DefaultName, "mongodb://admin:admin@localhost:27017/t2_default"}});
 
         var t3 = new TenantContext(Guid.NewGuid(), "t-3", "T-3");
 
@@ -73,26 +79,29 @@ public class RelationalDbContextProviderTests(
             using (tenantContextAccessor.Change(current: null))
             {
                 hostContext = await Provider.GetAsync();
-                hostContext.Database.GetConnectionString()
-                    .ShouldBe(RelationalDbContextProviderFixture.ConnectionString);
+                var client = hostContext.GetService<IMongoClientWrapper>();
+                client.DatabaseName.ShouldBe(MongoDbContextProviderFixture.DefaultDatabase);
             }
 
             using (tenantContextAccessor.Change(current: t1))
             {
                 t1Context = await Provider.GetAsync();
-                t1Context.Database.GetConnectionString().ShouldBe("t1_app1");
+                var client = t1Context.GetService<IMongoClientWrapper>();
+                client.DatabaseName.ShouldBe("t1_app1");
             }
 
             using (tenantContextAccessor.Change(current: t2))
             {
                 t2Context = await Provider.GetAsync();
-                t2Context.Database.GetConnectionString().ShouldBe("t2_default");
+                var client = t2Context.GetService<IMongoClientWrapper>();
+                client.DatabaseName.ShouldBe("t2_default");
             }
 
             using (tenantContextAccessor.Change(current: t3))
             {
                 t3Context = await Provider.GetAsync();
-                t3Context.Database.GetConnectionString().ShouldBe(RelationalDbContextProviderFixture.ConnectionString);
+                var client = t3Context.GetService<IMongoClientWrapper>();
+                client.DatabaseName.ShouldBe(MongoDbContextProviderFixture.DefaultDatabase);
             }
 
             hostContext.ShouldBeSameAs(t3Context);
@@ -102,6 +111,34 @@ public class RelationalDbContextProviderTests(
 
             await uow.DisposeAsync();
         });
+    }
+
+    [Fact]
+    public async Task ShouldReturnSameMongoClientWhenConnectionStringIsSameAcrossUnitOfWorks()
+    {
+        var t1 = new TenantContext(
+            Guid.NewGuid(), "t-1", "T-1",
+            new Dictionary<string, string> {{"App", "mongodb://admin:admin@localhost:27017/t1_app1"}});
+        var tenantContextAccessor = fixture.Service<ITenantContextAccessor>();
+        tenantContextAccessor.Set(t1);
+
+        AppDbContext instance1 = null!, instance2 = null!;
+        IMongoClient client1 = null!, client2 = null!;
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            instance1 = await Provider.GetAsync();
+            client1 = instance1.GetService<IMongoClientWrapper>().Client;
+        });
+
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            instance2 = await Provider.GetAsync();
+            client2 = instance2.GetService<IMongoClientWrapper>().Client;
+        });
+
+        instance1.ShouldNotBeSameAs(instance2);
+        client1.ShouldBeSameAs(client2);
     }
 
     [Fact]
@@ -199,37 +236,41 @@ public class RelationalDbContextProviderTests(
 
                 // IsolationLevel forces BeginTransactionAsync eagerly inside AddDatabaseHandleAsync,
                 // unlike the default lazy path, so the transaction should already be open.
-                context.Database.CurrentTransaction.ShouldNotBeNull();
-                context.Database.CurrentTransaction.GetDbTransaction()
-                    .IsolationLevel.ShouldBe(System.Data.IsolationLevel.Serializable);
+                var transaction = context.Database.CurrentTransaction
+                    .ShouldNotBeNull()
+                    .ShouldBeOfType<MongoTransaction>();
+
+                transaction.TransactionOptions.ReadConcern
+                    .ShouldBe(ReadConcern.Snapshot);
             },
             options: new UnitOfWorkOptions(isolationLevel: System.Data.IsolationLevel.Serializable));
     }
-
-    [Fact]
-    public async Task ShouldSetCommandTimeoutWhenTimeoutSpecified()
-    {
-        await fixture.RunInUnitOfWorkAsync(
-            async _ =>
-            {
-                var context = await Provider.GetAsync();
-                context.Database.GetCommandTimeout().ShouldBe(30);
-            },
-            options: new UnitOfWorkOptions(timeout: TimeSpan.FromSeconds(30)));
-    }
+    
+    // MongoDB has no transaction-wide command timeout equivalent, so UnitOfWorkOptions.Timeout can't be applied.
 }
 
-public class RelationalDbContextProviderFixture : IntegrationTest
+public class MongoDbContextProviderFixture : IntegrationTest
 {
-    public const string ConnectionString = "Data Source=RelationalDbContextProvider.db";
+    public const string DefaultDatabase = "app1";
 
-    protected override Task ConfigureAsync(IHostApplicationBuilder builder)
+    protected override async Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddAxiomDbContext<AppDbContext>(o => { o.Configure(b => b.UseSqlite(ConnectionString)); });
+        var container = new MongoDbBuilder("mongo:latest")
+            .WithUsername("admin")
+            .WithPassword("admin")
+            .WithReplicaSet()
+            .Build();
 
-        builder.Services.AddAxiomDbContext<App2DbContext>();
+        await builder.AddTestContainerAsync(container);
 
-        return Task.CompletedTask;
+        builder.Services.AddSingleton<IMongoClient>(new MongoClient(container.GetConnectionString()));
+
+        builder.Services.AddAxiomMongoDbContext<AppDbContext>(o =>
+        {
+            o.Configure((sp, b) => b.UseMongoDB(sp.GetRequiredService<IMongoClient>(), DefaultDatabase));
+        });
+
+        builder.Services.AddAxiomMongoDbContext<App2DbContext>();
     }
 
     public override async ValueTask InitializeAsync()
@@ -246,6 +287,7 @@ public class RelationalDbContextProviderFixture : IntegrationTest
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
+    public DbContextOptions<AppDbContext> Options { get; } = options;
     public DbSet<App1Entity1> Entity1 => Set<App1Entity1>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
