@@ -33,6 +33,9 @@ catalog:
   '@hugeicons/react': ~1.1.10
   '@hugeicons/core-free-icons': 4.3.3
   recharts: 3.8.0
+  "@tanstack/react-table": ^8
+  date-fns: ^4
+  react-day-picker: ^10
 
   vite: ^8
   vitest: ~4.1.0

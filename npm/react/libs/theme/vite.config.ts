@@ -63,6 +63,9 @@ export default defineConfig(() => ({
         'cmdk',
         'cn',
         'shadcn',
+        '@tanstack/react-table',
+        'date-fns',
+        'react-day-picker'
       ],
       output: {
         preserveModules: true,
