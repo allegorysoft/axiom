@@ -1,3 +1,4 @@
+import { useLogout } from './use-logout';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   LogOutIcon as LogOut,
@@ -31,6 +32,7 @@ export function MainContent({
 }) {
   const user = useUserProfile((state) => state);
   const t = useTranslation();
+  const logout = useLogout();
 
   return (
     <>
@@ -71,7 +73,7 @@ export function MainContent({
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
-      <DropdownMenuItem variant="destructive" className="gap-2 px-2 py-2">
+      <DropdownMenuItem variant="destructive" className="gap-2 px-2 py-2" onClick={logout} >
         <HugeiconsIcon icon={LogOut} strokeWidth={2} />
         {t('AxiomAccount:Logout')}
       </DropdownMenuItem>

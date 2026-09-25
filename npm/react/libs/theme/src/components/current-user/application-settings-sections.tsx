@@ -446,7 +446,7 @@ export const APPLICATION_SETTINGS_SECTIONS: readonly SettingsSection[] = [
   {
     id: 'tenants',
     label: 'Tenants',
-    group: 'SaaS Management',
+    group: 'Tenant Management',
     description: 'Configure tenant registration preferences.',
     icon: UsersRoundIcon,
     component: form('tenants', [
@@ -457,7 +457,7 @@ export const APPLICATION_SETTINGS_SECTIONS: readonly SettingsSection[] = [
   {
     id: 'editions',
     label: 'Editions',
-    group: 'SaaS Management',
+    group: 'Tenant Management',
     description: 'Configure edition and trial preferences.',
     icon: Layers01Icon,
     component: form('editions', [
