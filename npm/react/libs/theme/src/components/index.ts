@@ -12,6 +12,8 @@ export * from './ui/breadcrumb';
 export * from './ui/sidebar';
 export * from './ui/separator';
 export * from './password-input';
+export * from './ui/dialog';
 export * from './app-sidebar/index';
 export * from './header';
 export { UserMenuProvider } from './current-user/current-user-dropdown';
+export { HttpStatusBadge } from './http-status-badge';

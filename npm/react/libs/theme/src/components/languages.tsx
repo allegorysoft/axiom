@@ -5,7 +5,10 @@ import { localizerStore, useLocalizer } from '@axiomframework/react-core';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
@@ -34,11 +37,26 @@ export function Languages() {
         }
       />
 
-      <DropdownMenuContent className="pace-y-1 p-2" align="end">
+      <DropdownMenuContent className="w-64 space-y-1 p-2" align="end">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="px-2 py-2 text-sm text-foreground">
+            Language
+            <p className="mt-1 font-normal text-muted-foreground">
+              Choose your preferred language
+            </p>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator className="mx-1 my-1" />
         {languages.map(({ name: lang, label }) => (
-          <DropdownMenuItem key={lang} onClick={() => handleSelect(lang)}>
+          <DropdownMenuItem
+            key={lang}
+            className="px-2 py-2"
+            onClick={() => handleSelect(lang)}
+          >
             {label}
-            {lang === name && <HugeiconsIcon icon={Check} strokeWidth={2} />}
+            {lang === name && (
+              <HugeiconsIcon icon={Check} strokeWidth={2} className="ml-auto" />
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
