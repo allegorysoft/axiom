@@ -10,10 +10,10 @@ namespace Allegory.Axiom.UnitOfWork;
 public class UnitOfWorkExtensionsTests
 {
     private static UnitOfWork CreateUow(
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? saveChangesDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? commitTransactionDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? saveChangesDelegate = null,
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? commitTransactionDelegate = null,
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
     {
         saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
         beginTransactionDelegate ??= static (_, _) => Task.FromResult(new object());
@@ -26,7 +26,7 @@ public class UnitOfWorkExtensionsTests
 
         uow.AddDatabase(
             "db1",
-            new UnitOfWorkDatabaseHandle(
+            new DelegateUnitOfWorkDbHandle(
                 database: new object(),
                 saveChangesDelegate: saveChangesDelegate,
                 beginTransactionDelegate: beginTransactionDelegate,

@@ -176,7 +176,7 @@ public class MongoDbContextProviderTests(
             var context = await Provider.GetAsync();
 
             uow.Databases.ShouldNotBeEmpty();
-            uow.Databases.Single().Value.Database.ShouldBeSameAs(context);
+            ((EfCoreUnitOfWorkDbHandle<AppDbContext>)uow.Databases.Single().Value).Handle.ShouldBeSameAs(context);
         });
     }
 
@@ -270,7 +270,10 @@ public class MongoDbContextProviderFixture : IntegrationTest
             o.Configure((sp, b) => b.UseMongoDB(sp.GetRequiredService<IMongoClient>(), DefaultDatabase));
         });
 
-        builder.Services.AddAxiomMongoDbContext<App2DbContext>();
+        builder.Services.AddAxiomMongoDbContext<App2DbContext>(o =>
+        {
+            o.Configure((sp, b) => b.UseMongoDB(sp.GetRequiredService<IMongoClient>(), "app2"));
+        });
     }
 
     public override async ValueTask InitializeAsync()

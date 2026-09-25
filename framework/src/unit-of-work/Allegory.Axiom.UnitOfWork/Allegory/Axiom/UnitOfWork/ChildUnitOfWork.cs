@@ -21,12 +21,12 @@ internal sealed class ChildUnitOfWork(
     public Activity? Activity => Parent.Activity;
     public UnitOfWorkOptions Options => Parent.Options;
     public Dictionary<string, object> Items => Parent.Items;
-    public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => Parent.Databases;
+    public IReadOnlyDictionary<string, UnitOfWorkDbHandle> Databases => Parent.Databases;
     public UnitOfWorkState State => Parent.State;
     public IServiceProvider ServiceProvider { get; } = serviceProvider;
     public CancellationToken CancellationToken { get; } = cancellationToken;
 
-    public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle) => Parent.AddDatabase(key, handle);
+    public void AddDatabase(string key, UnitOfWorkDbHandle handle) => Parent.AddDatabase(key, handle);
 
     public void AddHook(UnitOfWorkHookPoint hook, Func<Task> handler, PriorityLevel priority = PriorityLevel.Normal) => Parent.AddHook(hook, handler, priority);
 

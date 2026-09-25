@@ -16,7 +16,7 @@ internal sealed class UnitOfWork(
     CancellationTokenSource? cancellationTokenSource = null)
     : IUnitOfWork
 {
-    private readonly Dictionary<string, UnitOfWorkDatabaseHandle> _databases = new();
+    private readonly Dictionary<string, UnitOfWorkDbHandle> _databases = new();
     private readonly Dictionary<UnitOfWorkHookPoint, PriorityQueue<Func<Task>, PrioritySortOrder<ushort>>> _hooks = new();
     private ushort _hookSequence;
 
@@ -28,12 +28,12 @@ internal sealed class UnitOfWork(
     public Activity? Activity { get; set; }
     public UnitOfWorkOptions Options { get; } = options;
     public Dictionary<string, object> Items { get; } = new();
-    public IReadOnlyDictionary<string, UnitOfWorkDatabaseHandle> Databases => _databases;
+    public IReadOnlyDictionary<string, UnitOfWorkDbHandle> Databases => _databases;
     public UnitOfWorkState State { get; private set; }
     public IServiceProvider ServiceProvider { get; } = serviceProvider;
     public CancellationToken CancellationToken { get; } = cancellationToken;
 
-    public void AddDatabase(string key, UnitOfWorkDatabaseHandle handle)
+    public void AddDatabase(string key, UnitOfWorkDbHandle handle)
     {
         handle.UnitOfWork = this;
         _databases[key] = handle;

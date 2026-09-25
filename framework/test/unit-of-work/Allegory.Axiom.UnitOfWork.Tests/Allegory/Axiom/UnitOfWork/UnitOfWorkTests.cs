@@ -19,13 +19,13 @@ public class UnitOfWorkTests
             cancellationToken: TestContext.Current.CancellationToken);
     }
 
-    private static UnitOfWorkDatabaseHandle CreateDatabaseHandle(
+    private static DelegateUnitOfWorkDbHandle CreateDatabaseHandle(
         object? database = null,
         object? transaction = null,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? saveChangesDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? commitTransactionDelegate = null,
-        Func<UnitOfWorkDatabaseHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? saveChangesDelegate = null,
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? commitTransactionDelegate = null,
+        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
     {
         database ??= new object();
         saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
@@ -35,7 +35,7 @@ public class UnitOfWorkTests
 
         if (transaction == null)
         {
-            return new UnitOfWorkDatabaseHandle(
+            return new DelegateUnitOfWorkDbHandle(
                 database,
                 saveChangesDelegate,
                 beginTransactionDelegate,
@@ -43,7 +43,7 @@ public class UnitOfWorkTests
                 rollbackTransactionDelegate);
         }
 
-        return new UnitOfWorkDatabaseHandle(
+        return new DelegateUnitOfWorkDbHandle(
             database,
             transaction,
             saveChangesDelegate,
@@ -80,7 +80,7 @@ public class UnitOfWorkTests
         var uow = CreateUnitOfWork();
         var saveCount = 0;
 
-        var saveChanges = (UnitOfWorkDatabaseHandle _, CancellationToken _) =>
+        var saveChanges = (DelegateUnitOfWorkDbHandle _, CancellationToken _) =>
         {
             saveCount++;
             return Task.CompletedTask;
@@ -300,7 +300,7 @@ public class UnitOfWorkTests
         uow.AddDatabase("db1", CreateDatabaseHandle(database: first));
         uow.AddDatabase("db1", CreateDatabaseHandle(database: second));
 
-        uow.Databases["db1"].Database.ShouldBe(second);
+        ((DelegateUnitOfWorkDbHandle)uow.Databases["db1"]).Handle.ShouldBe(second);
     }
 
     // AddHook

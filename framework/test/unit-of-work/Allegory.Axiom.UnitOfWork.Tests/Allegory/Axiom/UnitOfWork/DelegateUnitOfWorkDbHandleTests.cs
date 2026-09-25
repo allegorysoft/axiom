@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class UnitOfWorkDatabaseHandleTests
+public class DelegateUnitOfWorkDbHandleTests
 {
     private static UnitOfWork CreateUnitOfWork()
     {
@@ -21,7 +21,7 @@ public class UnitOfWorkDatabaseHandleTests
     {
         var uow = CreateUnitOfWork();
 
-        var handle = new UnitOfWorkDatabaseHandle(
+        var handle = new DelegateUnitOfWorkDbHandle(
             database: new object(),
             saveChangesDelegate: static (_, _) => Task.CompletedTask,
             beginTransactionDelegate: (_, _) => Task.FromResult(new object()),
@@ -41,7 +41,7 @@ public class UnitOfWorkDatabaseHandleTests
         var beginCount = 0;
         var uow = CreateUnitOfWork();
 
-        var handle = new UnitOfWorkDatabaseHandle(
+        var handle = new DelegateUnitOfWorkDbHandle(
             database: new object(),
             saveChangesDelegate: static (_, _) => Task.CompletedTask,
             beginTransactionDelegate: (_, _) =>

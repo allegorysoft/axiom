@@ -8,6 +8,7 @@ using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.EntityFrameworkCore;
@@ -44,7 +45,7 @@ public class MongoDbContextProvider<TContext>(
         var key = $"{typeof(TContext).FullName!}_{connectionString}"; //TODO: We might optimize here
         if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
         {
-            return dbHandle.GetDatabase<TContext>();
+            return ((EfCoreUnitOfWorkDbHandle<TContext>) dbHandle).Handle;
         }
 
         var dbContext = await CreateDbContextAsync(unitOfWork, connectionString, cancellationToken);
@@ -91,36 +92,41 @@ public class MongoDbContextProvider<TContext>(
         TContext dbContext,
         CancellationToken cancellationToken = default)
     {
-        UnitOfWorkDatabaseHandle handle;
+        EfCoreUnitOfWorkDbHandle<TContext> handle;
 
         if (unitOfWork.Options.IsolationLevel.HasValue)
         {
-            var transaction = await dbContext.Database.BeginTransactionAsync(
-                MapToMongoTransactionOptions(unitOfWork.Options.IsolationLevel.Value),
-                cancellationToken);
-            handle = new UnitOfWorkDatabaseHandle(
-                dbContext,
-                transaction,
-                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
-                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
-                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
+            await TryBeginTransactionAsync(unitOfWork, dbContext, cancellationToken);
+            handle = new EfCoreUnitOfWorkDbHandle<TContext>(dbContext);
         }
         else if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
         {
-            handle = new UnitOfWorkDatabaseHandle(dbContext, UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync);
+            handle = new EfCoreUnitOfWorkDbHandle<TContext>(dbContext);
         }
         else
         {
-            handle = new UnitOfWorkDatabaseHandle(
-                dbContext,
-                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
-                // When IsolationLevel exists it handled in first if condition
-                UnitOfWorkDatabaseHandleExtensions.BeginTransactionAsync,
-                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
-                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
+            handle = new EfCoreUnitOfWorkDbHandle<TContext>(dbContext, isLazyTransactional: true);
         }
 
         unitOfWork.AddDatabase(key, handle);
+    }
+
+    protected virtual async Task TryBeginTransactionAsync(
+        IUnitOfWork unitOfWork,
+        TContext dbContext,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await dbContext.Database.BeginTransactionAsync(
+                MapToMongoTransactionOptions(unitOfWork.Options.IsolationLevel!.Value),
+                cancellationToken);
+        }
+        catch (NotSupportedException e)
+        {
+            var logger = unitOfWork.ServiceProvider.GetRequiredService<ILogger<UnitOfWorkDbHandle>>();
+            logger.LogWarning(e, "Transaction not supported for {DbContext}", typeof(TContext));
+        }
     }
 
     protected virtual TransactionOptions MapToMongoTransactionOptions(IsolationLevel isolationLevel)

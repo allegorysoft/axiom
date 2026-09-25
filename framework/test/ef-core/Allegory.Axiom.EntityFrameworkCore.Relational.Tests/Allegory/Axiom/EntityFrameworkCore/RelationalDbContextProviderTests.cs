@@ -139,7 +139,7 @@ public class RelationalDbContextProviderTests(
             var context = await Provider.GetAsync();
 
             uow.Databases.ShouldNotBeEmpty();
-            uow.Databases.Single().Value.Database.ShouldBeSameAs(context);
+            ((EfCoreUnitOfWorkDbHandle<AppDbContext>)uow.Databases.Single().Value).Handle.ShouldBeSameAs(context);
         });
     }
 
@@ -227,7 +227,7 @@ public class RelationalDbContextProviderFixture : IntegrationTest
     {
         builder.Services.AddAxiomDbContext<AppDbContext>(o => { o.Configure(b => b.UseSqlite(ConnectionString)); });
 
-        builder.Services.AddAxiomDbContext<App2DbContext>();
+        builder.Services.AddAxiomDbContext<App2DbContext>(o => { o.Configure(b => b.UseSqlite()); });
 
         return Task.CompletedTask;
     }
