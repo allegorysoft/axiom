@@ -24,7 +24,7 @@ export function PreferenceOption({
   const t = useTranslation();
 
   return (
-    <fieldset className="flex flex-col gap-1.5">
+    <fieldset className="flex flex-col gap-2">
       <Label className="w-full">{label}</Label>
 
       <div className="flex w-full overflow-hidden rounded-md border border-input p-0.5">

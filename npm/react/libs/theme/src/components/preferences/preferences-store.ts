@@ -6,6 +6,8 @@ import type {
   PreferencesStore,
 } from './preferences';
 
+const STORAGE_KEY = 'axiom.preferences';
+
 export const defaultPreferences: Preferences = {
   colorTheme: 'default',
   font: 'manrope',
@@ -17,7 +19,7 @@ export const defaultPreferences: Preferences = {
 };
 
 const baseStore = createStore<PreferencesState>({
-  preferences: defaultPreferences,
+  preferences: readFromStorage(),
 });
 
 export const preferencesStore: PreferencesStore = Object.assign(baseStore, {
@@ -35,3 +37,21 @@ export const preferencesStore: PreferencesStore = Object.assign(baseStore, {
     baseStore.set(() => ({ preferences: defaultPreferences }));
   },
 });
+
+baseStore.subscribe(() => {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(baseStore.get().preferences),
+    );
+  } catch {}
+});
+
+function readFromStorage(): Preferences {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}');
+    return { ...defaultPreferences, ...saved };
+  } catch {
+    return defaultPreferences;
+  }
+}

@@ -1,6 +1,7 @@
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowUpDownIcon as ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from '@hugeicons/core-free-icons';
 
+import { useLogout } from '../current-user/use-logout';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
   DropdownMenu,
@@ -28,6 +29,8 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const logout = useLogout();
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -96,7 +99,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={logout}>
               <HugeiconsIcon icon={LogOutIcon} strokeWidth={2} />
               Log out
             </DropdownMenuItem>

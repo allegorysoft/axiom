@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from '../ui/select';
 import { Label } from '../ui/label';
+import { Separator } from '../ui/separator';
 import {
   Popover,
   PopoverContent,
@@ -49,7 +50,7 @@ export function PreferencesPopover() {
   const t = useTranslation();
   const { theme, setTheme } = useTheme();
   const preferences = usePreferences((state) => state.preferences);
-
+  
   useColorTheme(preferences);
   useFont(preferences);
 
@@ -76,13 +77,14 @@ export function PreferencesPopover() {
         }
       />
 
-      <PopoverContent align="start">
+      <PopoverContent align="start" className="p-3">
         <PopoverHeader>
           <PopoverTitle>{t('AxiomTheme:Preferences')}</PopoverTitle>
           <PopoverDescription>
             {t('AxiomTheme:PreferencesDescription')}
           </PopoverDescription>
         </PopoverHeader>
+        <Separator />
 
         <div className="flex flex-col gap-3">
           <ColorTheme preferences={preferences} />
@@ -158,7 +160,7 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
   const colorTheme = getOption(COLOR_THEME_OPTIONS, preferences.colorTheme);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <Label>{t('AxiomTheme:ColorTheme')}</Label>
       <Select
         value={preferences.colorTheme}
@@ -234,7 +236,7 @@ function Font({ preferences }: { preferences: Preferences }) {
   const font = getOption(FONT_OPTIONS, preferences.font);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <Label>{t('AxiomTheme:Font')}</Label>
       <Select
         value={preferences.font}

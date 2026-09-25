@@ -1,85 +1,82 @@
 import { HugeiconsIcon } from '@hugeicons/react';
-import { LayoutDashboardIcon as LayoutDashboard, SettingsIcon as Settings, ShieldIcon as Shield, CogIcon as Cog, ServerIcon as Server, PaletteIcon as Palette, ListIcon as List, Building02Icon as Building2, Home03Icon as Home } from '@hugeicons/core-free-icons';
+import {
+  UsersRoundIcon,
+  UserSettings01Icon,
+  Layers01Icon,
+  File01Icon,
+  HistoryIcon,
+  Home03Icon as Home,
+  DashboardBrowsingIcon,
+} from '@hugeicons/core-free-icons';
 import { navStore } from '@axiomframework/react-core';
 
-const PRODUCT = 'Product Management';
-const ADMIN = 'Administration';
-const USER = 'User';
+const PRODUCT = 'Identity Management';
+const AUDIT = 'Audit';
+const SAAS = 'Tenant Management';
 
 export function provideNavItems() {
   navStore.add({
-    title: 'AxiomBase:Home',
+    title: 'AxiomBase:Dashboard',
     url: '/',
+    icon: <HugeiconsIcon icon={DashboardBrowsingIcon} strokeWidth={2} />,
+  });
+  navStore.add({
+    title: 'AxiomBase:Home',
+    url: '/home',
     icon: <HugeiconsIcon icon={Home} strokeWidth={2} />,
   });
 
   navStore.addGroup(PRODUCT);
   navStore.add(
     {
-      title: 'Dashboard',
-      url: '/product-management/dashboard',
-      icon: <HugeiconsIcon icon={LayoutDashboard} strokeWidth={2} />,
+      title: 'Users',
+      url: '/identity-management/users',
+      icon: <HugeiconsIcon icon={UsersRoundIcon} strokeWidth={2} />,
     },
     PRODUCT,
   );
   navStore.add(
     {
-      title: 'Products',
-      url: '/product-management',
-      icon: <HugeiconsIcon icon={List} strokeWidth={2} />,
+      title: 'Roles',
+      url: '/identity-management/roles',
+      icon: <HugeiconsIcon icon={UserSettings01Icon} strokeWidth={2} />,
     },
     PRODUCT,
   );
 
-  navStore.addGroup(ADMIN);
+  navStore.addGroup(SAAS);
   navStore.add(
     {
-      title: 'Tenant Management',
-      url: '/tenant-management',
-      icon: <HugeiconsIcon icon={Building2} strokeWidth={2} />,
+      title: 'Tenants',
+      url: '/saas-management/tenants',
+      icon: <HugeiconsIcon icon={UsersRoundIcon} strokeWidth={2} />,
     },
-    ADMIN,
+    SAAS,
   );
   navStore.add(
     {
-      title: 'Setting Management',
-      icon: <HugeiconsIcon icon={Cog} strokeWidth={2} />,
-      children: [
-        { title: 'Settings', url: '/setting-management' },
-        { title: 'Profile', url: '/admin/settings/profile', icon: <HugeiconsIcon icon={Shield} strokeWidth={2} /> },
-        { title: 'System', icon: <HugeiconsIcon icon={Server} strokeWidth={2} />, url: '/admin/settings/system' },
-      ],
+      title: 'Editions',
+      url: '/saas-management/editions',
+      icon: <HugeiconsIcon icon={Layers01Icon} strokeWidth={2} />,
     },
-    ADMIN,
+    SAAS,
   );
 
-  navStore.addGroup(USER);
+  navStore.addGroup(AUDIT);
   navStore.add(
     {
-      title: 'Settings',
-      icon: <HugeiconsIcon icon={Settings} strokeWidth={2} />,
-      children: [
-        {
-          title: 'Profile',
-          url: '/user/settings/profile',
-        },
-        {
-          title: 'Security',
-          url: '/user/settings/security',
-        },
-        {
-          title: 'Preferences',
-          icon: <HugeiconsIcon icon={Palette} strokeWidth={2} />,
-          children: [
-            {
-              title: 'Theme',
-              url: '/user/settings/preferences/theme',
-              icon: <HugeiconsIcon icon={Palette} strokeWidth={2} />,
-            },
-          ],
-        },
-      ],
+      title: 'Audit Logs',
+      url: '/audit/logs',
+      icon: <HugeiconsIcon icon={File01Icon} strokeWidth={2} />,
     },
-    USER,
+    AUDIT,
+  );
+  navStore.add(
+    {
+      title: 'Entity Changes',
+      url: '/audit/entity-changes',
+      icon: <HugeiconsIcon icon={HistoryIcon} strokeWidth={2} />,
+    },
+    AUDIT,
   );
 }

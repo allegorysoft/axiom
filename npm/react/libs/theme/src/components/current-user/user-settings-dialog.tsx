@@ -117,7 +117,7 @@ export function SidebarSettingsDialog({
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>
         <DialogDescription className="sr-only">{description}</DialogDescription>
-        <SidebarProvider className="h-full min-h-0 flex-col items-stretch md:flex-row">
+        <SidebarProvider className="flex h-full min-h-0 w-full flex-col items-stretch md:flex-row">
           <Sidebar
             collapsible="none"
             className="h-auto w-full shrink-0 border-b md:h-full md:w-60 md:border-r md:border-b-0"
