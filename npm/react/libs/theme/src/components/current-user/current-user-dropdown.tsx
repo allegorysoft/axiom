@@ -30,9 +30,9 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
     );
   }
 
-  const sidebar = placement === 'sidebar';
+  const isInSidebar = placement === 'sidebar';
 
-  const Content = sidebar && (
+  const Content = isInSidebar && (
     <>
       <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
         <span className="truncate font-medium">{user.name}</span>
@@ -65,7 +65,7 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
 
       <DropdownMenuContent
         align="end"
-        side={sidebar && !isMobile ? 'right' : 'bottom'}
+        side={isInSidebar && !isMobile ? 'right' : 'bottom'}
         className="w-64 space-y-1 p-2"
         finalFocus={context.dialogOpen ? false : context.triggerRef}
       >
@@ -79,7 +79,7 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
     </DropdownMenu>
   );
 
-  return sidebar ? <SidebarMenuItem>{menu}</SidebarMenuItem> : menu;
+  return isInSidebar ? <SidebarMenuItem>{menu}</SidebarMenuItem> : menu;
 }
 
 function MenuTrigger({
@@ -95,10 +95,10 @@ function MenuTrigger({
 
   const { isMobile, state } = useSidebar();
 
-  const sidebar = placement === 'sidebar';
-  const collapsedSidebar = sidebar && !isMobile && state === 'collapsed';
+  const isInSidebar = placement === 'sidebar';
+  const collapsedSidebar = isInSidebar && !isMobile && state === 'collapsed';
 
-  if (sidebar && !collapsedSidebar) {
+  if (isInSidebar && !collapsedSidebar) {
     return (
       <SidebarMenuButton
         ref={context.triggerRef}
