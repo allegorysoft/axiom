@@ -19,13 +19,13 @@ public class UnitOfWorkTests
             cancellationToken: TestContext.Current.CancellationToken);
     }
 
-    private static DelegateUnitOfWorkDbHandle CreateDatabaseHandle(
+    private static UnitOfWorkDbHandleAdapter CreateDbHandle(
         object? database = null,
         object? transaction = null,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? saveChangesDelegate = null,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? commitTransactionDelegate = null,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? saveChangesDelegate = null,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? commitTransactionDelegate = null,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? rollbackTransactionDelegate = null)
     {
         database ??= new object();
         saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
@@ -35,7 +35,7 @@ public class UnitOfWorkTests
 
         if (transaction == null)
         {
-            return new DelegateUnitOfWorkDbHandle(
+            return new UnitOfWorkDbHandleAdapter(
                 database,
                 saveChangesDelegate,
                 beginTransactionDelegate,
@@ -43,7 +43,7 @@ public class UnitOfWorkTests
                 rollbackTransactionDelegate);
         }
 
-        return new DelegateUnitOfWorkDbHandle(
+        return new UnitOfWorkDbHandleAdapter(
             database,
             transaction,
             saveChangesDelegate,
@@ -80,14 +80,14 @@ public class UnitOfWorkTests
         var uow = CreateUnitOfWork();
         var saveCount = 0;
 
-        var saveChanges = (DelegateUnitOfWorkDbHandle _, CancellationToken _) =>
+        var saveChanges = (UnitOfWorkDbHandleAdapter _, CancellationToken _) =>
         {
             saveCount++;
             return Task.CompletedTask;
         };
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(saveChangesDelegate: saveChanges));
-        uow.AddDatabase("db2", CreateDatabaseHandle(saveChangesDelegate: saveChanges));
+        uow.AddDbHandle("db1", CreateDbHandle(saveChangesDelegate: saveChanges));
+        uow.AddDbHandle("db2", CreateDbHandle(saveChangesDelegate: saveChanges));
 
         await uow.SaveChangesAsync(CancellationToken.None);
 
@@ -118,7 +118,7 @@ public class UnitOfWorkTests
         var uow = CreateUnitOfWork();
         var log = new List<string>();
 
-        var handle1 = CreateDatabaseHandle(
+        var handle1 = CreateDbHandle(
             saveChangesDelegate: (_, _) =>
             {
                 log.Add("save:db1");
@@ -129,9 +129,9 @@ public class UnitOfWorkTests
                 log.Add("commit:db1");
                 return Task.CompletedTask;
             });
-        uow.AddDatabase("db1", handle1);
+        uow.AddDbHandle("db1", handle1);
 
-        var handle2 = CreateDatabaseHandle(
+        var handle2 = CreateDbHandle(
             saveChangesDelegate: (_, _) =>
             {
                 log.Add("save:db2");
@@ -142,7 +142,7 @@ public class UnitOfWorkTests
                 log.Add("commit:db2");
                 return Task.CompletedTask;
             });
-        uow.AddDatabase("db2", handle2);
+        uow.AddDbHandle("db2", handle2);
 
         await uow.CompleteAsync(CancellationToken.None);
 
@@ -174,14 +174,14 @@ public class UnitOfWorkTests
         var uow = CreateUnitOfWork();
         var rollbackCount = 0;
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             transaction: new object(),
             rollbackTransactionDelegate: (_, _) =>
             {
                 rollbackCount++;
                 return Task.CompletedTask;
             }));
-        uow.AddDatabase("db2", CreateDatabaseHandle(
+        uow.AddDbHandle("db2", CreateDbHandle(
             transaction: new object(),
             rollbackTransactionDelegate: (_, _) =>
             {
@@ -231,13 +231,13 @@ public class UnitOfWorkTests
 
         var database = new TrackingDisposable();
         var transaction = new TrackingDisposable();
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             database: database,
             transaction: transaction));
         
         var database2 = new TrackingAsyncDisposable();
         var transaction2 = new TrackingAsyncDisposable();
-        uow.AddDatabase("db2", CreateDatabaseHandle(
+        uow.AddDbHandle("db2", CreateDbHandle(
             database: database2,
             transaction: transaction2));
 
@@ -257,13 +257,13 @@ public class UnitOfWorkTests
 
         var database = new TrackingAsyncDisposable();
         var transaction = new TrackingAsyncDisposable();
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             database: database,
             transaction: transaction));
         
         var database2 = new TrackingDisposable();
         var transaction2 = new TrackingDisposable();
-        uow.AddDatabase("db2", CreateDatabaseHandle(
+        uow.AddDbHandle("db2", CreateDbHandle(
             database: database2,
             transaction: transaction2));
 
@@ -276,31 +276,31 @@ public class UnitOfWorkTests
         transaction2.Disposed.ShouldBeTrue();
     }
 
-    // AddDatabase
+    // AddDbHandle
     
     [Fact]
-    public void ShouldSetUnitOfWorkOnAddDatabase()
+    public void ShouldSetUnitOfWorkOnAddDbHandle()
     {
         var uow = CreateUnitOfWork();
 
-        var handle = CreateDatabaseHandle();
+        var handle = CreateDbHandle();
         handle.UnitOfWork.ShouldBeNull();
 
-        uow.AddDatabase("db1", handle);
+        uow.AddDbHandle("db1", handle);
         handle.UnitOfWork.ShouldBeSameAs(uow);
     }
     
     [Fact]
-    public void ShouldOverwriteExistingHandleWhenAddDatabaseWithSameKey()
+    public void ShouldOverwriteExistingHandleWhenAddDbHandleWithSameKey()
     {
         var uow = CreateUnitOfWork();
         var first = new object();
         var second = new object();
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(database: first));
-        uow.AddDatabase("db1", CreateDatabaseHandle(database: second));
+        uow.AddDbHandle("db1", CreateDbHandle(database: first));
+        uow.AddDbHandle("db1", CreateDbHandle(database: second));
 
-        ((DelegateUnitOfWorkDbHandle)uow.Databases["db1"]).Handle.ShouldBe(second);
+        ((UnitOfWorkDbHandleAdapter)uow.DbHandles["db1"]).Handle.ShouldBe(second);
     }
 
     // AddHook
@@ -455,7 +455,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             commitTransactionDelegate: (_, _) =>
             {
                 log.Add("commit");
@@ -479,7 +479,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             saveChangesDelegate: (_, _) =>
             {
                 log.Add("saved");
@@ -508,7 +508,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             commitTransactionDelegate: (_, _) =>
             {
                 log.Add("commit");
@@ -532,7 +532,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             transaction: new object(),
             rollbackTransactionDelegate: (_, _) =>
             {
@@ -557,7 +557,7 @@ public class UnitOfWorkTests
             return Task.CompletedTask;
         });
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             transaction: new object(),
             rollbackTransactionDelegate: (_, _) =>
             {
@@ -599,7 +599,7 @@ public class UnitOfWorkTests
             cancellationToken: ambientCts.Token);
 
         var saved = false;
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             saveChangesDelegate: (_, _) =>
             {
                 saved = true;
@@ -641,7 +641,7 @@ public class UnitOfWorkTests
             cancellationToken: ambientCts.Token);
 
         var commit = false;
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             commitTransactionDelegate: (_, _) =>
             {
                 commit = true;
@@ -670,7 +670,7 @@ public class UnitOfWorkTests
 
         var rolledBack = false;
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             transaction: new object(),
             rollbackTransactionDelegate: (_, _) =>
             {
@@ -696,7 +696,7 @@ public class UnitOfWorkTests
 
         var rolledBack = false;
 
-        uow.AddDatabase("db1", CreateDatabaseHandle(
+        uow.AddDbHandle("db1", CreateDbHandle(
             rollbackTransactionDelegate: (_, _) =>
             {
                 rolledBack = true;

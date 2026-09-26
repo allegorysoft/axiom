@@ -4,31 +4,31 @@ using System.Threading.Tasks;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class DelegateUnitOfWorkDbHandle(
+public class UnitOfWorkDbHandleAdapter(
     object handle,
-    Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> saveChangesDelegate)
+    Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> saveChangesDelegate)
     : UnitOfWorkDbHandle(handle)
 {
-    public DelegateUnitOfWorkDbHandle(
-        object database,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> saveChangesDelegate,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task<object>> beginTransactionDelegate,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> commitTransactionDelegate,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> rollbackTransactionDelegate)
-        : this(database, saveChangesDelegate)
+    public UnitOfWorkDbHandleAdapter(
+        object handle,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> saveChangesDelegate,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task<object>> beginTransactionDelegate,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> commitTransactionDelegate,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> rollbackTransactionDelegate)
+        : this(handle, saveChangesDelegate)
     {
         BeginTransactionDelegate = beginTransactionDelegate;
         CommitTransactionDelegate = commitTransactionDelegate;
         RollbackTransactionDelegate = rollbackTransactionDelegate;
     }
 
-    public DelegateUnitOfWorkDbHandle(
-        object database,
+    public UnitOfWorkDbHandleAdapter(
+        object handle,
         object transaction,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> saveChangesDelegate,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> commitTransactionDelegate,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> rollbackTransactionDelegate)
-        : this(database, saveChangesDelegate)
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> saveChangesDelegate,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> commitTransactionDelegate,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> rollbackTransactionDelegate)
+        : this(handle, saveChangesDelegate)
     {
         Transaction = transaction;
         CommitTransactionDelegate = commitTransactionDelegate;
@@ -38,17 +38,12 @@ public class DelegateUnitOfWorkDbHandle(
     public object Handle { get; } = handle;
     public object? Transaction { get; protected set; }
 
-    protected Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task> SaveChangesDelegate { get; } =
+    protected Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task> SaveChangesDelegate { get; } =
         saveChangesDelegate;
 
-    protected Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task<object>>? BeginTransactionDelegate { get; }
-    protected Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? CommitTransactionDelegate { get; }
-    protected Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? RollbackTransactionDelegate { get; }
-
-    public virtual TDatabase GetDatabase<TDatabase>() where TDatabase : class => (TDatabase) Handle;
-
-    public virtual TTransaction GetTransaction<TTransaction>() where TTransaction : class =>
-        (TTransaction) Transaction!;
+    protected Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task<object>>? BeginTransactionDelegate { get; }
+    protected Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? CommitTransactionDelegate { get; }
+    protected Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? RollbackTransactionDelegate { get; }
 
     public override async Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {

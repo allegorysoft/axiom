@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Allegory.Axiom.UnitOfWork;
 
-public class DelegateUnitOfWorkDbHandleTests
+public class UnitOfWorkDbHandleAdapterTests
 {
     private static UnitOfWork CreateUnitOfWork()
     {
@@ -21,14 +21,14 @@ public class DelegateUnitOfWorkDbHandleTests
     {
         var uow = CreateUnitOfWork();
 
-        var handle = new DelegateUnitOfWorkDbHandle(
-            database: new object(),
+        var handle = new UnitOfWorkDbHandleAdapter(
+            handle: new object(),
             saveChangesDelegate: static (_, _) => Task.CompletedTask,
             beginTransactionDelegate: (_, _) => Task.FromResult(new object()),
             commitTransactionDelegate: static (_, _) => Task.CompletedTask,
             rollbackTransactionDelegate: static (_, _) => Task.CompletedTask);
 
-        uow.AddDatabase("db1", handle);
+        uow.AddDbHandle("db1", handle);
 
         handle.Transaction.ShouldBeNull();
         await uow.SaveChangesAsync(CancellationToken.None);
@@ -41,8 +41,8 @@ public class DelegateUnitOfWorkDbHandleTests
         var beginCount = 0;
         var uow = CreateUnitOfWork();
 
-        var handle = new DelegateUnitOfWorkDbHandle(
-            database: new object(),
+        var handle = new UnitOfWorkDbHandleAdapter(
+            handle: new object(),
             saveChangesDelegate: static (_, _) => Task.CompletedTask,
             beginTransactionDelegate: (_, _) =>
             {
@@ -51,13 +51,13 @@ public class DelegateUnitOfWorkDbHandleTests
             },
             commitTransactionDelegate: static (_, _) => Task.CompletedTask,
             rollbackTransactionDelegate: static (_, _) => Task.CompletedTask);
-        uow.AddDatabase("db1", handle);
+        uow.AddDbHandle("db1", handle);
 
         for (var i = 0; i < 3; i++)
         {
             await uow.SaveChangesAsync(CancellationToken.None);
         }
-        
+
         await uow.CompleteAsync(CancellationToken.None);
 
         beginCount.ShouldBe(1);

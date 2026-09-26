@@ -39,10 +39,10 @@ public abstract class UnitOfWorkDbHandle(object handle) : IDisposable, IAsyncDis
     }
 }
 
-public abstract class UnitOfWorkDbHandle<TDatabase>(
-    TDatabase handle)
+public abstract class UnitOfWorkDbHandle<THandle>(
+    THandle handle)
     : UnitOfWorkDbHandle(handle)
-    where TDatabase : notnull
+    where THandle : notnull
 {
-    public TDatabase Handle { get; } = handle;
+    public THandle Handle { get; } = handle;
 }

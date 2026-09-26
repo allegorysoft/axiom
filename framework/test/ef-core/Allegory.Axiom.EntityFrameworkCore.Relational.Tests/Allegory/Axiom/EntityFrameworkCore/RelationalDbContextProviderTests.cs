@@ -125,7 +125,7 @@ public class RelationalDbContextProviderTests(
             var app1Context = await Provider.GetAsync();
             var app2Context = await provider2.GetAsync();
 
-            uow.Databases.Count.ShouldBe(2);
+            uow.DbHandles.Count.ShouldBe(2);
 
             await uow.DisposeAsync();
         });
@@ -138,8 +138,8 @@ public class RelationalDbContextProviderTests(
         {
             var context = await Provider.GetAsync();
 
-            uow.Databases.ShouldNotBeEmpty();
-            ((EfCoreUnitOfWorkDbHandle<AppDbContext>)uow.Databases.Single().Value).Handle.ShouldBeSameAs(context);
+            uow.DbHandles.ShouldNotBeEmpty();
+            ((EfCoreUnitOfWorkDbHandle<AppDbContext>)uow.DbHandles.Single().Value).Handle.ShouldBeSameAs(context);
         });
     }
 

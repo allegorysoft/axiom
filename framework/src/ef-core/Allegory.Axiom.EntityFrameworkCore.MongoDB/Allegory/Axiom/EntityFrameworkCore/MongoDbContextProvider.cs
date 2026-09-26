@@ -43,7 +43,7 @@ public class MongoDbContextProvider<TContext>(
 
         var connectionString = await ConnectionStringProvider.FindAsync(Options.ConnectionStringName);
         var key = $"{typeof(TContext).FullName!}_{connectionString}"; //TODO: We might optimize here
-        if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
+        if (unitOfWork.DbHandles.TryGetValue(key, out var dbHandle))
         {
             return ((EfCoreUnitOfWorkDbHandle<TContext>) dbHandle).Handle;
         }
@@ -108,7 +108,7 @@ public class MongoDbContextProvider<TContext>(
             handle = new EfCoreUnitOfWorkDbHandle<TContext>(dbContext, isLazyTransactional: true);
         }
 
-        unitOfWork.AddDatabase(key, handle);
+        unitOfWork.AddDbHandle(key, handle);
     }
 
     protected virtual async Task TryBeginTransactionAsync(
