@@ -139,7 +139,7 @@ public class RelationalDbContextProviderTests(
             var context = await Provider.GetAsync();
 
             uow.DbHandles.ShouldNotBeEmpty();
-            ((EfCoreUnitOfWorkDbHandle<AppDbContext>)uow.DbHandles.Single().Value).Handle.ShouldBeSameAs(context);
+            ((EfCoreUnitOfWorkDbHandle<AppDbContext>) uow.DbHandles.Single().Value).Handle.ShouldBeSameAs(context);
         });
     }
 

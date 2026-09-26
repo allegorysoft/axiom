@@ -176,7 +176,7 @@ public class MongoDbContextProviderTests(
             var context = await Provider.GetAsync();
 
             uow.DbHandles.ShouldNotBeEmpty();
-            ((EfCoreUnitOfWorkDbHandle<AppDbContext>)uow.DbHandles.Single().Value).Handle.ShouldBeSameAs(context);
+            ((EfCoreUnitOfWorkDbHandle<AppDbContext>) uow.DbHandles.Single().Value).Handle.ShouldBeSameAs(context);
         });
     }
 
@@ -245,7 +245,7 @@ public class MongoDbContextProviderTests(
             },
             options: new UnitOfWorkOptions(isolationLevel: System.Data.IsolationLevel.Serializable));
     }
-    
+
     // MongoDB has no transaction-wide command timeout equivalent, so UnitOfWorkOptions.Timeout can't be applied.
 }
 
