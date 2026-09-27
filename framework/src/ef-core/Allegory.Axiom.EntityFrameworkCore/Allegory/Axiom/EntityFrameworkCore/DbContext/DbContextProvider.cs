@@ -48,7 +48,7 @@ public abstract class DbContextProvider<TContext>(
         out TContext? dbContext,
         out string? key)
     {
-        key = $"{Options.ConnectionStringName}_{connectionString}"; //TODO: We might optimize here
+        key = $"{Options.ConnectionStringName}_{connectionString}";
         dbContext = null;
 
         if (unitOfWork.DbHandles.TryGetValue(key, out var dbHandle))
