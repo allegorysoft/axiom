@@ -14,12 +14,12 @@ public interface IUnitOfWork : IDisposable, IAsyncDisposable
     Activity? Activity { get; }
     UnitOfWorkOptions Options { get; }
     Dictionary<string, object> Items { get; }
-    IReadOnlyDictionary<string, UnitOfWorkDbHandle> Databases { get; }
+    IReadOnlyDictionary<string, UnitOfWorkDbHandle> DbHandles { get; }
     UnitOfWorkState State { get; }
     IServiceProvider ServiceProvider { get; }
     CancellationToken CancellationToken { get; }
 
-    void AddDatabase(string key, UnitOfWorkDbHandle handle);
+    void AddDbHandle(string key, UnitOfWorkDbHandle handle);
 
     void AddHook(
         UnitOfWorkHookPoint hook,

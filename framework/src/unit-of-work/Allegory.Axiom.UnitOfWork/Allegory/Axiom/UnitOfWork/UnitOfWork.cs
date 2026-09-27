@@ -16,7 +16,7 @@ internal sealed class UnitOfWork(
     CancellationTokenSource? cancellationTokenSource = null)
     : IUnitOfWork
 {
-    private readonly Dictionary<string, UnitOfWorkDbHandle> _databases = new();
+    private readonly Dictionary<string, UnitOfWorkDbHandle> _dbHandles = new();
     private readonly Dictionary<UnitOfWorkHookPoint, PriorityQueue<Func<Task>, PrioritySortOrder<ushort>>> _hooks = new();
     private ushort _hookSequence;
 
@@ -28,15 +28,15 @@ internal sealed class UnitOfWork(
     public Activity? Activity { get; set; }
     public UnitOfWorkOptions Options { get; } = options;
     public Dictionary<string, object> Items { get; } = new();
-    public IReadOnlyDictionary<string, UnitOfWorkDbHandle> Databases => _databases;
+    public IReadOnlyDictionary<string, UnitOfWorkDbHandle> DbHandles => _dbHandles;
     public UnitOfWorkState State { get; private set; }
     public IServiceProvider ServiceProvider { get; } = serviceProvider;
     public CancellationToken CancellationToken { get; } = cancellationToken;
 
-    public void AddDatabase(string key, UnitOfWorkDbHandle handle)
+    public void AddDbHandle(string key, UnitOfWorkDbHandle handle)
     {
         handle.UnitOfWork = this;
-        _databases[key] = handle;
+        _dbHandles[key] = handle;
     }
 
     public void AddHook(
@@ -87,9 +87,9 @@ internal sealed class UnitOfWork(
         cancellationToken = cancellationToken.FallbackTo(CancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
-        foreach (var databaseHandle in Databases.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.SaveChangesAsync(cancellationToken);
+            await dbHandle.SaveChangesAsync(cancellationToken);
         }
     }
 
@@ -111,9 +111,9 @@ internal sealed class UnitOfWork(
 
         State = UnitOfWorkState.Committing;
 
-        foreach (var databaseHandle in Databases.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.CommitAsync(CancellationToken.None);
+            await dbHandle.CommitAsync(CancellationToken.None);
         }
 
         State = UnitOfWorkState.Committed;
@@ -137,9 +137,9 @@ internal sealed class UnitOfWork(
 
         State = UnitOfWorkState.RollingBack;
 
-        foreach (var databaseHandle in Databases.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.RollbackAsync(CancellationToken.None);
+            await dbHandle.RollbackAsync(CancellationToken.None);
         }
 
         State = UnitOfWorkState.RolledBack;
@@ -157,9 +157,9 @@ internal sealed class UnitOfWork(
         Activity?.SetTag("uow.state", State.ToString());
         State = UnitOfWorkState.Disposed;
 
-        foreach (var databaseHandle in Databases.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            databaseHandle.Dispose();
+            dbHandle.Dispose();
         }
 
         AsyncServiceScope?.Dispose();
@@ -178,9 +178,9 @@ internal sealed class UnitOfWork(
         Activity?.SetTag("uow.state", State.ToString());
         State = UnitOfWorkState.Disposed;
 
-        foreach (var databaseHandle in Databases.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.DisposeAsync();
+            await dbHandle.DisposeAsync();
         }
 
         if (AsyncServiceScope.HasValue)

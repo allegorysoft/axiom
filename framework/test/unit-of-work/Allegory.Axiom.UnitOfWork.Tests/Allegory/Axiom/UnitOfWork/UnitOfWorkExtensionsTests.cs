@@ -10,10 +10,10 @@ namespace Allegory.Axiom.UnitOfWork;
 public class UnitOfWorkExtensionsTests
 {
     private static UnitOfWork CreateUow(
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? saveChangesDelegate = null,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task<object>>? beginTransactionDelegate = null,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? commitTransactionDelegate = null,
-        Func<DelegateUnitOfWorkDbHandle, CancellationToken, Task>? rollbackTransactionDelegate = null)
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? saveChangesDelegate = null,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task<object>>? beginTransactionDelegate = null,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? commitTransactionDelegate = null,
+        Func<UnitOfWorkDbHandleAdapter, CancellationToken, Task>? rollbackTransactionDelegate = null)
     {
         saveChangesDelegate ??= static (_, _) => Task.CompletedTask;
         beginTransactionDelegate ??= static (_, _) => Task.FromResult(new object());
@@ -22,12 +22,13 @@ public class UnitOfWorkExtensionsTests
 
         var uow = new UnitOfWork(
             UnitOfWorkOptions.Required,
-            new ServiceCollection().BuildServiceProvider());
+            new ServiceCollection().BuildServiceProvider(),
+            cancellationToken: TestContext.Current.CancellationToken);
 
-        uow.AddDatabase(
+        uow.AddDbHandle(
             "db1",
-            new DelegateUnitOfWorkDbHandle(
-                database: new object(),
+            new UnitOfWorkDbHandleAdapter(
+                handle: new object(),
                 saveChangesDelegate: saveChangesDelegate,
                 beginTransactionDelegate: beginTransactionDelegate,
                 commitTransactionDelegate: commitTransactionDelegate!,
@@ -48,7 +49,7 @@ public class UnitOfWorkExtensionsTests
             return Task.CompletedTask;
         });
 
-        await uow.TryCompleteAsync(TestContext.Current.CancellationToken);
+        await uow.TryCompleteAsync(CancellationToken.None);
 
         uow.State.ShouldBe(UnitOfWorkState.Committed);
         committed.ShouldBeTrue();
@@ -72,7 +73,7 @@ public class UnitOfWorkExtensionsTests
         var endpointException = new InvalidOperationException("endpoint failed");
 
         // Simulates the action calling TryRollbackAsync directly when it has exception
-        await uow.TryRollbackAsync(endpointException, TestContext.Current.CancellationToken);
+        await uow.TryRollbackAsync(endpointException, CancellationToken.None);
 
         uow.State.ShouldBe(UnitOfWorkState.RolledBack);
         rolledBack.ShouldBeTrue();
@@ -92,7 +93,7 @@ public class UnitOfWorkExtensionsTests
         await uow.SaveChangesAsync(CancellationToken.None); 
 
         var ex = await Should.ThrowAsync<AggregateException>(() =>
-            uow.TryRollbackAsync(endpointException, TestContext.Current.CancellationToken));
+            uow.TryRollbackAsync(endpointException, CancellationToken.None));
 
         ex.InnerExceptions.Count.ShouldBe(2);
         ex.InnerExceptions.ShouldContain(rollbackException);
@@ -115,7 +116,7 @@ public class UnitOfWorkExtensionsTests
                 return Task.CompletedTask;
             });
 
-        var ex = await Should.ThrowAsync<Exception>(() => uow.TryCompleteAsync(TestContext.Current.CancellationToken));
+        var ex = await Should.ThrowAsync<Exception>(() => uow.TryCompleteAsync(CancellationToken.None));
 
         ex.ShouldBe(saveChangeException);
         uow.State.ShouldBe(UnitOfWorkState.RolledBack);
@@ -132,7 +133,7 @@ public class UnitOfWorkExtensionsTests
         var uow = CreateUow(commitTransactionDelegate: (_, _) => throw commitException);
 
         var ex = await Should.ThrowAsync<AggregateException>(() =>
-            uow.TryCompleteAsync(TestContext.Current.CancellationToken));
+            uow.TryCompleteAsync(CancellationToken.None));
 
         ex.InnerExceptions.Count.ShouldBe(2);
         ex.InnerExceptions.ShouldContain(commitException);
