@@ -17,7 +17,7 @@ public class UnitOfWorkDbHandleAdapterTests
     }
 
     [Fact]
-    public async Task ShouldBeginAndSetTransactionOnSaveChangesWhenBeginTransactionDelegateHasValue()
+    public async Task ShouldSaveChangesAndBeginTransactionWhenDelegateHasValue()
     {
         var uow = CreateUnitOfWork();
 
@@ -36,7 +36,7 @@ public class UnitOfWorkDbHandleAdapterTests
     }
 
     [Fact]
-    public async Task ShouldNotReinvokeBeginTransactionDelegateOnSaveChangesAsyncWhenTransactionAlreadyStarted()
+    public async Task ShouldNotReBeginTransactionOnSubsequentSaveChanges()
     {
         var beginCount = 0;
         var uow = CreateUnitOfWork();
