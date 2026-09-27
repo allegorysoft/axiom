@@ -12,4 +12,5 @@ export * from './tab/index';
 export * from './storage/index';
 export * from './store/index';
 export * from './theme/index';
+export * from './user/index';
 export * from './utils/index';
