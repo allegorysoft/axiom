@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -61,12 +62,12 @@ public class MongoDbContextProvider<TContext>(
         }, (DbContextOptions, Clients));
     }
 
-    protected override async Task BeginTransactionAsync(
+    protected override Task<IDbContextTransaction> BeginTransactionAsync(
         IsolationLevel isolationLevel,
         TContext dbContext,
         CancellationToken cancellationToken = default)
     {
-        await dbContext.Database.BeginTransactionAsync(
+        return dbContext.Database.BeginTransactionAsync(
             MapToMongoTransactionOptions(isolationLevel),
             cancellationToken);
     }

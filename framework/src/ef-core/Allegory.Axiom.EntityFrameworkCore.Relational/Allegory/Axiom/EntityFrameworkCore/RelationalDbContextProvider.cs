@@ -5,6 +5,7 @@ using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
@@ -38,11 +39,11 @@ public class RelationalDbContextProvider<TContext>(
         return dbContext;
     }
 
-    protected override async Task BeginTransactionAsync(
+    protected override Task<IDbContextTransaction> BeginTransactionAsync(
         IsolationLevel isolationLevel,
         TContext dbContext,
         CancellationToken cancellationToken = default)
     {
-        await dbContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
+        return dbContext.Database.BeginTransactionAsync(isolationLevel, cancellationToken);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.UnitOfWork;
@@ -69,11 +70,12 @@ public class EfCoreUnitOfWorkDbHandleTests(
 
             await uow.SaveChangesAsync(CancellationToken.None);
             context.Database.CurrentTransaction.ShouldNotBeNull();
+            handle.Transaction.ShouldNotBeNull();
 
-            await handle.CommitAsync(CancellationToken.None);
+            await uow.TryCompleteAsync();
 
-            // After commit, the transaction should be disposed
-            context.Database.CurrentTransaction.ShouldBeNull();
+            context.Database.CurrentTransaction.ShouldBeNull(); // After commit, the transaction should be null
+            handle.Transaction.ShouldNotBeNull(); // Handle transaction stay for disposing
         });
     }
 
@@ -87,16 +89,17 @@ public class EfCoreUnitOfWorkDbHandleTests(
 
             await uow.SaveChangesAsync(CancellationToken.None);
             context.Database.CurrentTransaction.ShouldNotBeNull();
+            handle.Transaction.ShouldNotBeNull();
 
-            await handle.RollbackAsync(CancellationToken.None);
+            await uow.RollbackAsync(CancellationToken.None);
 
-            // After rollback, the transaction should be disposed
-            context.Database.CurrentTransaction.ShouldBeNull();
+            context.Database.CurrentTransaction.ShouldBeNull(); // After rollback, the transaction should be null
+            handle.Transaction.ShouldNotBeNull(); // Handle transaction stay for disposing
         });
     }
 
     [Fact]
-    public async Task ShouldNotThrowWhenCommittingWithoutActiveTransaction()
+    public async Task ShouldNotThrowWhenCommitOrRollbackWithoutActiveTransaction()
     {
         await fixture.RunInUnitOfWorkAsync(async uow =>
         {
@@ -139,6 +142,30 @@ public class EfCoreUnitOfWorkDbHandleTests(
                 context.Database.CurrentTransaction.ShouldBeNull();
             },
             options: UnitOfWorkOptions.Required);
+    }
+
+    [Fact]
+    public async Task ShouldDisposeGracefully()
+    {
+        App1DbContext context = null!;
+        IDbContextTransaction transaction = null!;
+
+        await fixture.RunInUnitOfWorkAsync(async uow =>
+        {
+            context = await Provider.GetAsync();
+            var handle = (EfCoreUnitOfWorkDbHandle<App1DbContext>) uow.DbHandles.Single().Value;
+            await handle.SaveChangesAsync();
+            transaction = context.Database.CurrentTransaction!;
+        });
+
+        Should.Throw<ObjectDisposedException>(() => context.ChangeTracker);
+
+        // Use reflection to check the private _disposed field
+        var disposedField = transaction.GetType()
+            .GetField("_disposed", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        var isDisposed = (bool) disposedField!.GetValue(transaction)!;
+        isDisposed.ShouldBeTrue();
     }
 }
 

@@ -196,15 +196,17 @@ public class DbContextProviderTests(DbContextProviderFixture fixture) : IClassFi
     public async Task ShouldOpenTransactionEagerlyWhenIsolationLevelSpecified()
     {
         await fixture.RunInUnitOfWorkAsync(
-            async _ =>
+            async uow =>
             {
                 var context = await Provider.GetAsync();
+                var handle = (EfCoreUnitOfWorkDbHandle<App1DbContext>) uow.DbHandles.Single().Value;
 
                 // IsolationLevel forces BeginTransactionAsync eagerly inside AddDbHandleAsync,
                 // unlike the default lazy path, so the transaction should already be open.
                 context.Database.CurrentTransaction.ShouldNotBeNull();
+                context.Database.CurrentTransaction.ShouldBeSameAs(handle.Transaction);
                 context.Database.CurrentTransaction.GetDbTransaction()
-                    .IsolationLevel.ShouldBe(System.Data.IsolationLevel.Serializable);
+                    .IsolationLevel.ShouldBe(IsolationLevel.Serializable);
             },
             options: new UnitOfWorkOptions(isolationLevel: System.Data.IsolationLevel.Serializable));
     }
@@ -262,7 +264,7 @@ public class NotSupportedDbContextProvider(
     RelationalDbContextProvider<App1DbContext>(factory, manager, options, provider)
 {
     // This throws NotSupportedException to simulate a database provider that doesn't support transactions
-    protected override Task BeginTransactionAsync(
+    protected override Task<IDbContextTransaction> BeginTransactionAsync(
         IsolationLevel isolationLevel,
         App1DbContext dbContext,
         CancellationToken cancellationToken = default)
