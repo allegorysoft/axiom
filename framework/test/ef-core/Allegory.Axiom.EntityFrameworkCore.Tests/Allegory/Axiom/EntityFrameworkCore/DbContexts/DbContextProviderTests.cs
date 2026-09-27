@@ -133,7 +133,7 @@ public class DbContextProviderTests(DbContextProviderFixture fixture) : IClassFi
     }
 
     [Fact]
-    public async Task ShouldRegisterDbContextAsDatabaseHandleOnUnitOfWork()
+    public async Task ShouldRegisterDbContextAsDbHandleOnUnitOfWork()
     {
         await fixture.RunInUnitOfWorkAsync(async uow =>
         {

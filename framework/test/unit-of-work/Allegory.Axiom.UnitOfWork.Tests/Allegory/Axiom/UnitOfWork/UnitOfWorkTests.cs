@@ -75,7 +75,7 @@ public class UnitOfWorkTests
     }
 
     [Fact]
-    public async Task ShouldCallSaveChangesOnAllDatabaseHandlesWhenSaveChangesAsync()
+    public async Task ShouldCallSaveChangesOnAllDbHandlesWhenSaveChangesAsync()
     {
         var uow = CreateUnitOfWork();
         var saveCount = 0;
@@ -169,7 +169,7 @@ public class UnitOfWorkTests
     }
 
     [Fact]
-    public async Task ShouldCallRollbackOnAllDatabaseHandlesWhenRollbackAsync()
+    public async Task ShouldCallRollbackOnAllDbHandlesWhenRollbackAsync()
     {
         var uow = CreateUnitOfWork();
         var rollbackCount = 0;

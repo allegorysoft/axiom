@@ -87,9 +87,9 @@ internal sealed class UnitOfWork(
         cancellationToken = cancellationToken.FallbackTo(CancellationToken);
         cancellationToken.ThrowIfCancellationRequested();
 
-        foreach (var databaseHandle in DbHandles.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.SaveChangesAsync(cancellationToken);
+            await dbHandle.SaveChangesAsync(cancellationToken);
         }
     }
 
@@ -111,9 +111,9 @@ internal sealed class UnitOfWork(
 
         State = UnitOfWorkState.Committing;
 
-        foreach (var databaseHandle in DbHandles.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.CommitAsync(CancellationToken.None);
+            await dbHandle.CommitAsync(CancellationToken.None);
         }
 
         State = UnitOfWorkState.Committed;
@@ -137,9 +137,9 @@ internal sealed class UnitOfWork(
 
         State = UnitOfWorkState.RollingBack;
 
-        foreach (var databaseHandle in DbHandles.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.RollbackAsync(CancellationToken.None);
+            await dbHandle.RollbackAsync(CancellationToken.None);
         }
 
         State = UnitOfWorkState.RolledBack;
@@ -157,9 +157,9 @@ internal sealed class UnitOfWork(
         Activity?.SetTag("uow.state", State.ToString());
         State = UnitOfWorkState.Disposed;
 
-        foreach (var databaseHandle in DbHandles.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            databaseHandle.Dispose();
+            dbHandle.Dispose();
         }
 
         AsyncServiceScope?.Dispose();
@@ -178,9 +178,9 @@ internal sealed class UnitOfWork(
         Activity?.SetTag("uow.state", State.ToString());
         State = UnitOfWorkState.Disposed;
 
-        foreach (var databaseHandle in DbHandles.Values)
+        foreach (var dbHandle in DbHandles.Values)
         {
-            await databaseHandle.DisposeAsync();
+            await dbHandle.DisposeAsync();
         }
 
         if (AsyncServiceScope.HasValue)
