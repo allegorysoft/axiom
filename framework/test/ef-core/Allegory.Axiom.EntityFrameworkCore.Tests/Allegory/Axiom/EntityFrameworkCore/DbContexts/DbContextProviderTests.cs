@@ -212,9 +212,6 @@ public class DbContextProviderTests(DbContextProviderFixture fixture) : IClassFi
     [Fact]
     public async Task ShouldHandleExceptionWhenIsolationLevelSpecifiedAndTransactionNotSupported()
     {
-        // When IsolationLevel is specified, AddDbHandleAsync calls BeginTransactionAsync eagerly
-        // If it throws NotSupportedException, it should be caught, logged, and DbContext should still be returned
-
         var serviceProvider = await fixture.CreateServiceProviderAsync(builder =>
         {
             builder.Services.AddSingleton<IDbContextProvider<App1DbContext>, NotSupportedDbContextProvider>();
