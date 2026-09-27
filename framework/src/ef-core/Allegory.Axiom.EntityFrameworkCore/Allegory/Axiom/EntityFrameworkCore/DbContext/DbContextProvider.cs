@@ -1,8 +1,12 @@
+using System;
+using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
@@ -70,7 +74,16 @@ public abstract class DbContextProvider<TContext>(
 
         if (unitOfWork.Options.IsolationLevel.HasValue)
         {
-            await TryBeginTransactionAsync(unitOfWork, dbContext, cancellationToken);
+            try
+            {
+                await BeginTransactionAsync(unitOfWork.Options.IsolationLevel!.Value, dbContext, cancellationToken);
+            }
+            catch (NotSupportedException e)
+            {
+                var logger = unitOfWork.ServiceProvider.GetRequiredService<ILogger<UnitOfWorkDbHandle>>();
+                logger.LogWarning(e, "Transaction not supported for {DbContext}", typeof(TContext));
+            }
+
             handle = new EfCoreUnitOfWorkDbHandle<TContext>(dbContext);
         }
         else if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
@@ -85,8 +98,8 @@ public abstract class DbContextProvider<TContext>(
         unitOfWork.AddDbHandle(key, handle);
     }
 
-    protected abstract Task TryBeginTransactionAsync(
-        IUnitOfWork unitOfWork,
+    protected abstract Task BeginTransactionAsync(
+        IsolationLevel isolationLevel,
         TContext dbContext,
         CancellationToken cancellationToken = default);
 }

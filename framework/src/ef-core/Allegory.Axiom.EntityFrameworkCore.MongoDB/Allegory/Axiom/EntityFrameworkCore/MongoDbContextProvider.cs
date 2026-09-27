@@ -4,11 +4,9 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Data.ConnectionStrings;
-using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.EntityFrameworkCore;
@@ -21,7 +19,7 @@ public class MongoDbContextProvider<TContext>(
     IOptions<AxiomDbContextOptions<TContext>> options,
     IConnectionStringProvider connectionStringProvider,
     DbContextOptions<TContext> dbContextOptions) :
-    DbContextProvider<TContext>(dbContextFactory, unitOfWorkManager, options, connectionStringProvider)
+    DbContextProvider<TContext>(dbContextFactory, unitOfWorkManager, options, connectionStringProvider), IDisposable
     where TContext : DbContext
 {
     protected DbContextOptions<TContext> DbContextOptions { get; } = dbContextOptions;
@@ -63,22 +61,14 @@ public class MongoDbContextProvider<TContext>(
         }, (DbContextOptions, Clients));
     }
 
-    protected override async Task TryBeginTransactionAsync(
-        IUnitOfWork unitOfWork,
+    protected override async Task BeginTransactionAsync(
+        IsolationLevel isolationLevel,
         TContext dbContext,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            await dbContext.Database.BeginTransactionAsync(
-                MapToMongoTransactionOptions(unitOfWork.Options.IsolationLevel!.Value),
-                cancellationToken);
-        }
-        catch (NotSupportedException e)
-        {
-            var logger = unitOfWork.ServiceProvider.GetRequiredService<ILogger<UnitOfWorkDbHandle>>();
-            logger.LogWarning(e, "Transaction not supported for {DbContext}", typeof(TContext));
-        }
+        await dbContext.Database.BeginTransactionAsync(
+            MapToMongoTransactionOptions(isolationLevel),
+            cancellationToken);
     }
 
     protected virtual TransactionOptions MapToMongoTransactionOptions(IsolationLevel isolationLevel)
