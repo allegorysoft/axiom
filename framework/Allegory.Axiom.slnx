@@ -31,6 +31,10 @@
   <Folder Name="/src/ddd/">
     <Project Path="src/ddd/Allegory.Axiom.Domain/Allegory.Axiom.Domain.csproj" />
   </Folder>
+  <Folder Name="/src/distributed-locking/">
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking.Abstractions/Allegory.Axiom.DistributedLocking.Abstractions.csproj" />
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking/Allegory.Axiom.DistributedLocking.csproj" />
+  </Folder>
   <Folder Name="/src/ef-core/">
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB/Allegory.Axiom.EntityFrameworkCore.MongoDB.csproj" />
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational/Allegory.Axiom.EntityFrameworkCore.Relational.csproj" />
@@ -91,10 +95,13 @@
   <Folder Name="/test/data/">
     <Project Path="test/data/Allegory.Axiom.Data.Tests/Allegory.Axiom.Data.Tests.csproj" />
   </Folder>
+  <Folder Name="/test/distributed-locking/">
+    <Project Path="test/distributed-locking/Allegory.Axiom.DistributedLocking.Tests/Allegory.Axiom.DistributedLocking.Tests.csproj" />
+  </Folder>
   <Folder Name="/test/ef-core/">
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational.Tests/Allegory.Axiom.EntityFrameworkCore.Relational.Tests.csproj" />
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Tests/Allegory.Axiom.EntityFrameworkCore.Tests.csproj" />
-    <Project Path="test\ef-core\Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests\Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests.csproj" />
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests/Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests.csproj" />
   </Folder>
   <Folder Name="/test/event-bus/">
     <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />
