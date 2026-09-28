@@ -2,15 +2,28 @@ import {
   type ReactNode,
   type RefObject,
   createContext,
+  lazy,
+  Suspense,
   useRef,
   useState,
 } from 'react';
 
-import type { UserSettingsSection } from './user-settings-sections';
-import { UserSettingsDialog } from './user-settings-dialog';
-import { SettingsDialog } from './settings-dialog';
+import type { UserSettingsSection } from '../profile/models';
 
-type Destination = 'profile' | 'settings';
+import type { Destination } from './models';
+
+const UserSettingsDialog = lazy(() =>
+  import('../profile/user-settings-dialog').then((m) => ({
+    default: m.UserSettingsDialog,
+  })),
+);
+
+const SettingsDialog = lazy(() =>
+  import('../application-settings/application-settings-dialog').then((m) => ({
+    default: m.ApplicationSettingsDialog,
+  })),
+);
+
 type UserMenuContextValue = {
   openDialog: (destination: Destination) => void;
   dialogOpen: boolean;
@@ -41,19 +54,25 @@ export function UserMenuProvider({ children }: { children: ReactNode }) {
     >
       {children}
 
-      <UserSettingsDialog
-        open={profileOpen}
-        onOpenChange={setProfileOpen}
-        section={section}
-        onSectionChange={setSection}
-        finalFocus={triggerRef}
-      />
+      <Suspense fallback={null}>
+        {profileOpen && (
+          <UserSettingsDialog
+            open={profileOpen}
+            onOpenChange={setProfileOpen}
+            section={section}
+            onSectionChange={setSection}
+            finalFocus={triggerRef}
+          />
+        )}
 
-      <SettingsDialog
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        finalFocus={triggerRef}
-      />
+        {settingsOpen && (
+          <SettingsDialog
+            open={settingsOpen}
+            onOpenChange={setSettingsOpen}
+            finalFocus={triggerRef}
+          />
+        )}
+      </Suspense>
     </UserMenuContext.Provider>
   );
 }

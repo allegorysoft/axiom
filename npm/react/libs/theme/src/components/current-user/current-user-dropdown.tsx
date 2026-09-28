@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { UnfoldMoreIcon } from '@hugeicons/core-free-icons';
 
-import { getAvatarFallbackText } from '@axiomframework/react-core';
+import { getAvatarFallbackText, useUser } from '@axiomframework/react-core';
 
 import {
   DropdownMenu,
@@ -12,14 +12,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '../ui/sidebar';
 
-import { UserMenuContext } from './user-menu-provider';
-import { useUserProfile } from './user-profile-store';
+import { UserMenuContext } from '../shared/user-menu-provider';
+
 import { MainContent } from './main-content';
 
 type Props = { placement?: 'navbar' | 'sidebar' };
 export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
   const context = useContext(UserMenuContext);
-  const user = useUserProfile((state) => state);
+  const user = useUser((state) => state);
 
   const { isMobile } = useSidebar();
   const [open, setOpen] = useState(false);

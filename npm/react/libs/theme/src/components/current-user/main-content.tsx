@@ -8,6 +8,7 @@ import {
 import {
   getAvatarFallbackText,
   useTranslation,
+  useUser,
 } from '@axiomframework/react-core';
 
 import {
@@ -18,8 +19,6 @@ import {
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
-import { useUserProfile } from './user-profile-store';
-
 const NAV_ITEMS = [
   { id: 'profile', title: 'Profile', icon: UserRound },
   { id: 'settings', title: 'Settings', icon: Settings },
@@ -29,7 +28,7 @@ export function MainContent({
 }: {
   onOpenSettings: (section: 'profile' | 'settings') => void;
 }) {
-  const user = useUserProfile((state) => state);
+  const user = useUser((state) => state);
   const t = useTranslation();
 
   return (

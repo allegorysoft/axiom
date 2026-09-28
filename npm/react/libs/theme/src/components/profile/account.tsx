@@ -1,5 +1,16 @@
 import { useRef, useState } from 'react';
-import { getAvatarFallbackText } from '@axiomframework/react-core';
+import {
+  UserAccountIcon,
+  SquareUserRoundIcon,
+  KeyRoundIcon,
+} from '@hugeicons/core-free-icons';
+
+import {
+  getAvatarFallbackText,
+  userStore,
+  useUser,
+} from '@axiomframework/react-core';
+
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -14,10 +25,36 @@ import {
   DialogFooter,
   DialogClose,
 } from '../ui/dialog';
-import { userProfileStore, useUserProfile } from './user-profile-store';
 
-export function ProfilePhotoSection() {
-  const user = useUserProfile((state) => state);
+export const ACCOUNT_DATA = {
+  profile: {
+    id: 'profile',
+    label: 'Profile Photo',
+    group: 'Account',
+    description: 'Choose how you appear across your workspace.',
+    icon: SquareUserRoundIcon,
+    component: ProfilePhotoSection,
+  },
+  accountInfo: {
+    id: 'account-info',
+    label: 'Account Details',
+    group: 'Account',
+    description: 'Manage your personal details and contact information.',
+    icon: UserAccountIcon,
+    component: AccountInfoSection,
+  },
+  security: {
+    id: 'security',
+    label: 'Password & Security',
+    group: 'Account',
+    description: 'Manage your password and protect your account.',
+    icon: KeyRoundIcon,
+    component: SecuritySection,
+  },
+} as const;
+
+function ProfilePhotoSection() {
+  const user = useUser((state) => state);
   const [preview, setPreview] = useState(user.photo);
   const [error, setError] = useState('');
   const [reading, setReading] = useState(false);
@@ -96,6 +133,7 @@ export function ProfilePhotoSection() {
           </p>
         </div>
       </div>
+
       <Input
         ref={uploadRef}
         type="file"
@@ -120,7 +158,7 @@ export function ProfilePhotoSection() {
         <Button
           disabled={preview === user.photo || reading || !!error}
           onClick={() => {
-            userProfileStore.set((state) => ({ ...state, photo: preview }));
+            userStore.set((state) => ({ ...state, photo: preview }));
             setSaved(true);
           }}
         >
@@ -147,8 +185,8 @@ export function ProfilePhotoSection() {
   );
 }
 
-export function AccountInfoSection() {
-  const user = useUserProfile((state) => state);
+function AccountInfoSection() {
+  const user = useUser((state) => state);
   const [draft, setDraft] = useState({
     firstName: user.firstName,
     surname: user.surname,
@@ -191,7 +229,7 @@ export function AccountInfoSection() {
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        userProfileStore.set((state) => ({
+        userStore.set((state) => ({
           ...state,
           ...draft,
           name: [draft.firstName.trim(), draft.surname.trim()]
@@ -260,7 +298,7 @@ export function AccountInfoSection() {
   );
 }
 
-export function SecuritySection() {
+function SecuritySection() {
   const [setupOpen, setSetupOpen] = useState(false);
   return (
     <FieldGroup>

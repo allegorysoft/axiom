@@ -14,4 +14,6 @@ export * from './ui/separator';
 export * from './password-input';
 export * from './app-sidebar/index';
 export * from './header';
-export { UserMenuProvider } from './current-user/user-menu-provider';
+export * from './config';
+
+export { UserMenuProvider } from './shared/user-menu-provider';

@@ -1,19 +1,14 @@
-import { useUserProfile } from './user-profile-store';
-import {
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ComponentProps,
-  type ComponentType,
-} from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import {
   SearchIcon,
   ChevronDownIcon,
   ChevronRightIcon,
   XIcon,
 } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
-import { getAvatarFallbackText } from '@axiomframework/react-core';
+import { HugeiconsIcon } from '@hugeicons/react';
+
+import { getAvatarFallbackText, useUser } from '@axiomframework/react-core';
+
 import { Button } from '../ui/button';
 import {
   InputGroup,
@@ -25,7 +20,6 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from '../ui/collapsible';
-
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
   Dialog,
@@ -46,27 +40,9 @@ import {
   SidebarProvider,
 } from '../ui/sidebar';
 
-export type SettingsSection = {
-  id: string;
-  label: string;
-  group: string;
-  description: string;
-  icon: IconSvgElement;
-  component: ComponentType;
-};
+import type { SettingsDialogProps } from './models';
 
-type Props = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  section: string;
-  onSectionChange: (section: string) => void;
-  title: string;
-  description: string;
-  sections: readonly SettingsSection[];
-  finalFocus: ComponentProps<typeof DialogContent>['finalFocus'];
-};
-
-export function SidebarSettingsDialog({
+export function SettingsDialog({
   open,
   onOpenChange,
   section,
@@ -75,8 +51,8 @@ export function SidebarSettingsDialog({
   title,
   description,
   sections,
-}: Props) {
-  const user = useUserProfile((state) => state);
+}: SettingsDialogProps) {
+  const user = useUser((state) => state);
   const [query, setQuery] = useState('');
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>([]);
   const dialogRef = useRef<HTMLDivElement>(null);

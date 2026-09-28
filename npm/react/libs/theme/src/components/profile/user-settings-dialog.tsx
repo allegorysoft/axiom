@@ -1,11 +1,11 @@
 import type { ComponentProps } from 'react';
 
 import { DialogContent } from '../ui/dialog';
-import {
-  USER_SETTINGS_SECTIONS,
-  type UserSettingsSection,
-} from './user-settings-sections';
-import { SidebarSettingsDialog } from './sidebar-settings-dialog';
+
+import { SettingsDialog } from '../shared/settings-dialog';
+
+import type { UserSettingsSection } from './models';
+import { USER_SETTINGS_SECTIONS } from './data';
 
 export function UserSettingsDialog(props: {
   open: boolean;
@@ -15,7 +15,7 @@ export function UserSettingsDialog(props: {
   finalFocus: ComponentProps<typeof DialogContent>['finalFocus'];
 }) {
   return (
-    <SidebarSettingsDialog
+    <SettingsDialog
       {...props}
       title="Profile"
       description="Manage your profile and application preferences."
