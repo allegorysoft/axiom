@@ -23,6 +23,12 @@ const UserSettingsDialog = lazy(() =>
   })),
 );
 
+const ApplicationSettingsDialog = lazy(() =>
+  import('../application-settings/application-settings-dialog').then((m) => ({
+    default: m.ApplicationSettingsDialog,
+  })),
+);
+
 type SettingsDialogContextValue = {
   openDialog: (destination: Destination) => void;
   dialogOpen: boolean;
@@ -69,7 +75,7 @@ export function SettingsDialogProvider({ children }: { children: ReactNode }) {
 
       {mounted && ready && (
         <Suspense fallback={null}>
-          <UserSettingsDialog
+          <ApplicationSettingsDialog
             open={open}
             onOpenChange={setOpen}
             tab={tab}

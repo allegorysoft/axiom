@@ -1,9 +1,9 @@
 import type { ComponentProps } from 'react';
 
 import {
-  DEFAULT_MENU_GROUP,
   type Tab,
   type TabGroup,
+  DEFAULT_MENU_GROUP,
   useTabGroups,
 } from '@axiomframework/react-core';
 

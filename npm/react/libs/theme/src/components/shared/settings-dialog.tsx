@@ -185,7 +185,7 @@ function DialogNav({
   };
 
   return (
-    <nav aria-label="User settings" className="flex flex-col">
+    <nav aria-label="Settings" className="flex flex-col">
       {groups.map((group) => {
         const isCollapsed = collapsed.has(group.title);
 
