@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Testcontainers.Redis"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
+        <ProjectReference Include="..\..\..\src\integration\Allegory.Axiom.Redis\Allegory.Axiom.Redis.csproj"/>
+    </ItemGroup>
+
+</Project>

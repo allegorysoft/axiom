@@ -48,6 +48,7 @@
   </Folder>
   <Folder Name="/src/integration/">
     <Project Path="src/integration/Allegory.Axiom.RabbitMQ/Allegory.Axiom.RabbitMQ.csproj" />
+    <Project Path="src/integration/Allegory.Axiom.Redis/Allegory.Axiom.Redis.csproj" />
   </Folder>
   <Folder Name="/src/interception/">
     <Project Path="src/interception/Allegory.Axiom.Interception.Abstractions/Allegory.Axiom.Interception.Abstractions.csproj" />
@@ -113,6 +114,7 @@
   </Folder>
   <Folder Name="/test/integration/">
     <Project Path="test/integration/Allegory.Axiom.RabbitMQ.Tests/Allegory.Axiom.RabbitMQ.Tests.csproj" />
+    <Project Path="test/integration/Allegory.Axiom.Redis.Tests/Allegory.Axiom.Redis.Tests.csproj" />
   </Folder>
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />

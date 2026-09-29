@@ -84,6 +84,7 @@
         <PackageVersion Include="Testcontainers" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="Testcontainers.MongoDb" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="Testcontainers.RabbitMq" Version="$(TestcontainersVersion)"/>
+        <PackageVersion Include="Testcontainers.Redis" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="Testcontainers.PostgreSql" Version="$(TestcontainersVersion)"/>
         <PackageVersion Include="xunit.v3" Version="$(XUnitVersion)"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="$(XUnitVersion)"/>
