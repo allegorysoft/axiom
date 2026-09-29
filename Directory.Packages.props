@@ -13,8 +13,13 @@
 
         <!-- General Section Begin -->
         <PackageVersion Include="BenchmarkDotNet" Version="0.15.8"/>
+
         <PackageVersion Include="Castle.Core" Version="5.2.1"/>
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
+
+        <PackageVersion Include="DistributedLock" Version="2.8.3"/>
+        <PackageVersion Include="DistributedLock.Core" Version="1.0.9"/>
+        <PackageVersion Include="DistributedLock.Redis" Version="1.1.1"/>
 
         <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3"/>
         <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="10.0.2"/>
@@ -27,6 +32,8 @@
         <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryVersion)"/>
 
         <PackageVersion Include="RabbitMQ.Client" Version="7.2.1"/>
+
+        <PackageVersion Include="StackExchange.Redis" Version="3.3.1"/>
 
         <PackageVersion Include="ZiggyCreatures.FusionCache" Version="$(FusionCacheVersion)"/>
         <PackageVersion Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="$(FusionCacheVersion)"/>

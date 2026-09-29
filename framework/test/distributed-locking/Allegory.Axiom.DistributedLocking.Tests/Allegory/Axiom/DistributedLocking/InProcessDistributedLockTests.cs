@@ -2,7 +2,7 @@
 
 namespace Allegory.Axiom.DistributedLocking;
 
-public class DistributedLockTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
+public class InProcessDistributedLockTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
     [Fact]
     public void Test()

@@ -33,6 +33,7 @@
   </Folder>
   <Folder Name="/src/distributed-locking/">
     <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking.Abstractions/Allegory.Axiom.DistributedLocking.Abstractions.csproj" />
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking.Madelson/Allegory.Axiom.DistributedLocking.Madelson.csproj" />
     <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking/Allegory.Axiom.DistributedLocking.csproj" />
   </Folder>
   <Folder Name="/src/ef-core/">
