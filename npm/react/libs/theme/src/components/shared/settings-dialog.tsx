@@ -6,7 +6,7 @@ import {
   ChevronRightIcon,
   XIcon,
 } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+import { HugeiconsIcon } from '@hugeicons/react';
 
 import {
   type TabGroup,
@@ -153,6 +153,7 @@ export function SettingsDialog({
                   <h2 className="text-2xl font-semibold tracking-tight">
                     {tab.title}
                   </h2>
+                  <p className="text-sm text-muted-foreground">{tab.title}</p>
                 </div>
 
                 <Suspense fallback={<TabFallback />}>
@@ -223,12 +224,7 @@ function DialogNav({
                             onClick={() => onTabChange(item, group)}
                             className="h-9 gap-3 px-3 transition-colors"
                           >
-                            {item.icon ? (
-                              <HugeiconsIcon
-                                icon={item.icon as IconSvgElement}
-                                strokeWidth={2}
-                              />
-                            ) : null}
+                            {item.icon}
                             <span>{item.title}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
