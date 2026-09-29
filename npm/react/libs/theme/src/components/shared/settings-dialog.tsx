@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { Suspense, useLayoutEffect, useRef, useState } from 'react';
 import { cn } from 'cn';
 import {
   SearchIcon,
@@ -53,40 +53,34 @@ export function SettingsDialog({
   description,
   open,
   onOpenChange,
-
   groups,
   group,
   tab,
   onTabChange,
-
   finalFocus,
 }: SettingsDialogProps) {
   const user = useUser((state) => state);
-
   const [query, setQuery] = useState('');
-  const [_, setCollapsedGroups] = useState<string[]>([]);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const wasOpen = useRef(false);
 
   useLayoutEffect(() => {
-    if (open && !wasOpen.current) {
+    if (open) {
       setQuery('');
-      setCollapsedGroups([]);
-      onTabChange(tab, group);
     }
+  }, [open]);
 
-    wasOpen.current = open;
-  }, [open, groups, onTabChange]);
+  const search = query.trim().toLowerCase();
+  const visibleGroups = search
+    ? groups.filter((g) =>
+        g.children.some((item) =>
+          [item.title, g.title].some((label) =>
+            label.toLowerCase().includes(search),
+          ),
+        ),
+      )
+    : groups;
 
   const Content = tab?.component;
-  const search = query.trim().toLocaleLowerCase();
-  const visibleGroups: readonly TabGroup[] = groups.filter((group) =>
-    group.children.some((item) =>
-      [item.title, group.title].some((label) =>
-        label.toLocaleLowerCase().includes(search),
-      ),
-    ),
-  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -122,15 +116,13 @@ export function SettingsDialog({
                   </p>
                 </div>
               </div>
+
               <InputGroup>
                 <InputGroupInput
                   aria-label="Search settings"
                   placeholder="Search…"
                   value={query}
-                  onChange={(event) => {
-                    setQuery(event.target.value);
-                    setCollapsedGroups([]);
-                  }}
+                  onChange={(event) => setQuery(event.target.value)}
                 />
                 <InputGroupAddon>
                   <HugeiconsIcon icon={SearchIcon} strokeWidth={2} />
@@ -140,6 +132,7 @@ export function SettingsDialog({
 
             <SidebarContent className="max-h-[40dvh] px-3 pb-3 pt-0 [scrollbar-color:var(--muted-foreground)_transparent] [scrollbar-width:thin] md:max-h-none">
               <DialogNav
+                key={search}
                 groups={visibleGroups}
                 tab={tab}
                 onTabChange={onTabChange}
@@ -156,14 +149,15 @@ export function SettingsDialog({
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-color:var(--muted-foreground)_transparent] [scrollbar-width:thin]"
             >
               <div className="mx-auto max-w-3xl px-6 py-8 md:px-10 md:py-10">
-                <div className="mb-8 space-y-2">
+                <div className="mb-8">
                   <h2 className="text-2xl font-semibold tracking-tight">
                     {tab.title}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{tab.title}</p>
                 </div>
 
-                <Content />
+                <Suspense fallback={<TabFallback />}>
+                  {Content ? <Content /> : null}
+                </Suspense>
               </div>
             </section>
           </div>
@@ -178,24 +172,27 @@ function DialogNav({
   tab,
   onTabChange,
 }: Pick<SettingsDialogProps, 'groups' | 'tab' | 'onTabChange'>) {
-  const [collapsedGroups, setCollapsedGroups] = useState<TabGroup[]>([]);
+  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+
+  const setGroupOpen = (groupTitle: string, open: boolean) => {
+    setCollapsed((current) => {
+      const next = new Set(current);
+      if (open) next.delete(groupTitle);
+      else next.add(groupTitle);
+      return next;
+    });
+  };
 
   return (
     <nav aria-label="User settings" className="flex flex-col">
       {groups.map((group) => {
-        const collapsed = collapsedGroups.includes(group);
+        const isCollapsed = collapsed.has(group.title);
 
         return (
           <Collapsible
             key={group.title}
-            open={!collapsed}
-            onOpenChange={(open) =>
-              setCollapsedGroups((current) =>
-                open
-                  ? current.filter((item) => item !== group)
-                  : [...current, group],
-              )
-            }
+            open={!isCollapsed}
+            onOpenChange={(open) => setGroupOpen(group.title, open)}
           >
             <SidebarGroup className="mb-4 w-full p-0">
               <CollapsibleTrigger className="flex h-8 w-full cursor-pointer items-center justify-between rounded-md px-3 text-xs font-medium uppercase text-muted-foreground outline-none hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring">
@@ -206,7 +203,7 @@ function DialogNav({
                   strokeWidth={2}
                   className={cn(
                     'size-3.5 transition-transform duration-200 motion-reduce:transition-none',
-                    !collapsed && 'rotate-180',
+                    !isCollapsed && 'rotate-180',
                   )}
                 />
               </CollapsibleTrigger>
@@ -215,21 +212,23 @@ function DialogNav({
                 <SidebarGroupContent>
                   <SidebarMenu className="gap-1">
                     {group.children.map((item, index) => {
-                      const Icon = item.icon;
+                      const isActive = item.title === tab.title;
 
                       return (
-                        <SidebarMenuItem key={item?.title || index}>
+                        <SidebarMenuItem key={item.title || index}>
                           <SidebarMenuButton
                             type="button"
-                            isActive={item.title === tab.title}
-                            aria-current={item.title === tab.title}
+                            isActive={isActive}
+                            aria-current={isActive}
                             onClick={() => onTabChange(item, group)}
                             className="h-9 gap-3 px-3 transition-colors"
                           >
-                            <HugeiconsIcon
-                              icon={Icon as IconSvgElement}
-                              strokeWidth={2}
-                            />
+                            {item.icon ? (
+                              <HugeiconsIcon
+                                icon={item.icon as IconSvgElement}
+                                strokeWidth={2}
+                              />
+                            ) : null}
                             <span>{item.title}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
@@ -258,10 +257,10 @@ function DialogContentHeader({
   group,
 }: DialogContentHeaderProps & { group: TabGroup }) {
   return (
-    <header className="flex shrink-0 items-center border-b py-3 px-3 ">
+    <header className="flex shrink-0 items-center border-b px-3 py-3">
       <SidebarTrigger />
 
-      <span className="text-sm text-muted-foreground ml-2">{title}</span>
+      <span className="ml-2 text-sm text-muted-foreground">{title}</span>
       <HugeiconsIcon
         icon={ChevronRightIcon}
         strokeWidth={2}
@@ -276,6 +275,7 @@ function DialogContentHeader({
         aria-hidden="true"
         className="mx-3 size-4 shrink-0 text-muted-foreground/50"
       />
+
       <span className="text-sm font-medium">{active.title}</span>
 
       <DialogClose
@@ -287,5 +287,31 @@ function DialogContentHeader({
         <HugeiconsIcon icon={XIcon} strokeWidth={2} />
       </DialogClose>
     </header>
+  );
+}
+
+function TabFallback() {
+  return (
+    <div role="status" aria-live="polite" className="space-y-6 animate-pulse">
+      <span className="sr-only">Loading…</span>
+
+      <div className="space-y-3">
+        <div className="h-4 w-1/3 rounded-md bg-muted" />
+        <div className="h-3 w-2/3 rounded-md bg-muted/70" />
+      </div>
+
+      <div className="h-10 w-full rounded-lg border bg-muted/40" />
+
+      <div className="space-y-2">
+        <div className="h-3 w-full rounded-md bg-muted/70" />
+        <div className="h-3 w-11/12 rounded-md bg-muted/70" />
+        <div className="h-3 w-4/5 rounded-md bg-muted/70" />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="h-20 rounded-lg border bg-muted/40" />
+        <div className="h-20 rounded-lg border bg-muted/40" />
+      </div>
+    </div>
   );
 }

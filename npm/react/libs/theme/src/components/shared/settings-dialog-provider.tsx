@@ -4,6 +4,7 @@ import {
   createContext,
   lazy,
   Suspense,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -15,6 +16,7 @@ import {
 } from '@axiomframework/react-core';
 
 type Destination = 'profile' | 'settings';
+
 const UserSettingsDialog = lazy(() =>
   import('../profile/user-settings-dialog').then((m) => ({
     default: m.UserSettingsDialog,
@@ -32,39 +34,53 @@ export const SettingsDialogContext =
 
 export function SettingsDialogProvider({ children }: { children: ReactNode }) {
   const tabs = useTabGroups();
-  const [group, setGroup] = useState<TabGroup>(tabs.at(1)!);
-  const [tab, setTab] = useState<Tab>(tabs.at(1)!.children!.at(0)!);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  const [profileOpen, setProfileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [selection, setSelection] = useState<{
+    tab: Tab;
+    group: TabGroup;
+  } | null>(null);
 
-  function onTabChange(tab: Tab, activeGroup: TabGroup) {
-    setTab(tab);
-    setGroup(activeGroup);
-  }
+  useEffect(() => {
+    if (open) {
+      setMounted(true);
+    }
+  }, [open]);
+
+  const defaultGroup = tabs.find((g) => g.children?.length) ?? tabs[0];
+  const group = selection?.group ?? defaultGroup;
+  const tab = selection?.tab ?? defaultGroup?.children?.[0];
+  const ready = Boolean(group && tab);
+
+  const value: SettingsDialogContextValue = {
+    openDialog: () => {
+      setSelection(null);
+      setOpen(true);
+    },
+    dialogOpen: open,
+    triggerRef,
+  };
 
   return (
-    <SettingsDialogContext.Provider
-      value={{
-        openDialog: (destination) => setProfileOpen(!profileOpen),
-        dialogOpen: profileOpen,
-        triggerRef,
-      }}
-    >
+    <SettingsDialogContext.Provider value={value}>
       {children}
 
-      <Suspense fallback={null}>
-        {profileOpen && (
+      {mounted && ready && (
+        <Suspense fallback={null}>
           <UserSettingsDialog
-            open={profileOpen}
-            onOpenChange={setProfileOpen}
+            open={open}
+            onOpenChange={setOpen}
             tab={tab}
             group={group}
-            onTabChange={onTabChange}
+            onTabChange={(nextTab, nextGroup) =>
+              setSelection({ tab: nextTab, group: nextGroup })
+            }
             finalFocus={triggerRef}
           />
-        )}
-      </Suspense>
+        </Suspense>
+      )}
     </SettingsDialogContext.Provider>
   );
 }
