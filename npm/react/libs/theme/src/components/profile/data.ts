@@ -1,6 +1,6 @@
-import { ACCOUNT_DATA } from '../profile/account';
-import { APPEARANCE_DATA } from '../profile/apperance';
-import { LANGUAGE_REGION_SECTIONS } from '../profile/language-and-region';
+import { ACCOUNT_DATA } from './account';
+import { APPEARANCE_DATA } from './apperance';
+import { LANGUAGE_REGION_SECTIONS } from './language-and-region';
 
 export const USER_SETTINGS_SECTIONS = [
   ACCOUNT_DATA.profile,
