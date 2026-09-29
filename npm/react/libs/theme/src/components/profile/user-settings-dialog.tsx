@@ -1,6 +1,7 @@
 import type { ComponentProps } from 'react';
 
 import {
+  DEFAULT_MENU_GROUP,
   type Tab,
   type TabGroup,
   useTabGroups,
@@ -28,7 +29,7 @@ export function UserSettingsDialog(props: UserSettingsDialogProps) {
       {...props}
       title="Profile"
       description="Manage your profile and application preferences."
-      groups={tabs}
+      groups={tabs.filter((f) => f.title !== DEFAULT_MENU_GROUP)}
     />
   );
 }
