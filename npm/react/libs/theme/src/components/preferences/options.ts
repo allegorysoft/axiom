@@ -146,7 +146,7 @@ export const SEGMENTED_OPTIONS = {
     { value: 'inset', label: 'Inset' },
     { value: 'sidebar', label: 'Sidebar' },
     { value: 'floating', label: 'Floating' },
-  ],
+  ] as const,
   radius: [
     { value: 'none', label: 'None', icon: CircleOff },
     { value: 'sm', label: 'SM' },

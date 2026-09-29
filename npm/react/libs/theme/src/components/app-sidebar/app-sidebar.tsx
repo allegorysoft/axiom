@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-import { useNavGroups } from '@axiomframework/react-core';
+import { DEFAULT_MENU_GROUP, useNavGroups } from '@axiomframework/react-core';
 
 import {
   Sidebar,
@@ -9,20 +9,17 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
+  SidebarFooter,
 } from '../ui/sidebar';
 
 import { usePreferences } from '../preferences/use-preferences';
+import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
 import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
 import { TenantSwitcher } from './tenant-switcher';
-import { provideNavItems } from './provide-nav-items';
-
-const DEFAULT_GROUP = 'Default';
-
-provideNavItems();
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = useSyncExternalStore(
@@ -34,7 +31,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   const groups = useNavGroups();
 
-  const index = groups.findIndex((group) => group.title === DEFAULT_GROUP);
+  const index = groups.findIndex((group) => group.title === DEFAULT_MENU_GROUP);
   const defaultGroup = index === -1 ? null : groups[index];
   const otherGroups =
     index === -1 ? groups : groups.filter((_, i) => i !== index);
@@ -47,11 +44,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        {defaultGroup?.items.length ? (
+        {defaultGroup?.children.length ? (
           <SidebarGroup>
             <SidebarGroupContent className="flex flex-col gap-2">
               <SidebarMenu>
-                {defaultGroup.items.map((item) => (
+                {defaultGroup.children.map((item) => (
                   <NavItemNode
                     key={item.url ?? item.title}
                     item={item}
@@ -71,6 +68,14 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           />
         ))}
       </SidebarContent>
+
+      {preferences.userMenuPosition === 'sidebar' && (
+        <SidebarFooter>
+          <SidebarMenu>
+            <CurrentUserDropdown placement="sidebar" />
+          </SidebarMenu>
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }

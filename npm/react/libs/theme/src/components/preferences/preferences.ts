@@ -13,6 +13,7 @@ export interface Preferences {
   font: FontVariants;
   navbarBehavior: NavbarBehavior;
   sidebarStyle: SidebarVariants;
+  userMenuPosition: 'navbar' | 'sidebar';
   scale: BaseSize;
   radius: RadiusValue;
 }

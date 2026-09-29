@@ -213,7 +213,7 @@ function useColorTheme(preferences: Preferences) {
       'link[data-color-theme]',
     );
 
-    if (!href) {
+    if (colorTheme === 'default' || !href) {
       link?.remove();
       return;
     }
