@@ -5,7 +5,7 @@ import {
   Header,
   SidebarInset,
   SidebarProvider,
-  UserMenuProvider,
+  SettingsDialogProvider,
 } from '@axiomframework/react-theme/components';
 
 export default function Layout() {
@@ -13,7 +13,7 @@ export default function Layout() {
 
   return (
     <SidebarProvider defaultOpen={state ?? true}>
-      <UserMenuProvider>
+      <SettingsDialogProvider>
         <AppSidebar />
         <SidebarInset>
           <Header />
@@ -22,7 +22,7 @@ export default function Layout() {
             <Outlet />
           </div>
         </SidebarInset>
-      </UserMenuProvider>
+      </SettingsDialogProvider>
     </SidebarProvider>
   );
 }

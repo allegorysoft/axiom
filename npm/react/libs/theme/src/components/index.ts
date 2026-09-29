@@ -16,4 +16,4 @@ export * from './app-sidebar/index';
 export * from './header';
 export * from './config';
 
-export { UserMenuProvider } from './shared/user-menu-provider';
+export { SettingsDialogProvider } from './shared/settings-dialog-provider';

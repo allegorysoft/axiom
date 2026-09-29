@@ -12,13 +12,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '../ui/sidebar';
 
-import { UserMenuContext } from '../shared/user-menu-provider';
+import { SettingsDialogContext } from '../shared/settings-dialog-provider';
 
 import { MainContent } from './main-content';
 
 type Props = { placement?: 'navbar' | 'sidebar' };
 export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
-  const context = useContext(UserMenuContext);
+  const context = useContext(SettingsDialogContext);
   const user = useUser((state) => state);
 
   const { isMobile } = useSidebar();
@@ -26,7 +26,7 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
 
   if (!context) {
     throw new Error(
-      'CurrentUserDropdown must be used within UserMenuProvider.',
+      'CurrentUserDropdown must be used within SettingsDialogProvider.',
     );
   }
 
@@ -86,10 +86,10 @@ function MenuTrigger({
   placement,
   ...props
 }: Pick<Props, 'placement'> & React.ComponentProps<'button'>) {
-  const context = useContext(UserMenuContext);
+  const context = useContext(SettingsDialogContext);
   if (!context) {
     throw new Error(
-      'CurrentUserDropdown must be used within UserMenuProvider.',
+      'CurrentUserDropdown must be used within SettingsDialogProvider.',
     );
   }
 
