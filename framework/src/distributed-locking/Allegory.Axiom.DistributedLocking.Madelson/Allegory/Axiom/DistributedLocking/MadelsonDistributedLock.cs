@@ -1,9 +1,8 @@
+using Medallion.Threading;
+
 namespace Allegory.Axiom.DistributedLocking;
 
-public class MadelsonDistributedLock : DistributedLockBase
+public class MadelsonDistributedLock(IDistributedLockProvider provider) : DistributedLockBase
 {
-    public MadelsonDistributedLock()
-    {
-        
-    }
+    public IDistributedLockProvider Provider { get; } = provider;
 }
