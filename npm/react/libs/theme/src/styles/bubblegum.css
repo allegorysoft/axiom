@@ -31,6 +31,8 @@
   --sidebar-accent-foreground: oklch(0.32 0.1 338);
   --sidebar-border: oklch(0.84 0.055 340);
   --sidebar-ring: oklch(0.7 0.23 350);
+  --segmented-selected: var(--accent);
+  --segmented-selected-foreground: var(--accent-foreground);
 }
 
 [data-color-theme='bubblegum'].dark {
@@ -66,4 +68,6 @@
   --sidebar-accent-foreground: oklch(0.97 0.025 345);
   --sidebar-border: oklch(0.35 0.065 325);
   --sidebar-ring: oklch(0.78 0.22 350);
+  --segmented-selected: var(--accent);
+  --segmented-selected-foreground: var(--accent-foreground);
 }

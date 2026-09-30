@@ -32,7 +32,12 @@
   --sidebar-ring: oklch(0.62 0.14 195);
 }
 
+[data-color-theme='seafoam']:not(.dark) {
+  --segmented-background: transparent;
+}
+
 [data-color-theme='seafoam'].dark {
+  --tenant-hover: oklch(0.34 0.026 210);
   --background: oklch(0.165 0.018 210);
   --foreground: oklch(0.955 0.012 205);
   --card: oklch(0.22 0.028 208);
@@ -41,8 +46,8 @@
   --popover-foreground: oklch(0.955 0.012 205);
   --primary: oklch(0.72 0.14 205);
   --primary-foreground: oklch(0.15 0.025 210);
-  --secondary: oklch(0.285 0.035 210);
-  --secondary-foreground: oklch(0.945 0.012 205);
+  --secondary: oklch(0.35 0.05 198);
+  --secondary-foreground: var(--foreground);
   --muted: oklch(0.255 0.026 210);
   --muted-foreground: oklch(0.75 0.03 205);
   --accent: oklch(0.35 0.065 195);

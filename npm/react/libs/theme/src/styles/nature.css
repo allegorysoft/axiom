@@ -34,6 +34,7 @@
 }
 
 [data-color-theme='nature'].dark {
+  --tenant-hover: oklch(0.335 0.028 148);
   --background: oklch(0.16 0.022 150);
   --foreground: oklch(0.945 0.02 125);
   --card: oklch(0.215 0.032 148);
@@ -42,8 +43,8 @@
   --popover-foreground: oklch(0.945 0.02 125);
   --primary: oklch(0.73 0.19 145);
   --primary-foreground: oklch(0.15 0.03 150);
-  --secondary: oklch(0.285 0.045 145);
-  --secondary-foreground: oklch(0.94 0.02 125);
+  --secondary: oklch(0.35 0.055 140);
+  --secondary-foreground: var(--foreground);
   --muted: oklch(0.25 0.028 148);
   --muted-foreground: oklch(0.74 0.035 140);
   --accent: oklch(0.35 0.075 135);

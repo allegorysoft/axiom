@@ -77,7 +77,11 @@ export function PreferencesPopover() {
         }
       />
 
-      <PopoverContent align="start" className="p-3">
+      <PopoverContent
+        align="start"
+        data-preferences-panel=""
+        className="p-3"
+      >
         <PopoverHeader>
           <PopoverTitle>{t('AxiomTheme:Preferences')}</PopoverTitle>
           <PopoverDescription>

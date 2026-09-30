@@ -9,7 +9,7 @@ import type {
 const STORAGE_KEY = 'axiom.preferences';
 
 export const defaultPreferences: Preferences = {
-  colorTheme: 'default',
+  colorTheme: 'axiom',
   font: 'manrope',
   navbarBehavior: 'sticky',
   sidebarStyle: 'floating',
