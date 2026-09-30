@@ -15,7 +15,7 @@ const ApplicationSettingsDialog = lazy(() =>
 );
 
 export function AppSettingsDialogContributor() {
-  const { activeTab, dialogOpen, closeDialog, triggerRef } =
+  const { activeDialog, dialogOpen, closeDialog, triggerRef } =
     useSettingsDialog();
   const tabs = useAppSettingsTabGroups();
 
@@ -25,7 +25,7 @@ export function AppSettingsDialogContributor() {
     group: TabGroup;
   } | null>(null);
 
-  const active = activeTab === APP_SETTINGS_DIALOG;
+  const active = activeDialog === APP_SETTINGS_DIALOG;
 
   useEffect(() => {
     if (active && dialogOpen) setMounted(true);

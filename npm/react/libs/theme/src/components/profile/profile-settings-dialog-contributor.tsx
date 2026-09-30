@@ -17,13 +17,13 @@ const UserSettingsDialog = lazy(() =>
 type Selection = { tab: Tab; group: TabGroup } | null;
 
 export function ProfileSettingsDialogContributor() {
-  const { activeTab, dialogOpen, closeDialog, triggerRef } = useSettingsDialog();
+  const { activeDialog, dialogOpen, closeDialog, triggerRef } = useSettingsDialog();
   const tabs = useProfileTabGroups();
 
   const [mounted, setMounted] = useState(false);
   const [selection, setSelection] = useState<Selection>(null);
 
-  const active = activeTab === PROFILE_DIALOG;
+  const active = activeDialog === PROFILE_DIALOG;
 
   useEffect(() => {
     if (active && dialogOpen) {setMounted(true);}

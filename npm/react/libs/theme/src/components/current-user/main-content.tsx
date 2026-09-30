@@ -26,7 +26,7 @@ const NAV_ITEMS = [
 export function MainContent({
   onOpenSettings,
 }: {
-  onOpenSettings: (section: 'profile' | 'settings') => void;
+  onOpenSettings: (dialogName: 'profile' | 'settings') => void;
 }) {
   const user = useUser((state) => state);
   const t = useTranslation();

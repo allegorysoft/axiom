@@ -70,9 +70,9 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
         finalFocus={context.dialogOpen ? false : context.triggerRef}
       >
         <MainContent
-          onOpenSettings={(activeTab) => {
+          onOpenSettings={(dialogName) => {
             setOpen(false);
-            context.openDialog(activeTab);
+            context.openDialog(dialogName);
           }}
         />
       </DropdownMenuContent>

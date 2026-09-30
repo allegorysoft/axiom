@@ -8,10 +8,10 @@ import {
 } from 'react';
 
 export type SettingsDialogContextValue = {
-  openDialog: (activeTab: string) => void;
+  openDialog: (dialogName: string) => void;
   closeDialog: () => void;
   dialogOpen: boolean;
-  activeTab: string | null;
+  activeDialog: string | null;
   triggerRef: RefObject<HTMLButtonElement | null>;
 };
 
@@ -32,16 +32,16 @@ export function useSettingsDialog(): SettingsDialogContextValue {
 export function SettingsDialogProvider({ children }: { children: ReactNode }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<string | null>(null);
+  const [activeDialog, setActiveDialog] = useState<string | null>(null);
 
   const value: SettingsDialogContextValue = {
     openDialog: (next) => {
-      setActiveTab(next);
+      setActiveDialog(next);
       setOpen(true);
     },
     closeDialog: () => setOpen(false),
     dialogOpen: open,
-    activeTab,
+    activeDialog,
     triggerRef,
   };
 
