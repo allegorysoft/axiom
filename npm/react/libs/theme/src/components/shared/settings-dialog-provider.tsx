@@ -2,91 +2,52 @@ import {
   type ReactNode,
   type RefObject,
   createContext,
-  lazy,
-  Suspense,
-  useEffect,
+  useContext,
   useRef,
   useState,
 } from 'react';
 
-import {
-  type TabGroup,
-  type Tab,
-  useTabGroups,
-} from '@axiomframework/react-core';
-
-type Destination = 'profile' | 'settings';
-
-const UserSettingsDialog = lazy(() =>
-  import('../profile/user-settings-dialog').then((m) => ({
-    default: m.UserSettingsDialog,
-  })),
-);
-
-const ApplicationSettingsDialog = lazy(() =>
-  import('../application-settings/application-settings-dialog').then((m) => ({
-    default: m.ApplicationSettingsDialog,
-  })),
-);
-
-type SettingsDialogContextValue = {
-  openDialog: (destination: Destination) => void;
+export type SettingsDialogContextValue = {
+  openDialog: (activeTab: string) => void;
+  closeDialog: () => void;
   dialogOpen: boolean;
+  activeTab: string | null;
   triggerRef: RefObject<HTMLButtonElement | null>;
 };
 
-export const SettingsDialogContext =
-  createContext<SettingsDialogContextValue | null>(null);
+const SettingsDialogContext = createContext<SettingsDialogContextValue | null>(
+  null,
+);
+
+export function useSettingsDialog(): SettingsDialogContextValue {
+  const ctx = useContext(SettingsDialogContext);
+  if (!ctx) {
+    throw new Error(
+      'useSettingsDialog must be used inside <SettingsDialogProvider>',
+    );
+  }
+  return ctx;
+}
 
 export function SettingsDialogProvider({ children }: { children: ReactNode }) {
-  const tabs = useTabGroups();
   const triggerRef = useRef<HTMLButtonElement>(null);
-
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [selection, setSelection] = useState<{
-    tab: Tab;
-    group: TabGroup;
-  } | null>(null);
-
-  useEffect(() => {
-    if (open) {
-      setMounted(true);
-    }
-  }, [open]);
-
-  const defaultGroup = tabs.find((g) => g.children?.length) ?? tabs[0];
-  const group = selection?.group ?? defaultGroup;
-  const tab = selection?.tab ?? defaultGroup?.children?.[0];
-  const ready = Boolean(group && tab);
+  const [activeTab, setActiveTab] = useState<string | null>(null);
 
   const value: SettingsDialogContextValue = {
-    openDialog: () => {
-      setSelection(null);
+    openDialog: (next) => {
+      setActiveTab(next);
       setOpen(true);
     },
+    closeDialog: () => setOpen(false),
     dialogOpen: open,
+    activeTab,
     triggerRef,
   };
 
   return (
     <SettingsDialogContext.Provider value={value}>
       {children}
-
-      {mounted && ready && (
-        <Suspense fallback={null}>
-          <ApplicationSettingsDialog
-            open={open}
-            onOpenChange={setOpen}
-            tab={tab}
-            group={group}
-            onTabChange={(nextTab, nextGroup) =>
-              setSelection({ tab: nextTab, group: nextGroup })
-            }
-            finalFocus={triggerRef}
-          />
-        </Suspense>
-      )}
     </SettingsDialogContext.Provider>
   );
 }

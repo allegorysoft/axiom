@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { tabStore, type Tab } from '@axiomframework/react-core';
+import { type Tab, profileTabStore } from '@axiomframework/react-core';
 import {
   LanguagesIcon,
   Layout01Icon,
@@ -85,11 +85,11 @@ const GROUPS: GroupConfig[] = [
   },
 ];
 
-export function provideTabs() {
+export function provideProfileTabs() {
   for (const { title, tabs } of GROUPS) {
-    tabStore.addGroup(title);
+    profileTabStore.addGroup(title);
     for (const tab of tabs) {
-      tabStore.add(tab, title);
+      profileTabStore.add(tab, title);
     }
   }
 }

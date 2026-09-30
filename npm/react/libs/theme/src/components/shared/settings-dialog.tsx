@@ -14,6 +14,8 @@ import {
   useUser,
 } from '@axiomframework/react-core';
 
+import { useIsMobile } from '@axiomframework/react-theme/hooks';
+
 import { Button } from '../ui/button';
 import {
   InputGroup,
@@ -252,9 +254,10 @@ function DialogContentHeader({
   active,
   group,
 }: DialogContentHeaderProps & { group: TabGroup }) {
+  const isMobile = useIsMobile();
   return (
     <header className="flex shrink-0 items-center border-b px-3 py-3">
-      <SidebarTrigger />
+      {isMobile && <SidebarTrigger />}
 
       <span className="ml-2 text-sm text-muted-foreground">{title}</span>
       <HugeiconsIcon

@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { tabStore, type Tab } from '@axiomframework/react-core';
+import { type Tab, appSettingsTabStore } from '@axiomframework/react-core';
 import {
   Chat01Icon,
   ClockIcon,
@@ -153,11 +153,11 @@ const GROUPS: GroupConfig[] = [
   },
 ];
 
-export function provideTabs() {
+export function provideAppSettingsTabs() {
   for (const { title, tabs } of GROUPS) {
-    tabStore.addGroup(title);
+    appSettingsTabStore.addGroup(title);
     for (const tab of tabs) {
-      tabStore.add(tab, title);
+      appSettingsTabStore.add(tab, title);
     }
   }
 }

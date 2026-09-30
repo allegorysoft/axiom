@@ -12,13 +12,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '../ui/sidebar';
 
-import { SettingsDialogContext } from '../shared/settings-dialog-provider';
+import { useSettingsDialog } from '../shared/settings-dialog-provider';
 
 import { MainContent } from './main-content';
 
 type Props = { placement?: 'navbar' | 'sidebar' };
 export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
-  const context = useContext(SettingsDialogContext);
+  const context = useSettingsDialog();
   const user = useUser((state) => state);
 
   const { isMobile } = useSidebar();
@@ -70,9 +70,9 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
         finalFocus={context.dialogOpen ? false : context.triggerRef}
       >
         <MainContent
-          onOpenSettings={(destination) => {
+          onOpenSettings={(activeTab) => {
             setOpen(false);
-            context.openDialog(destination);
+            context.openDialog(activeTab);
           }}
         />
       </DropdownMenuContent>
@@ -86,7 +86,7 @@ function MenuTrigger({
   placement,
   ...props
 }: Pick<Props, 'placement'> & React.ComponentProps<'button'>) {
-  const context = useContext(SettingsDialogContext);
+  const context = useSettingsDialog();
   if (!context) {
     throw new Error(
       'CurrentUserDropdown must be used within SettingsDialogProvider.',

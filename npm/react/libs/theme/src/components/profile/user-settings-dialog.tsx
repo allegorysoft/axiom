@@ -4,7 +4,7 @@ import {
   type Tab,
   type TabGroup,
   DEFAULT_MENU_GROUP,
-  useTabGroups,
+  useProfileTabGroups,
 } from '@axiomframework/react-core';
 
 import type { DialogContent } from '../ui/dialog';
@@ -22,7 +22,7 @@ type UserSettingsDialogProps = {
 };
 
 export function UserSettingsDialog(props: UserSettingsDialogProps) {
-  const tabs = useTabGroups();
+  const tabs = useProfileTabGroups();
 
   return (
     <SettingsDialog

@@ -6,6 +6,8 @@ import {
   SidebarInset,
   SidebarProvider,
   SettingsDialogProvider,
+  ProfileSettingsDialogContributor,
+  AppSettingsDialogContributor,
 } from '@axiomframework/react-theme/components';
 
 export default function Layout() {
@@ -22,6 +24,9 @@ export default function Layout() {
             <Outlet />
           </div>
         </SidebarInset>
+
+        <ProfileSettingsDialogContributor />
+        <AppSettingsDialogContributor />
       </SettingsDialogProvider>
     </SidebarProvider>
   );
