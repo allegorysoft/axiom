@@ -12,4 +12,7 @@ export default defineConfig(() => ({
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router'],
   },
+  build: {
+    outDir: '../../dist/apps/dev-app',
+  },
 }));
