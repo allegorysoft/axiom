@@ -9,15 +9,13 @@ namespace Allegory.Axiom.EventBus;
 
 internal sealed class EventBusRabbitMqPackage : IConfigureApplication
 {
-    internal const string RabbitMqOptionsKey = "RabbitMQ";
+    internal const string Section = DistributedEventBusOptions.Section + ":RabbitMQ";
 
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<DistributedEventBusOptions>(options =>
         {
-            builder.Configuration
-                .GetSection("Axiom:EventBus:Distributed:" + RabbitMqOptionsKey)
-                .Bind(options.RabbitMq);
+            builder.Configuration.GetSection(Section).Bind(options.RabbitMq);
         });
 
         return Task.CompletedTask;

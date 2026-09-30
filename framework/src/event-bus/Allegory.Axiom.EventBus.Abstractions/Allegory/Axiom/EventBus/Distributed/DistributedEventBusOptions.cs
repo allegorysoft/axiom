@@ -8,6 +8,8 @@ namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventBusOptions : IExtraProperties
 {
+    public const string Section = "Axiom:EventBus:Distributed";
+
     private FrozenDictionary<string, DistributedEventDescriptor> _namedEvents = null!;
     private FrozenDictionary<Type, DistributedEventDescriptor> _typedEvents = null!;
 

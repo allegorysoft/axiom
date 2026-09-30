@@ -22,7 +22,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
         builder.Services.AddHostedService<DistributedEventProcessorCompletionService>();
 
         builder.Services.Configure<DistributedEventBusOptions>(
-            builder.Configuration.GetSection("Axiom:EventBus:Distributed"));
+            builder.Configuration.GetSection(DistributedEventBusOptions.Section));
 
         RegisterEvents(builder);
 

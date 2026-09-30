@@ -11,8 +11,8 @@
   <Folder Name="/src/caching/">
     <Project Path="src/caching/Allegory.Axiom.Caching.Abstractions/Allegory.Axiom.Caching.Abstractions.csproj" />
     <Project Path="src/caching/Allegory.Axiom.Caching.FusionCache/Allegory.Axiom.Caching.FusionCache.csproj" />
-    <Project Path="src/caching/Allegory.Axiom.Caching.StackExchangeRedis/Allegory.Axiom.Caching.StackExchangeRedis.csproj" />
     <Project Path="src/caching/Allegory.Axiom.Caching/Allegory.Axiom.Caching.csproj" />
+    <Project Path="src/caching/Allegory.Axiom.Caching.Redis/Allegory.Axiom.Caching.Redis.csproj" />
   </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />

@@ -3,17 +3,17 @@ using Allegory.Axiom.Extensibility;
 
 namespace Allegory.Axiom.EventBus;
 
-public static class RabbitMqEventBusOptionsExtensions
+public static class EventBusOptionsExtensions
 {
     extension(DistributedEventBusOptions options)
     {
         public RabbitMqEventBusOptions RabbitMq
         {
             get => options.GetOrAddProperty(
-                EventBusRabbitMqPackage.RabbitMqOptionsKey,
+                EventBusRabbitMqPackage.Section,
                 static () => new RabbitMqEventBusOptions());
 
-            set => options.SetProperty(EventBusRabbitMqPackage.RabbitMqOptionsKey, value);
+            set => options.SetProperty(EventBusRabbitMqPackage.Section, value);
         }
     }
 }

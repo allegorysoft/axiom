@@ -2,17 +2,17 @@ using Allegory.Axiom.Extensibility;
 
 namespace Allegory.Axiom.Caching;
 
-public static class StackExchangeRedisCacheOptionsExtensions
+public static class CacheOptionsExtensions
 {
     extension(CacheOptions options)
     {
         public RedisCacheOptions Redis
         {
             get => options.GetOrAddProperty(
-                CachingStackExchangeRedisPackage.RedisOptionsKey,
+                CachingRedisPackage.Section,
                 static () => new RedisCacheOptions());
 
-            set => options.SetProperty(CachingStackExchangeRedisPackage.RedisOptionsKey, value);
+            set => options.SetProperty(CachingRedisPackage.Section, value);
         }
     }
 }

@@ -9,25 +9,25 @@ using MicrosoftRedisCacheOptions = Microsoft.Extensions.Caching.StackExchangeRed
 
 namespace Allegory.Axiom.Caching;
 
-internal sealed class CachingStackExchangeRedisPackage : IConfigureApplication
+internal sealed class CachingRedisPackage : IConfigureApplication
 {
-    internal const string RedisOptionsKey = CacheOptions.Section + ":Redis";
+    internal const string Section = CacheOptions.Section + ":Redis";
 
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.Configure<CacheOptions>(options =>
         {
-            builder.Configuration.GetSection(RedisOptionsKey).Bind(options.Redis);
+            builder.Configuration.GetSection(Section).Bind(options.Redis);
         });
 
         builder.Services.AddStackExchangeRedisCache(_ => { });
 
         builder.Services
             .AddOptions<MicrosoftRedisCacheOptions>()
-            .Configure<RedisConnectionFactory, IOptions<CacheOptions>>((options, factory, cacheOptions) =>
+            .Configure<RedisConnectionFactory, IOptions<CacheOptions>>((microsoftOptions, factory, cacheOptions) =>
             {
-                var redisCacheOptions = cacheOptions.Value.Redis;
-                options.ConnectionMultiplexerFactory = () => factory.GetAsync(redisCacheOptions.ConnectionName).AsTask();
+                var axiomOptions = cacheOptions.Value.Redis;
+                microsoftOptions.ConnectionMultiplexerFactory = () => factory.GetAsync(axiomOptions.ConnectionName).AsTask();
 
                 // Both the Microsoft (MicrosoftRedisCacheOptions) and Axiom (CacheOptions.Redis) cache
                 // option types are bound from the same "Axiom:Cache:Redis" configuration section in
@@ -39,8 +39,8 @@ internal sealed class CachingStackExchangeRedisPackage : IConfigureApplication
                 //
                 // Binding order matters: we bind the raw configuration first, then let the Axiom-side
                 // `Configure` callback apply any programmatic overrides on top of it (last-write-wins).
-                builder.Configuration.GetSection(RedisOptionsKey).Bind(options);
-                redisCacheOptions.Configure?.Invoke(options);
+                builder.Configuration.GetSection(Section).Bind(microsoftOptions);
+                axiomOptions.Configure?.Invoke(microsoftOptions);
             });
 
         return Task.CompletedTask;
