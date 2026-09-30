@@ -1,8 +1,17 @@
 export type { TabGroup, Tab } from './tab';
-export { tabStore } from './tab-store';
+export { createTabStore } from './tab-store';
+export { createTabHooks } from './tab-hooks';
 export {
-  useTabStore,
-  useTabGroups,
-  useTabGroup,
-  useTabItems,
-} from './tab-hooks';
+  profileTabStore,
+  useProfileTabGroups,
+  useProfileTabGroup,
+  useProfileTabItems,
+  useProfileTabStore,
+} from './profile-tab-store';
+export {
+  appSettingsTabStore,
+  useAppSettingsTabGroups,
+  useAppSettingsTabGroup,
+  useAppSettingsTabItems,
+  useAppSettingsTabStore,
+} from './app-settings-tab-store';
