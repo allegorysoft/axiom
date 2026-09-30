@@ -13,7 +13,8 @@ export * from './ui/sidebar';
 export * from './ui/separator';
 export * from './password-input';
 export * from './app-sidebar/index';
+export * from './shared/index';
+export * from './application-settings/index';
+export * from './profile/index';
 export * from './header';
 export * from './config';
-
-export { SettingsDialogProvider } from './shared/settings-dialog-provider';

@@ -30,8 +30,7 @@ export function Component() {
   const location = useLocation();
   const basePath = useResolvedPath('.').pathname;
 
-  const activeTab: Tab =
-    TABS.find((tab) => location.pathname.split('/').pop() === tab) ?? 'login';
+  const activeTab: Tab = TABS.find((tab) => location.pathname.split('/').pop() === tab) ?? 'login';
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center bg-muted p-2 rounded">

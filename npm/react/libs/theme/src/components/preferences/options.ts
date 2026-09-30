@@ -15,7 +15,7 @@ export function getOption<T extends Option>(
 }
 
 export const COLOR_THEME_OPTIONS = [
-  { value: 'default',         label: 'Default',      color: '#000000', url: new URL('../../styles/default.css?no-inline',       import.meta.url).href },
+  { value: 'default',         label: 'Shadcn',      color: '#000000', url: new URL('../../styles/default.css?no-inline',       import.meta.url).href },
   { value: 'axiom',           label: 'Axiom',        color: '#0096FC', url: new URL('../../styles/axiom.css?no-inline',         import.meta.url).href },
   { value: 'amber',           label: 'Amber',        color: '#f59e0b', url: new URL('../../styles/amber.css?no-inline',         import.meta.url).href },
   { value: 'amethyst',        label: 'Amethyst',     color: '#8c5cff', url: new URL('../../styles/amethyst.css?no-inline',      import.meta.url).href },
