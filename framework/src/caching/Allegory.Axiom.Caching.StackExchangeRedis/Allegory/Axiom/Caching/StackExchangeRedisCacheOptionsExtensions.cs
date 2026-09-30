@@ -1,19 +1,18 @@
-using System;
 using Allegory.Axiom.Extensibility;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 namespace Allegory.Axiom.Caching;
 
 public static class StackExchangeRedisCacheOptionsExtensions
 {
-    internal const string ConfigureRedisKey = "Redis";
-
     extension(CacheOptions options)
     {
-        public Action<RedisCacheOptions>? ConfigureRedis
+        public RedisCacheOptions Redis
         {
-            get => options.TryGetProperty<Action<RedisCacheOptions>>(ConfigureRedisKey);
-            set => options.SetProperty(ConfigureRedisKey, value);
+            get => options.GetOrAddProperty(
+                CachingStackExchangeRedisPackage.RedisOptionsKey,
+                static () => new RedisCacheOptions());
+
+            set => options.SetProperty(CachingStackExchangeRedisPackage.RedisOptionsKey, value);
         }
     }
 }

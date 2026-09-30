@@ -7,6 +7,8 @@ namespace Allegory.Axiom.Caching;
 
 public class CacheOptions : IExtraProperties
 {
+    public const string Section = "Axiom:Cache";
+
     public string? KeyPrefix { get; set; }
     public Dictionary<Type, CacheTypeOptions> Types { get; set; } = [];
     public IDictionary<string, object> ExtraProperties { get; } = new Dictionary<string, object>();
