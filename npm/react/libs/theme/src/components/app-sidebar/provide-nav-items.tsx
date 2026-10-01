@@ -6,9 +6,9 @@ import {
   File01Icon,
   HistoryIcon,
   Home03Icon as Home,
-  DashboardBrowsingIcon,
 } from '@hugeicons/core-free-icons';
 import { navStore } from '@axiomframework/react-core';
+import { TEST_NAVIGATION } from './test-navigation';
 
 const PRODUCT = 'Identity Management';
 const AUDIT = 'Audit';
@@ -16,17 +16,12 @@ const SAAS = 'Tenant Management';
 
 export function provideNavItems() {
   navStore.add({
-    title: 'AxiomBase:Dashboard',
-    url: '/',
-    icon: <HugeiconsIcon icon={DashboardBrowsingIcon} strokeWidth={2} />,
-  });
-  navStore.add({
     title: 'AxiomBase:Home',
     url: '/home',
     icon: <HugeiconsIcon icon={Home} strokeWidth={2} />,
   });
 
-  navStore.addGroup(PRODUCT);
+  navStore.addGroup(PRODUCT, { isActive: true });
   navStore.add(
     {
       title: 'Users',
@@ -44,7 +39,7 @@ export function provideNavItems() {
     PRODUCT,
   );
 
-  navStore.addGroup(SAAS);
+  navStore.addGroup(SAAS, { isActive: true });
   navStore.add(
     {
       title: 'Tenants',
@@ -62,7 +57,7 @@ export function provideNavItems() {
     SAAS,
   );
 
-  navStore.addGroup(AUDIT);
+  navStore.addGroup(AUDIT, { isActive: true });
   navStore.add(
     {
       title: 'Audit Logs',
@@ -79,4 +74,9 @@ export function provideNavItems() {
     },
     AUDIT,
   );
+
+  const testGroup = navStore.addGroup('Playground', { isActive: true });
+  if (!testGroup.items.some((item) => item.title === TEST_NAVIGATION.title)) {
+    navStore.add(TEST_NAVIGATION, 'Playground');
+  }
 }

@@ -14,14 +14,14 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
     return selectGroup(baseStore.get().groups, title);
   },
 
-  addGroup(title: string): NavGroup {
+  addGroup(title: string, options: Partial<NavGroup>): NavGroup {
     const existing = selectGroup(baseStore.get().groups, title);
 
     if (existing) {
       return existing;
     }
 
-    const group: NavGroup = { title, isActive: false, items: [] };
+    const group: NavGroup = { title, isActive: false, items: [], ...options };
 
     baseStore.set((prev) => ({ groups: [...prev.groups, group] }));
 

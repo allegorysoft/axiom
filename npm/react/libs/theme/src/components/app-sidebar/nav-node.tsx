@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ChevronDownIcon as ChevronDown, CircleDotIcon as CircleDot } from '@hugeicons/core-free-icons';
+import { ChevronDownIcon as ChevronDown, ChevronRightIcon, CircleDotIcon as CircleDot } from '@hugeicons/core-free-icons';
 import { cn } from 'cn';
 
 import { useTranslation, type Nav } from '@axiomframework/react-core';
@@ -25,14 +25,35 @@ type NodeProps = {
   pathname: string;
   variant?: 'main' | 'sub';
   parent?: Nav | null;
+  onOpenPanel?: (item: Nav, trigger: HTMLButtonElement) => void;
 };
-export function NavItemNode({ item, pathname, variant = 'main', parent = null }: NodeProps) {
+export function NavItemNode({ item, pathname, variant = 'main', parent = null, onOpenPanel }: NodeProps) {
   const t = useTranslation();
   const hasChildren = Boolean(item.children?.length);
   const branchActive = isBranchActive(item, pathname);
   const isSub = variant === 'sub';
 
   const [open, setOpen] = useState(branchActive);
+
+  if (hasChildren && item.childrenDisplay === 'panel' && onOpenPanel) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          tooltip={t(item.title)}
+          onClick={(event) => onOpenPanel(item, event.currentTarget)}
+          aria-label={`${t(item.title)} submenu`}
+        >
+          {item.icon ?? <HugeiconsIcon icon={CircleDot} strokeWidth={2} />}
+          <span className="truncate">{t(item.title)}</span>
+          <HugeiconsIcon
+            icon={ChevronRightIcon}
+            strokeWidth={2}
+            className="ml-auto size-4 shrink-0 group-data-[collapsible=icon]:hidden"
+          />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
 
   if (!hasChildren) {
     const buttonProps = {
@@ -91,6 +112,7 @@ export function NavItemNode({ item, pathname, variant = 'main', parent = null }:
               pathname={pathname}
               parent={item}
               variant="sub"
+              onOpenPanel={onOpenPanel}
             />
           ))}
         </SidebarMenuSub>

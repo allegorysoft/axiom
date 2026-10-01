@@ -21,6 +21,7 @@ import {
 
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
+import { useSidebar } from '../ui/sidebar';
 import { preferencesStore } from '../preferences/preferences-store';
 import { usePreferences } from '../preferences/use-preferences';
 import {
@@ -76,6 +77,7 @@ function ChoiceGroup<T extends string>({
 }) {
   return (
     <div
+      data-slot="settings-choice-group"
       role="group"
       aria-label={label}
       className="flex flex-wrap gap-1 rounded-lg border bg-muted/30 p-1"
@@ -105,6 +107,7 @@ function ChoiceGroup<T extends string>({
 }
 
 function AppearanceContent({ children }: { children: ReactNode }) {
+  const { setOpen } = useSidebar();
   return (
     <>
       <div>{children}</div>
@@ -114,7 +117,12 @@ function AppearanceContent({ children }: { children: ReactNode }) {
           Restore the default color palette, font, layout, interface size and
           corner radius.
         </p>
-        <Button onClick={() => preferencesStore.resetPreferences()}>
+        <Button
+          onClick={() => {
+            preferencesStore.resetPreferences();
+            setOpen(true);
+          }}
+        >
           Restore Defaults
         </Button>
       </div>
@@ -124,6 +132,7 @@ function AppearanceContent({ children }: { children: ReactNode }) {
 
 function LayoutSection() {
   const preferences = usePreferences((state) => state.preferences);
+  const { open, setOpen } = useSidebar();
   return (
     <AppearanceContent>
       <SettingRow
@@ -179,6 +188,22 @@ function LayoutSection() {
           onChange={(userMenuPosition) =>
             preferencesStore.patchPreferences({ userMenuPosition })
           }
+        />
+      </SettingRow>
+      <SettingRow
+        title="Sidebar State"
+        description="Show the full sidebar or a compact icon rail."
+      >
+        <ChoiceGroup
+          label="Sidebar State"
+          options={
+            [
+              { value: 'expanded', label: 'Expanded' },
+              { value: 'collapsed', label: 'Collapsed' },
+            ] as const
+          }
+          value={open ? 'expanded' : 'collapsed'}
+          onChange={(value) => setOpen(value === 'expanded')}
         />
       </SettingRow>
     </AppearanceContent>

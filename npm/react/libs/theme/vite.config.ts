@@ -55,7 +55,6 @@ export default defineConfig(() => ({
         /^react\/jsx-runtime$/,
         /^@floating-ui/,
         /^@base-ui/,
-        'recharts',
         '@axiomframework/react-core',
         '@hugeicons/react',
         '@hugeicons/core-free-icons',
@@ -63,8 +62,6 @@ export default defineConfig(() => ({
         'cmdk',
         'cn',
         'shadcn',
-        '@tanstack/react-table',
-        'date-fns',
         'react-day-picker'
       ],
       output: {

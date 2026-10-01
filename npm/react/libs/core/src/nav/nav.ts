@@ -11,6 +11,8 @@ export type Nav = {
   permission?: string | null;
   isActive?: boolean;
   children?: Nav[];
+  /** Display children as a sidebar panel, an inline branch, or a labeled group. */
+  childrenDisplay?: 'collapse' | 'panel' | 'group';
 };
 
 export type NavGroup = {
@@ -27,7 +29,7 @@ export type NavPatch = Partial<Nav> | ((node: Nav) => Partial<Nav>);
 
 export type NavStore = AxiomStore<NavState> & {
   getGroup(title?: string): NavGroup | undefined;
-  addGroup(title: string): NavGroup;
+  addGroup(title: string, options?: Partial<NavGroup>): NavGroup;
   removeGroup(title: string): void;
   find(title: string, group?: string): Nav | undefined;
   add(item: Nav, group?: string, parentTitle?: string): void;
