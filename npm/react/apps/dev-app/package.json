@@ -14,8 +14,7 @@
     "@hugeicons/react": "catalog:",
     "@hugeicons/core-free-icons": "catalog:",
     "@tanstack/react-table": "catalog:",
-    "date-fns": "catalog:",
-    "recharts": "catalog:"
+    "date-fns": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
