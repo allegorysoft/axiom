@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
             var builder = new AxiomDbContextOptionsBuilder();
             optionsAction?.Invoke(builder);
 
-            services.RegisterRepositories<TContext>(builder);
+            services.AddRepositoryRegistrar<TContext>(builder);
             services.RegisterDbContextFactory<TContext>();
         }
 
@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
             registrar.ReplaceRepository(repository);
         }
 
-        private void RegisterRepositories(AxiomDbContextOptionsBuilder builder)
+        private void AddRepositoryRegistrar(AxiomDbContextOptionsBuilder builder)
         {
             var properties = CollectionProperties.GetOrCreateValue(services);
 

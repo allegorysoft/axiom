@@ -20,9 +20,11 @@ export function Component() {
   const t = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const activeTab = location.pathname.endsWith('/sign-up')
-    ? 'sign-up'
-    : 'login';
+  const location = useLocation();
+  const basePath = useResolvedPath('.').pathname;
+
+  const activeTab: Tab = TABS.find((tab) => location.pathname.split('/').pop() === tab) ?? 'login';
+
   return (
     <main className="flex min-h-svh items-center justify-center bg-background p-4 md:p-8">
       <div className="grid w-full max-w-6xl gap-4 rounded-2xl border p-3 md:p-4 lg:grid-cols-2">

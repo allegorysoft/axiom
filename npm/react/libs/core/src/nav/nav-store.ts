@@ -1,21 +1,20 @@
 import { createStore } from '../store/axiom-store';
+import { DEFAULT_MENU_GROUP } from '../menu/menu';
+import { edit, find, findGroup } from '../menu/menu-utils';
 import type { Nav, NavGroup, NavPatch, NavState, NavStore } from './nav';
 
-export const DEFAULT_NAV_GROUP = 'Default';
-
 const initialState: NavState = {
-  groups: [{ title: DEFAULT_NAV_GROUP, isActive: false, items: [] }],
+  groups: [{ title: DEFAULT_MENU_GROUP, isActive: false, children: [] }],
 };
 
 const baseStore = createStore<NavState>(initialState);
 
 export const navStore: NavStore = Object.assign({}, baseStore, {
-  getGroup(title: string = DEFAULT_NAV_GROUP): NavGroup | undefined {
-    return selectGroup(baseStore.get().groups, title);
+  getGroup(title = DEFAULT_MENU_GROUP): NavGroup | undefined {
+    return findGroup(baseStore.get().groups, title);
   },
-
-  addGroup(title: string, options: Partial<NavGroup>): NavGroup {
-    const existing = selectGroup(baseStore.get().groups, title);
+  addGroup(title: string, options?: Partial<NavGroup>): NavGroup {
+    const existing = findGroup(baseStore.get().groups, title);
 
     if (existing) {
       return existing;
@@ -23,31 +22,26 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
 
     const group: NavGroup = { title, isActive: false, items: [], ...options };
 
-    baseStore.set((prev) => ({ groups: [...prev.groups, group] }));
+    baseStore.set((prev) => ({
+      groups: [...prev.groups, group],
+    }));
 
     return group;
   },
-
   removeGroup(title: string): void {
     baseStore.set((prev) => {
-      if (!prev.groups.some((group) => group.title === title)) {
-        return prev;
-      }
-      return { groups: prev.groups.filter((group) => group.title !== title) };
+      const groups = prev.groups.filter((group) => group.title !== title);
+
+      return groups.length === prev.groups.length ? prev : { groups };
     });
   },
 
-  find(title: string, group: string = DEFAULT_NAV_GROUP): Nav | undefined {
-    return find(selectGroup(baseStore.get().groups, group)?.items ?? [], title);
+  find(title: string, group = DEFAULT_MENU_GROUP): Nav | undefined {
+    return find(getGroup(group)?.children ?? [], title);
   },
-
-  add(
-    item: Nav,
-    group: string = DEFAULT_NAV_GROUP,
-    parentTitle?: string,
-  ): void {
+  add(item: Nav, group = DEFAULT_MENU_GROUP, parentTitle?: string): void {
     baseStore.set((prev) => {
-      const target = selectGroup(prev.groups, group);
+      const target = findGroup(prev.groups, group);
 
       if (!target) {
         return {
@@ -56,177 +50,79 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
             {
               title: group,
               isActive: false,
-              items: [item],
+              children: [item],
             },
           ],
         };
       }
 
-      if (parentTitle) {
-        const items = edit(target.items, parentTitle, (parent) => ({
-          ...parent,
-          children: [...(parent.children ?? []), item],
-        }));
-
-        if (items === target.items) {
-          throw new Error(
-            `navStore.add: parent "${parentTitle}" not found in group "${group}"`,
-          );
-        }
-
-        return {
-          groups: prev.groups.map((g) =>
-            g.title === group ? { ...g, items } : g,
-          ),
-        };
+      if (!parentTitle) {
+        return updateGroup(prev, target, [...target.children, item]);
       }
 
-      return {
-        groups: prev.groups.map((g) =>
-          g.title === group ? { ...g, items: [...g.items, item] } : g,
-        ),
-      };
-    });
-  },
-
-  remove(title: string, group: string = DEFAULT_NAV_GROUP): void {
-    baseStore.set((prev) => {
-      const target = selectGroup(prev.groups, group);
-
-      if (!target) {
-        return prev;
-      }
-
-      const items = edit(target.items, title, () => undefined);
-
-      if (items === target.items) {
-        return prev;
-      }
-
-      return {
-        groups: prev.groups.map((g) =>
-          g.title === group ? { ...g, items } : g,
-        ),
-      };
-    });
-  },
-
-  update(
-    title: string,
-    patch: NavPatch,
-    group: string = DEFAULT_NAV_GROUP,
-  ): void {
-    baseStore.set((prev) => {
-      const target = selectGroup(prev.groups, group);
-
-      if (!target) {
-        return prev;
-      }
-
-      const items = edit(target.items, title, (node) => ({
-        ...node,
-        ...(typeof patch === 'function' ? patch(node) : patch),
+      const children = edit(target.children, parentTitle, (parent) => ({
+        ...parent,
+        children: [...(parent.children ?? []), item],
       }));
 
-      if (items === target.items) {
-        return prev;
+      if (children === target.children) {
+        throw new Error(
+          `navStore.add: parent "${parentTitle}" not found in group "${group}"`,
+        );
       }
 
-      return {
-        groups: prev.groups.map((g) =>
-          g.title === group ? { ...g, items } : g,
-        ),
-      };
+      return updateGroup(prev, target, children);
     });
   },
-
-  toggle(title: string, group: string = DEFAULT_NAV_GROUP): void {
-    baseStore.set((prev) => {
-      const target = selectGroup(prev.groups, group);
-
-      if (!target) {
-        return prev;
-      }
-
-      const items = edit(target.items, title, (node) => ({
-        ...node,
-        isActive: !node.isActive,
-      }));
-
-      if (items === target.items) {
-        return prev;
-      }
-
-      return {
-        groups: prev.groups.map((g) =>
-          g.title === group ? { ...g, items } : g,
-        ),
-      };
-    });
+  remove(title: string, group = DEFAULT_MENU_GROUP): void {
+    updateNode(group, title, () => undefined);
+  },
+  update(title: string, patch: NavPatch, group = DEFAULT_MENU_GROUP): void {
+    updateNode(group, title, (node) => ({
+      ...node,
+      ...(typeof patch === 'function' ? patch(node) : patch),
+    }));
+  },
+  toggle(title: string, group = DEFAULT_MENU_GROUP): void {
+    updateNode(group, title, (node) => ({
+      ...node,
+      isActive: !node.isActive,
+    }));
   },
 });
 
-function selectGroup(groups: NavGroup[], title: string): NavGroup | undefined {
-  return groups.find((group) => group.title === title);
+function getGroup(title: string): NavGroup | undefined {
+  return findGroup(baseStore.get().groups, title);
 }
 
-function find(items: Nav[], title: string): Nav | undefined {
-  for (const item of items) {
-    if (item.title === title) {
-      return item;
-    }
-
-    if (item.children) {
-      const child = find(item.children, title);
-      if (child) {
-        return child;
-      }
-    }
-  }
-
-  return undefined;
+function updateGroup(
+  state: NavState,
+  group: NavGroup,
+  children: Nav[],
+): NavState {
+  return {
+    groups: state.groups.map((item) =>
+      item === group ? { ...item, children } : item,
+    ),
+  };
 }
 
-function edit(
-  items: Nav[],
+function updateNode(
+  group: string,
   title: string,
-  fn: (node: Nav) => Nav | undefined,
-): Nav[] {
-  let changed = false;
-  const result: Nav[] = [];
+  update: (node: Nav) => Nav | undefined,
+): void {
+  baseStore.set((prev) => {
+    const target = findGroup(prev.groups, group);
 
-  for (const item of items) {
-    if (item.title === title) {
-      const next = fn(item);
-
-      if (!next) {
-        changed = true;
-        continue;
-      }
-
-      if (next !== item) {
-        changed = true;
-      }
-
-      result.push(next);
-      continue;
+    if (!target) {
+      return prev;
     }
 
-    if (item.children) {
-      const children = edit(item.children, title, fn);
+    const children = edit(target.children, title, update);
 
-      if (children !== item.children) {
-        changed = true;
-        result.push({ ...item, children });
-      } else {
-        result.push(item);
-      }
-
-      continue;
-    }
-
-    result.push(item);
-  }
-
-  return changed ? result : items;
+    return children === target.children
+      ? prev
+      : updateGroup(prev, target, children);
+  });
 }

@@ -1,39 +1,16 @@
-import type { JSX } from 'react';
-import type { AxiomStore } from '../models/common';
+import type {
+  MenuNode,
+  MenuGroup,
+  MenuState,
+  MenuPatch,
+  MenuStore,
+} from '../menu/menu';
 
-export const DEFAULT_NAV_GROUP = 'Default';
-
-export type Nav = {
-  title: string;
+export interface Nav extends MenuNode<Nav> {
   url?: string;
-  icon?: JSX.Element;
-  badge?: string;
-  permission?: string | null;
-  isActive?: boolean;
-  children?: Nav[];
-  /** Display children as a sidebar panel, an inline branch, or a labeled group. */
-  childrenDisplay?: 'collapse' | 'panel' | 'group';
-};
+}
 
-export type NavGroup = {
-  title: string;
-  isActive: boolean;
-  items: Nav[];
-};
-
-export type NavState = {
-  groups: NavGroup[];
-};
-
-export type NavPatch = Partial<Nav> | ((node: Nav) => Partial<Nav>);
-
-export type NavStore = AxiomStore<NavState> & {
-  getGroup(title?: string): NavGroup | undefined;
-  addGroup(title: string, options?: Partial<NavGroup>): NavGroup;
-  removeGroup(title: string): void;
-  find(title: string, group?: string): Nav | undefined;
-  add(item: Nav, group?: string, parentTitle?: string): void;
-  remove(title: string, group?: string): void;
-  update(title: string, patch: NavPatch, group?: string): void;
-  toggle(title: string, group?: string): void;
-};
+export type NavGroup = MenuGroup<Nav>;
+export type NavState = MenuState<Nav>;
+export type NavPatch = MenuPatch<Nav>;
+export type NavStore = MenuStore<Nav>;

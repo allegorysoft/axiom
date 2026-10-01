@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { BookTextIcon, HelpSquareIcon } from '@hugeicons/core-free-icons';
 
-import { useNavGroups } from '@axiomframework/react-core';
+import { DEFAULT_MENU_GROUP, useNavGroups } from '@axiomframework/react-core';
 
 import {
   Sidebar,
@@ -49,6 +49,11 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const tenants = useSaasPreview((state) => state.tenants);
   const editions = useSaasPreview((state) => state.editions);
 
+  const index = groups.findIndex((group) => group.title === DEFAULT_MENU_GROUP);
+  const defaultGroup = index === -1 ? null : groups[index];
+  const otherGroups =
+    index === -1 ? groups : groups.filter((_, i) => i !== index);
+
   return (
     <Sidebar collapsible="icon" variant={preferences.sidebarStyle} {...props}>
       <SidebarHeader>
@@ -72,23 +77,34 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarHeaderSearch />
       </SidebarHeader>
 
-      <SidebarNavigation groups={groups} pathname={pathname} />
+      <SidebarContent>
+        {defaultGroup?.children.length ? (
+          <SidebarGroup>
+            <SidebarGroupContent className="flex flex-col gap-2">
+              <SidebarMenu>
+                {defaultGroup.children.map((item) => (
+                  <NavItemNode
+                    key={item.url ?? item.title}
+                    item={item}
+                    pathname={pathname}
+                  />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ) : null}
 
-      <SidebarFooter className="shrink-0">
-        <SidebarMenu className="gap-0.5">
-          {RESOURCE_LINKS.map(({ label, icon, href }) => (
-            <SidebarMenuItem key={label}>
-              <SidebarMenuButton
-                tooltip={label}
-                render={<a href={href} target="_blank" rel="noopener noreferrer" />}
-              >
-                <HugeiconsIcon icon={icon} strokeWidth={2} />
-                <span className="truncate">{label}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-        {preferences.userMenuPosition === 'sidebar' && (
+        {otherGroups.map((group) => (
+          <NavGroupSection
+            key={group.title}
+            group={group}
+            pathname={pathname}
+          />
+        ))}
+      </SidebarContent>
+
+      {preferences.userMenuPosition === 'sidebar' && (
+        <SidebarFooter>
           <SidebarMenu>
             <CurrentUserDropdown placement="sidebar" />
           </SidebarMenu>

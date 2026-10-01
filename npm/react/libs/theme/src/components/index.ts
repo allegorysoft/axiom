@@ -22,9 +22,11 @@ export * from './ui/popover';
 export * from './password-input';
 export * from './ui/dialog';
 export * from './app-sidebar/index';
+export * from './shared/index';
+export * from './application-settings/index';
+export * from './profile/index';
 export * from './header';
-export { UserMenuProvider } from './current-user/current-user-dropdown';
-export { HttpStatusBadge } from './http-status-badge';
+export * from './config';
 
 export * from './saas-preview-store';
 export * from './ui/collapsible';
