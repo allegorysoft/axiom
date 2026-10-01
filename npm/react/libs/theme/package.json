@@ -42,7 +42,6 @@
     "@base-ui/react": "catalog:",
     "shadcn": "catalog:",
     "cn": "catalog:",
-    "tw-animate-css": "~1.4.0",
-    "recharts": "catalog:"
+    "tw-animate-css": "~1.4.0"
   }
 }

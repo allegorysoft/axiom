@@ -103,6 +103,7 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
               <Command
                 key={open ? 'open' : 'closed'}
                 shouldFilter={false}
+                data-tenant-switcher
                 className="p-0 [&_[cmdk-group-items]]:space-y-1 [&_[data-slot=command-item]]:gap-2 [&_[data-slot=command-item]]:px-2 [&_[data-slot=command-item]]:py-2"
               >
                 <CommandInput
@@ -121,13 +122,14 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
                   <CommandGroup>
                     {filteredTenants.map((tenant) => (
                       <CommandItem
+                        data-slot="command-item"
                         key={tenant.id}
                         value={tenant.name}
                         data-checked={tenant.id === activeTenant.id}
                         className={
-                          tenant.id === activeTenant.id
-                            ? 'bg-sidebar-accent text-sidebar-accent-foreground data-selected:bg-sidebar-accent'
-                            : undefined
+                          tenant.id === activeTenant?.id
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground data-selected:bg-sidebar-accent data-selected:text-sidebar-accent-foreground data-selected:*:[svg]:text-sidebar-accent-foreground'
+                            : 'data-selected:bg-sidebar-accent data-selected:text-sidebar-accent-foreground data-selected:*:[svg]:text-sidebar-accent-foreground'
                         }
                         onSelect={() => {
                           setActiveTenant(tenant);

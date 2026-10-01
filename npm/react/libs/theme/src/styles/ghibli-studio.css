@@ -1,15 +1,15 @@
 [data-color-theme='ghibli-studio'] {
-  --background: oklch(0.945 0.035 84);
+  --background: oklch(0.91 0.035 105);
   --foreground: oklch(0.28 0.045 72);
-  --card: oklch(0.965 0.028 85);
+  --card: oklch(0.945 0.032 100);
   --card-foreground: oklch(0.28 0.045 72);
-  --popover: oklch(0.975 0.025 85);
+  --popover: oklch(0.95 0.03 100);
   --popover-foreground: oklch(0.28 0.045 72);
   --primary: oklch(0.62 0.11 112);
   --primary-foreground: oklch(0.98 0.01 85);
-  --secondary: oklch(0.895 0.045 84);
-  --secondary-foreground: oklch(0.34 0.055 76);
-  --muted: oklch(0.91 0.035 84);
+  --secondary: oklch(0.825 0.05 105);
+  --secondary-foreground: oklch(0.29 0.045 100);
+  --muted: oklch(0.865 0.035 105);
   --muted-foreground: oklch(0.45 0.045 74);
   --accent: oklch(0.86 0.065 88);
   --accent-foreground: oklch(0.27 0.045 72);
@@ -22,12 +22,12 @@
   --chart-3: oklch(0.48 0.08 211.46);
   --chart-4: oklch(0.84 0.17 85.07);
   --chart-5: oklch(0.74 0.17 60.21);
-  --sidebar: oklch(0.92 0.04 84);
+  --sidebar: oklch(0.885 0.04 108);
   --sidebar-foreground: oklch(0.28 0.045 72);
   --sidebar-primary: oklch(0.62 0.11 112);
   --sidebar-primary-foreground: oklch(0.98 0.01 85);
-  --sidebar-accent: oklch(0.855 0.065 88);
-  --sidebar-accent-foreground: oklch(0.27 0.045 72);
+  --sidebar-accent: var(--secondary);
+  --sidebar-accent-foreground: var(--secondary-foreground);
   --sidebar-border: oklch(0.79 0.045 80);
   --sidebar-ring: oklch(0.62 0.11 112);
 }

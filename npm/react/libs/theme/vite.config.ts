@@ -55,7 +55,6 @@ export default defineConfig(() => ({
         /^react\/jsx-runtime$/,
         /^@floating-ui/,
         /^@base-ui/,
-        'recharts',
         '@axiomframework/react-core',
         '@hugeicons/react',
         '@hugeicons/core-free-icons',

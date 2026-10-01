@@ -76,7 +76,7 @@ export function PreferencesPopover() {
         }
       />
 
-      <PopoverContent align="start">
+      <PopoverContent align="start" data-preferences-panel className="p-3">
         <PopoverHeader>
           <PopoverTitle>{t('AxiomTheme:Preferences')}</PopoverTitle>
           <PopoverDescription>
@@ -158,7 +158,7 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
   const colorTheme = getOption(COLOR_THEME_OPTIONS, preferences.colorTheme);
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       <Label>{t('AxiomTheme:ColorTheme')}</Label>
       <Select
         value={preferences.colorTheme}
