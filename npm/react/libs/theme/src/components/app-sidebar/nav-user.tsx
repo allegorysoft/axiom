@@ -1,7 +1,13 @@
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowUpDownIcon as ChevronsUpDownIcon, SparklesIcon, BadgeCheckIcon, CreditCardIcon, BellIcon, LogOutIcon } from '@hugeicons/core-free-icons';
+import {
+  ArrowUpDownIcon as ChevronsUpDownIcon,
+  SparklesIcon,
+  BadgeCheckIcon,
+  CreditCardIcon,
+  BellIcon,
+  LogOutIcon,
+} from '@hugeicons/core-free-icons';
 
-import { useLogout } from '../current-user/use-logout';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
   DropdownMenu,
@@ -29,7 +35,6 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const logout = useLogout();
 
   return (
     <SidebarMenu>
@@ -54,7 +59,11 @@ export function NavUser({
               <span className="truncate font-medium">{user.name}</span>
               <span className="truncate text-xs">{user.email}</span>
             </div>
-            <HugeiconsIcon icon={ChevronsUpDownIcon} strokeWidth={2} className="ml-auto size-4" />
+            <HugeiconsIcon
+              icon={ChevronsUpDownIcon}
+              strokeWidth={2}
+              className="ml-auto size-4"
+            />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="min-w-56"
@@ -99,7 +108,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logout}>
+            <DropdownMenuItem>
               <HugeiconsIcon icon={LogOutIcon} strokeWidth={2} />
               Log out
             </DropdownMenuItem>
