@@ -17,6 +17,7 @@ export function ChoiceGroup<T extends string>({
       role="group"
       aria-label={label}
       className="flex flex-wrap gap-1 rounded-lg border bg-muted/30 p-1"
+      data-slot="settings-choice-group"
     >
       {options.map((option) => (
         <Button

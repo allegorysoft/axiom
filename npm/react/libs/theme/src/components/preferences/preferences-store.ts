@@ -7,8 +7,8 @@ import type {
 } from './preferences';
 
 export const defaultPreferences: Preferences = {
-  colorTheme: 'default',
-  font: 'system',
+  colorTheme: 'axiom',
+  font: 'manrope',
   navbarBehavior: 'sticky',
   sidebarStyle: 'floating',
   userMenuPosition: 'navbar',
