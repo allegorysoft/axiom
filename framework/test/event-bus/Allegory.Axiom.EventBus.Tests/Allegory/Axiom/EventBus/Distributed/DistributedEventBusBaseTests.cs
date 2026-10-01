@@ -242,7 +242,7 @@ public class DistributedEventBusBaseFixture : IntegrationTest
 
 [Dependency(AutoRegister = false)]
 public class DistributedEventBusImp(
-    ILogger<DistributedEventBusBase> logger,
+    ILogger<DistributedEventBusImp> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
     DistributedEventProcessor eventProcessor,

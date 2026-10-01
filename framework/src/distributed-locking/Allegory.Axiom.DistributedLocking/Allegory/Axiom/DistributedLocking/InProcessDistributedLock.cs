@@ -3,11 +3,13 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.DistributedLocking;
 
+[Dependency(Strategy = RegistrationStrategy.TryAdd)]
 public class InProcessDistributedLock(
     IOptions<DistributedLockOptions> options,
     IUnitOfWorkManager unitOfWorkManager) :

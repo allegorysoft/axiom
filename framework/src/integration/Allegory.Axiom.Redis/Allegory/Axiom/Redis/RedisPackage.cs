@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Redis;
 
-public class RedisPackage : IConfigureApplication
+internal sealed class RedisPackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {

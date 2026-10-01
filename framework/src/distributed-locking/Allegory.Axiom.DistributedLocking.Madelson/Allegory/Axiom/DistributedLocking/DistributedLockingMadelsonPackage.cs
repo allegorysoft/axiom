@@ -5,7 +5,6 @@ using Medallion.Threading;
 using Medallion.Threading.Redis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
@@ -22,7 +21,7 @@ internal sealed class DistributedLockingMadelsonPackage : IConfigureApplication
             builder.Configuration.GetSection(Section).Bind(options.Madelson);
         });
 
-        builder.Services.TryAddSingleton<IDistributedLockProvider>(sp =>
+        builder.Services.AddSingleton<IDistributedLockProvider>(sp =>
         {
             var factory = sp.GetRequiredService<RedisConnectionFactory>();
             var options = sp.GetRequiredService<IOptions<DistributedLockOptions>>();
