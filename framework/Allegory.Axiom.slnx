@@ -11,8 +11,8 @@
   <Folder Name="/src/caching/">
     <Project Path="src/caching/Allegory.Axiom.Caching.Abstractions/Allegory.Axiom.Caching.Abstractions.csproj" />
     <Project Path="src/caching/Allegory.Axiom.Caching.FusionCache/Allegory.Axiom.Caching.FusionCache.csproj" />
-    <Project Path="src/caching/Allegory.Axiom.Caching.StackExchangeRedis/Allegory.Axiom.Caching.StackExchangeRedis.csproj" />
     <Project Path="src/caching/Allegory.Axiom.Caching/Allegory.Axiom.Caching.csproj" />
+    <Project Path="src/caching/Allegory.Axiom.Caching.Redis/Allegory.Axiom.Caching.Redis.csproj" />
   </Folder>
   <Folder Name="/src/core/">
     <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
@@ -31,6 +31,11 @@
   <Folder Name="/src/ddd/">
     <Project Path="src/ddd/Allegory.Axiom.Domain/Allegory.Axiom.Domain.csproj" />
   </Folder>
+  <Folder Name="/src/distributed-locking/">
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking.Abstractions/Allegory.Axiom.DistributedLocking.Abstractions.csproj" />
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking.Madelson/Allegory.Axiom.DistributedLocking.Madelson.csproj" />
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking/Allegory.Axiom.DistributedLocking.csproj" />
+  </Folder>
   <Folder Name="/src/ef-core/">
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB/Allegory.Axiom.EntityFrameworkCore.MongoDB.csproj" />
     <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational/Allegory.Axiom.EntityFrameworkCore.Relational.csproj" />
@@ -43,6 +48,7 @@
   </Folder>
   <Folder Name="/src/integration/">
     <Project Path="src/integration/Allegory.Axiom.RabbitMQ/Allegory.Axiom.RabbitMQ.csproj" />
+    <Project Path="src/integration/Allegory.Axiom.Redis/Allegory.Axiom.Redis.csproj" />
   </Folder>
   <Folder Name="/src/interception/">
     <Project Path="src/interception/Allegory.Axiom.Interception.Abstractions/Allegory.Axiom.Interception.Abstractions.csproj" />
@@ -91,10 +97,13 @@
   <Folder Name="/test/data/">
     <Project Path="test/data/Allegory.Axiom.Data.Tests/Allegory.Axiom.Data.Tests.csproj" />
   </Folder>
+  <Folder Name="/test/distributed-locking/">
+    <Project Path="test/distributed-locking/Allegory.Axiom.DistributedLocking.Tests/Allegory.Axiom.DistributedLocking.Tests.csproj" />
+  </Folder>
   <Folder Name="/test/ef-core/">
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational.Tests/Allegory.Axiom.EntityFrameworkCore.Relational.Tests.csproj" />
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Tests/Allegory.Axiom.EntityFrameworkCore.Tests.csproj" />
-    <Project Path="test\ef-core\Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests\Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests.csproj" />
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests/Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests.csproj" />
   </Folder>
   <Folder Name="/test/event-bus/">
     <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />
@@ -105,6 +114,7 @@
   </Folder>
   <Folder Name="/test/integration/">
     <Project Path="test/integration/Allegory.Axiom.RabbitMQ.Tests/Allegory.Axiom.RabbitMQ.Tests.csproj" />
+    <Project Path="test/integration/Allegory.Axiom.Redis.Tests/Allegory.Axiom.Redis.Tests.csproj" />
   </Folder>
   <Folder Name="/test/interception/">
     <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />

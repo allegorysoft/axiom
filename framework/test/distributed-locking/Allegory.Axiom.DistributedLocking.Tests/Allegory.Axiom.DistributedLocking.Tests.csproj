@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
-        <ProjectReference Include="..\..\..\src\caching\Allegory.Axiom.Caching\Allegory.Axiom.Caching.csproj"/>
+        <ProjectReference Include="..\..\..\src\distributed-locking\Allegory.Axiom.DistributedLocking\Allegory.Axiom.DistributedLocking.csproj"/>
     </ItemGroup>
 
 </Project>

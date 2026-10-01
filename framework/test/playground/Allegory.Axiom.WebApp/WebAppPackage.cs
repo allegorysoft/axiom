@@ -4,7 +4,6 @@ using Allegory.Axiom.AspNetCore;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.OpenTelemetry;
-using Allegory.Axiom.UnitOfWork;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

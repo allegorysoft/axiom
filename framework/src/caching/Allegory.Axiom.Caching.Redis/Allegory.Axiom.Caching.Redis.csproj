@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Allegory.Axiom.Caching\Allegory.Axiom.Caching.csproj"/>
+        <ProjectReference Include="..\..\integration\Allegory.Axiom.Redis\Allegory.Axiom.Redis.csproj"/>
     </ItemGroup>
 
 </Project>

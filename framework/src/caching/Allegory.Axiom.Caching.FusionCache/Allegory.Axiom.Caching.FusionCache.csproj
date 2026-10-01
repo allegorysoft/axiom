@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Allegory.Axiom.Caching.StackExchangeRedis\Allegory.Axiom.Caching.StackExchangeRedis.csproj"/>
+        <ProjectReference Include="..\Allegory.Axiom.Caching.Redis\Allegory.Axiom.Caching.Redis.csproj" />
     </ItemGroup>
 
 </Project>

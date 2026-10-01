@@ -6,8 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Testcontainers.Redis"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.TestBase\Allegory.Axiom.TestBase.csproj"/>
-        <ProjectReference Include="..\..\..\src\caching\Allegory.Axiom.Caching\Allegory.Axiom.Caching.csproj"/>
+        <ProjectReference Include="..\..\..\src\integration\Allegory.Axiom.Redis\Allegory.Axiom.Redis.csproj"/>
     </ItemGroup>
 
 </Project>
