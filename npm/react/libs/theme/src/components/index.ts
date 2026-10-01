@@ -19,4 +19,3 @@ export * from './application-settings/index';
 export * from './profile/index';
 export * from './header';
 export * from './config';
-export { HttpStatusBadge } from './http-status-badge';
