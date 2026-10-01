@@ -53,14 +53,19 @@ export function createTabStore(): TabStore {
       return findGroup(baseStore.get().groups, title);
     },
 
-    addGroup(title: string): TabGroup {
+    addGroup(title: string, options?: Partial<TabGroup>): TabGroup {
       const existing = findGroup(baseStore.get().groups, title);
 
       if (existing) {
         return existing;
       }
 
-      const group: TabGroup = { title, isActive: false, children: [] };
+      const group: TabGroup = {
+        title,
+        isActive: false,
+        children: [],
+        ...options,
+      };
 
       baseStore.set((prev) => ({
         groups: [...prev.groups, group],

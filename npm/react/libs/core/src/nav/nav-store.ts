@@ -13,14 +13,19 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
   getGroup(title = DEFAULT_MENU_GROUP): NavGroup | undefined {
     return findGroup(baseStore.get().groups, title);
   },
-  addGroup(title: string): NavGroup {
+  addGroup(title: string, options: Partial<NavGroup>): NavGroup {
     const existing = findGroup(baseStore.get().groups, title);
 
     if (existing) {
       return existing;
     }
 
-    const group: NavGroup = { title, isActive: false, children: [] };
+    const group: NavGroup = {
+      title,
+      isActive: false,
+      children: [],
+      ...options,
+    };
 
     baseStore.set((prev) => ({
       groups: [...prev.groups, group],
