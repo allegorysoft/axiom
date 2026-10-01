@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { SearchIcon as Search } from '@hugeicons/core-free-icons';
 
-import { useNavGroups } from '@axiomframework/react-core';
+import { useNavGroups, useTranslation } from '@axiomframework/react-core';
 
 import {
   InputGroup,
@@ -27,6 +27,7 @@ const shortcutModifier = /Mac|iPhone|iPad/.test(navigator.userAgent)
 export function SidebarHeaderSearch() {
   const [searchOpen, setSearchOpen] = useState(false);
   const groups = useNavGroups();
+  const t = useTranslation();
 
   const pages = deepFlatMap(
     groups.flatMap((group) => group.children),
@@ -107,7 +108,7 @@ export function SidebarHeaderSearch() {
                   onSelect={() => navigate(page.url)}
                 >
                   <HugeiconsIcon icon={Search} strokeWidth={2} />
-                  {page.title}
+                  {t(page.title)}
                 </CommandItem>
               ))}
             </CommandGroup>
