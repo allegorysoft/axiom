@@ -94,6 +94,7 @@
   <Folder Name="/test/ef-core/">
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational.Tests/Allegory.Axiom.EntityFrameworkCore.Relational.Tests.csproj" />
     <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Tests/Allegory.Axiom.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="test\ef-core\Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests\Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests.csproj" />
   </Folder>
   <Folder Name="/test/event-bus/">
     <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />

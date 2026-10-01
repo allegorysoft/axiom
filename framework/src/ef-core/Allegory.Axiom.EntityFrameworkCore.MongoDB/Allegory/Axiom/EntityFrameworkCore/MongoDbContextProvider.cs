@@ -1,69 +1,100 @@
-﻿using System.Threading;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
-using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.Data.ConnectionStrings;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using MongoDB.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
-[Dependency(AutoRegister = false)]
 public class MongoDbContextProvider<TContext>(
     IDbContextFactory<TContext> dbContextFactory,
-    IUnitOfWorkManager unitOfWorkManager)
-    : IDbContextProvider<TContext>
+    IUnitOfWorkManager unitOfWorkManager,
+    IOptions<AxiomDbContextOptions<TContext>> options,
+    IConnectionStringProvider connectionStringProvider,
+    DbContextOptions<TContext> dbContextOptions) :
+    DbContextProvider<TContext>(dbContextFactory, unitOfWorkManager, options, connectionStringProvider), IDisposable
     where TContext : DbContext
 {
-    protected IDbContextFactory<TContext> DbContextFactory { get; } = dbContextFactory;
-    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    protected DbContextOptions<TContext> DbContextOptions { get; } = dbContextOptions;
+    protected ConcurrentDictionary<string, DbContextOptions<TContext>> DbContextOptionsCache { get; } = [];
+    protected ConcurrentQueue<IMongoClient> Clients { get; } = new();
 
-    public async ValueTask<TContext> GetAsync(CancellationToken cancellationToken = default)
+    protected ObjectFactory<TContext> Factory { get; } =
+        ActivatorUtilities.CreateFactory<TContext>([typeof(DbContextOptions<TContext>)]);
+
+    protected override async ValueTask<TContext> CreateDbContextAsync(
+        IUnitOfWork unitOfWork,
+        string? connectionString,
+        CancellationToken cancellationToken = default)
     {
-        var unitOfWork = UnitOfWorkManager.RequiredCurrent;
-        cancellationToken = cancellationToken.FallbackTo(unitOfWork.CancellationToken);
-        var key = typeof(TContext).FullName!;
-
-        if (unitOfWork.Databases.TryGetValue(key, out var dbHandle))
+        if (string.IsNullOrEmpty(connectionString))
         {
-            return dbHandle.GetDatabase<TContext>();
+            return await DbContextFactory.CreateDbContextAsync(cancellationToken);
         }
 
-        // We can use existing configurations like this
-        // var options = Services.GetRequiredService<DbContextOptions<TContext>>();
-        // var builder = new DbContextOptionsBuilder<TContext>(options); 
+        var dbContextOptions = GetDbContextOptions(connectionString);
+        var dbContext = Factory(unitOfWork.ServiceProvider, [dbContextOptions]);
+        // MongoDB has no transaction-wide command timeout equivalent, so UnitOfWorkOptions.Timeout can't be applied.
 
-        var optionsBuilder = new DbContextOptionsBuilder<TContext>();
-        // optionsBuilder.UseMongoDB(connectionString)
-        //  Registering IMongoClient as a singleton and passing it into UseMongoDB is the recommended pattern;
-        //  - We might use client factory and gave the client just like RabbitMqConnectionFactory
-        // Create DbContext instance with ActivatorUtilities instead DbContextFactory
-
-        var dbContext = await DbContextFactory.CreateDbContextAsync(cancellationToken);
-
-        if (unitOfWork.Options.IsolationLevel.HasValue)
-        {
-            var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            dbHandle = new UnitOfWorkDatabaseHandle(
-                dbContext,
-                transaction,
-                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
-                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
-                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
-        }
-        else if (unitOfWork.Options.TransactionBehavior == UnitOfWorkTransactionBehavior.Suppress)
-        {
-            dbHandle = new UnitOfWorkDatabaseHandle(dbContext, UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync);
-        }
-        else
-        {
-            dbHandle = new UnitOfWorkDatabaseHandle(
-                dbContext,
-                UnitOfWorkDatabaseHandleExtensions.SaveChangesAsync,
-                UnitOfWorkDatabaseHandleExtensions.BeginTransactionAsync,
-                UnitOfWorkDatabaseHandleExtensions.CommitAsync,
-                UnitOfWorkDatabaseHandleExtensions.RollbackAsync);
-        }
-
-        unitOfWork.AddDatabase(key, dbHandle);
         return dbContext;
+    }
+
+    protected virtual DbContextOptions<TContext> GetDbContextOptions(string connectionString)
+    {
+        return DbContextOptionsCache.GetOrAdd(connectionString, static (key, state) =>
+        {
+            var builder = new DbContextOptionsBuilder<TContext>(state.DbContextOptions);
+            var url = new MongoUrl(key);
+            var client = new MongoClient(url);
+
+            state.Clients.Enqueue(client);
+            builder.UseMongoDB(client, url.DatabaseName);
+
+            return builder.Options;
+        }, (DbContextOptions, Clients));
+    }
+
+    protected override Task<IDbContextTransaction> BeginTransactionAsync(
+        IsolationLevel isolationLevel,
+        TContext dbContext,
+        CancellationToken cancellationToken = default)
+    {
+        return dbContext.Database.BeginTransactionAsync(
+            MapToMongoTransactionOptions(isolationLevel),
+            cancellationToken);
+    }
+
+    protected virtual TransactionOptions MapToMongoTransactionOptions(IsolationLevel isolationLevel)
+    {
+        var readConcern = isolationLevel switch
+        {
+            IsolationLevel.ReadUncommitted => ReadConcern.Local,
+            IsolationLevel.ReadCommitted => ReadConcern.Majority,
+            IsolationLevel.RepeatableRead => ReadConcern.Snapshot,
+            IsolationLevel.Snapshot => ReadConcern.Snapshot,
+            IsolationLevel.Serializable => ReadConcern.Snapshot,
+            _ => ReadConcern.Majority
+        };
+
+        return new TransactionOptions(
+            readConcern: readConcern,
+            writeConcern: WriteConcern.WMajority
+        );
+    }
+
+    public virtual void Dispose()
+    {
+        while (Clients.TryDequeue(out var client))
+        {
+            client.Dispose();
+        }
     }
 }

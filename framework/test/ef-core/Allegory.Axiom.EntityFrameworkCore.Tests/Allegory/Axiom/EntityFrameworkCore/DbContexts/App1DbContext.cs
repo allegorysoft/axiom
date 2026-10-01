@@ -5,10 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
 
-public class App1DbContext : DbContext
+public class App1DbContext(DbContextOptions<App1DbContext> options) : DbContext(options)
 {
     public DbSet<App1Entity1> Entity1 { get; set; }
     public DbSet<App1Entity2> Entity2 { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ConfigureAxiom(this);
+    }
 }
 
 public class App1Entity1 : AggregateRoot<int> { }

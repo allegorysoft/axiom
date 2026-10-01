@@ -8,6 +8,7 @@ import {
 import {
   getAvatarFallbackText,
   useTranslation,
+  useUser,
 } from '@axiomframework/react-core';
 
 import {
@@ -18,18 +19,17 @@ import {
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
-import { useUserProfile } from './user-profile-store';
-
-const NAV_ITEMS = [
+//TODO: Create store for user menu dropdown options
+const USER_MENU_OPTIONS = [
   { id: 'profile', title: 'Profile', icon: UserRound },
   { id: 'settings', title: 'Settings', icon: Settings },
 ] as const;
 export function MainContent({
   onOpenSettings,
 }: {
-  onOpenSettings: (section: 'profile' | 'settings') => void;
+  onOpenSettings: (dialogName: (typeof USER_MENU_OPTIONS)[number]['id']) => void;
 }) {
-  const user = useUserProfile((state) => state);
+  const user = useUser((state) => state);
   const t = useTranslation();
 
   return (
@@ -58,7 +58,7 @@ export function MainContent({
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
-      {NAV_ITEMS.map((item) => (
+      {USER_MENU_OPTIONS.map((item) => (
         <DropdownMenuItem
           key={item.title}
           className="gap-2 px-2 py-2"

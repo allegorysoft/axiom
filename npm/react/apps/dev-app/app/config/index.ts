@@ -5,6 +5,7 @@ import {
 } from '@axiomframework/react-core';
 import { configureShared } from '@axiomframework/react-shared';
 import { configureOAuth } from '@axiomframework/react-oauth';
+import { configureTheme } from '@axiomframework/react-theme/components';
 
 export async function loadEnvironment() {
   const environment = isDevMode()
@@ -18,4 +19,5 @@ export function configureApplication() {
   configureCore({localization:{remote:{skipProvider:true}}});
   configureShared();
   configureOAuth({skipDiscovery:true});
+  configureTheme();
 }

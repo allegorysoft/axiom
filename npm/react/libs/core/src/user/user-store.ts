@@ -1,6 +1,7 @@
-import { createStore, createStoreHook } from '@axiomframework/react-core';
+import { createStore } from '../store/axiom-store';
+import type { User } from './user';
 
-export const userProfileStore = createStore({
+export const userStore = createStore<User>({
   name: 'Masum ULU',
   firstName: 'Masum',
   surname: 'ULU',
@@ -10,5 +11,3 @@ export const userProfileStore = createStore({
   phone: '',
   photo: '',
 });
-
-export const useUserProfile = createStoreHook(userProfileStore);
