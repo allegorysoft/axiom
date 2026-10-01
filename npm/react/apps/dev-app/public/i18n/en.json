@@ -3,7 +3,9 @@
     "Min": "Must be {length} or more characters (client)",
     "Max": "Must be {length} or less characters (client)",
     "InvalidFormatPassword": "Must contain a lowercase letter, uppercase letter, number, and symbol.",
-    "Home": "Home"
+    "Home": "Home",
+    "Language": "Language",
+    "LanguageDescription": "Choose your preferred language"
   },
   "AxiomTheme": {
     "Theme": "Theme",
