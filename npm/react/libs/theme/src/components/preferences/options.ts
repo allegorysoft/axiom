@@ -15,7 +15,6 @@ export function getOption<T extends Option>(
 }
 
 export const COLOR_THEME_OPTIONS = [
-  { value: 'default',         label: 'Shadcn',      color: '#000000', url: new URL('../../styles/default.css?no-inline',       import.meta.url).href },
   { value: 'axiom',           label: 'Axiom',        color: '#0096FC', url: new URL('../../styles/axiom.css?no-inline',         import.meta.url).href },
   { value: 'amber',           label: 'Amber',        color: '#f59e0b', url: new URL('../../styles/amber.css?no-inline',         import.meta.url).href },
   { value: 'amethyst',        label: 'Amethyst',     color: '#8c5cff', url: new URL('../../styles/amethyst.css?no-inline',      import.meta.url).href },
@@ -26,9 +25,10 @@ export const COLOR_THEME_OPTIONS = [
   { value: 'cyberpunk',       label: 'Cyberpunk',    color: '#ff00c8', url: new URL('../../styles/cyberpunk.css?no-inline',     import.meta.url).href },
   { value: 'ghibli-studio',   label: 'Ghibli Studio',color: '#8A906E', url: new URL('../../styles/ghibli-studio.css?no-inline', import.meta.url).href },
   { value: 'nature',          label: 'Nature',       color: '#4dae50', url: new URL('../../styles/nature.css?no-inline',        import.meta.url).href },
-  { value: 'rose',            label: 'Rose',         color: '#d87bac', url: new URL('../../styles/rose.css?no-inline',          import.meta.url).href },
   { value: 'seafoam',         label: 'Seafoam',      color: '#0D8989', url: new URL('../../styles/seafoam.css?no-inline',       import.meta.url).href },
+  { value: 'default',         label: 'Shadcn',       color: '#000000', url: '' },
   { value: 'soft-pop',        label: 'Soft Pop',     color: '#FFC716', url: new URL('../../styles/soft-pop.css?no-inline',      import.meta.url).href },
+  { value: 'spring',          label: 'Spring',       color: '#ef4b9b', url: new URL('../../styles/spring.css?no-inline',        import.meta.url).href },
   { value: 'tangerine',       label: 'Tangerine',    color: '#e05d38', url: new URL('../../styles/tangerine.css?no-inline',     import.meta.url).href },
   { value: 'wintry',          label: 'Wintry',       color: '#0265FD', url: new URL('../../styles/wintry.css?no-inline',        import.meta.url).href },
 ] as const;
@@ -158,7 +158,7 @@ export const SEGMENTED_OPTIONS = {
     { value: 'md', label: 'MD' },
     { value: 'lg', label: 'LG' },
   ],
-} satisfies Record<string, readonly Option[]>;
+} as const satisfies Record<string, readonly Option[]>;
 
 export type ColorThemeVariants = (typeof COLOR_THEME_OPTIONS)[number]['value'];
 export type FontVariants = (typeof FONT_OPTIONS)[number]['value'];

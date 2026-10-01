@@ -20,6 +20,7 @@
     "../../libs/shared/src/index.ts",
     "../../libs/oauth/src/index.ts",
     "../../libs/account/src/index.ts",
+    "../../libs/theme/src/index.ts",
     "../../libs/theme/src/components/index.ts"
   ],
   "exclude": ["out-tsc", "dist", "build"]

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ChevronDownIcon as ChevronDown } from '@hugeicons/core-free-icons';
 
-import { type NavGroup, useTranslation } from '@axiomframework/react-core';
+import { type Nav, type NavGroup, useTranslation } from '@axiomframework/react-core';
 
 import {
   SidebarGroup,
@@ -26,9 +26,11 @@ import { isBranchActive } from './utils';
 type GroupProps = {
   group: NavGroup;
   pathname: string;
+  collapsible?: boolean;
+  onOpenPanel?: (item: Nav, trigger: HTMLButtonElement) => void;
 };
 
-export function NavGroupSection({ group, pathname }: GroupProps) {
+export function NavGroupSection({ group, pathname, onOpenPanel, collapsible = true }: GroupProps) {
   const t = useTranslation();
   const initialOpen =
     group.isActive ||
@@ -37,14 +39,16 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
   const [open, setOpen] = useState(initialOpen);
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="group/section">
+    <Collapsible open={collapsible ? open : true} onOpenChange={collapsible ? setOpen : undefined} className="group/section">
       <SidebarGroup>
         <SidebarGroupLabel
-          render={<CollapsibleTrigger />}
-          className="uppercase text-muted-foreground/70 cursor-pointer hover:text-muted-foreground"
+          render={collapsible ? <CollapsibleTrigger /> : undefined}
+          className={collapsible
+            ? 'uppercase text-muted-foreground/70 cursor-pointer hover:text-muted-foreground'
+            : 'uppercase text-muted-foreground/70'}
         >
           {t(group.title)}
-          <HugeiconsIcon icon={ChevronDown} strokeWidth={2} className="ml-auto transition-transform group-data-open/section:rotate-180" />
+          {collapsible && <HugeiconsIcon icon={ChevronDown} strokeWidth={2} className="ml-auto transition-transform group-data-open/section:rotate-180" />}
         </SidebarGroupLabel>
 
         <CollapsibleContent>
@@ -56,6 +60,7 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
                     key={item.title}
                     item={item}
                     pathname={pathname}
+                    onOpenPanel={onOpenPanel}
                   />
                 ))
               ) : (

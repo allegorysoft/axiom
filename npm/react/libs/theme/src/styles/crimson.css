@@ -11,8 +11,10 @@
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
   --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
+  --accent: oklch(0.915 0.004 286.32);
   --accent-foreground: oklch(0.21 0.006 285.885);
+  --segmented-selected: var(--accent);
+  --segmented-selected-foreground: var(--accent-foreground);
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
@@ -32,6 +34,18 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
 
+/* Sidebar actions and inactive navigation use neutral dropdown highlights.
+   Active navigation keeps the theme's red sidebar accent. */
+[data-color-theme='crimson'] :is(
+  [data-slot='sidebar-footer'],
+  [data-slot='sidebar-header'],
+  [data-slot='sidebar-menu-button']:not([data-active]),
+  [data-slot='sidebar-menu-sub-button']:not([data-active])
+) {
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+}
+
 [data-color-theme='crimson'].dark {
   --background: oklch(0.141 0.005 285.823);
   --foreground: oklch(0.985 0 0);
@@ -40,6 +54,7 @@
   --popover: oklch(0.21 0.006 285.885);
   --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.444 0.177 26.899);
+  --primary-text: oklch(0.72 0.18 25);
   --primary-foreground: oklch(0.971 0.013 17.38);
   --secondary: oklch(0.274 0.006 286.033);
   --secondary-foreground: oklch(0.985 0 0);

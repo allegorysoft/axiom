@@ -1,25 +1,41 @@
 import { useSyncExternalStore } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { BookTextIcon, HelpSquareIcon } from '@hugeicons/core-free-icons';
 
 import { DEFAULT_MENU_GROUP, useNavGroups } from '@axiomframework/react-core';
 
 import {
   Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarFooter,
 } from '../ui/sidebar';
 
 import { usePreferences } from '../preferences/use-preferences';
 import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
-import { TENANTS } from './data';
+import { useSaasPreview } from '@axiomframework/react-theme/components';
 import { SidebarHeaderSearch } from './sidebar-header-search';
-import { NavGroupSection } from './nav-group';
-import { NavItemNode } from './nav-node';
+import { SidebarNavigation } from './sidebar-navigation';
 import { TenantSwitcher } from './tenant-switcher';
+import { provideNavItems } from './provide-nav-items';
+
+const RESOURCE_LINKS = [
+  {
+    label: 'Support',
+    icon: HelpSquareIcon,
+    href: 'https://discord.gg/vHxVJd9Bx',
+  },
+  {
+    label: 'Documents',
+    icon: BookTextIcon,
+    href: 'https://axiomframework.dev/get-started/overview',
+  },
+] as const;
+
+provideNavItems();
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = useSyncExternalStore(
@@ -30,6 +46,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const preferences = usePreferences((state) => state.preferences);
 
   const groups = useNavGroups();
+  const tenants = useSaasPreview((state) => state.tenants);
+  const editions = useSaasPreview((state) => state.editions);
 
   const index = groups.findIndex((group) => group.title === DEFAULT_MENU_GROUP);
   const defaultGroup = index === -1 ? null : groups[index];
@@ -39,7 +57,23 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" variant={preferences.sidebarStyle} {...props}>
       <SidebarHeader>
-        <TenantSwitcher tenants={TENANTS} />
+        <TenantSwitcher
+          tenants={tenants.map((tenant) => ({
+            id: tenant.id,
+            name: tenant.name,
+            edition:
+              editions.find((edition) => edition.id === tenant.edition)?.name ??
+              tenant.edition,
+            logo:
+              tenant.logo ??
+              tenant.name
+                .split(/\s+/)
+                .map((word) => word[0])
+                .join('')
+                .slice(0, 2)
+                .toUpperCase(),
+          }))}
+        />
         <SidebarHeaderSearch />
       </SidebarHeader>
 
@@ -74,8 +108,8 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <CurrentUserDropdown placement="sidebar" />
           </SidebarMenu>
-        </SidebarFooter>
-      )}
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

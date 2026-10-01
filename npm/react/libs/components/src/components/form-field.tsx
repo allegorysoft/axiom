@@ -14,7 +14,7 @@ export function FormField<T extends FieldValues>({
   name,
   children,
   Container,
-}: FormFieldProps<T>) {
+}: FormFieldProps<T> & React.HTMLAttributes<HTMLElement>) {
   const { getFieldState, formState } = useFormContext<T>();
   const { error } = getFieldState(name, formState);
   const t = useTranslation();
