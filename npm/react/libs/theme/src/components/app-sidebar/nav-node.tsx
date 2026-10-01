@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ChevronDownIcon as ChevronDown, CircleDotIcon as CircleDot } from '@hugeicons/core-free-icons';
+import { ChevronDownIcon, CircleDotIcon } from '@hugeicons/core-free-icons';
 import { cn } from 'cn';
 
 import { useTranslation, type Nav } from '@axiomframework/react-core';
@@ -25,8 +25,15 @@ type NodeProps = {
   pathname: string;
   variant?: 'main' | 'sub';
   parent?: Nav | null;
+  target?: '_blank' | '_parent' | '_self' | '_top';
 };
-export function NavItemNode({ item, pathname, variant = 'main', parent = null }: NodeProps) {
+export function NavItemNode({
+  item,
+  pathname,
+  variant = 'main',
+  parent = null,
+  target = '_self',
+}: NodeProps) {
   const t = useTranslation();
   const hasChildren = Boolean(item.children?.length);
   const branchActive = isBranchActive(item, pathname);
@@ -37,7 +44,7 @@ export function NavItemNode({ item, pathname, variant = 'main', parent = null }:
   if (!hasChildren) {
     const buttonProps = {
       isActive: branchActive,
-      render: item.url ? <a href={item.url} /> : undefined,
+      render: item.url ? <a href={item.url} target={target} /> : undefined,
     };
 
     return isSub ? (
@@ -49,7 +56,7 @@ export function NavItemNode({ item, pathname, variant = 'main', parent = null }:
     ) : (
       <SidebarMenuItem>
         <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
-          {item.icon ?? <HugeiconsIcon icon={CircleDot} strokeWidth={2} />}
+          {item.icon ?? <HugeiconsIcon icon={CircleDotIcon} strokeWidth={2} />}
           <span className="truncate">{t(item.title)}</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -74,7 +81,9 @@ export function NavItemNode({ item, pathname, variant = 'main', parent = null }:
         {!parent && item.icon}
         <span className="truncate cursor-pointer">{t(item.title)}</span>
 
-        <HugeiconsIcon icon={ChevronDown} strokeWidth={2}
+        <HugeiconsIcon
+          icon={ChevronDownIcon}
+          strokeWidth={2}
           className={cn(
             'ml-auto transition-transform size-4 shrink-0 duration-200',
             open && 'rotate-180',

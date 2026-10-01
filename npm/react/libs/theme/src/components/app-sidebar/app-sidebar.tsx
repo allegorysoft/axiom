@@ -1,6 +1,11 @@
 import { useSyncExternalStore } from 'react';
-
-import { DEFAULT_MENU_GROUP, useNavGroups } from '@axiomframework/react-core';
+import { BookTextIcon, HelpSquareIcon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  type Nav,
+  DEFAULT_MENU_GROUP,
+  useNavGroups,
+} from '@axiomframework/react-core';
 
 import {
   Sidebar,
@@ -20,6 +25,19 @@ import { SidebarHeaderSearch } from './sidebar-header-search';
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
 import { TenantSwitcher } from './tenant-switcher';
+
+const RESOURCE_LINKS: readonly Nav[] = [
+  {
+    title: 'AxiomBase:Support',
+    icon: <HugeiconsIcon icon={HelpSquareIcon} strokeWidth={2} />,
+    url: 'https://discord.gg/vHxVJd9Bx',
+  },
+  {
+    title: 'AxiomBase:Documents',
+    icon: <HugeiconsIcon icon={BookTextIcon} strokeWidth={2} />,
+    url: 'https://axiomframework.dev/get-started/overview',
+  },
+];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = useSyncExternalStore(
@@ -69,13 +87,26 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
 
-      {preferences.userMenuPosition === 'sidebar' && (
-        <SidebarFooter>
+      <SidebarFooter>
+        <SidebarMenu>
+          {RESOURCE_LINKS.map((item) => {
+            return (
+              <NavItemNode
+                key={item.url ?? item.title}
+                item={item}
+                pathname={pathname}
+                target="_blank"
+              />
+            );
+          })}
+        </SidebarMenu>
+
+        {preferences.userMenuPosition === 'sidebar' && (
           <SidebarMenu>
             <CurrentUserDropdown placement="sidebar" />
           </SidebarMenu>
-        </SidebarFooter>
-      )}
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }
