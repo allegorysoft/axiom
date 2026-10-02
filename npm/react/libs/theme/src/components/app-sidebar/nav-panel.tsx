@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LinkBackwardIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
@@ -21,7 +21,7 @@ import {
 
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
-import { splitDefaultGroup } from './utils';
+import { findStack, splitDefaultGroup } from './utils';
 
 type NavPanelProps = {
   groups: NavGroup[];
@@ -29,17 +29,15 @@ type NavPanelProps = {
 };
 
 export function NavPanel({ groups, pathname }: NavPanelProps) {
-  const [stack, setStack] = useState<Nav[]>([]);
+  const [stack, setStack] = useState<Nav[]>(() => findStack(groups, pathname));
+
+  useEffect(() => {
+    setStack(findStack(groups, pathname));
+  }, [pathname, groups]);
 
   const push = (node: Nav) => {
-    if (node.mode !== 'switch-panel') {
-      return;
-    }
-
-    if (!node.children?.length && !node.groups?.length) {
-      return;
-    }
-
+    if (node.mode !== 'switch-panel') return;
+    if (!node.children?.length && !node.groups?.length) return;
     setStack((prev) => [...prev, node]);
   };
 
