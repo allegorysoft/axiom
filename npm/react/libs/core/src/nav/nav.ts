@@ -9,6 +9,8 @@ import type {
 export interface Nav extends MenuNode<Nav> {
   url?: string;
   mode?: 'default' | 'switch-panel';
+  /** Groups to render when this node is opened in a panel. Only meaningful together with `mode: switch-panel`. */
+  groups?: NavGroup[];
 }
 
 export type NavGroup = MenuGroup<Nav>;
