@@ -8,6 +8,7 @@ import type {
 
 export interface Nav extends MenuNode<Nav> {
   url?: string;
+  mode?: 'default' | 'switch-panel';
 }
 
 export type NavGroup = MenuGroup<Nav>;

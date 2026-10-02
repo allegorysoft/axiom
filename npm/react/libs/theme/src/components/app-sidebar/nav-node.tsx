@@ -1,6 +1,10 @@
 import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ChevronDownIcon, CircleDotIcon } from '@hugeicons/core-free-icons';
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  CircleDotIcon,
+} from '@hugeicons/core-free-icons';
 import { cn } from 'cn';
 
 import { useTranslation, type Nav } from '@axiomframework/react-core';
@@ -26,6 +30,7 @@ type NodeProps = {
   variant?: 'main' | 'sub';
   parent?: Nav | null;
   target?: '_blank' | '_parent' | '_self' | '_top';
+  onSwitchPanel?: (item: Nav) => void;
 };
 export function NavItemNode({
   item,
@@ -33,6 +38,7 @@ export function NavItemNode({
   variant = 'main',
   parent = null,
   target = '_self',
+  onSwitchPanel,
 }: NodeProps) {
   const t = useTranslation();
   const hasChildren = Boolean(item.children?.length);
@@ -40,6 +46,10 @@ export function NavItemNode({
   const isSub = variant === 'sub';
 
   const [open, setOpen] = useState(branchActive);
+
+  const isSwitchPanel = Boolean(
+    item.mode === 'switch-panel' && hasChildren && onSwitchPanel,
+  );
 
   if (!hasChildren) {
     const buttonProps = {
@@ -63,6 +73,40 @@ export function NavItemNode({
     );
   }
 
+  // ── switch-panel: drill in ────────────────────────────────────────────
+  if (isSwitchPanel) {
+    const buttonProps = {
+      isActive: branchActive,
+      onClick: () => onSwitchPanel!(item),
+    };
+
+    return isSub ? (
+      <SidebarMenuSubItem>
+        <SidebarMenuSubButton {...buttonProps}>
+          <span className="truncate cursor-pointer">{t(item.title)}</span>
+          <HugeiconsIcon
+            icon={ChevronRightIcon}
+            strokeWidth={2}
+            className="ml-auto size-4 shrink-0"
+          />
+        </SidebarMenuSubButton>
+      </SidebarMenuSubItem>
+    ) : (
+      <SidebarMenuItem>
+        <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
+          {item.icon}
+          <span className="truncate cursor-pointer">{t(item.title)}</span>
+          <HugeiconsIcon
+            icon={ChevronRightIcon}
+            strokeWidth={2}
+            className="ml-auto size-4 shrink-0"
+          />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
+  // ── inline collapsible branch ─────────────────────────────────────────
   return (
     <Collapsible
       open={open}
@@ -100,6 +144,7 @@ export function NavItemNode({
               pathname={pathname}
               parent={item}
               variant="sub"
+              onSwitchPanel={onSwitchPanel}
             />
           ))}
         </SidebarMenuSub>

@@ -1,17 +1,10 @@
 import { useSyncExternalStore } from 'react';
 import { BookTextIcon, HelpSquareIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  type Nav,
-  DEFAULT_MENU_GROUP,
-  useNavGroups,
-} from '@axiomframework/react-core';
+import { type Nav, useNavGroups } from '@axiomframework/react-core';
 
 import {
   Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarFooter,
@@ -22,9 +15,9 @@ import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
 import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
-import { NavGroupSection } from './nav-group';
-import { NavItemNode } from './nav-node';
 import { TenantSwitcher } from './tenant-switcher';
+import { NavItemNode } from './nav-node';
+import { NavPanel } from './nav-panel';
 
 const RESOURCE_LINKS: readonly Nav[] = [
   {
@@ -46,13 +39,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     () => '',
   );
   const preferences = usePreferences((state) => state.preferences);
-
   const groups = useNavGroups();
-
-  const index = groups.findIndex((group) => group.title === DEFAULT_MENU_GROUP);
-  const defaultGroup = index === -1 ? null : groups[index];
-  const otherGroups =
-    index === -1 ? groups : groups.filter((_, i) => i !== index);
 
   return (
     <Sidebar collapsible="icon" variant={preferences.sidebarStyle} {...props}>
@@ -61,31 +48,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         <SidebarHeaderSearch />
       </SidebarHeader>
 
-      <SidebarContent>
-        {defaultGroup?.children.length ? (
-          <SidebarGroup>
-            <SidebarGroupContent className="flex flex-col gap-2">
-              <SidebarMenu>
-                {defaultGroup.children.map((item) => (
-                  <NavItemNode
-                    key={item.url ?? item.title}
-                    item={item}
-                    pathname={pathname}
-                  />
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ) : null}
-
-        {otherGroups.map((group) => (
-          <NavGroupSection
-            key={group.title}
-            group={group}
-            pathname={pathname}
-          />
-        ))}
-      </SidebarContent>
+      <NavPanel groups={groups} pathname={pathname} />
 
       <SidebarFooter>
         <SidebarMenu>
