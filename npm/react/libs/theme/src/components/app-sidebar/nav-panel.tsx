@@ -3,10 +3,10 @@ import { ChevronLeftIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
 import {
-  DEFAULT_MENU_GROUP,
-  useTranslation,
   type Nav,
   type NavGroup,
+  DEFAULT_MENU_GROUP,
+  useTranslation,
 } from '@axiomframework/react-core';
 
 import {
@@ -142,7 +142,7 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
         <SidebarSeparator className="mx-0" />
       </div>
 
-      <SidebarGroup className='sidebar-navigation-panel'>
+      <SidebarGroup className="sidebar-navigation-panel">
         <SidebarGroupContent className="flex flex-col gap-2">
           <SidebarMenu className="gap-1">
             {children.length ? (

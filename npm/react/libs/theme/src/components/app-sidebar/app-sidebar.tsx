@@ -16,8 +16,8 @@ import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
 import { TenantSwitcher } from './tenant-switcher';
-import { NavItemNode } from './nav-node';
 import { NavPanel } from './nav-panel';
+import { NavItemNode } from './nav-node';
 
 const RESOURCE_LINKS: readonly Nav[] = [
   {

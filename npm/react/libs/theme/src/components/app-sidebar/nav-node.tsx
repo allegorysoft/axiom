@@ -73,7 +73,6 @@ export function NavItemNode({
     );
   }
 
-  // ── switch-panel: drill in ────────────────────────────────────────────
   if (isSwitchPanel) {
     const buttonProps = {
       isActive: branchActive,
@@ -106,7 +105,6 @@ export function NavItemNode({
     );
   }
 
-  // ── inline collapsible branch ─────────────────────────────────────────
   return (
     <Collapsible
       open={open}
