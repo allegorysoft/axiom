@@ -45,6 +45,7 @@ export function NavPanel({ groups, pathname }: NavPanelProps) {
     <SidebarContent>
       {current ? (
         <PanelView
+          key={stack.map((n) => n.title).join('/')}
           stack={stack}
           pathname={pathname}
           onPush={push}
@@ -141,7 +142,7 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
         <SidebarSeparator className="mx-0" />
       </div>
 
-      <SidebarGroup>
+      <SidebarGroup className='sidebar-navigation-panel'>
         <SidebarGroupContent className="flex flex-col gap-2">
           <SidebarMenu className="gap-1">
             {children.length ? (
