@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronLeftIcon } from '@hugeicons/core-free-icons';
+import { LinkBackwardIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
 import {
@@ -21,6 +21,7 @@ import {
 
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
+import { splitDefaultGroup } from './utils';
 
 type NavPanelProps = {
   groups: NavGroup[];
@@ -31,7 +32,14 @@ export function NavPanel({ groups, pathname }: NavPanelProps) {
   const [stack, setStack] = useState<Nav[]>([]);
 
   const push = (node: Nav) => {
-    if (node.mode !== 'switch-panel' || !node.children?.length) return;
+    if (node.mode !== 'switch-panel') {
+      return;
+    }
+
+    if (!node.children?.length && !node.groups?.length) {
+      return;
+    }
+
     setStack((prev) => [...prev, node]);
   };
 
@@ -112,7 +120,13 @@ const ROOT_LABEL = 'Main Menu';
 function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
   const t = useTranslation();
   const current = stack[stack.length - 1];
-  const children = current.children ?? [];
+
+  const { defaultGroup, otherGroups } = splitDefaultGroup(current.groups);
+  const defaultChildren = [
+    ...(current.children ?? []),
+    ...(defaultGroup?.children ?? []),
+  ];
+  const isEmpty = defaultChildren.length === 0 && otherGroups.length === 0;
 
   const parentTitle =
     stack.length > 1 ? stack[stack.length - 2].title : ROOT_LABEL;
@@ -128,7 +142,7 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
               className="bg-sidebar-accent/50 text-sidebar-accent-foreground"
             >
               <HugeiconsIcon
-                icon={ChevronLeftIcon}
+                icon={LinkBackwardIcon}
                 strokeWidth={2}
                 className="size-4 shrink-0"
               />
@@ -142,26 +156,39 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
         <SidebarSeparator className="mx-0" />
       </div>
 
-      <SidebarGroup className="sidebar-navigation-panel">
-        <SidebarGroupContent className="flex flex-col gap-2">
-          <SidebarMenu className="gap-1">
-            {children.length ? (
-              children.map((child) => (
-                <NavItemNode
-                  key={child.url ?? child.title}
-                  item={child}
-                  pathname={pathname}
-                  onSwitchPanel={onPush}
-                />
-              ))
-            ) : (
-              <span className="text-muted-foreground px-2 text-sm">
-                No item found
-              </span>
-            )}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
+      <div className="sidebar-navigation-panel">
+        {defaultChildren.length > 0 && (
+          <SidebarGroup>
+            <SidebarGroupContent className="flex flex-col gap-2">
+              <SidebarMenu>
+                {defaultChildren.map((item) => (
+                  <NavItemNode
+                    key={item.url ?? item.title}
+                    item={item}
+                    pathname={pathname}
+                    onSwitchPanel={onPush}
+                  />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {otherGroups.map((group) => (
+          <NavGroupSection
+            key={group.title}
+            group={group}
+            pathname={pathname}
+            onSwitchPanel={onPush}
+          />
+        ))}
+
+        {isEmpty && (
+          <span className="text-muted-foreground px-2 text-sm">
+            No item found
+          </span>
+        )}
+      </div>
     </>
   );
 }

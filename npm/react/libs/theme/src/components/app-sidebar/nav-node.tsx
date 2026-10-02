@@ -48,10 +48,12 @@ export function NavItemNode({
   const [open, setOpen] = useState(branchActive);
 
   const isSwitchPanel = Boolean(
-    item.mode === 'switch-panel' && hasChildren && onSwitchPanel,
+    item.mode === 'switch-panel' &&
+    (item.children?.length || item.groups?.length) &&
+    onSwitchPanel,
   );
 
-  if (!hasChildren) {
+  if (!hasChildren && !isSwitchPanel) {
     const buttonProps = {
       isActive: branchActive,
       render: item.url ? <a href={item.url} target={target} /> : undefined,
