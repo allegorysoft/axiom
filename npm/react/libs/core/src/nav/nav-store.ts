@@ -22,8 +22,9 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
 
     const group: NavGroup = {
       title,
-      isActive: false,
       children: [],
+      mode: 'default',
+      isActive: true,
       ...options,
     };
 

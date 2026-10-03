@@ -5,7 +5,8 @@ export const DEFAULT_MENU_GROUP = 'Default';
 
 export interface MenuGroup<C = MenuNode<unknown>> {
   title: string;
-  isActive: boolean;
+  isActive?: boolean;
+  mode?:'default' | 'collapsible';
   children: C[];
 }
 
