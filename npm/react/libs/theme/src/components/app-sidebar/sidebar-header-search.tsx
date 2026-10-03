@@ -4,11 +4,7 @@ import { SearchIcon as Search } from '@hugeicons/core-free-icons';
 
 import { useNavGroups, useTranslation } from '@axiomframework/react-core';
 
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from '../ui/input-group';
+import { SidebarMenuButton } from '../ui/sidebar';
 import { Kbd } from '../ui/kbd';
 import {
   Command,
@@ -30,7 +26,7 @@ export function SidebarHeaderSearch() {
   const t = useTranslation();
 
   const pages = deepFlatMap(
-    groups.flatMap((group) => group.children),
+    [...groups.flatMap((group) => group.children)],
     (item) => item.children,
     (item) => (item.url ? item : undefined),
   ).filter((item): item is { title: string; url: string } =>
@@ -61,31 +57,23 @@ export function SidebarHeaderSearch() {
 
   return (
     <>
-      <InputGroup
-        className="group-data-[collapsible=icon]:hidden"
+      <SidebarMenuButton
+        tooltip="Search"
+        aria-label="Search pages"
+        aria-haspopup="dialog"
+        aria-expanded={searchOpen}
         onClick={() => setSearchOpen(true)}
+        className="justify-start gap-2 bg-transparent mt-1"
+        variant="outline"
       >
-        <InputGroupAddon>
-          <HugeiconsIcon icon={Search} strokeWidth={2} />
-        </InputGroupAddon>
-        <InputGroupInput
-          aria-label="Search pages"
-          aria-haspopup="dialog"
-          aria-expanded={searchOpen}
-          placeholder="Search…"
-          readOnly
-          onClick={() => setSearchOpen(true)}
-          onKeyDown={(event) => {
-            if (event.key === 'Enter' || event.key === ' ') {
-              event.preventDefault();
-              setSearchOpen(true);
-            }
-          }}
-        />
-        <InputGroupAddon align="inline-end">
-          <Kbd>{shortcutModifier} K</Kbd>
-        </InputGroupAddon>
-      </InputGroup>
+        <HugeiconsIcon icon={Search} strokeWidth={2} />
+        <span className="truncate group-data-[collapsible=icon]:hidden">
+          Search…
+        </span>
+        <Kbd className="ml-auto group-data-[collapsible=icon]:hidden">
+          {shortcutModifier} K
+        </Kbd>
+      </SidebarMenuButton>
 
       <CommandDialog
         open={searchOpen}
@@ -103,10 +91,7 @@ export function SidebarHeaderSearch() {
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Pages">
               {pages.map((page) => (
-                <CommandItem
-                  key={page.url}
-                  onSelect={() => navigate(page.url)}
-                >
+                <CommandItem key={page.url} onSelect={() => navigate(page.url)}>
                   <HugeiconsIcon icon={Search} strokeWidth={2} />
                   {t(page.title)}
                 </CommandItem>
