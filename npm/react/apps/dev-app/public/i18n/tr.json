@@ -4,8 +4,10 @@
     "Max": "{length} veya daha kısa karakter olmalı (client)",
     "InvalidFormatPassword": "Küçük harf, büyük harf, rakam, ve sembol içermelidir.",
     "Home": "Ana sayfa",
-    "Language":"Dil",
-    "LanguageDescription":"Tercih ettiğiniz dili seçin"
+    "Language": "Dil",
+    "LanguageDescription": "Tercih ettiğiniz dili seçin",
+    "Support": "Destek",
+    "Documents": "Doküman"
   },
   "AxiomTheme": {
     "Theme": "Tema",

@@ -23,6 +23,51 @@ export const routes = createBrowserRouter([
             path: 'about',
             lazy: () => import('./routes/about'),
           },
+          // /panels/users/roles/viewer
+          {
+            path: 'panels',
+            children: [
+              {
+                path: 'users',
+                children: [
+                  {
+                    path: 'roles',
+                    children: [
+                      {
+                        path: 'viewer',
+                        lazy: () => import('./routes/roles-viewer'),
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+          // panels/billing/subscriptions/wallets/paypal
+          {
+            path: 'panels',
+            children: [
+              {
+                path: 'billing',
+                children: [
+                  {
+                    path: 'subscriptions',
+                    children: [
+                      {
+                        path: 'wallets',
+                        children: [
+                          {
+                            path: 'paypal',
+                            lazy: () => import('./routes/wallets-paypal'),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
         ],
       },
       {

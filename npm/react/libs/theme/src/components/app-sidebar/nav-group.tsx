@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ChevronDownIcon as ChevronDown } from '@hugeicons/core-free-icons';
 
-import { type NavGroup, useTranslation } from '@axiomframework/react-core';
+import {
+  type Nav,
+  type NavGroup,
+  useTranslation,
+} from '@axiomframework/react-core';
 
 import {
   SidebarGroup,
@@ -26,9 +30,14 @@ import { isBranchActive } from './utils';
 type GroupProps = {
   group: NavGroup;
   pathname: string;
+  onSwitchPanel?: (item: Nav) => void;
 };
 
-export function NavGroupSection({ group, pathname }: GroupProps) {
+export function NavGroupSection({
+  group,
+  pathname,
+  onSwitchPanel,
+}: GroupProps) {
   const t = useTranslation();
   const initialOpen =
     group.isActive ||
@@ -44,7 +53,11 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
           className="uppercase text-muted-foreground/70 cursor-pointer hover:text-muted-foreground"
         >
           {t(group.title)}
-          <HugeiconsIcon icon={ChevronDown} strokeWidth={2} className="ml-auto transition-transform group-data-open/section:rotate-180" />
+          <HugeiconsIcon
+            icon={ChevronDown}
+            strokeWidth={2}
+            className="ml-auto transition-transform group-data-open/section:rotate-180"
+          />
         </SidebarGroupLabel>
 
         <CollapsibleContent>
@@ -56,6 +69,7 @@ export function NavGroupSection({ group, pathname }: GroupProps) {
                     key={item.title}
                     item={item}
                     pathname={pathname}
+                    onSwitchPanel={onSwitchPanel}
                   />
                 ))
               ) : (
