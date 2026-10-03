@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { type Tab, profileTabStore } from '@axiomframework/react-core';
+import { type TabGroup, profileTabStore } from '@axiomframework/react-core';
 import {
   LanguagesIcon,
   Layout01Icon,
@@ -25,12 +25,12 @@ const Sections = {
   timeZone: lazy(() => import('./language-and-region/time-zone-settings')),
 } as const;
 
-type GroupConfig = { title: string; tabs: Tab[] };
-
-const GROUPS: GroupConfig[] = [
+const GROUPS: TabGroup[] = [
   {
     title: 'Account',
-    tabs: [
+    mode: 'collapsible',
+    isActive: false,
+    children: [
       {
         title: 'Profile',
         icon: <HugeiconsIcon icon={SquareUserRoundIcon} strokeWidth={2} />,
@@ -50,7 +50,7 @@ const GROUPS: GroupConfig[] = [
   },
   {
     title: 'Appearance',
-    tabs: [
+    children: [
       {
         title: 'Layout',
         icon: <HugeiconsIcon icon={Layout01Icon} strokeWidth={2} />,
@@ -70,7 +70,7 @@ const GROUPS: GroupConfig[] = [
   },
   {
     title: 'Language & Region',
-    tabs: [
+    children: [
       {
         title: 'Language',
         icon: <HugeiconsIcon icon={LanguagesIcon} strokeWidth={2} />,
@@ -86,9 +86,9 @@ const GROUPS: GroupConfig[] = [
 ];
 
 export function provideProfileTabs() {
-  for (const { title, tabs } of GROUPS) {
-    profileTabStore.addGroup(title);
-    for (const tab of tabs) {
+  for (const { title, children, isActive, mode } of GROUPS) {
+    profileTabStore.addGroup(title, { isActive, mode });
+    for (const tab of children) {
       profileTabStore.add(tab, title);
     }
   }
