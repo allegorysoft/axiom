@@ -8,6 +8,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarFooter,
+  SidebarSeparator,
 } from '../ui/sidebar';
 
 import { usePreferences } from '../preferences/use-preferences';
@@ -49,6 +50,10 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <NavPanel groups={groups} pathname={pathname} />
+
+      <div className="px-2">
+        <SidebarSeparator className="mx-0" />
+      </div>
 
       <SidebarFooter>
         <SidebarMenu>
