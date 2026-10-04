@@ -35,7 +35,7 @@ export function provideNavItems() {
     icon: <HugeiconsIcon icon={Home} strokeWidth={2} />,
   });
 
-  navStore.addGroup(IDENTITY_MANAGEMENT, { isActive: true });
+  navStore.addGroup(IDENTITY_MANAGEMENT);
   navStore.add(
     {
       title: 'Users',
@@ -71,8 +71,7 @@ export function provideNavItems() {
     TENANT_MANAGEMENT,
   );
 
-  navStore.addGroup(PANEL_MANAGEMENT, { isActive: true });
-
+  navStore.addGroup(PANEL_MANAGEMENT);
   navStore.add(
     {
       title: 'Panels',
@@ -81,7 +80,6 @@ export function provideNavItems() {
       groups: [
         {
           title: DEFAULT_MENU_GROUP,
-          isActive: false,
           children: [
             {
               title: 'Overview',
@@ -104,6 +102,7 @@ export function provideNavItems() {
         },
         {
           title: 'Users Management',
+          mode: 'collapsible',
           isActive: false,
           children: [
             {
@@ -140,7 +139,6 @@ export function provideNavItems() {
         },
         {
           title: 'Billing Management',
-          isActive: false,
           children: [
             {
               title: 'Overview',
@@ -156,7 +154,6 @@ export function provideNavItems() {
               groups: [
                 {
                   title: DEFAULT_MENU_GROUP,
-                  isActive: false,
                   children: [
                     {
                       title: 'Invoices',
@@ -198,7 +195,7 @@ export function provideNavItems() {
                     },
                     {
                       title: 'Refunds',
-
+                      icon: <HugeiconsIcon icon={Ticket01Icon} strokeWidth={2} />,
                       children: [
                         {
                           title: 'Requested',
@@ -218,7 +215,6 @@ export function provideNavItems() {
                 },
                 {
                   title: 'Subscriptions',
-                  isActive: false,
                   children: [
                     {
                       title: 'Overview',
@@ -239,7 +235,6 @@ export function provideNavItems() {
                       groups: [
                         {
                           title: DEFAULT_MENU_GROUP,
-                          isActive: false,
                           children: [
                             {
                               title: 'Plans',
@@ -306,7 +301,6 @@ export function provideNavItems() {
                         },
                         {
                           title: 'Payment Methods',
-                          isActive: false,
                           children: [
                             {
                               title: 'Cards',
@@ -365,7 +359,7 @@ export function provideNavItems() {
     PANEL_MANAGEMENT,
   );
 
-  navStore.addGroup(AUDIT, { isActive: true });
+  navStore.addGroup(AUDIT);
   navStore.add(
     {
       title: 'Audit Logs',

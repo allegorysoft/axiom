@@ -62,14 +62,14 @@ export function NavItemNode({
     return isSub ? (
       <SidebarMenuSubItem>
         <SidebarMenuSubButton {...buttonProps}>
-          <span className="truncate">{t(item.title)}</span>
+          <span className="truncate font-medium">{t(item.title)}</span>
         </SidebarMenuSubButton>
       </SidebarMenuSubItem>
     ) : (
       <SidebarMenuItem>
         <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
           {item.icon ?? <HugeiconsIcon icon={CircleDotIcon} strokeWidth={2} />}
-          <span className="truncate">{t(item.title)}</span>
+          <span className="truncate font-medium">{t(item.title)}</span>
         </SidebarMenuButton>
       </SidebarMenuItem>
     );
@@ -84,7 +84,9 @@ export function NavItemNode({
     return isSub ? (
       <SidebarMenuSubItem>
         <SidebarMenuSubButton {...buttonProps}>
-          <span className="truncate cursor-pointer">{t(item.title)}</span>
+          <span className="truncate cursor-pointer font-medium">
+            {t(item.title)}
+          </span>
           <HugeiconsIcon
             icon={ChevronRightIcon}
             strokeWidth={2}
@@ -96,7 +98,9 @@ export function NavItemNode({
       <SidebarMenuItem>
         <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
           {item.icon}
-          <span className="truncate cursor-pointer">{t(item.title)}</span>
+          <span className="truncate cursor-pointer font-medium">
+            {t(item.title)}
+          </span>
           <HugeiconsIcon
             icon={ChevronRightIcon}
             strokeWidth={2}
@@ -123,7 +127,9 @@ export function NavItemNode({
         }
       >
         {!parent && item.icon}
-        <span className="truncate cursor-pointer">{t(item.title)}</span>
+        <span className="truncate cursor-pointer font-medium">
+          {t(item.title)}
+        </span>
 
         <HugeiconsIcon
           icon={ChevronDownIcon}

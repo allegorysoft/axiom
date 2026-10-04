@@ -21,7 +21,7 @@ import {
 
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
-import { findStack, splitDefaultGroup } from './utils';
+import { findStack } from './utils';
 
 type NavPanelProps = {
   groups: NavGroup[];
@@ -69,15 +69,17 @@ type RootViewProps = {
   pathname: string;
   onPush: (node: Nav) => void;
 };
-
+const ROOT_LABEL = 'Main Menu';
 function RootView({ groups, pathname, onPush }: RootViewProps) {
-  const index = groups.findIndex((g) => g.title === DEFAULT_MENU_GROUP);
+  const index = groups.findIndex(
+    (g) => g.title === DEFAULT_MENU_GROUP && g.mode !== 'collapsible',
+  );
   const defaultGroup = index === -1 ? null : groups[index];
   const otherGroups =
     index === -1 ? groups : groups.filter((_, i) => i !== index);
 
   return (
-    <>
+    <div className="sidebar-navigation-panel">
       {defaultGroup?.children.length ? (
         <SidebarGroup>
           <SidebarGroupContent className="flex flex-col gap-2">
@@ -103,7 +105,7 @@ function RootView({ groups, pathname, onPush }: RootViewProps) {
           onSwitchPanel={onPush}
         />
       ))}
-    </>
+    </div>
   );
 }
 
@@ -113,13 +115,16 @@ type PanelViewProps = {
   onPush: (node: Nav) => void;
   onPopTo: (depth: number) => void;
 };
-const ROOT_LABEL = 'Main Menu';
 
 function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
   const t = useTranslation();
   const current = stack[stack.length - 1];
 
-  const { defaultGroup, otherGroups } = splitDefaultGroup(current.groups);
+  const defaultGroup = current.groups?.find(
+    (g) => g.title === DEFAULT_MENU_GROUP && g.mode !== 'collapsible',
+  );
+  const otherGroups = current.groups?.filter((g) => g !== defaultGroup) ?? [];
+
   const defaultChildren = [
     ...(current.children ?? []),
     ...(defaultGroup?.children ?? []),
@@ -138,6 +143,7 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
               onClick={() => onPopTo(stack.length - 1)}
               aria-label={t(parentTitle)}
               className="bg-sidebar-accent/50 text-sidebar-accent-foreground"
+              tooltip={'Back to ' + t(parentTitle)}
             >
               <HugeiconsIcon
                 icon={LinkBackwardIcon}
@@ -150,7 +156,7 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
         </SidebarMenu>
       </SidebarGroup>
 
-      <div className="px-2">
+      <div className="px-2 mb-1">
         <SidebarSeparator className="mx-0" />
       </div>
 
