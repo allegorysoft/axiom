@@ -38,7 +38,7 @@ export function Languages() {
         }
       />
 
-      <DropdownMenuContent className="space-y-1 p-2 w-62" align="end">
+      <DropdownMenuContent className="space-y-1 p-2 w-64" align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="px-2 py-2 text-sm text-foreground">
             {t("AxiomBase:Language")}
