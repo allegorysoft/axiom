@@ -15,6 +15,7 @@ export * from './password-input';
 export * from './app-sidebar/index';
 export * from './shared/index';
 export * from './application-settings/index';
+export * from './preferences/index';
 export * from './profile/index';
 export * from './header';
 export * from './config';
