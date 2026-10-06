@@ -26,7 +26,7 @@ export function SidebarHeaderSearch() {
   const t = useTranslation();
 
   const pages = deepFlatMap(
-    [...groups.flatMap((group) => group.children)],
+    groups.flatMap((group) => group.children),
     (item) => item.children,
     (item) => (item.url ? item : undefined),
   ).filter((item): item is { title: string; url: string } =>
