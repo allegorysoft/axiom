@@ -221,7 +221,7 @@ function DialogNav({
         if (!isCollapsible) {
           return (
             <SidebarGroup key={group.title} className="mb-4 w-full p-0">
-              <SidebarGroupLabel className="font-medium uppercase text-muted-foreground">
+              <SidebarGroupLabel className="font-medium text-muted-foreground">
                 {group.title}
               </SidebarGroupLabel>
 
@@ -237,7 +237,7 @@ function DialogNav({
             onOpenChange={(open) => setGroupOpen(group.title, open)}
           >
             <SidebarGroup className="mb-4 w-full p-0">
-              <CollapsibleTrigger className="flex h-8 w-full cursor-pointer items-center justify-between rounded-md px-2 text-xs font-medium uppercase text-muted-foreground outline-none hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring">
+              <CollapsibleTrigger className="flex h-8 w-full cursor-pointer items-center justify-between rounded-md px-2 text-xs font-medium text-muted-foreground outline-none hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring">
                 {group.title}
 
                 <HugeiconsIcon
