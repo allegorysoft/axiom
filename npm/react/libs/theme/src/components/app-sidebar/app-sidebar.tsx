@@ -1,12 +1,10 @@
 import { useSyncExternalStore } from 'react';
-
-import { DEFAULT_MENU_GROUP, useNavGroups } from '@axiomframework/react-core';
+import { BookTextIcon, HelpSquareIcon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { type Nav, useNavGroups } from '@axiomframework/react-core';
 
 import {
   Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarFooter,
@@ -17,9 +15,23 @@ import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
 import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
-import { NavGroupSection } from './nav-group';
-import { NavItemNode } from './nav-node';
 import { TenantSwitcher } from './tenant-switcher';
+import { NavPanel } from './nav-panel';
+import { NavItemNode } from './nav-node';
+import { useHoverExpand } from './use-hover-expand';
+
+const RESOURCE_LINKS: readonly Nav[] = [
+  {
+    title: 'AxiomBase:Support',
+    icon: <HugeiconsIcon icon={HelpSquareIcon} strokeWidth={2} />,
+    url: 'https://discord.gg/vHxVJd9Bx',
+  },
+  {
+    title: 'AxiomBase:Documents',
+    icon: <HugeiconsIcon icon={BookTextIcon} strokeWidth={2} />,
+    url: 'https://axiomframework.dev/get-started/overview',
+  },
+];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = useSyncExternalStore(
@@ -28,54 +40,42 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
     () => '',
   );
   const preferences = usePreferences((state) => state.preferences);
-
   const groups = useNavGroups();
-
-  const index = groups.findIndex((group) => group.title === DEFAULT_MENU_GROUP);
-  const defaultGroup = index === -1 ? null : groups[index];
-  const otherGroups =
-    index === -1 ? groups : groups.filter((_, i) => i !== index);
+  const hoverExpand = useHoverExpand();
 
   return (
-    <Sidebar collapsible="icon" variant={preferences.sidebarStyle} {...props}>
+    <Sidebar
+      collapsible="icon"
+      variant={preferences.sidebarStyle}
+      onMouseEnter={hoverExpand.onMouseEnter}
+      onMouseLeave={hoverExpand.onMouseLeave}
+      {...props}
+    >
       <SidebarHeader>
         <TenantSwitcher tenants={TENANTS} />
         <SidebarHeaderSearch />
       </SidebarHeader>
 
-      <SidebarContent>
-        {defaultGroup?.children.length ? (
-          <SidebarGroup>
-            <SidebarGroupContent className="flex flex-col gap-2">
-              <SidebarMenu>
-                {defaultGroup.children.map((item) => (
-                  <NavItemNode
-                    key={item.url ?? item.title}
-                    item={item}
-                    pathname={pathname}
-                  />
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        ) : null}
+      <NavPanel groups={groups} pathname={pathname} />
 
-        {otherGroups.map((group) => (
-          <NavGroupSection
-            key={group.title}
-            group={group}
-            pathname={pathname}
-          />
-        ))}
-      </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          {RESOURCE_LINKS.map((item) => (
+            <NavItemNode
+              key={item.url ?? item.title}
+              item={item}
+              pathname={pathname}
+              target="_blank"
+            />
+          ))}
+        </SidebarMenu>
 
-      {preferences.userMenuPosition === 'sidebar' && (
-        <SidebarFooter>
+        {preferences.userMenuPosition === 'sidebar' && (
           <SidebarMenu>
             <CurrentUserDropdown placement="sidebar" />
           </SidebarMenu>
-        </SidebarFooter>
-      )}
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

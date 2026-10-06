@@ -52,8 +52,8 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
       tenant.name.toLowerCase().includes(tenantQuery.trim().toLowerCase()),
     )
     .sort((a, b) => {
-      if (a.id === activeTenant.id) return -1;
-      if (b.id === activeTenant.id) return 1;
+      if (a.id === activeTenant?.id) return -1;
+      if (b.id === activeTenant?.id) return 1;
       return 0;
     });
 
@@ -90,7 +90,11 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
               <span className="truncate font-medium">{activeTenant.name}</span>
               <span className="truncate text-xs">{activeTenant.edition}</span>
             </div>
-            <HugeiconsIcon icon={ChevronsUpDownIcon} strokeWidth={2} className="ml-auto group-data-[collapsible=icon]:hidden" />
+            <HugeiconsIcon
+              icon={ChevronsUpDownIcon}
+              strokeWidth={2}
+              className="ml-auto group-data-[collapsible=icon]:hidden"
+            />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
@@ -101,9 +105,9 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
           >
             <div onKeyDown={(e) => e.stopPropagation()}>
               <Command
+                data-tenant-switcher
                 key={open ? 'open' : 'closed'}
                 shouldFilter={false}
-                data-tenant-switcher
                 className="p-0 [&_[cmdk-group-items]]:space-y-1 [&_[data-slot=command-item]]:gap-2 [&_[data-slot=command-item]]:px-2 [&_[data-slot=command-item]]:py-2"
               >
                 <CommandInput
@@ -117,7 +121,7 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
                     }
                   }}
                 />
-                <CommandList className="max-h-none">
+                <CommandList className="max-h-64">
                   <CommandEmpty>No tenant found.</CommandEmpty>
                   <CommandGroup>
                     {filteredTenants.map((tenant) => (
@@ -136,19 +140,21 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
                           setOpen(false);
                         }}
                       >
-                        <TenantAvatar tenant={tenant} className="size-5 p-3" />
+                        <TenantAvatar tenant={tenant} className="size-6" />
                         <span>{tenant.name}</span>
                       </CommandItem>
                     ))}
                   </CommandGroup>
-                  <CommandSeparator className="mx-1 my-1" />
-                  <CommandGroup>
-                    <CommandItem onSelect={() => setOpen(false)}>
-                      <HugeiconsIcon icon={PlusIcon} strokeWidth={2} />
-                      Add Tenant
-                    </CommandItem>
-                  </CommandGroup>
                 </CommandList>
+
+                <CommandSeparator className="mx-1 my-1" />
+
+                <CommandGroup>
+                  <CommandItem onSelect={() => setOpen(false)}>
+                    <HugeiconsIcon icon={PlusIcon} strokeWidth={2} />
+                    Add Tenant
+                  </CommandItem>
+                </CommandGroup>
               </Command>
             </div>
           </DropdownMenuContent>

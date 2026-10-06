@@ -5,7 +5,9 @@
     "InvalidFormatPassword": "Must contain a lowercase letter, uppercase letter, number, and symbol.",
     "Home": "Home",
     "Language": "Language",
-    "LanguageDescription": "Choose your preferred language"
+    "LanguageDescription": "Choose your preferred language",
+    "Support": "Support",
+    "Documents": "Documents"
   },
   "AxiomTheme": {
     "Theme": "Theme",
