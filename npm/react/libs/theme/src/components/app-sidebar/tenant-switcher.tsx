@@ -108,7 +108,7 @@ export function TenantSwitcher({ tenants }: { tenants: Tenant[] }) {
                 data-tenant-switcher
                 key={open ? 'open' : 'closed'}
                 shouldFilter={false}
-                className="p-0 [&_[cmdk-group-items]]:space-y-1 [&_[data-slot=command-item]]:gap-2 [&_[data-slot=command-item]]:px-2 [&_[data-slot=command-item]]:py-2"
+                className="p-1 [&_[cmdk-group-items]]:space-y-1 [&_[data-slot=command-item]]:gap-2 [&_[data-slot=command-item]]:px-2 [&_[data-slot=command-item]]:py-2"
               >
                 <CommandInput
                   autoFocus
