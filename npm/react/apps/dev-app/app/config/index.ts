@@ -5,7 +5,11 @@ import {
 } from '@axiomframework/react-core';
 import { configureShared } from '@axiomframework/react-shared';
 import { configureOAuth } from '@axiomframework/react-oauth';
-import { configureTheme } from '@axiomframework/react-theme/components';
+import {
+  configureTheme,
+  initPreferencesSync,
+  provideNavItems,
+} from '@axiomframework/react-theme/components';
 
 export async function loadEnvironment() {
   const environment = isDevMode()
@@ -16,8 +20,12 @@ export async function loadEnvironment() {
 }
 
 export function configureApplication() {
-  configureCore({localization:{remote:{skipProvider:true}}});
+  configureCore({ localization: { remote: { skipProvider: true } } });
   configureShared();
-  configureOAuth({skipDiscovery:true});
+  configureOAuth({ skipDiscovery: true });
   configureTheme();
+
+  initPreferencesSync();
+
+  provideNavItems();
 }

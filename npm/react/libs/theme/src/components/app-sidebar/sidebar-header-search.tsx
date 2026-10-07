@@ -80,7 +80,7 @@ export function SidebarHeaderSearch() {
         onOpenChange={setSearchOpen}
         className="w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] sm:max-w-lg"
       >
-        <Command>
+        <Command className="p-2">
           <div className="relative">
             <CommandInput placeholder="Search pages…" className="pr-14" />
             <Kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">

@@ -2,7 +2,6 @@ import './root.css';
 
 import { createRoot } from 'react-dom/client';
 import { initializeApplication } from '@axiomframework/react-core';
-import { initPreferencesSync } from '@axiomframework/react-theme/components';
 
 import { configureApplication, loadEnvironment } from './config';
 import { App } from './app';
@@ -16,8 +15,6 @@ await loadEnvironment();
 configureApplication();
 
 await initializeApplication();
-
-initPreferencesSync();
 
 const root = createRoot(container);
 root.render(<App />);
