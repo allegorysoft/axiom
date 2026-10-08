@@ -4,7 +4,7 @@ import {
   useRouteError,
 } from 'react-router';
 import { accountRoutes } from '@axiomframework/react-account';
-import Layout from './layout';
+import { AppLayout } from '@axiomframework/react-theme/components';
 
 export const routes = createBrowserRouter([
   {
@@ -13,7 +13,7 @@ export const routes = createBrowserRouter([
     children: [
       {
         path: '',
-        Component: Layout,
+        Component: AppLayout,
         children: [
           {
             index: true,
@@ -23,7 +23,6 @@ export const routes = createBrowserRouter([
             path: 'about',
             lazy: () => import('./routes/about'),
           },
-          // /panels/users/roles/viewer
           {
             path: 'panels',
             children: [
@@ -43,7 +42,6 @@ export const routes = createBrowserRouter([
               },
             ],
           },
-          // panels/billing/subscriptions/wallets/paypal
           {
             path: 'panels',
             children: [

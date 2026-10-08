@@ -24,12 +24,13 @@ import {
 } from '../ui/collapsible';
 import { isBranchActive } from './utils';
 
+type Target = '_blank' | '_parent' | '_self' | '_top';
 type NodeProps = {
   item: Nav;
   pathname: string;
   variant?: 'main' | 'sub';
   parent?: Nav | null;
-  target?: '_blank' | '_parent' | '_self' | '_top';
+  target?: Target;
   onSwitchPanel?: (item: Nav) => void;
 };
 export function NavItemNode({
