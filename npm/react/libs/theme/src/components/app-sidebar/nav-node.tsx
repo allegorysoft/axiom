@@ -22,7 +22,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../ui/collapsible';
-import { isBranchActive } from './utils';
+import { isBranchActive } from './nav-utils';
 
 type Target = '_blank' | '_parent' | '_self' | '_top';
 type NodeProps = {

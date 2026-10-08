@@ -25,7 +25,7 @@ import {
 } from '../ui/collapsible';
 
 import { NavItemNode } from './nav-node';
-import { isBranchActive } from './utils';
+import { isBranchActive } from './nav-utils';
 
 type GroupProps = {
   group: NavGroup;

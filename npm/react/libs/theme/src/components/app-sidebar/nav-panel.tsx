@@ -21,7 +21,7 @@ import {
 
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
-import { findStack } from './utils';
+import { findStack } from './nav-utils';
 
 type NavPanelProps = {
   groups: NavGroup[];
