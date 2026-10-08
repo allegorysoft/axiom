@@ -66,9 +66,11 @@ function buildProviders(
   }
 
   if (!options?.client?.skipProvider) {
+    const modulePrefix = (import.meta.env.BASE_URL ?? '').replace(/\/+$/, '');
+
     providers.push(
       clientLocalizationProvider({
-        fileNameOrPath: `/${options?.client?.basePath ?? 'i18n'}/${cultureName}`,
+        fileNameOrPath: `${modulePrefix}/${options?.client?.basePath ?? 'i18n'}/${cultureName}`,
       }),
     );
   }
