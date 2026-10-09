@@ -8,7 +8,7 @@ import { AppLayout } from '@axiomframework/react-theme/components';
 
 export const routes = createBrowserRouter([
   {
-    path: '/',
+    path: import.meta.env.BASE_URL,
     ErrorBoundary,
     children: [
       {

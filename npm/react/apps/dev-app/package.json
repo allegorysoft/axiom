@@ -10,7 +10,6 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "react-router": "catalog:",
-    "isbot": "^5",
     "@hugeicons/react": "catalog:",
     "@hugeicons/core-free-icons": "catalog:"
   },
