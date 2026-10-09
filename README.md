@@ -163,5 +163,6 @@ Topics covered:
 
 ## License
 
-Open source packages are licensed under [MIT](etc/licenses/MIT.md).  
-Enterprise packages are licensed under [ELv2](etc/licenses/ELv2.md) with a [Commercial License](etc/licenses/COMMERCIAL_LICENSE.md) available.
+Open-source packages are licensed under the [MIT License](etc/licenses/MIT.md).
+
+Enterprise packages are licensed under the [PolyForm Internal Use License](etc/licenses/POLYFORM-Internal-Use.md). A [Commercial License](etc/licenses/COMMERCIAL_LICENSE.md) is available for building and distributing commercial applications using Enterprise packages.
