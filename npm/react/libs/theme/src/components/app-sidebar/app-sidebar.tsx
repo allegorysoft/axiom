@@ -1,4 +1,4 @@
-import { useSyncExternalStore } from 'react';
+import { useLocation } from 'react-router';
 import { BookTextIcon, HelpSquareIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { type Nav, useNavGroups } from '@axiomframework/react-core';
@@ -34,11 +34,7 @@ const RESOURCE_LINKS: readonly Nav[] = [
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
-  const pathname = useSyncExternalStore(
-    subscribe,
-    () => window.location.pathname,
-    () => '',
-  );
+  const { pathname } = useLocation();
   const preferences = usePreferences((state) => state.preferences);
   const groups = useNavGroups();
   const hoverExpand = useHoverExpand();
@@ -78,9 +74,4 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       </SidebarFooter>
     </Sidebar>
   );
-}
-
-function subscribe(callback: () => void) {
-  window.addEventListener('popstate', callback);
-  return () => window.removeEventListener('popstate', callback);
 }
