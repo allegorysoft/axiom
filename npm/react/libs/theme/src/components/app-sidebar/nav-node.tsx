@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ChevronDownIcon,
@@ -55,9 +56,10 @@ export function NavItemNode({
   );
 
   if (!hasChildren && !isSwitchPanel) {
+    const href = item.url ? withGroupName(item.url) : undefined;
     const buttonProps = {
       isActive: branchActive,
-      render: item.url ? <a href={item.url} target={target} /> : undefined,
+      render: href ? <Link to={href} target={target} /> : undefined,
     };
 
     return isSub ? (
@@ -158,4 +160,22 @@ export function NavItemNode({
       </CollapsibleContent>
     </Collapsible>
   );
+}
+
+function withGroupName(url: string): string {
+  const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+  if (!base) {
+    return url;
+  }
+
+  //TODO: find a better way for external link(s)
+  if (url.startsWith('http')) {
+    return url;
+  }
+
+  if (url === base || url.startsWith(`${base}/`)) {
+    return url;
+  }
+
+  return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`;
 }
