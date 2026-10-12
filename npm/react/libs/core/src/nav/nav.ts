@@ -16,4 +16,7 @@ export interface Nav extends MenuNode<Nav> {
 export type NavGroup = MenuGroup<Nav>;
 export type NavState = MenuState<Nav>;
 export type NavPatch = MenuPatch<Nav>;
-export type NavStore = MenuStore<Nav>;
+export type NavStore = MenuStore<Nav> & {
+  registerModule(name: string): void;
+  isExternal(name: string): boolean;
+};

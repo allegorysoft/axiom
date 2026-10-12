@@ -23,7 +23,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../ui/collapsible';
-import { isBranchActive } from './nav-utils';
+import { isBranchActive, withGroupName } from './nav-utils';
 
 type Target = '_blank' | '_parent' | '_self' | '_top';
 type NodeProps = {
@@ -56,26 +56,7 @@ export function NavItemNode({
   );
 
   if (!hasChildren && !isSwitchPanel) {
-    const href = item.url ? withGroupName(item.url) : undefined;
-    const buttonProps = {
-      isActive: branchActive,
-      render: href ? <Link to={href} target={target} /> : undefined,
-    };
-
-    return isSub ? (
-      <SidebarMenuSubItem>
-        <SidebarMenuSubButton {...buttonProps}>
-          <span className="truncate font-medium">{t(item.title)}</span>
-        </SidebarMenuSubButton>
-      </SidebarMenuSubItem>
-    ) : (
-      <SidebarMenuItem>
-        <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
-          {item.icon ?? <HugeiconsIcon icon={CircleDotIcon} strokeWidth={2} />}
-          <span className="truncate font-medium">{t(item.title)}</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    );
+    return renderMenuItem(item, target, branchActive, isSub);
   }
 
   if (isSwitchPanel) {
@@ -162,20 +143,32 @@ export function NavItemNode({
   );
 }
 
-function withGroupName(url: string): string {
-  const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
-  if (!base) {
-    return url;
-  }
+function renderMenuItem(
+  item: Nav,
+  target: string | undefined,
+  branchActive: boolean,
+  isSub: boolean,
+) {
+  const t = useTranslation();
 
-  //TODO: find a better way for external link(s)
-  if (url.startsWith('http')) {
-    return url;
-  }
+  const href = item.url ? withGroupName(item.url) : undefined;
+  const buttonProps = {
+    isActive: branchActive,
+    render: href ? <Link to={href} target={target} /> : undefined,
+  };
 
-  if (url === base || url.startsWith(`${base}/`)) {
-    return url;
-  }
-
-  return url.startsWith('/') ? `${base}${url}` : `${base}/${url}`;
+  return isSub ? (
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton {...buttonProps}>
+        <span className="truncate font-medium">{t(item.title)}</span>
+      </SidebarMenuSubButton>
+    </SidebarMenuSubItem>
+  ) : (
+    <SidebarMenuItem>
+      <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
+        {item.icon ?? <HugeiconsIcon icon={CircleDotIcon} strokeWidth={2} />}
+        <span className="truncate font-medium">{t(item.title)}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
+  );
 }

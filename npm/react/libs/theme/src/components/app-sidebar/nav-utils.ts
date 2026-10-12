@@ -1,4 +1,4 @@
-import type { Nav, NavGroup } from '@axiomframework/react-core';
+import { type Nav, type NavGroup, navStore } from '@axiomframework/react-core';
 
 export function isBranchActive(
   item: Nav,
@@ -17,6 +17,35 @@ export function isBranchActive(
       isBranchActive(child, candidates[0], false),
     ) ?? false
   );
+}
+
+export function isExternalUrl(name: string): boolean {
+  if (!name) {
+    return false;
+  }
+
+  if (/^https?:/i.test(name) || name.startsWith('//')) {
+    return true;
+  }
+
+  return navStore.isExternal(name);
+}
+
+export function withGroupName(url: string): string {
+  const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+  if (!base) {
+    return url;
+  }
+
+  if (url === base || url.startsWith(`${base}/`)) {
+    return url;
+  }
+
+  if (url.startsWith('/')) {
+    return `${base}${url}`;
+  }
+
+  return `${base}/${url}`;
 }
 
 export function findStack(groups: NavGroup[], pathname: string): Nav[] {
