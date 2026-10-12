@@ -23,9 +23,9 @@ import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
 import { findStack } from './nav-utils';
 
-type NavPanelProps = {
+type BaseProps = { pathname: string };
+type NavPanelProps = BaseProps & {
   groups: NavGroup[];
-  pathname: string;
 };
 
 export function NavPanel({ groups, pathname }: NavPanelProps) {
@@ -64,9 +64,8 @@ export function NavPanel({ groups, pathname }: NavPanelProps) {
   );
 }
 
-type RootViewProps = {
+type RootViewProps = BaseProps & {
   groups: NavGroup[];
-  pathname: string;
   onPush: (node: Nav) => void;
 };
 const ROOT_LABEL = 'Main Menu';
@@ -109,9 +108,8 @@ function RootView({ groups, pathname, onPush }: RootViewProps) {
   );
 }
 
-type PanelViewProps = {
+type PanelViewProps = BaseProps & {
   stack: Nav[];
-  pathname: string;
   onPush: (node: Nav) => void;
   onPopTo: (depth: number) => void;
 };
