@@ -1,4 +1,5 @@
-import { type Nav, type NavGroup, navStore } from '@axiomframework/react-core';
+import type { Nav, NavGroup } from './nav';
+import { navStore } from './nav-store';
 
 export function isBranchActive(
   item: Nav,
@@ -19,16 +20,16 @@ export function isBranchActive(
   );
 }
 
-export function isExternalUrl(name: string): boolean {
-  if (!name) {
+export function isLocalModule(nameOrUrl?: string): boolean {
+  if (!nameOrUrl) {
     return false;
   }
 
-  if (/^https?:/i.test(name) || name.startsWith('//')) {
-    return true;
+  if (/^https?:/i.test(nameOrUrl) || nameOrUrl.startsWith('//')) {
+    return false;
   }
 
-  return navStore.isExternal(name);
+  return true;
 }
 
 export function withGroupName(url: string): string {
@@ -151,4 +152,17 @@ function sliceGroupNameFromPathName(
 
 function normalize(url: string): string {
   return url.replace(/\/+$/, '') || '/';
+}
+
+export function seedLocalModulesFromEnvironment(): void {
+  const raw = import.meta.env.VITE_LOCAL_MODULES ?? '';
+
+  for (const entry of raw.split(',')) {
+    const module = entry.trim().replace(/\/+$/, '');
+    const group = navStore.getGroup(module) as NavGroup;
+
+    if (group?.title.length > 0) {
+      group.isLocal = true;
+    }
+  }
 }
