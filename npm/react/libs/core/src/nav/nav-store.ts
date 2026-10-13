@@ -8,7 +8,6 @@ const initialState: NavState = {
 };
 
 const baseStore = createStore<NavState>(initialState);
-const localModules = new Set<string>();
 
 export const navStore: NavStore = Object.assign({}, baseStore, {
   getGroup(title = DEFAULT_MENU_GROUP): NavGroup | undefined {
@@ -96,14 +95,6 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
       isActive: !node.isActive,
     }));
   },
-
-  registerModule(name: string): void {
-    localModules.add(name);
-  },
-
-  isExternal(name: string): boolean {
-    return !localModules.has(name);
-  },
 });
 
 function getGroup(title: string): NavGroup | undefined {
@@ -141,15 +132,3 @@ function updateNode(
       : updateGroup(prev, target, children);
   });
 }
-
-function seedLocalModulesFromEnvironment(): void {
-  const raw = import.meta.env.VITE_LOCAL_MODULES ?? '';
-  for (const entry of raw.split(',')) {
-    const module = entry.trim().replace(/\/+$/, '');
-    if (module) {
-      localModules.add(module);
-    }
-  }
-}
-
-seedLocalModulesFromEnvironment();

@@ -11,5 +11,4 @@ export {
   isLocalModule,
   withGroupName,
   findStack,
-  seedLocalModulesFromEnvironment,
 } from './nav-utils';

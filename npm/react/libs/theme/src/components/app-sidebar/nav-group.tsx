@@ -6,6 +6,7 @@ import {
   type Nav,
   type NavGroup,
   useTranslation,
+  isBranchActive,
 } from '@axiomframework/react-core';
 
 import {
@@ -25,7 +26,6 @@ import {
 } from '../ui/collapsible';
 
 import { NavItemNode } from './nav-node';
-import { isBranchActive } from './nav-utils';
 
 type GroupProps = {
   group: NavGroup;
@@ -53,6 +53,7 @@ export function NavGroupSection({
         group.children.map((item) => (
           <NavItemNode
             key={item.title}
+            isLocal={group.isLocal}
             item={item}
             pathname={pathname}
             onSwitchPanel={onSwitchPanel}

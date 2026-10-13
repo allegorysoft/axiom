@@ -20,12 +20,12 @@ export function isBranchActive(
   );
 }
 
-export function isLocalModule(nameOrUrl?: string): boolean {
-  if (!nameOrUrl) {
+export function isLocalModule(url?: string): boolean {
+  if (!url) {
     return false;
   }
 
-  if (/^https?:/i.test(nameOrUrl) || nameOrUrl.startsWith('//')) {
+  if (/^https?:/i.test(url) || url.startsWith('//')) {
     return false;
   }
 

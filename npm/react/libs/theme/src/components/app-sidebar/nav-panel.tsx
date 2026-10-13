@@ -6,6 +6,7 @@ import {
   type Nav,
   type NavGroup,
   DEFAULT_MENU_GROUP,
+  findStack,
   useTranslation,
 } from '@axiomframework/react-core';
 
@@ -21,7 +22,6 @@ import {
 
 import { NavGroupSection } from './nav-group';
 import { NavItemNode } from './nav-node';
-import { findStack } from './nav-utils';
 
 type BaseProps = { pathname: string };
 type NavPanelProps = BaseProps & {
@@ -86,6 +86,7 @@ function RootView({ groups, pathname, onPush }: RootViewProps) {
               {defaultGroup.children.map((item) => (
                 <NavItemNode
                   key={item.url ?? item.title}
+                  isLocal={defaultGroup.isLocal}
                   item={item}
                   pathname={pathname}
                   onSwitchPanel={onPush}
@@ -166,6 +167,7 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
                 {defaultChildren.map((item) => (
                   <NavItemNode
                     key={item.url ?? item.title}
+                    isLocal={defaultGroup?.isLocal}
                     item={item}
                     pathname={pathname}
                     onSwitchPanel={onPush}

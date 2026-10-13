@@ -8,7 +8,13 @@ import {
 } from '@hugeicons/core-free-icons';
 import { cn } from 'cn';
 
-import { useTranslation, type Nav } from '@axiomframework/react-core';
+import {
+  type Nav,
+  useTranslation,
+  isBranchActive,
+  isLocalModule,
+  withGroupName,
+} from '@axiomframework/react-core';
 
 import {
   SidebarMenuButton,
@@ -23,12 +29,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../ui/collapsible';
-import { isBranchActive, withGroupName } from './nav-utils';
 
 type Target = '_blank' | '_parent' | '_self' | '_top';
 type NodeProps = {
   item: Nav;
   pathname: string;
+  isLocal?: boolean;
   variant?: 'main' | 'sub';
   parent?: Nav | null;
   target?: Target;
@@ -36,6 +42,7 @@ type NodeProps = {
 };
 export function NavItemNode({
   item,
+  isLocal,
   pathname,
   variant = 'main',
   parent = null,
@@ -56,7 +63,7 @@ export function NavItemNode({
   );
 
   if (!hasChildren && !isSwitchPanel) {
-    return renderMenuItem(item, target, branchActive, isSub);
+    return renderMenuItem(item, target, branchActive, isSub, isLocal);
   }
 
   if (isSwitchPanel) {
@@ -130,6 +137,7 @@ export function NavItemNode({
           {item.children!.map((child) => (
             <NavItemNode
               key={child.title}
+              isLocal={isLocal}
               item={child}
               pathname={pathname}
               parent={item}
@@ -148,13 +156,24 @@ function renderMenuItem(
   target: string | undefined,
   branchActive: boolean,
   isSub: boolean,
+  isLocal?: boolean,
 ) {
   const t = useTranslation();
+  let _isLocalModule = isLocalModule(item.url) && isLocal;
+  let href = item.url;
 
-  const href = item.url ? withGroupName(item.url) : undefined;
+  if (href && _isLocalModule) {
+    href = withGroupName(href);
+  }
+
+  let render = href ? <Link to={href} target={target} /> : undefined;
+  if (!_isLocalModule) {
+    render = <a href={href} target={target} />;
+  }
+
   const buttonProps = {
     isActive: branchActive,
-    render: href ? <Link to={href} target={target} /> : undefined,
+    render,
   };
 
   return isSub ? (
