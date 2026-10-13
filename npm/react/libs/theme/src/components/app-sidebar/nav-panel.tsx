@@ -86,7 +86,7 @@ function RootView({ groups, pathname, onPush }: RootViewProps) {
               {defaultGroup.children.map((item) => (
                 <NavItemNode
                   key={item.url ?? item.title}
-                  isLocal={defaultGroup.isLocal}
+                  external={defaultGroup.external}
                   item={item}
                   pathname={pathname}
                   onSwitchPanel={onPush}
@@ -167,7 +167,7 @@ function PanelView({ stack, pathname, onPush, onPopTo }: PanelViewProps) {
                 {defaultChildren.map((item) => (
                   <NavItemNode
                     key={item.url ?? item.title}
-                    isLocal={defaultGroup?.isLocal}
+                    external={defaultGroup?.external}
                     item={item}
                     pathname={pathname}
                     onSwitchPanel={onPush}

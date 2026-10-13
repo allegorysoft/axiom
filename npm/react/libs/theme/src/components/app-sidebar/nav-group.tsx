@@ -53,7 +53,7 @@ export function NavGroupSection({
         group.children.map((item) => (
           <NavItemNode
             key={item.title}
-            isLocal={group.isLocal}
+            external={group.external}
             item={item}
             pathname={pathname}
             onSwitchPanel={onSwitchPanel}

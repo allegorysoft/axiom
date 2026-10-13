@@ -158,16 +158,3 @@ function sliceGroupNameFromPathName(
 function normalize(url: string): string {
   return url.replace(/\/+$/, '') || '/';
 }
-
-export function seedLocalModulesFromEnvironment(): void {
-  const raw = import.meta.env.VITE_LOCAL_MODULES ?? '';
-
-  for (const entry of raw.split(',')) {
-    const module = entry.trim().replace(/\/+$/, '');
-    const group = navStore.getGroup(module) as NavGroup;
-
-    if (group?.title.length > 0) {
-      group.isLocal = true;
-    }
-  }
-}

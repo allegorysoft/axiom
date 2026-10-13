@@ -14,7 +14,7 @@ export interface Nav extends MenuNode<Nav> {
 }
 
 export type NavGroup = MenuGroup<Nav> & {
-  isLocal?: boolean;
+  external?: boolean;
 };
 export type NavState = MenuState<Nav>;
 export type NavPatch = MenuPatch<Nav>;

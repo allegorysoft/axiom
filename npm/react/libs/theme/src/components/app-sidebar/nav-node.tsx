@@ -35,7 +35,7 @@ type Target = '_blank' | '_parent' | '_self' | '_top';
 type NodeProps = {
   item: Nav;
   pathname: string;
-  isLocal?: boolean;
+  external?: boolean;
   variant?: 'main' | 'sub';
   parent?: Nav | null;
   target?: Target;
@@ -43,7 +43,7 @@ type NodeProps = {
 };
 export function NavItemNode({
   item,
-  isLocal,
+  external,
   pathname,
   variant = 'main',
   parent = null,
@@ -64,7 +64,7 @@ export function NavItemNode({
   );
 
   if (!hasChildren && !isSwitchPanel) {
-    return renderMenuItem(item, target, branchActive, isSub, isLocal);
+    return renderMenuItem(item, target, branchActive, isSub, external);
   }
 
   if (isSwitchPanel) {
@@ -138,7 +138,7 @@ export function NavItemNode({
           {item.children!.map((child) => (
             <NavItemNode
               key={child.title}
-              isLocal={isLocal}
+              external={external}
               item={child}
               pathname={pathname}
               parent={item}
@@ -157,20 +157,20 @@ function renderMenuItem(
   target: string | undefined,
   branchActive: boolean,
   isSub: boolean,
-  isLocal?: boolean,
+  external?: boolean,
 ) {
   const t = useTranslation();
 
   const navigationMode = getNavigationMode();
-  let _isLocalModule = item.url === '/' || (isLocalModule(item.url) && isLocal);
-  let href = item.url;
+  const isLocal = item.url === '/' || (isLocalModule(item.url) && !external);
 
-  if (href && _isLocalModule) {
+  let href = item.url;
+  if (href && isLocal) {
     href = withGroupName(href);
   }
 
   let render = href ? <Link to={href} target={target} /> : undefined;
-  if (navigationMode === 'hybrid' && !_isLocalModule) {
+  if (navigationMode === 'hybrid' && !isLocal) {
     render = <a href={href} target={target} />;
   }
 
