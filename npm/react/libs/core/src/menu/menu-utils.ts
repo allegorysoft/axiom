@@ -4,7 +4,15 @@ export function findGroup<T>(
   groups: MenuGroup<T>[],
   title: string,
 ): MenuGroup<T> | undefined {
-  return groups.find((group) => group.title === title);
+  return groups.find((group) => normalize(group.title) === normalize(title));
+}
+
+function normalize(value: string): string {
+  if (!value) {
+    return '';
+  }
+
+  return value.toUpperCase();
 }
 
 export function find<T extends MenuNode<T>>(
