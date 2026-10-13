@@ -14,6 +14,7 @@ import {
   isBranchActive,
   isLocalModule,
   withGroupName,
+  getNavigationMode,
 } from '@axiomframework/react-core';
 
 import {
@@ -159,7 +160,9 @@ function renderMenuItem(
   isLocal?: boolean,
 ) {
   const t = useTranslation();
-  let _isLocalModule = isLocalModule(item.url) && isLocal;
+
+  const navigationMode = getNavigationMode();
+  let _isLocalModule = item.url === '/' || (isLocalModule(item.url) && isLocal);
   let href = item.url;
 
   if (href && _isLocalModule) {
@@ -167,7 +170,7 @@ function renderMenuItem(
   }
 
   let render = href ? <Link to={href} target={target} /> : undefined;
-  if (!_isLocalModule) {
+  if (navigationMode === 'hybrid' && !_isLocalModule) {
     render = <a href={href} target={target} />;
   }
 

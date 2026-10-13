@@ -32,6 +32,11 @@ export function isLocalModule(url?: string): boolean {
   return true;
 }
 
+type NavigationMode = 'spa' | 'hybrid';
+export function getNavigationMode(): NavigationMode {
+  return import.meta.env.VITE_NAV_MODE === 'spa' ? 'spa' : 'hybrid';
+}
+
 export function withGroupName(url: string): string {
   const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
   if (!base) {

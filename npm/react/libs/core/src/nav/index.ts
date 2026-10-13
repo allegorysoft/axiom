@@ -11,4 +11,5 @@ export {
   isLocalModule,
   withGroupName,
   findStack,
+  getNavigationMode
 } from './nav-utils';
