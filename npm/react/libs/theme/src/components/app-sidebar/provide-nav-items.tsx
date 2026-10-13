@@ -35,7 +35,7 @@ export function provideNavItems() {
     icon: <HugeiconsIcon icon={Home} strokeWidth={2} />,
   });
 
-  navStore.addGroup(IDENTITY_MANAGEMENT, {external:true} as any);
+  navStore.addGroup(IDENTITY_MANAGEMENT);
   navStore.add(
     {
       title: 'Users',
