@@ -66,11 +66,11 @@ function buildProviders(
   }
 
   if (!options?.client?.skipProvider) {
-    const modulePrefix = (import.meta.env.BASE_URL ?? '').replace(/\/+$/, '');
+    const baseUrl = (import.meta.env.BASE_URL ?? '').replace(/\/+$/, '');
 
     providers.push(
       clientLocalizationProvider({
-        fileNameOrPath: `${modulePrefix}/${options?.client?.basePath ?? 'i18n'}/${cultureName}`,
+        fileNameOrPath: `${baseUrl}/${options?.client?.basePath ?? 'i18n'}/${cultureName}`,
       }),
     );
   }
