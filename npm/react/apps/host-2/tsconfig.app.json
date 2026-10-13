@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "outDir": "../../dist/apps",
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "types": ["vite/client", "node"],
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "forceConsistentCasingInFileNames": true,
+    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+    "declaration": true
+  },
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "../../libs/core/src/index.ts",
+    "../../libs/module-1/src/index.ts",
+    "../../libs/module-1/src/config/index.ts",
+    "../../libs/module-2/src/index.ts",
+    "../../libs/theme/src/components/index.ts"
+  ],
+  "exclude": ["out-tsc", "dist", "build"]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "host-1",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "apps/host-1",
+  "sourceRoot": "apps/host-1/app",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "dev": {
+      "command": "vite"
+    },
+    "build": {
+      "command": "vite build"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "module-2",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/module-2/src",
+  "projectType": "library",
+  "tags": ["scope:module"],
+  "implicitDependencies": ["core", "theme"],
+  "targets": {
+    "build": {
+      "options": {
+        "outDir": "../../dist/libs/module-2"
+      }
+    }
+  }
+}

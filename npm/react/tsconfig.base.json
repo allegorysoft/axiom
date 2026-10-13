@@ -23,6 +23,9 @@
       "@axiomframework/react-oauth": ["./libs/oauth/src/index.ts"],
       "@axiomframework/react-components": ["./libs/components/src/index.ts"],
       "@axiomframework/react-account": ["./libs/account/src/index.ts"],
+      "@axiomframework/react-module-1": ["./libs/module-1/src/index.ts"],
+      "@axiomframework/react-module-1/config": ["./libs/module-1/src/config/index.ts"],
+      "@axiomframework/react-module-2": ["./libs/module-2/src/index.ts"],
       "@axiomframework/react-theme": ["./libs/theme/src/index.ts"],
       "@axiomframework/react-theme/components": [
         "./libs/theme/src/components/index.ts"
