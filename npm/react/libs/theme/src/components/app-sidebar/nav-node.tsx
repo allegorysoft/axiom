@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { type JSX, useState } from 'react';
+import { Link } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ChevronDownIcon,
@@ -7,7 +8,14 @@ import {
 } from '@hugeicons/core-free-icons';
 import { cn } from 'cn';
 
-import { useTranslation, type Nav } from '@axiomframework/react-core';
+import {
+  type Nav,
+  useTranslation,
+  isBranchActive,
+  isLocalModule,
+  withGroupName,
+  getNavigationMode,
+} from '@axiomframework/react-core';
 
 import {
   SidebarMenuButton,
@@ -22,18 +30,20 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '../ui/collapsible';
-import { isBranchActive } from './utils';
 
+type Target = '_blank' | '_parent' | '_self' | '_top';
 type NodeProps = {
   item: Nav;
   pathname: string;
+  external?: boolean;
   variant?: 'main' | 'sub';
   parent?: Nav | null;
-  target?: '_blank' | '_parent' | '_self' | '_top';
+  target?: Target;
   onSwitchPanel?: (item: Nav) => void;
 };
 export function NavItemNode({
   item,
+  external,
   pathname,
   variant = 'main',
   parent = null,
@@ -54,25 +64,7 @@ export function NavItemNode({
   );
 
   if (!hasChildren && !isSwitchPanel) {
-    const buttonProps = {
-      isActive: branchActive,
-      render: item.url ? <a href={item.url} target={target} /> : undefined,
-    };
-
-    return isSub ? (
-      <SidebarMenuSubItem>
-        <SidebarMenuSubButton {...buttonProps}>
-          <span className="truncate font-medium">{t(item.title)}</span>
-        </SidebarMenuSubButton>
-      </SidebarMenuSubItem>
-    ) : (
-      <SidebarMenuItem>
-        <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
-          {item.icon ?? <HugeiconsIcon icon={CircleDotIcon} strokeWidth={2} />}
-          <span className="truncate font-medium">{t(item.title)}</span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    );
+    return renderMenuItem(item, target, branchActive, isSub, external);
   }
 
   if (isSwitchPanel) {
@@ -146,6 +138,7 @@ export function NavItemNode({
           {item.children!.map((child) => (
             <NavItemNode
               key={child.title}
+              external={external}
               item={child}
               pathname={pathname}
               parent={item}
@@ -156,5 +149,52 @@ export function NavItemNode({
         </SidebarMenuSub>
       </CollapsibleContent>
     </Collapsible>
+  );
+}
+
+function renderMenuItem(
+  item: Nav,
+  target: string | undefined,
+  branchActive: boolean,
+  isSub: boolean,
+  external?: boolean,
+) {
+  const t = useTranslation();
+
+  const navigationMode = getNavigationMode();
+  const isLocal = item.url === '/' || (isLocalModule(item.url) && !external);
+
+  let href = item.url;
+  if (href && isLocal) {
+    href = withGroupName(href);
+  }
+
+  let render: JSX.Element | undefined;
+  if (href) {
+    render = <Link to={href} target={target} viewTransition />;
+  }
+
+  if (navigationMode === 'hybrid' && !isLocal) {
+    render = <a href={href} target={target} />;
+  }
+
+  const buttonProps = {
+    isActive: branchActive,
+    render,
+  };
+
+  return isSub ? (
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton {...buttonProps}>
+        <span className="truncate font-medium">{t(item.title)}</span>
+      </SidebarMenuSubButton>
+    </SidebarMenuSubItem>
+  ) : (
+    <SidebarMenuItem>
+      <SidebarMenuButton tooltip={t(item.title)} {...buttonProps}>
+        {item.icon ?? <HugeiconsIcon icon={CircleDotIcon} strokeWidth={2} />}
+        <span className="truncate font-medium">{t(item.title)}</span>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }

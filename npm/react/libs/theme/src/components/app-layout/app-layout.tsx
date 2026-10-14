@@ -1,22 +1,23 @@
 import { Outlet } from 'react-router';
-import { getCookie } from '@axiomframework/react-core';
-import {
-  AppSidebar,
-  Header,
-  SidebarInset,
-  SidebarProvider,
-  SettingsDialogProvider,
-  ProfileSettingsDialogContributor,
-  AppSettingsDialogContributor,
-} from '@axiomframework/react-theme/components';
 
-export default function Layout() {
+import { getCookie } from '@axiomframework/react-core';
+
+import { SidebarInset, SidebarProvider } from '../ui/sidebar';
+import { SettingsDialogProvider } from '../shared/settings-dialog-provider';
+import { AppSidebar } from '../app-sidebar/app-sidebar';
+import { ProfileSettingsDialogContributor } from '../profile/profile-settings-dialog-contributor';
+import { AppSettingsDialogContributor } from '../application-settings/app-settings-dialog-contributor';
+
+import { Header } from './header';
+
+export function AppLayout() {
   const state = getCookie<boolean>('sidebar_state');
 
   return (
     <SidebarProvider defaultOpen={state ?? true}>
       <SettingsDialogProvider>
         <AppSidebar />
+
         <SidebarInset>
           <Header />
 

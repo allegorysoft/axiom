@@ -17,5 +17,5 @@ export * from './shared/index';
 export * from './application-settings/index';
 export * from './preferences/index';
 export * from './profile/index';
-export * from './header';
+export * from './app-layout/index';
 export * from './config';

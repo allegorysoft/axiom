@@ -6,3 +6,10 @@ export {
   useNavGroup,
   useNavItems,
 } from './nav-hooks';
+export {
+  isBranchActive,
+  isLocalModule,
+  withGroupName,
+  findStack,
+  getNavigationMode
+} from './nav-utils';

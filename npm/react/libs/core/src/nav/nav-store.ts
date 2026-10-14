@@ -41,6 +41,23 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
       return groups.length === prev.groups.length ? prev : { groups };
     });
   },
+  patchGroup(title: string, patched: Partial<NavGroup>): NavGroup {
+    const group = findGroup(baseStore.get().groups, title);
+
+    if (!group) {
+      throw new Error(`navStore.patchGroup: group "${title}" not found`);
+    }
+
+    const patchedGroup: NavGroup = { ...group, ...patched };
+
+    baseStore.set((prev) => ({
+      groups: prev.groups.map((item) =>
+        item === group ? patchedGroup : item,
+      ),
+    }));
+
+    return patchedGroup;
+  },
 
   find(title: string, group = DEFAULT_MENU_GROUP): Nav | undefined {
     return find(getGroup(group)?.children ?? [], title);

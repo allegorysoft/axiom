@@ -52,7 +52,6 @@ export function createTabStore(): TabStore {
     getGroup(title = DEFAULT_MENU_GROUP): TabGroup | undefined {
       return findGroup(baseStore.get().groups, title);
     },
-
     addGroup(title: string, options?: Partial<TabGroup>): TabGroup {
       const existing = findGroup(baseStore.get().groups, title);
 
@@ -73,7 +72,6 @@ export function createTabStore(): TabStore {
 
       return group;
     },
-
     removeGroup(title: string): void {
       baseStore.set((prev) => {
         const groups = prev.groups.filter((group) => group.title !== title);
@@ -81,11 +79,27 @@ export function createTabStore(): TabStore {
         return groups.length === prev.groups.length ? prev : { groups };
       });
     },
+    patchGroup(title: string, patched: Partial<TabGroup>): TabGroup {
+    const group = findGroup(baseStore.get().groups, title);
+
+    if (!group) {
+      throw new Error(`navStore.patchGroup: group "${title}" not found`);
+    }
+
+    const patchedGroup: TabGroup = { ...group, ...patched };
+
+    baseStore.set((prev) => ({
+      groups: prev.groups.map((item) =>
+        item === group ? patchedGroup : item,
+      ),
+    }));
+
+    return patchedGroup;
+  },
 
     find(title: string, group = DEFAULT_MENU_GROUP): Tab | undefined {
       return find(getGroup(group)?.children ?? [], title);
     },
-
     add(item: Tab, group = DEFAULT_MENU_GROUP, parentTitle?: string): void {
       baseStore.set((prev) => {
         const target = findGroup(prev.groups, group);
@@ -121,18 +135,15 @@ export function createTabStore(): TabStore {
         return updateGroup(prev, target, children);
       });
     },
-
     remove(title: string, group = DEFAULT_MENU_GROUP): void {
       updateNode(group, title, () => undefined);
     },
-
     update(title: string, patch: TabPatch, group = DEFAULT_MENU_GROUP): void {
       updateNode(group, title, (node) => ({
         ...node,
         ...(typeof patch === 'function' ? patch(node) : patch),
       }));
     },
-
     toggle(title: string, group = DEFAULT_MENU_GROUP): void {
       updateNode(group, title, (node) => ({
         ...node,

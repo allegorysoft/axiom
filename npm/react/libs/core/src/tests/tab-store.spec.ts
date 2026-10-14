@@ -3,8 +3,11 @@ import { DEFAULT_MENU_GROUP } from '../menu/menu';
 import type { Tab, TabStore } from '../tab/tab';
 import { createTabStore } from '../tab/tab-store';
 
-const makeTab = (title: string, isActive = false): Tab =>
-  ({ title, isActive, component: (() => null) as never });
+const makeTab = (title: string, isActive = false): Tab => ({
+  title,
+  isActive,
+  component: (() => null) as never,
+});
 
 describe('tab-store', () => {
   let store: TabStore;
@@ -40,6 +43,10 @@ describe('tab-store', () => {
       });
     });
 
+    it('getGroup returns undefined for an unknown group', () => {
+      expect(store.getGroup('Missing')).toBeUndefined();
+    });
+
     it('addGroup creates a group', () => {
       const group = store.addGroup('Checkout');
 
@@ -49,6 +56,20 @@ describe('tab-store', () => {
         children: [],
       });
       expect(store.getGroup('Checkout')).toEqual(group);
+    });
+
+    it('addGroup applies options', () => {
+      const child = makeTab('Cart');
+      const group = store.addGroup('Checkout', {
+        isActive: true,
+        children: [child],
+      });
+
+      expect(group).toEqual({
+        title: 'Checkout',
+        isActive: true,
+        children: [child],
+      });
     });
 
     it('addGroup returns the existing group without duplicating', () => {
@@ -68,8 +89,73 @@ describe('tab-store', () => {
     });
 
     it('removeGroup is a no-op when group is missing', () => {
+      const before = store.get();
       store.removeGroup('Missing');
-      expect(store.get().groups).toHaveLength(1);
+
+      expect(store.get()).toBe(before);
+    });
+  });
+
+  describe('patchGroup', () => {
+    it('patches an existing group and returns the patched group', () => {
+      store.addGroup('Checkout');
+      const patched = store.patchGroup('Checkout', { isActive: true });
+
+      expect(patched).toEqual({
+        title: 'Checkout',
+        isActive: true,
+        children: [],
+      });
+      expect(store.getGroup('Checkout')).toEqual(patched);
+    });
+
+    it('patches the default group', () => {
+      const patched = store.patchGroup(DEFAULT_MENU_GROUP, {
+        isActive: true,
+      });
+
+      expect(patched.isActive).toBe(true);
+      expect(store.getGroup()?.isActive).toBe(true);
+    });
+
+    it('preserves existing children when patching', () => {
+      store.add(makeTab('Home'));
+      store.patchGroup(DEFAULT_MENU_GROUP, { isActive: true });
+
+      const group = store.getGroup();
+      expect(group?.isActive).toBe(true);
+      expect(group?.children).toHaveLength(1);
+      expect(group?.children[0].title).toBe('Home');
+    });
+
+    it('does not mutate the previous group object', () => {
+      const original = store.addGroup('Checkout');
+      store.patchGroup('Checkout', { isActive: true });
+
+      expect(original.isActive).toBe(false);
+      expect(store.getGroup('Checkout')?.isActive).toBe(true);
+    });
+
+    it('returns the same reference that is stored in the state', () => {
+      store.addGroup('Checkout');
+      const patched = store.patchGroup('Checkout', { isActive: true });
+
+      expect(store.getGroup('Checkout')).toBe(patched);
+    });
+
+    it('does not touch other groups', () => {
+      store.addGroup('Checkout');
+      const untouched = store.getGroup(DEFAULT_MENU_GROUP);
+
+      store.patchGroup('Checkout', { isActive: true });
+
+      expect(store.getGroup(DEFAULT_MENU_GROUP)).toBe(untouched);
+    });
+
+    it('throws when the group does not exist', () => {
+      expect(() => store.patchGroup('Missing', { isActive: true })).toThrow(
+        /group "Missing" not found/,
+      );
     });
   });
 
@@ -115,6 +201,14 @@ describe('tab-store', () => {
       expect(store.find('Home')).toBeUndefined();
     });
 
+    it('removes a nested tab', () => {
+      store.add(makeTab('Home'));
+      store.add(makeTab('Sub'), DEFAULT_MENU_GROUP, 'Home');
+      store.remove('Sub');
+
+      expect(store.find('Home')?.children).toEqual([]);
+    });
+
     it('is a no-op when the tab is missing', () => {
       store.add(makeTab('Home'));
       store.remove('Missing');
@@ -137,6 +231,21 @@ describe('tab-store', () => {
 
       expect(store.find('Home')?.isActive).toBe(true);
     });
+
+    it('updates a nested tab', () => {
+      store.add(makeTab('Home'));
+      store.add(makeTab('Sub', false), DEFAULT_MENU_GROUP, 'Home');
+      store.update('Sub', { isActive: true });
+
+      expect(store.find('Sub')?.isActive).toBe(true);
+    });
+
+    it('is a no-op when the tab is missing', () => {
+      const before = store.get();
+      store.update('Missing', { isActive: true });
+
+      expect(store.get()).toBe(before);
+    });
   });
 
   describe('toggle', () => {
@@ -149,6 +258,21 @@ describe('tab-store', () => {
       store.toggle('Home');
       expect(store.find('Home')?.isActive).toBe(false);
     });
+
+    it('toggles a nested tab', () => {
+      store.add(makeTab('Home'));
+      store.add(makeTab('Sub', false), DEFAULT_MENU_GROUP, 'Home');
+
+      store.toggle('Sub');
+      expect(store.find('Sub')?.isActive).toBe(true);
+    });
+
+    it('is a no-op when the tab is missing', () => {
+      const before = store.get();
+      store.toggle('Missing');
+
+      expect(store.get()).toBe(before);
+    });
   });
 
   describe('find', () => {
@@ -157,6 +281,10 @@ describe('tab-store', () => {
 
       expect(store.find('Home', 'Checkout')?.title).toBe('Home');
       expect(store.find('Home', DEFAULT_MENU_GROUP)).toBeUndefined();
+    });
+
+    it('returns undefined for an unknown group', () => {
+      expect(store.find('Home', 'Missing')).toBeUndefined();
     });
   });
 
@@ -172,6 +300,19 @@ describe('tab-store', () => {
       store.removeGroup('Missing');
 
       expect(calls).toBe(2);
+    });
+
+    it('stops notifying after unsubscribe', () => {
+      let calls = 0;
+      const unsubscribe = store.subscribe(() => {
+        calls += 1;
+      });
+
+      store.add(makeTab('Home'));
+      unsubscribe();
+      store.add(makeTab('About'));
+
+      expect(calls).toBe(1);
     });
   });
 });

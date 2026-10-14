@@ -1,5 +1,3 @@
-import { useSidebar } from '../../ui/sidebar';
-
 import { preferencesStore } from '../../preferences/preferences-store';
 import { usePreferences } from '../../preferences/use-preferences';
 import { SEGMENTED_OPTIONS } from '../../preferences/options';
@@ -10,7 +8,6 @@ import { ChoiceGroup } from './choice-group';
 
 export default function LayoutSection() {
   const preferences = usePreferences((state) => state.preferences);
-  const { open, setOpen } = useSidebar();
 
   return (
     <AppearanceContent>
@@ -67,23 +64,6 @@ export default function LayoutSection() {
           onChange={(userMenuPosition) =>
             preferencesStore.patchPreferences({ userMenuPosition })
           }
-        />
-      </SettingRow>
-
-      <SettingRow
-        title="Sidebar State"
-        description="Show the full sidebar or a compact icon rail."
-      >
-        <ChoiceGroup
-          label="Sidebar State"
-          options={
-            [
-              { value: 'expanded', label: 'Expanded' },
-              { value: 'collapsed', label: 'Collapsed' },
-            ] as const
-          }
-          value={open ? 'expanded' : 'collapsed'}
-          onChange={(value) => setOpen(value === 'expanded')}
         />
       </SettingRow>
     </AppearanceContent>

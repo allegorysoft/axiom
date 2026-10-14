@@ -6,7 +6,7 @@ export const DEFAULT_MENU_GROUP = 'Default';
 export interface MenuGroup<C = MenuNode<unknown>> {
   title: string;
   isActive?: boolean;
-  mode?:'default' | 'collapsible';
+  mode?: 'default' | 'collapsible';
   children: C[];
 }
 
@@ -24,9 +24,10 @@ export type MenuState<TNode> = { groups: MenuGroup<TNode>[] };
 export type MenuPatch<TNode> =
   Partial<TNode> | ((node: TNode) => Partial<TNode>);
 
-export type MenuStore<TNode> = AxiomStore<MenuState<TNode>> & {
-  getGroup(title?: string): MenuGroup<TNode> | undefined;
-  addGroup(title: string, options?: Partial<MenuGroup<TNode>>): MenuGroup<TNode>;
+export type MenuStore<TGroup extends MenuGroup<TNode>, TNode> = AxiomStore<MenuState<TNode>> & {
+  getGroup(title?: string): TGroup | undefined;
+  addGroup(title: string, options?: Partial<TGroup>): TGroup;
+  patchGroup(title: string, patched: Partial<TGroup>): TGroup;
   removeGroup(title: string): void;
   find(title: string, group?: string): TNode | undefined;
   add(item: TNode, group?: string, parentTitle?: string): void;
