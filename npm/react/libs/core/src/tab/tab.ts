@@ -14,4 +14,4 @@ export interface Tab<C = unknown> extends MenuNode<Tab<C>> {
 export type TabGroup = MenuGroup<Tab>;
 export type TabState = MenuState<Tab>;
 export type TabPatch = MenuPatch<Tab>;
-export type TabStore = MenuStore<Tab>;
+export type TabStore = MenuStore<TabGroup, Tab>;

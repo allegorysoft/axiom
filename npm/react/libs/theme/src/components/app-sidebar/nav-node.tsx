@@ -1,6 +1,5 @@
 import { type JSX, useState } from 'react';
-import { flushSync } from 'react-dom';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   ChevronDownIcon,
@@ -176,8 +175,7 @@ function renderMenuItem(
   }
 
   if (navigationMode === 'hybrid' && !isLocal) {
-    const onClick = useViewTransitionLink(href);
-    render = <a href={href} target={target} onClick={onClick} />;
+    render = <a href={href} target={target} />;
   }
 
   const buttonProps = {
@@ -199,22 +197,4 @@ function renderMenuItem(
       </SidebarMenuButton>
     </SidebarMenuItem>
   );
-}
-
-function useViewTransitionLink(href?: string) {
-  const navigate = useNavigate();
-
-  return (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!href || !href.startsWith('/')) return;
-    e.preventDefault();
-
-    if (!document.startViewTransition) {
-      navigate(href);
-      return;
-    }
-
-    document.startViewTransition(() => {
-      flushSync(() => navigate(href));
-    });
-  };
 }
