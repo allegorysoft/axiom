@@ -11,9 +11,9 @@ import {
 import { SettingRow } from '../setting-row';
 
 export default function TimeZoneSection() {
-  const timeZone = useUser((state) => state.timeZone);
+  const user = useUser();
   const options = [
-    ...new Set([timeZone, 'UTC', ...Intl.getCanonicalLocales('timeZone')]),
+    ...new Set([user.timeZone, 'UTC', ...Intl.getCanonicalLocales('timeZone')]),
   ].sort();
   return (
     <div className="space-y-6">
@@ -22,14 +22,14 @@ export default function TimeZoneSection() {
         description="Choose your preferred time zone."
       >
         <Select
-          value={timeZone}
+          value={user.timeZone}
           items={options.map((value) => ({
             value,
             label: value.replace('_', ' '),
           }))}
           onValueChange={(value) => {
             if (value && options.includes(value))
-              userStore.set((state) => ({ ...state, timeZone: value }));
+              userStore.patchUser({ timeZone: value });
           }}
         >
           <SelectTrigger aria-label="Time Zone" className="w-56">

@@ -11,7 +11,7 @@ import { FieldGroup, FieldDescription } from '../../ui/field';
 import { Separator } from '../../ui/separator';
 
 export default function ProfilePhotoSection() {
-  const user = useUser((state) => state);
+  const user = useUser();
   const [preview, setPreview] = useState(user.photo);
   const [error, setError] = useState('');
   const [reading, setReading] = useState(false);
@@ -115,7 +115,7 @@ export default function ProfilePhotoSection() {
         <Button
           disabled={preview === user.photo || reading || !!error}
           onClick={() => {
-            userStore.set((state) => ({ ...state, photo: preview }));
+            userStore.patchUser({ photo: preview });
             setSaved(true);
           }}
         >
