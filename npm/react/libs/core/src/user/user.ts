@@ -12,10 +12,10 @@ export interface User {
 }
 
 export interface UserState {
-  user: User;
+  user: User | null;
 }
 
 export interface UserStore extends AxiomStore<UserState> {
-  setUser(user: User | undefined): void;
+  setUser(user: User | null): void;
   patchUser(user: Partial<User>): void;
 }

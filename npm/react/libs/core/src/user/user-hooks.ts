@@ -4,6 +4,6 @@ import { userStore } from './user-store';
 
 export const useUserStore = createStoreHook(userStore);
 
-export function useUser(): User {
+export function useUser(): User | null {
   return useUserStore((s) => s.user);
 }

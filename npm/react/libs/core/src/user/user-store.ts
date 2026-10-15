@@ -17,17 +17,14 @@ const initialState: UserState = {
 const baseStore = createStore<UserState>(initialState);
 
 export const userStore: UserStore = Object.assign(baseStore, {
-  setUser(user: User | undefined): void {
+  setUser(user: User | null = null): void {
     baseStore.set(() => ({ user }));
   },
 
   patchUser(user: Partial<User>): void {
     baseStore.set((prev) => ({
       ...prev,
-      user: {
-        ...prev.user,
-        ...user,
-      },
+      user: prev.user ? { ...prev.user, ...user } : (prev.user ?? null),
     }));
   },
 });
