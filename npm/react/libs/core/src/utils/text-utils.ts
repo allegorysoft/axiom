@@ -1,4 +1,7 @@
 export function getAvatarFallbackText(fullName: string): string {
+  if (!fullName) {
+    return ''
+  }
   const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
 
   if (nameParts.length === 0) return '';
@@ -11,4 +14,12 @@ export function getAvatarFallbackText(fullName: string): string {
   const lastInitial = nameParts[nameParts.length - 1].charAt(0);
 
   return `${firstInitial}${lastInitial}`.toUpperCase();
+}
+
+export function unsureEndsWithSlash(value: string) {
+  if (!value) {
+    return '';
+  }
+
+  return value.endsWith('/') ? value : `${value}/`;
 }
