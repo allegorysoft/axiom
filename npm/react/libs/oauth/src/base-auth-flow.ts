@@ -70,7 +70,7 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
     this.storage.clear();
     oAuthStore.clear();
 
-    userStore.setUser(undefined);
+    userStore.setUser(null);
     navigate?.(import.meta.env.BASE_URL);
   }
 }

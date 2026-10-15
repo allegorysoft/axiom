@@ -1,6 +1,6 @@
-export function getAvatarFallbackText(fullName: string): string {
+export function getAvatarFallbackText(fullName?: string): string {
   if (!fullName) {
-    return ''
+    return '';
   }
   const nameParts = fullName.trim().split(/\s+/).filter(Boolean);
 
