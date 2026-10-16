@@ -171,7 +171,7 @@ function renderMenuItem(
 
   let render: JSX.Element | undefined;
   if (href) {
-    render = <Link to={href} target={target} viewTransition />;
+    render = <Link to={href} target={target} />;
   }
 
   if (navigationMode === 'hybrid' && !isLocal) {
