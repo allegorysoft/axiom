@@ -1,7 +1,15 @@
 import { defineConfig } from 'vitepress'
+import { loadEnv } from 'vite'
+
+const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), '')
+
+const base = process.env.DOCS_BASE_URL
+  ? `/${process.env.DOCS_BASE_URL.replace(/^\/|\/$/g, '')}/`
+  : '/'
 
 export default defineConfig({
   srcDir: "../en",
+  base,
   lastUpdated: true,
   cleanUrls: true,
   sitemap: {
