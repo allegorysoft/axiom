@@ -85,6 +85,7 @@ internal sealed class WebAppPackage : IConfigureApplication, IInitializeApplicat
             app.MapOpenApi();
         }
 
+        //app.UseRequestLocalization();
         app.UseExceptionHandler();
         app.UseAuthentication();
         app.UseMultiTenancy();
