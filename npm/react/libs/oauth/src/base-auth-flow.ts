@@ -58,12 +58,8 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
   }
 
   override async logout(navigate?: (baseUrl: string) => void): Promise<void> {
-    if (!this.configuration) {
-      return;
-    }
-
     const token = this.storage.get()?.refreshToken;
-    if (token) {
+    if (this.configuration && token) {
       await tokenRevocation(this.configuration, token);
     }
 

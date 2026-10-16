@@ -32,6 +32,7 @@
     "OrContinueWith": "veya şununla devam et",
     "GetStartedWithAxiom": "Axiom ile başla",
     "SignInOrCreateAccount": "Giriş yap veya bir hesap oluştur.",
+    "Login": "Giriş yap",
     "Logout": "Çıkış yap"
   },
   "AxiomIdentity": {

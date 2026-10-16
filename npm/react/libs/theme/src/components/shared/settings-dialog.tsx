@@ -62,7 +62,7 @@ export function SettingsDialog({
   onTabChange,
   finalFocus,
 }: SettingsDialogProps) {
-  const user = useUser((state) => state);
+  const user = useUser();
   const [query, setQuery] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -106,14 +106,17 @@ export function SettingsDialog({
             <SidebarHeader className="gap-3 p-3">
               <div className="hidden items-center gap-3 md:flex">
                 <Avatar className="size-10">
-                  <AvatarImage src={user.photo || undefined} alt={user.name} />
+                  <AvatarImage
+                    src={user?.photo || undefined}
+                    alt={user?.name}
+                  />
                   <AvatarFallback>
-                    {getAvatarFallbackText(user.name)}
+                    {getAvatarFallbackText(user?.name)}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{user.name}</p>
+                  <p className="truncate text-sm font-semibold">{user?.name}</p>
                   <p className="mt-0.5 truncate text-xs text-muted-foreground">
                     Personal account
                   </p>

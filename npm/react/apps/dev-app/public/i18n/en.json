@@ -32,6 +32,7 @@
     "OrContinueWith": "or continue with",
     "GetStartedWithAxiom": "Get started with Axiom",
     "SignInOrCreateAccount": "Sign in or create an account.",
+    "Login": "Login",
     "Logout": "Logout"
   },
   "AxiomIdentity": {
