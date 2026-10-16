@@ -5,6 +5,7 @@ import {
   randomPKCECodeVerifier,
   randomState,
 } from 'openid-client';
+import { ensureEndsWithSlash } from '@axiomframework/react-core';
 import { BaseAuthFlow } from './base-auth-flow';
 
 const PKCE_CODE_VERIFIER_KEY = 'pkce_code_verifier';
@@ -77,15 +78,7 @@ export class CodeAuthFlow extends BaseAuthFlow {
     window.location.assign(authorizationUrl.href);
   }
 
-  override redirectToLogin(navigator?: () => void): void {
+  override redirectToLogin(navigator?: (baseUrl: string) => void): void {
     this.login();
   }
-}
-
-function ensureEndsWithSlash(value?: string | null): string {
-  if (!value) {
-    return '/';
-  }
-
-  return value.endsWith('/') ? value : `${value}/`;
 }

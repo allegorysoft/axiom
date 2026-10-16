@@ -16,7 +16,7 @@ export function getAvatarFallbackText(fullName?: string): string {
   return `${firstInitial}${lastInitial}`.toUpperCase();
 }
 
-export function unsureEndsWithSlash(value: string) {
+export function ensureEndsWithSlash(value: string) {
   if (!value) {
     return '';
   }

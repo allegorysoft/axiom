@@ -1,7 +1,12 @@
+import { useNavigate } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Login } from '@hugeicons/core-free-icons';
 
-import { useTranslation } from '@axiomframework/react-core';
+import {
+  useTranslation,
+  getOrCreateAuthProvider,
+  ensureEndsWithSlash,
+} from '@axiomframework/react-core';
 
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar';
 
@@ -11,15 +16,23 @@ export function LoginButton({
   children,
   ...props
 }: Props & React.ComponentProps<'button'>) {
+  const navigate = useNavigate();
   const t = useTranslation();
   const { isMobile, state } = useSidebar();
+  const authProvider = getOrCreateAuthProvider().get();
 
   const isInSidebar = placement === 'sidebar';
   const collapsedSidebar = isInSidebar && !isMobile && state === 'collapsed';
 
+  function logIn() {
+    authProvider.redirectToLogin(() =>
+      navigate(`${ensureEndsWithSlash(import.meta.env.BASE_URL)}account/login`),
+    );
+  }
+
   if (isInSidebar) {
     const item = (
-      <SidebarMenuButton aria-label="Login button" {...props}>
+      <SidebarMenuButton aria-label="Login button" onClick={logIn} {...props}>
         <HugeiconsIcon icon={Login} strokeWidth={2} />
         <span className="truncate cursor-pointer font-medium">
           {t('AxiomAccount:Login')}
@@ -34,6 +47,7 @@ export function LoginButton({
       type="button"
       aria-label="Login button"
       className="cursor-pointer rounded-full outline-none transition-transform active:scale-95"
+      onClick={logIn}
       {...props}
     >
       <HugeiconsIcon icon={Login} strokeWidth={2} className="size-5" />

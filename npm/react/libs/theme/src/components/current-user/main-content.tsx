@@ -9,7 +9,7 @@ import {
 import {
   getAvatarFallbackText,
   getOrCreateAuthProvider,
-  unsureEndsWithSlash,
+  ensureEndsWithSlash,
   useTranslation,
   useUser,
 } from '@axiomframework/react-core';
@@ -39,7 +39,7 @@ export function MainContent({
 
   function logOut() {
     authProvider.logout((baseUrl) => {
-      navigate(unsureEndsWithSlash(baseUrl));
+      navigate(ensureEndsWithSlash(baseUrl));
     });
   }
 
