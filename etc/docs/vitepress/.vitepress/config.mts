@@ -13,7 +13,7 @@ export default defineConfig({
   lastUpdated: true,
   cleanUrls: true,
   sitemap: {
-    hostname: 'https://axiomframework.dev'
+    hostname: `https://axiomframework.dev${base}`
   },
 
   title: "Axiom Documentation",
@@ -23,8 +23,8 @@ export default defineConfig({
   ],
   themeConfig: {
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Documentation', link: '/get-started/overview' }
+      { text: 'Home', link: 'https://axiomframework.dev/', target: '_self' },
+      { text: 'Documentation', link: '/' }
     ],
 
     sidebar: [
