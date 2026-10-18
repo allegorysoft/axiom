@@ -30,7 +30,7 @@ const RESOURCE_LINKS: readonly Nav[] = [
   {
     title: 'AxiomBase:Documents',
     icon: <HugeiconsIcon icon={BookTextIcon} strokeWidth={2} />,
-    url: 'https://axiomframework.dev/get-started/overview',
+    url: 'https://axiomframework.dev/docs',
   },
 ];
 
