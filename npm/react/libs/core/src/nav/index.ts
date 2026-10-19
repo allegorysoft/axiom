@@ -11,5 +11,4 @@ export {
   isExternalUrl,
   withGroupName,
   findStack,
-  getNavigationMode
 } from './nav-utils';

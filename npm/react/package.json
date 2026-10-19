@@ -11,7 +11,7 @@
   },
   "packageManager": "pnpm@11.20.0",
   "scripts": {
-    "dev": "export VITE_NAV_MODE=spa && nx dev",
+    "dev": "nx dev",
     "build": "nx build",
     "build:all": "nx run-many -t build --parallel=1 --skip-nx-cache",
     "test": "nx test",

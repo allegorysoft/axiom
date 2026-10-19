@@ -27,8 +27,13 @@
   "AxiomAccount": {
     "SignIn": "Sign in (client)",
     "SignUp": "Sign up",
+    "Name": "Name",
+    "Surname": "Surname",
+    "Username": "Username",
+    "EmailAddress": "E-Mail address",
     "EmailOrUsername": "Email or username",
     "Password": "Password",
+    "ConfirmPassword": "Confirm password",
     "OrContinueWith": "or continue with",
     "GetStartedWithAxiom": "Get started with Axiom",
     "SignInOrCreateAccount": "Sign in or create an account.",
