@@ -19,16 +19,16 @@ export function isBranchActive(
   );
 }
 
-export function isLocalModule(url?: string): boolean {
+export function isExternalUrl(url?: string): boolean {
   if (!url) {
-    return false;
+    return true;
   }
 
   if (/^https?:/i.test(url) || url.startsWith('//')) {
-    return false;
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 type NavigationMode = 'spa' | 'hybrid';
