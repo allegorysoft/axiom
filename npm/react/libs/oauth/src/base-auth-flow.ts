@@ -57,7 +57,7 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
     oAuthStore.setToken(oAuthToken);
   }
 
-  override async logout(navigate?: (baseUrl: string) => void): Promise<void> {
+  override async logout(navigate?: () => void): Promise<void> {
     const token = this.storage.get()?.refreshToken;
     if (this.configuration && token) {
       await tokenRevocation(this.configuration, token);
@@ -67,6 +67,6 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
     oAuthStore.clear();
 
     userStore.setUser(null);
-    navigate?.(import.meta.env.BASE_URL);
+    navigate?.();
   }
 }
