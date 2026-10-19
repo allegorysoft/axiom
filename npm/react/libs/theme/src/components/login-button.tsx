@@ -25,9 +25,7 @@ export function LoginButton({
   const collapsedSidebar = isInSidebar && !isMobile && state === 'collapsed';
 
   function logIn() {
-    authProvider.redirectToLogin(() =>
-      navigate(`${ensureEndsWithSlash(import.meta.env.BASE_URL)}account/login`),
-    );
+    authProvider.redirectToLogin(() => navigate(`/account/login`));
   }
 
   if (isInSidebar) {

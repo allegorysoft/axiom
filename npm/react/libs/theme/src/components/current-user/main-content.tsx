@@ -9,7 +9,6 @@ import {
 import {
   getAvatarFallbackText,
   getOrCreateAuthProvider,
-  ensureEndsWithSlash,
   useTranslation,
   useUser,
 } from '@axiomframework/react-core';
@@ -38,9 +37,7 @@ export function MainContent({
   const authProvider = getOrCreateAuthProvider().get();
 
   function logOut() {
-    authProvider.logout((baseUrl) => {
-      navigate(ensureEndsWithSlash(baseUrl));
-    });
+    authProvider.logout(() => navigate('/'));
   }
 
   return (
