@@ -1,5 +1,4 @@
 import type { Nav, NavGroup } from './nav';
-import { navStore } from './nav-store';
 
 export function isBranchActive(
   item: Nav,
@@ -51,7 +50,7 @@ export function withGroupName(url: string): string {
     return `${base}${url}`;
   }
 
-  return `${base}/${url}`;
+  return `${base.startsWith('/') ? base : '/' + base}/${url}`;
 }
 
 export function findStack(groups: NavGroup[], pathname: string): Nav[] {
