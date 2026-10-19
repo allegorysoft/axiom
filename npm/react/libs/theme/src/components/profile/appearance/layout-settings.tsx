@@ -1,5 +1,5 @@
 import { preferencesStore } from '../../preferences/preferences-store';
-import { usePreferences } from '../../preferences/use-preferences';
+import { usePreferences } from '../../preferences/usePreferences';
 import { SEGMENTED_OPTIONS } from '../../preferences/options';
 
 import { AppearanceContent } from './appearance-content';

@@ -13,7 +13,7 @@ import {
 } from '../../ui/select';
 
 import { preferencesStore } from '../../preferences/preferences-store';
-import { usePreferences } from '../../preferences/use-preferences';
+import { usePreferences } from '../../preferences/usePreferences';
 import { COLOR_THEME_OPTIONS } from '../../preferences/options';
 
 import { SettingRow } from '../setting-row';

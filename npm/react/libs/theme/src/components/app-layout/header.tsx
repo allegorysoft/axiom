@@ -17,7 +17,7 @@ import { SidebarTrigger } from '../ui/sidebar';
 
 import type { NavbarBehavior } from '../preferences/options';
 import { PreferencesPopover } from '../preferences/preferences-popover';
-import { usePreferences } from '../preferences/use-preferences';
+import { usePreferences } from '../preferences/usePreferences';
 
 import { ThemeToggle } from '../theme/theme-toggle';
 import { CurrentUserDropdown } from '../current-user/current-user-dropdown';

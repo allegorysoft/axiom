@@ -10,7 +10,7 @@ import {
   SidebarFooter,
 } from '../ui/sidebar';
 
-import { usePreferences } from '../preferences/use-preferences';
+import { usePreferences } from '../preferences/usePreferences';
 import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
 import { TENANTS } from './data';
