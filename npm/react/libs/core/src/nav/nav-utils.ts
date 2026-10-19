@@ -31,21 +31,37 @@ export function isExternalUrl(url?: string): boolean {
   return false;
 }
 
+/**
+ * Prefixes a path with the app's base (group) name.
+ *
+ * @param url - Path to prefix, with or without a leading "/".
+ * @returns Path starting with "/", prefixed with the base unless already present.
+ */
 export function withGroupName(url: string): string {
-  const base = import.meta.env.BASE_URL.replace(/\/+$/, '');
+  const base = normalizeBase(import.meta.env.BASE_URL);
+  const path = url.startsWith('/') ? url : `/${url}`;
+
   if (!base) {
-    return url;
+    return path;
   }
 
-  if (url === base || url.startsWith(`${base}/`)) {
-    return url;
+  if (path === base || path.startsWith(`${base}/`)) {
+    return path;
   }
 
-  if (url.startsWith('/')) {
-    return `${base}${url}`;
+  return `${base}${path}`;
+}
+
+function normalizeBase(raw?: string): string {
+  if (!raw) {
+    return '';
   }
 
-  return `${base.startsWith('/') ? base : '/' + base}/${url}`;
+  const trimmed = raw
+    .trim()
+    .replace(/^\.\/?/, '')
+    .replace(/^\/+|\/+$/g, '');
+  return trimmed ? `/${trimmed}` : '';
 }
 
 export function findStack(groups: NavGroup[], pathname: string): Nav[] {
