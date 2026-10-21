@@ -1,8 +1,9 @@
 {
   "AxiomBase": {
-    "Min": "Must be {length} or more characters (client)",
-    "Max": "Must be {length} or less characters (client)",
+    "Min": "Must be {length} or more characters",
+    "Max": "Must be {length} or less characters",
     "InvalidFormatPassword": "Must contain a lowercase letter, uppercase letter, number, and symbol.",
+    "InvalidFormatEmail": "Invalid email format",
     "Home": "Home",
     "Language": "Language",
     "LanguageDescription": "Choose your preferred language",
@@ -25,7 +26,7 @@
     "RestoreDefaults": "Restore defaults"
   },
   "AxiomAccount": {
-    "SignIn": "Sign in (client)",
+    "SignIn": "Sign in",
     "SignUp": "Sign up",
     "Name": "Name",
     "Surname": "Surname",
@@ -34,11 +35,25 @@
     "EmailOrUsername": "Email or username",
     "Password": "Password",
     "ConfirmPassword": "Confirm password",
+    "PasswordsDoNotMatch": "Paswords do not match",
     "OrContinueWith": "or continue with",
     "GetStartedWithAxiom": "Get started with Axiom",
     "SignInOrCreateAccount": "Sign in or create an account.",
     "Login": "Login",
-    "Logout": "Logout"
+    "Logout": "Logout",
+    "Slides": "Choose a slide",
+    "Slide": "Slide",
+    "Slide1Title": "Build More. Repeat Less.",
+    "Slide1Description": "Bring your application together with modular building blocks. Axiom provides the foundation so you can focus on the features that make your product unique.",
+    "Slide2Title": "Convention Over Configuration",
+    "Slide2Description": "Services, modules, and integrations are discovered and wired automatically. Write your logic; Axiom handles the plumbing.",
+    "Slide3Title": "Composable by Design",
+    "Slide3Description": "Build from self-contained modules with ordered lifecycle hooks. Extend at runtime via plugins without recompiling or modifying existing code.",
+    "Slide4Title": "Rich Infrastructure, Zero Lock-in",
+    "Slide4Description": "Interception, transaction management, file handling, localization, and more are ready when needed while staying out of your business logic.",
+    "WelcomeBack": "Welcome back",
+    "LoginToAccount": "Login to your Axiom account",
+    "Copyright": "Copyright © 2026 Allegorysoft. All rights reserved"
   },
   "AxiomIdentity": {
     "Welcome": "Welcome i18n, {name}"

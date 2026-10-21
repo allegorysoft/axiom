@@ -11,7 +11,9 @@ export default defineConfig(() => ({
   cacheDir: '../../node_modules/.vite/libs/account',
   plugins: [
     react(),
-    viteStaticCopy({ targets: [{ src: ['*.md', 'package.json'], dest: '.' }] }),
+    viteStaticCopy({
+      targets: [{ src: ['*.md', 'package.json', 'assets'], dest: '.' }],
+    }),
     dts({
       entryRoot: 'src',
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
