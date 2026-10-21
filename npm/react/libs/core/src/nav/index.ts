@@ -8,8 +8,7 @@ export {
 } from './nav-hooks';
 export {
   isBranchActive,
-  isLocalModule,
+  isExternalUrl,
   withGroupName,
   findStack,
-  getNavigationMode
 } from './nav-utils';

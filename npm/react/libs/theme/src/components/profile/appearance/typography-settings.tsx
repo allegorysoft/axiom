@@ -9,7 +9,7 @@ import {
 } from '../../ui/select';
 
 import { preferencesStore } from '../../preferences/preferences-store';
-import { usePreferences } from '../../preferences/use-preferences';
+import { usePreferences } from '../../preferences/preferences-hooks';
 import { SEGMENTED_OPTIONS, FONT_OPTIONS } from '../../preferences/options';
 
 import { SettingRow } from '../setting-row';
@@ -17,7 +17,7 @@ import { AppearanceContent } from './appearance-content';
 import { ChoiceGroup } from './choice-group';
 
 export default function TypographySection() {
-  const preferences = usePreferences((state) => state.preferences);
+  const preferences = usePreferences();
   return (
     <AppearanceContent>
       <SettingRow

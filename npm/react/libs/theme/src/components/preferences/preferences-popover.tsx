@@ -43,23 +43,12 @@ import {
 import type { Preferences } from './preferences';
 import { PreferenceOption } from './preference-option';
 import { preferencesStore } from './preferences-store';
-import { usePreferences } from './use-preferences';
+import { usePreferences } from './preferences-hooks';
 
 export function PreferencesPopover() {
   const t = useTranslation();
   const { theme, setTheme } = useTheme();
-  const preferences = usePreferences((state) => state.preferences);
-
-  useColorTheme(preferences);
-  useFont(preferences);
-
-  useLayoutEffect(() => {
-    document.documentElement.dataset.scale = preferences.scale;
-  }, [preferences.scale]);
-
-  useEffect(() => {
-    document.documentElement.dataset.radius = preferences.radius;
-  }, [preferences.radius]);
+  const preferences = usePreferences();
 
   return (
     <Popover>
@@ -202,33 +191,6 @@ function ColorTheme({ preferences }: { preferences: Preferences }) {
   );
 }
 
-function useColorTheme(preferences: Preferences) {
-  useLayoutEffect(() => {
-    const colorTheme = preferences.colorTheme;
-
-    document.documentElement.dataset.colorTheme = colorTheme;
-
-    const href = COLOR_THEME_OPTIONS.find((f) => f.value === colorTheme)?.url;
-    let link = document.head.querySelector<HTMLLinkElement>(
-      'link[data-color-theme]',
-    );
-
-    if (colorTheme === 'default' || !href) {
-      link?.remove();
-      return;
-    }
-
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-
-    link.dataset.colorTheme = colorTheme;
-    link.href = href;
-  }, [preferences.colorTheme]);
-}
-
 function Font({ preferences }: { preferences: Preferences }) {
   const t = useTranslation();
   const font = getOption(FONT_OPTIONS, preferences.font);
@@ -269,25 +231,4 @@ function Font({ preferences }: { preferences: Preferences }) {
       </Select>
     </div>
   );
-}
-
-function useFont(preferences: Preferences) {
-  useEffect(() => {
-    document.documentElement.dataset.font = preferences.font;
-
-    document.head
-      .querySelectorAll('link[data-font]')
-      .forEach((link) => link.remove());
-
-    const href = FONT_OPTIONS.find((f) => f.value === preferences.font)?.url;
-    if (!href) {
-      return;
-    }
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = href;
-    link.dataset.font = preferences.font;
-    document.head.appendChild(link);
-  }, [preferences.font]);
 }

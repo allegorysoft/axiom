@@ -9,9 +9,20 @@ import { ProfileSettingsDialogContributor } from '../profile/profile-settings-di
 import { AppSettingsDialogContributor } from '../application-settings/app-settings-dialog-contributor';
 
 import { Header } from './header';
+import {
+  useColorTheme,
+  useFont,
+  useScale,
+  useRadius,
+} from '../preferences/preferences-hooks';
 
 export function AppLayout() {
   const state = getCookie<boolean>('sidebar_state');
+
+  useColorTheme();
+  useFont();
+  useScale();
+  useRadius();
 
   return (
     <SidebarProvider defaultOpen={state ?? true}>

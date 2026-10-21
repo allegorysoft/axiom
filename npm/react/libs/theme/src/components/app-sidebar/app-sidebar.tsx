@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router';
 import { BookTextIcon, HelpSquareIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { type Nav, useNavGroups } from '@axiomframework/react-core';
+import { type Nav, useNavGroups, useUser } from '@axiomframework/react-core';
 
 import {
   Sidebar,
@@ -10,7 +10,7 @@ import {
   SidebarFooter,
 } from '../ui/sidebar';
 
-import { usePreferences } from '../preferences/use-preferences';
+import { usePreferences } from '../preferences/preferences-hooks';
 import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
 import { TENANTS } from './data';
@@ -19,6 +19,7 @@ import { TenantSwitcher } from './tenant-switcher';
 import { NavPanel } from './nav-panel';
 import { NavItemNode } from './nav-node';
 import { useHoverExpand } from './use-hover-expand';
+import { LoginButton } from '../login-button';
 
 const RESOURCE_LINKS: readonly Nav[] = [
   {
@@ -29,13 +30,14 @@ const RESOURCE_LINKS: readonly Nav[] = [
   {
     title: 'AxiomBase:Documents',
     icon: <HugeiconsIcon icon={BookTextIcon} strokeWidth={2} />,
-    url: 'https://axiomframework.dev/get-started/overview',
+    url: 'https://axiomframework.dev/docs',
   },
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { pathname } = useLocation();
-  const preferences = usePreferences((state) => state.preferences);
+  const user = useUser();
+  const preferences = usePreferences();
   const groups = useNavGroups();
   const hoverExpand = useHoverExpand();
 
@@ -66,9 +68,15 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
           ))}
         </SidebarMenu>
 
-        {preferences.userMenuPosition === 'sidebar' && (
+        {user !== null && preferences.userMenuPosition === 'sidebar' && (
           <SidebarMenu>
             <CurrentUserDropdown placement="sidebar" />
+          </SidebarMenu>
+        )}
+
+        {user === null && preferences.userMenuPosition === 'sidebar' && (
+          <SidebarMenu>
+            <LoginButton placement="sidebar" />
           </SidebarMenu>
         )}
       </SidebarFooter>

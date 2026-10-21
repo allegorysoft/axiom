@@ -1,8 +1,9 @@
 {
   "AxiomBase": {
-    "Min": "{length} veya daha uzun karakter olmalı (client)",
-    "Max": "{length} veya daha kısa karakter olmalı (client)",
+    "Min": "{length} veya daha uzun karakter olmalı",
+    "Max": "{length} veya daha kısa karakter olmalı",
     "InvalidFormatPassword": "Küçük harf, büyük harf, rakam, ve sembol içermelidir.",
+    "InvalidFormatEmail": "Geçersiz e-mail formatı",
     "Home": "Ana sayfa",
     "Language": "Dil",
     "LanguageDescription": "Tercih ettiğiniz dili seçin",
@@ -25,14 +26,34 @@
     "RestoreDefaults": "Varsayılanları geri yükle"
   },
   "AxiomAccount": {
-    "SignIn": "Giriş yap (client)",
+    "SignIn": "Giriş yap",
     "SignUp": "Kayıt ol",
+    "Name": "Adı",
+    "Surname": "Soyadı",
+    "Username": "Kullanıcı adı",
+    "EmailAddress": "E-Mail adresi",
     "EmailOrUsername": "Email veya kullanıcı adı",
     "Password": "Şifre",
+    "ConfirmPassword": "Şifre tekrarı",
+    "PasswordsDoNotMatch": "Şifreler eşleşmiyor",
     "OrContinueWith": "veya şununla devam et",
     "GetStartedWithAxiom": "Axiom ile başla",
     "SignInOrCreateAccount": "Giriş yap veya bir hesap oluştur.",
-    "Logout": "Çıkış yap"
+    "Login": "Giriş yap",
+    "Logout": "Çıkış yap",
+    "Slides": "Slayt seçin",
+    "Slide": "Slayt",
+    "Slide1Title": "Daha Çok Üretin, Daha Az Tekrarlayın.",
+    "Slide1Description": "Uygulamanızı modüler yapı taşlarıyla bir araya getirin. Axiom temeli sağlar; siz ürününüzü benzersiz kılan özelliklere odaklanın.",
+    "Slide2Title": "Yapılandırma Yerine Kurallar",
+    "Slide2Description": "Servisler, modüller ve entegrasyonlar otomatik keşfedilir ve bağlanır. Siz uygulama mantığını yazın; altyapıyı Axiom halletsin.",
+    "Slide3Title": "Birlikte Çalışmak İçin Tasarlandı",
+    "Slide3Description": "Sıralı yaşam döngüsü kancalarına sahip bağımsız modüllerle geliştirin. Mevcut kodu değiştirmeden veya yeniden derlemeden eklentilerle çalışma anında genişletin.",
+    "Slide4Title": "Zengin Altyapı, Tam Özgürlük",
+    "Slide4Description": "Interception, işlem yönetimi, dosya işlemleri, yerelleştirme ve daha fazlası ihtiyaç duyduğunuzda hazırdır; iş mantığınızdan ayrı kalır.",
+    "WelcomeBack": "Tekrar hoş geldiniz",
+    "LoginToAccount": "Axiom hesabınıza giriş yapın",
+    "Copyright": "© 2026 Allegorysoft. Tüm hakları saklıdır"
   },
   "AxiomIdentity": {
     "Welcome": "Hoşgeldin i18n, {name}"

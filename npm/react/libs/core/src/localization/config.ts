@@ -8,6 +8,7 @@ import {
   remoteLocalizationProvider,
 } from './localization-providers';
 import { seed } from './localization-utils';
+import { withGroupName } from '../nav/nav-utils';
 
 export type LocalizationOptions = {
   readonly defaultCulture?: string;
@@ -66,11 +67,11 @@ function buildProviders(
   }
 
   if (!options?.client?.skipProvider) {
-    const baseUrl = (import.meta.env.BASE_URL ?? '').replace(/\/+$/, '');
+    const baseUrl = withGroupName(options?.client?.basePath ?? 'i18n');
 
     providers.push(
       clientLocalizationProvider({
-        fileNameOrPath: `${baseUrl}/${options?.client?.basePath ?? 'i18n'}/${cultureName}`,
+        fileNameOrPath: `${baseUrl}/${cultureName}`,
       }),
     );
   }

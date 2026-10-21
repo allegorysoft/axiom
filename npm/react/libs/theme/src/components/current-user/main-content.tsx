@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   LogOutIcon as LogOut,
@@ -7,6 +8,7 @@ import {
 
 import {
   getAvatarFallbackText,
+  getOrCreateAuthProvider,
   useTranslation,
   useUser,
 } from '@axiomframework/react-core';
@@ -29,8 +31,14 @@ export function MainContent({
 }: {
   onOpenSettings: (dialogName: (typeof USER_MENU_OPTIONS)[number]['id']) => void;
 }) {
-  const user = useUser((state) => state);
+  const user = useUser();
   const t = useTranslation();
+  const navigate = useNavigate();
+  const authProvider = getOrCreateAuthProvider().get();
+
+  function logOut() {
+    authProvider.logout(() => navigate('/'));
+  }
 
   return (
     <>
@@ -38,18 +46,18 @@ export function MainContent({
         <DropdownMenuLabel className="px-2 py-2">
           <div className="flex items-center gap-3 py-1">
             <Avatar className="size-8">
-              <AvatarImage src={user.photo || undefined} alt={user.name} />
+              <AvatarImage src={user?.photo || undefined} alt={user?.name} />
               <AvatarFallback>
-                {getAvatarFallbackText(user.name)}
+                {getAvatarFallbackText(user?.name)}
               </AvatarFallback>
             </Avatar>
 
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold leading-tight text-foreground">
-                {user.name}
+                {user?.name}
               </p>
               <p className="mt-1 truncate text-xs font-normal text-muted-foreground">
-                {user.email}
+                {user?.email}
               </p>
             </div>
           </div>
@@ -71,7 +79,11 @@ export function MainContent({
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
-      <DropdownMenuItem variant="destructive" className="gap-2 px-2 py-2">
+      <DropdownMenuItem
+        variant="destructive"
+        className="gap-2 px-2 py-2"
+        onClick={logOut}
+      >
         <HugeiconsIcon icon={LogOut} strokeWidth={2} />
         {t('AxiomAccount:Logout')}
       </DropdownMenuItem>

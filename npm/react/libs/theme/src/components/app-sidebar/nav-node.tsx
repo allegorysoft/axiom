@@ -12,9 +12,7 @@ import {
   type Nav,
   useTranslation,
   isBranchActive,
-  isLocalModule,
-  withGroupName,
-  getNavigationMode,
+  isExternalUrl,
 } from '@axiomframework/react-core';
 
 import {
@@ -161,21 +159,16 @@ function renderMenuItem(
 ) {
   const t = useTranslation();
 
-  const navigationMode = getNavigationMode();
-  const isLocal = item.url === '/' || (isLocalModule(item.url) && !external);
-
-  let href = item.url;
-  if (href && isLocal) {
-    href = withGroupName(href);
-  }
-
+  const url = item.url;
+  const isExternal = isExternalUrl(url) && external === true;
   let render: JSX.Element | undefined;
-  if (href) {
-    render = <Link to={href} target={target} viewTransition />;
-  }
 
-  if (navigationMode === 'hybrid' && !isLocal) {
-    render = <a href={href} target={target} />;
+  if (url) {
+    render = isExternal ? (
+      <a href={url} target={target} />
+    ) : (
+      <Link to={url} target={target} />
+    );
   }
 
   const buttonProps = {

@@ -7,7 +7,7 @@ import {
 
 export const routes = createBrowserRouter([
   {
-    path: import.meta.env.BASE_URL,
+    path: '',
     ErrorBoundary,
     children: [
       {

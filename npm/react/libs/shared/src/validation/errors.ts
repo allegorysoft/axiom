@@ -48,6 +48,14 @@ const invalidFormatResolvers: Record<string, AxiomInvalidFormatResolver> = {
 
     return null;
   },
+
+  email: (issue) => {
+    if (issue.path.includes('email')) {
+      return { key: 'AxiomBase:InvalidFormatEmail' };
+    }
+
+    return null;
+  },
 };
 
 export function setFormatResolver(

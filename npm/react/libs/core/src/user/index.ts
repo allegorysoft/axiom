@@ -1,2 +1,3 @@
+export type { User } from './user';
 export { userStore } from './user-store';
-export { useUser } from './user-hooks';
+export { useUserStore, useUser } from './user-hooks';

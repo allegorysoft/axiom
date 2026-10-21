@@ -4,11 +4,16 @@ import { userStore, useUser } from '@axiomframework/react-core';
 
 import { Button } from '../../ui/button';
 import { Input } from '../../ui/input';
-import { Field, FieldGroup, FieldLabel, FieldDescription } from '../../ui/field';
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldDescription,
+} from '../../ui/field';
 import { Separator } from '../../ui/separator';
 
 export default function AccountInfoSection() {
-  const user = useUser((state) => state);
+  const user = useUser();
   const [draft, setDraft] = useState({
     firstName: user.firstName,
     surname: user.surname,
@@ -47,12 +52,12 @@ export default function AccountInfoSection() {
     },
   ] as const;
   const dirty = fields.some(({ key }) => draft[key] !== user[key]);
+
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        userStore.set((state) => ({
-          ...state,
+        userStore.patchUser({
           ...draft,
           name: [draft.firstName.trim(), draft.surname.trim()]
             .filter(Boolean)
@@ -61,7 +66,7 @@ export default function AccountInfoSection() {
           surname: draft.surname.trim(),
           email: draft.email.trim(),
           phone: draft.phone.trim(),
-        }));
+        });
         setSaved(true);
       }}
     >

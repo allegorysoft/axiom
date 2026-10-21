@@ -19,7 +19,7 @@ import { MainContent } from './main-content';
 type Props = { placement?: 'navbar' | 'sidebar' };
 export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
   const context = useSettingsDialog();
-  const user = useUser((state) => state);
+  const user = useUser();
 
   const { isMobile } = useSidebar();
   const [open, setOpen] = useState(false);
@@ -28,6 +28,10 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
     throw new Error(
       'CurrentUserDropdown must be used within SettingsDialogProvider.',
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   const isInSidebar = placement === 'sidebar';

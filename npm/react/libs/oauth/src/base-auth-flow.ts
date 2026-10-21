@@ -10,6 +10,7 @@ import {
   type OAuthToken,
   AbstractAuthFlow,
   isDevMode,
+  userStore,
 } from '@axiomframework/react-core';
 import { oAuthStore } from './oauth-store';
 
@@ -56,17 +57,16 @@ export abstract class BaseAuthFlow extends AbstractAuthFlow {
     oAuthStore.setToken(oAuthToken);
   }
 
-  override async logout(): Promise<void> {
-    if (!this.configuration) {
-      return;
-    }
-
+  override async logout(navigate?: () => void): Promise<void> {
     const token = this.storage.get()?.refreshToken;
-    if (token) {
+    if (this.configuration && token) {
       await tokenRevocation(this.configuration, token);
     }
 
     this.storage.clear();
     oAuthStore.clear();
+
+    userStore.setUser(null);
+    navigate?.();
   }
 }
