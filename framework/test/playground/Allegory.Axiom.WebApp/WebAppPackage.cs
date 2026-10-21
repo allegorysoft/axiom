@@ -18,8 +18,13 @@ internal sealed class WebAppPackage : IConfigureApplication, IInitializeApplicat
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddOpenApi();
-        ConfigureOpenTelemetry(builder);
+        //ConfigureOpenTelemetry(builder);
 
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            options.AddSupportedCultures("en", "fr", "de");
+        });
+        
         return Task.CompletedTask;
     }
 
@@ -85,7 +90,7 @@ internal sealed class WebAppPackage : IConfigureApplication, IInitializeApplicat
             app.MapOpenApi();
         }
 
-        //app.UseRequestLocalization();
+        app.UseRequestLocalization();
         app.UseExceptionHandler();
         app.UseAuthentication();
         app.UseMultiTenancy();
