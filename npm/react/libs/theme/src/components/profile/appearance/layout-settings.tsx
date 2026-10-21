@@ -1,5 +1,5 @@
 import { preferencesStore } from '../../preferences/preferences-store';
-import { usePreferences } from '../../preferences/usePreferences';
+import { usePreferences } from '../../preferences/preferences-hooks';
 import { SEGMENTED_OPTIONS } from '../../preferences/options';
 
 import { AppearanceContent } from './appearance-content';
@@ -7,7 +7,7 @@ import { SettingRow } from '../setting-row';
 import { ChoiceGroup } from './choice-group';
 
 export default function LayoutSection() {
-  const preferences = usePreferences((state) => state.preferences);
+  const preferences = usePreferences();
 
   return (
     <AppearanceContent>

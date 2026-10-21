@@ -10,7 +10,7 @@ import {
   SidebarFooter,
 } from '../ui/sidebar';
 
-import { usePreferences } from '../preferences/usePreferences';
+import { usePreferences } from '../preferences/preferences-hooks';
 import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
 
 import { TENANTS } from './data';
@@ -37,7 +37,7 @@ const RESOURCE_LINKS: readonly Nav[] = [
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const { pathname } = useLocation();
   const user = useUser();
-  const preferences = usePreferences((state) => state.preferences);
+  const preferences = usePreferences();
   const groups = useNavGroups();
   const hoverExpand = useHoverExpand();
 

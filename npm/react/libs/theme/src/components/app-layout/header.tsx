@@ -17,7 +17,7 @@ import { SidebarTrigger } from '../ui/sidebar';
 
 import type { NavbarBehavior } from '../preferences/options';
 import { PreferencesPopover } from '../preferences/preferences-popover';
-import { usePreferences } from '../preferences/usePreferences';
+import { usePreferences } from '../preferences/preferences-hooks';
 
 import { ThemeToggle } from '../theme/theme-toggle';
 import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
@@ -35,12 +35,8 @@ const NAVBAR_BEHAVIOR_CLASS_NAMES: Record<NavbarBehavior, string> = {
 export function Header() {
   const label = useDecodedHash();
   const user = useUser();
-  const userMenuPosition = usePreferences(
-    (state) => state.preferences.userMenuPosition,
-  );
-  const navbarBehavior = usePreferences(
-    (state) => state.preferences.navbarBehavior,
-  );
+  const userMenuPosition = usePreferences().userMenuPosition;
+  const navbarBehavior = usePreferences().navbarBehavior;
 
   const behaviorClassNames =
     NAVBAR_BEHAVIOR_CLASS_NAMES[navbarBehavior] ??

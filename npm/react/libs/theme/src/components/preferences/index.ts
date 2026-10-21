@@ -1,6 +1,8 @@
-export { usePreferences } from './usePreferences';
-export { useColorTheme } from './useColorTheme';
-export { useFont } from './useFont';
-export { useScale } from './useScale';
-export { useRadius } from './useRadius';
+export {
+  usePreferences,
+  useColorTheme,
+  useFont,
+  useScale,
+  useRadius,
+} from './preferences-hooks';
 export { initPreferencesSync } from './preferences-store';

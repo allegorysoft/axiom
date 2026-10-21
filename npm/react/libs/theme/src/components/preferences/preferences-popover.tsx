@@ -43,12 +43,12 @@ import {
 import type { Preferences } from './preferences';
 import { PreferenceOption } from './preference-option';
 import { preferencesStore } from './preferences-store';
-import { usePreferences } from './usePreferences';
+import { usePreferences } from './preferences-hooks';
 
 export function PreferencesPopover() {
   const t = useTranslation();
   const { theme, setTheme } = useTheme();
-  const preferences = usePreferences((state) => state.preferences);
+  const preferences = usePreferences();
 
   return (
     <Popover>

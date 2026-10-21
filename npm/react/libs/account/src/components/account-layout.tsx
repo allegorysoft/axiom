@@ -10,7 +10,6 @@ import {
   TabsTrigger,
   useColorTheme,
   useFont,
-  usePreferences,
   useRadius,
   useScale,
 } from '@axiomframework/react-theme/components';
@@ -29,12 +28,11 @@ export function ErrorBoundary() {
 export function Component() {
   const t = useTranslation();
   const { pathname } = useLocation();
-  const preferences = usePreferences((state) => state.preferences);
 
-  useColorTheme(preferences);
-  useFont(preferences);
-  useScale(preferences);
-  useRadius(preferences);
+  useColorTheme();
+  useFont();
+  useScale();
+  useRadius();
 
   const segment = pathname.split('/').pop();
   const active: Tab = TABS.find((tab) => tab === segment) ?? 'login';
