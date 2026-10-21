@@ -56,6 +56,7 @@
     <Project Path="src/interception/Allegory.Axiom.Interception/Allegory.Axiom.Interception.csproj" />
   </Folder>
   <Folder Name="/src/localization/">
+    <Project Path="src/localization/Allegory.Axiom.AspNetCore.Localization/Allegory.Axiom.AspNetCore.Localization.csproj" />
     <Project Path="src/localization/Allegory.Axiom.Localization.Abstractions/Allegory.Axiom.Localization.Abstractions.csproj" />
     <Project Path="src/localization/Allegory.Axiom.Localization/Allegory.Axiom.Localization.csproj" />
   </Folder>
