@@ -5,7 +5,6 @@ import { Login } from '@hugeicons/core-free-icons';
 import {
   useTranslation,
   getOrCreateAuthProvider,
-  ensureEndsWithSlash,
 } from '@axiomframework/react-core';
 
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from './ui/sidebar';
