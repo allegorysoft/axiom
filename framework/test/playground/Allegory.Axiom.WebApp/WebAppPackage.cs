@@ -1,9 +1,12 @@
 using System;
 using System.Threading.Tasks;
 using Allegory.Axiom.AspNetCore;
+using Allegory.Axiom.FileProvider;
 using Allegory.Axiom.Hosting;
+using Allegory.Axiom.Localization;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.OpenTelemetry;
+using Localization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,12 +22,8 @@ internal sealed class WebAppPackage : IConfigureApplication, IInitializeApplicat
     {
         builder.Services.AddOpenApi();
         //ConfigureOpenTelemetry(builder);
+        ConfigureAxiom(builder);
 
-        builder.Services.Configure<RequestLocalizationOptions>(options =>
-        {
-            options.AddSupportedCultures("en", "fr", "de");
-        });
-        
         return Task.CompletedTask;
     }
 
@@ -79,6 +78,24 @@ internal sealed class WebAppPackage : IConfigureApplication, IInitializeApplicat
             .WithLogging(logging => logging
                 .SetResourceBuilder(resource)
                 .AddOtlpExporter(exporterOptionsAction));
+    }
+
+    private static void ConfigureAxiom(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<RequestLocalizationOptions>(options =>
+        {
+            options.AddSupportedCultures("en", "fr", "de");
+            options.AddSupportedUICultures("en", "fr", "de");
+        });
+
+        builder.Services.Configure<FileProviderOptions>(options => { options.AddEmbedded<WebAppPackage>(); });
+
+        builder.Services.Configure<LocalizationOptions>(options =>
+        {
+            options.Resources.Add<LocalizationResource>(
+                defaultCulture: "en",
+                paths: ["Localization/Resources"]);
+        });
     }
 
     public static Task InitializeAsync(IHost host)
