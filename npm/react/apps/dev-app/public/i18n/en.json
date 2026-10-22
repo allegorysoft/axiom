@@ -26,6 +26,10 @@
     "RestoreDefaults": "Restore defaults"
   },
   "AxiomAccount": {
+    "Account": "Account",
+    "Profile": "Profile",
+    "AccountDetails": "Account details",
+    "PasswordAndSecurity": "Password & security",
     "SignIn": "Sign in",
     "SignUp": "Sign up",
     "Name": "Name",

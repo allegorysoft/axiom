@@ -19,6 +19,12 @@ export default defineConfig(() => ({
       tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
       pathsToAliases: false,
     }),
+    dts({
+      entryRoot: 'config',
+      tsconfigPath: path.join(import.meta.dirname, 'tsconfig.lib.json'),
+      pathsToAliases: false,
+      outDir: '../../dist/libs/account/config',
+    }),
   ],
   build: {
     target: 'esnext',
@@ -27,6 +33,7 @@ export default defineConfig(() => ({
     lib: {
       entry: {
         index: 'src/index',
+        'config/index': 'config/index',
       },
       name: 'account',
       formats: ['es' as const],

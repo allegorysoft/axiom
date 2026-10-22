@@ -18,7 +18,11 @@
       "types": "./index.d.ts",
       "import": "./index.js"
     },
-    "./assets": "./assets"
+    "./assets": "./assets",
+    "./config": {
+      "types": "./config/index.d.ts",
+      "import": "./config/index.js"
+    }
   },
   "peerDependencies": {
     "react": "catalog:",
