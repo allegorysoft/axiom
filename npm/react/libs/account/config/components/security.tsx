@@ -1,10 +1,13 @@
 import { useState } from 'react';
 
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Field, FieldGroup, FieldLabel, FieldDescription } from '../../ui/field';
-import { Separator } from '../../ui/separator';
 import {
+  Button,
+  Input,
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldDescription,
+  Separator,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -12,9 +15,9 @@ import {
   DialogHeader,
   DialogFooter,
   DialogClose,
-} from '../../ui/dialog';
+} from '@axiomframework/react-theme/components';
 
-export default function SecuritySection() {
+export default function Security() {
   const [setupOpen, setSetupOpen] = useState(false);
   return (
     <FieldGroup>

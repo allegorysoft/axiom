@@ -26,6 +26,11 @@
     "RestoreDefaults": "Restore defaults"
   },
   "AxiomAccount": {
+    "Account": "Account",
+    "Profile": "Profile",
+    "ProfileDialogDescription": "Manage your profile and application preferences",
+    "AccountDetails": "Account details",
+    "PasswordAndSecurity": "Password & security",
     "SignIn": "Sign in",
     "SignUp": "Sign up",
     "Name": "Name",

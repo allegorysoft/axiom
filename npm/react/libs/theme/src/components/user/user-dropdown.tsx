@@ -17,7 +17,7 @@ import { useSettingsDialog } from '../shared/settings-dialog-provider';
 import { MainContent } from './main-content';
 
 type Props = { placement?: 'navbar' | 'sidebar' };
-export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
+export function UserDropdown({ placement = 'navbar' }: Props) {
   const context = useSettingsDialog();
   const user = useUser();
 
@@ -25,9 +25,7 @@ export function CurrentUserDropdown({ placement = 'navbar' }: Props) {
   const [open, setOpen] = useState(false);
 
   if (!context) {
-    throw new Error(
-      'CurrentUserDropdown must be used within SettingsDialogProvider.',
-    );
+    throw new Error('UserDropdown must be used within SettingsDialogProvider.');
   }
 
   if (!user) {
@@ -92,9 +90,7 @@ function MenuTrigger({
 }: Pick<Props, 'placement'> & React.ComponentProps<'button'>) {
   const context = useSettingsDialog();
   if (!context) {
-    throw new Error(
-      'CurrentUserDropdown must be used within SettingsDialogProvider.',
-    );
+    throw new Error('UserDropdown must be used within SettingsDialogProvider.');
   }
 
   const { isMobile, state } = useSidebar();

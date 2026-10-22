@@ -11,7 +11,7 @@ import {
 } from '../ui/sidebar';
 
 import { usePreferences } from '../preferences/preferences-hooks';
-import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
+import { UserDropdown } from '../user/user-dropdown';
 
 import { TENANTS } from './data';
 import { SidebarHeaderSearch } from './sidebar-header-search';
@@ -70,7 +70,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
         {user !== null && preferences.userMenuPosition === 'sidebar' && (
           <SidebarMenu>
-            <CurrentUserDropdown placement="sidebar" />
+            <UserDropdown placement="sidebar" />
           </SidebarMenu>
         )}
 

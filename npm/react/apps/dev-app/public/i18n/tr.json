@@ -26,6 +26,11 @@
     "RestoreDefaults": "Varsayılanları geri yükle"
   },
   "AxiomAccount": {
+    "Account": "Hesap",
+    "Profile": "Profil",
+    "ProfileDialogDescription": "Profile ve uygulama ayarlarınızı yönetin",
+    "AccountDetails": "Hesap detayları",
+    "PasswordAndSecurity": "Şifre & güvenlik",
     "SignIn": "Giriş yap",
     "SignUp": "Kayıt ol",
     "Name": "Adı",

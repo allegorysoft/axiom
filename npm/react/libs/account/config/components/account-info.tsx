@@ -2,23 +2,23 @@ import { useState } from 'react';
 
 import { userStore, useUser } from '@axiomframework/react-core';
 
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
 import {
+  Button,
+  Input,
   Field,
   FieldGroup,
   FieldLabel,
   FieldDescription,
-} from '../../ui/field';
-import { Separator } from '../../ui/separator';
+  Separator,
+} from '@axiomframework/react-theme/components';
 
-export default function AccountInfoSection() {
+export default function AccountInfo() {
   const user = useUser();
   const [draft, setDraft] = useState({
-    firstName: user.firstName,
-    surname: user.surname,
-    email: user.email,
-    phone: user.phone,
+    firstName: user?.firstName,
+    surname: user?.surname,
+    email: user?.email,
+    phone: user?.phone,
   });
   const [saved, setSaved] = useState(false);
   const fields = [
@@ -51,7 +51,7 @@ export default function AccountInfoSection() {
       required: false,
     },
   ] as const;
-  const dirty = fields.some(({ key }) => draft[key] !== user[key]);
+  const dirty = fields.some(({ key }) => draft[key] !== user![key]);
 
   return (
     <form
@@ -59,13 +59,13 @@ export default function AccountInfoSection() {
         event.preventDefault();
         userStore.patchUser({
           ...draft,
-          name: [draft.firstName.trim(), draft.surname.trim()]
+          name: [draft?.firstName?.trim(), draft?.surname?.trim()]
             .filter(Boolean)
             .join(' '),
-          firstName: draft.firstName.trim(),
-          surname: draft.surname.trim(),
-          email: draft.email.trim(),
-          phone: draft.phone.trim(),
+          firstName: draft?.firstName?.trim(),
+          surname: draft?.surname?.trim(),
+          email: draft?.email?.trim(),
+          phone: draft?.phone?.trim(),
         });
         setSaved(true);
       }}
@@ -104,10 +104,10 @@ export default function AccountInfoSection() {
             disabled={!dirty}
             onClick={() => {
               setDraft({
-                firstName: user.firstName,
-                surname: user.surname,
-                email: user.email,
-                phone: user.phone,
+                firstName: user?.firstName,
+                surname: user?.surname,
+                email: user?.email,
+                phone: user?.phone,
               });
               setSaved(false);
             }}

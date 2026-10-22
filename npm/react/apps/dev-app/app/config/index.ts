@@ -10,6 +10,7 @@ import {
   initPreferencesSync,
   provideNavItems,
 } from '@axiomframework/react-theme/components';
+import { configureAccount } from '@axiomframework/react-account/config';
 
 export async function loadEnvironment() {
   const environment = isDevMode()
@@ -20,6 +21,7 @@ export async function loadEnvironment() {
 }
 
 export function configureApplication() {
+  configureAccount()
   configureCore({ localization: { remote: { skipProvider: true } } });
   configureShared();
   configureOAuth({ skipDiscovery: true });

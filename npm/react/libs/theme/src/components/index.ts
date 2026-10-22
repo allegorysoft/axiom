@@ -1,3 +1,5 @@
+export * from './ui/avatar';
+export * from './ui/dialog';
 export * from './ui/button';
 export * from './ui/field';
 export * from './ui/label';

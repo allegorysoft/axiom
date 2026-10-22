@@ -4,15 +4,20 @@ import {
   userStore,
   useUser,
 } from '@axiomframework/react-core';
-import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar';
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { FieldGroup, FieldDescription } from '../../ui/field';
-import { Separator } from '../../ui/separator';
+import {
+  Button,
+  Input,
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  FieldGroup,
+  FieldDescription,
+  Separator,
+} from '@axiomframework/react-theme/components';
 
-export default function ProfilePhotoSection() {
+export default function ProfilePhoto() {
   const user = useUser();
-  const [preview, setPreview] = useState(user.photo);
+  const [preview, setPreview] = useState(user?.photo);
   const [error, setError] = useState('');
   const [reading, setReading] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -44,6 +49,10 @@ export default function ProfilePhotoSection() {
       setReading(false);
     };
     reader.readAsDataURL(file);
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (
