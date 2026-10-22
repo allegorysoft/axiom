@@ -15,8 +15,6 @@ import {
   useUser,
 } from '@axiomframework/react-core';
 
-import { useIsMobile } from '@axiomframework/react-theme/hooks';
-
 import { Button } from '../ui/button';
 import {
   InputGroup,
@@ -48,6 +46,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from '../ui/sidebar';
 
 import type { SettingsDialogProps, DialogContentHeaderProps } from './models';
@@ -67,7 +66,7 @@ export function SettingsDialog({
   const user = useUser();
   const [query, setQuery] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
+  const { isMobile } = useSidebar();
 
   useLayoutEffect(() => {
     if (open) {
@@ -99,7 +98,9 @@ export function SettingsDialog({
         className="h-[min(760px,90dvh)] max-w-[calc(100%-1rem)] gap-0 overflow-hidden bg-background p-0 sm:max-w-5xl"
       >
         <DialogTitle className="sr-only">{t(title)}</DialogTitle>
-        <DialogDescription className="sr-only">{t(description)}</DialogDescription>
+        <DialogDescription className="sr-only">
+          {t(description)}
+        </DialogDescription>
 
         <SidebarProvider className="h-full min-h-0 flex-col items-stretch md:flex-row">
           <Sidebar
@@ -162,7 +163,9 @@ export function SettingsDialog({
                   <h2 className="text-2xl font-semibold tracking-tight">
                     {t(tab.title)}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{t(tab.title)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t(tab.title)}
+                  </p>
                 </div>
 
                 {Content && (
@@ -280,7 +283,7 @@ function DialogContentHeader({
   group,
 }: DialogContentHeaderProps & { group: TabGroup }) {
   const t = useTranslation();
-  const isMobile = useIsMobile();
+  const { isMobile } = useSidebar();
 
   return (
     <header className="flex shrink-0 items-center border-b px-3 py-3">

@@ -4,7 +4,6 @@ import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
 
-import { useIsMobile } from "@axiomframework/react-theme/hooks/use-mobile"
 import { Button } from "@axiomframework/react-theme/components/ui/button"
 import { Input } from "@axiomframework/react-theme/components/ui/input"
 import { Separator } from "@axiomframework/react-theme/components/ui/separator"
@@ -146,6 +145,27 @@ function SidebarProvider({
       </div>
     </SidebarContext.Provider>
   )
+}
+
+
+const MOBILE_BREAKPOINT = 768;
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(
+    undefined,
+  );
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    };
+    mql.addEventListener('change', onChange);
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
+
+  return !!isMobile;
 }
 
 function Sidebar({
