@@ -20,7 +20,7 @@ import { PreferencesPopover } from '../preferences/preferences-popover';
 import { usePreferences } from '../preferences/preferences-hooks';
 
 import { ThemeToggle } from '../theme/theme-toggle';
-import { CurrentUserDropdown } from '../current-user/current-user-dropdown';
+import { UserDropdown } from '../user/user-dropdown';
 import { LoginButton } from '../login-button';
 import { Languages } from './languages';
 
@@ -73,7 +73,7 @@ export function Header() {
         <ThemeToggle />
         <Languages />
         {userMenuPosition === 'navbar' && user === null && <LoginButton />}
-        {userMenuPosition === 'navbar' && <CurrentUserDropdown />}
+        {userMenuPosition === 'navbar' && <UserDropdown />}
       </div>
     </header>
   );
