@@ -13,7 +13,11 @@ import { SettingRow } from '../setting-row';
 export default function TimeZoneSection() {
   const user = useUser();
   const options = [
-    ...new Set([user.timeZone, 'UTC', ...Intl.getCanonicalLocales('timeZone')]),
+    ...new Set([
+      user?.timeZone,
+      'UTC',
+      ...Intl.getCanonicalLocales('timeZone'),
+    ]),
   ].sort();
   return (
     <div className="space-y-6">
@@ -22,10 +26,10 @@ export default function TimeZoneSection() {
         description="Choose your preferred time zone."
       >
         <Select
-          value={user.timeZone}
+          value={user?.timeZone}
           items={options.map((value) => ({
             value,
-            label: value.replace('_', ' '),
+            label: value?.replace('_', ' '),
           }))}
           onValueChange={(value) => {
             if (value && options.includes(value))
@@ -38,7 +42,7 @@ export default function TimeZoneSection() {
           <SelectContent>
             {options.map((value) => (
               <SelectItem key={value} value={value}>
-                {value.replace('_', ' ')}
+                {value?.replace('_', ' ')}
               </SelectItem>
             ))}
           </SelectContent>

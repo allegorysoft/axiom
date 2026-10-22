@@ -4,67 +4,29 @@ import {
   LanguagesIcon,
   Layout01Icon,
   PaletteIcon,
-  SquareUserRoundIcon,
   TimeZoneIcon,
-  UserAccountIcon,
-  KeyRoundIcon,
   TextFontIcon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
-const Sections = {
-  profilePhoto: lazy(() => import('./account/profile-photo')),
-  accountInfo: lazy(() => import('./account/account-info')),
-  security: lazy(() => import('./account/security')),
-
-  layout: lazy(() => import('./appearance/layout-settings')),
-  theme: lazy(() => import('./appearance/theme-settings')),
-  typography: lazy(() => import('./appearance/typography-settings')),
-
-  language: lazy(() => import('./language-and-region/language-settings')),
-  timeZone: lazy(() => import('./language-and-region/time-zone-settings')),
-} as const;
-
 const GROUPS: TabGroup[] = [
-  {
-    title: 'Account',
-    mode: 'collapsible',
-    isActive: false,
-    children: [
-      {
-        title: 'Profile',
-        icon: <HugeiconsIcon icon={SquareUserRoundIcon} strokeWidth={2} />,
-        component: Sections.profilePhoto,
-      },
-      {
-        title: 'Account Details',
-        icon: <HugeiconsIcon icon={UserAccountIcon} strokeWidth={2} />,
-        component: Sections.accountInfo,
-      },
-      {
-        title: 'Password & Security',
-        icon: <HugeiconsIcon icon={KeyRoundIcon} strokeWidth={2} />,
-        component: Sections.security,
-      },
-    ],
-  },
   {
     title: 'Appearance',
     children: [
       {
         title: 'Layout',
         icon: <HugeiconsIcon icon={Layout01Icon} strokeWidth={2} />,
-        component: Sections.layout,
+        component: lazy(() => import('./appearance/layout-settings')),
       },
       {
         title: 'Theme',
         icon: <HugeiconsIcon icon={PaletteIcon} strokeWidth={2} />,
-        component: Sections.theme,
+        component: lazy(() => import('./appearance/theme-settings')),
       },
       {
         title: 'Typography',
         icon: <HugeiconsIcon icon={TextFontIcon} strokeWidth={2} />,
-        component: Sections.typography,
+        component: lazy(() => import('./appearance/typography-settings')),
       },
     ],
   },
@@ -74,12 +36,16 @@ const GROUPS: TabGroup[] = [
       {
         title: 'Language',
         icon: <HugeiconsIcon icon={LanguagesIcon} strokeWidth={2} />,
-        component: Sections.language,
+        component: lazy(
+          () => import('./language-and-region/language-settings'),
+        ),
       },
       {
         title: 'Time Zone',
         icon: <HugeiconsIcon icon={TimeZoneIcon} strokeWidth={2} />,
-        component: Sections.timeZone,
+        component: lazy(
+          () => import('./language-and-region/time-zone-settings'),
+        ),
       },
     ],
   },

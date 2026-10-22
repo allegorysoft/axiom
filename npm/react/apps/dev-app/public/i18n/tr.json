@@ -28,6 +28,7 @@
   "AxiomAccount": {
     "Account": "Hesap",
     "Profile": "Profil",
+    "ProfileDialogDescription": "Profile ve uygulama ayarlarınızı yönetin",
     "AccountDetails": "Hesap detayları",
     "PasswordAndSecurity": "Şifre & güvenlik",
     "SignIn": "Giriş yap",

@@ -11,6 +11,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   type TabGroup,
   getAvatarFallbackText,
+  useTranslation,
   useUser,
 } from '@axiomframework/react-core';
 
@@ -62,9 +63,11 @@ export function SettingsDialog({
   onTabChange,
   finalFocus,
 }: SettingsDialogProps) {
+  const t = useTranslation();
   const user = useUser();
   const [query, setQuery] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useLayoutEffect(() => {
     if (open) {
@@ -95,12 +98,12 @@ export function SettingsDialog({
         showCloseButton={false}
         className="h-[min(760px,90dvh)] max-w-[calc(100%-1rem)] gap-0 overflow-hidden bg-background p-0 sm:max-w-5xl"
       >
-        <DialogTitle className="sr-only">{title}</DialogTitle>
-        <DialogDescription className="sr-only">{description}</DialogDescription>
+        <DialogTitle className="sr-only">{t(title)}</DialogTitle>
+        <DialogDescription className="sr-only">{t(description)}</DialogDescription>
 
         <SidebarProvider className="h-full min-h-0 flex-col items-stretch md:flex-row">
           <Sidebar
-            collapsible="offcanvas"
+            collapsible={isMobile ? 'offcanvas' : 'none'}
             className="h-auto w-full shrink-0 border-b md:h-full md:w-60 md:border-r md:border-b-0"
           >
             <SidebarHeader className="gap-3 p-3">
@@ -147,7 +150,7 @@ export function SettingsDialog({
           </Sidebar>
 
           <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <DialogContentHeader title={title} active={tab} group={group} />
+            <DialogContentHeader title={t(title)} active={tab} group={group} />
 
             <section
               key={tab.title}
@@ -157,14 +160,16 @@ export function SettingsDialog({
               <div className="mx-auto max-w-3xl px-6 py-8 md:px-10 md:py-10">
                 <div className="mb-8">
                   <h2 className="text-2xl font-semibold tracking-tight">
-                    {tab.title}
+                    {t(tab.title)}
                   </h2>
-                  <p className="text-sm text-muted-foreground">{tab.title}</p>
+                  <p className="text-sm text-muted-foreground">{t(tab.title)}</p>
                 </div>
 
-                <Suspense fallback={<TabFallback />}>
-                  {Content ? <Content /> : null}
-                </Suspense>
+                {Content && (
+                  <Suspense fallback={<TabFallback />}>
+                    <Content />
+                  </Suspense>
+                )}
               </div>
             </section>
           </div>
@@ -179,6 +184,7 @@ function DialogNav({
   tab,
   onTabChange,
 }: Pick<SettingsDialogProps, 'groups' | 'tab' | 'onTabChange'>) {
+  const t = useTranslation();
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
 
   const setGroupOpen = (groupTitle: string, open: boolean) => {
@@ -212,7 +218,7 @@ function DialogNav({
                       className="h-9 gap-3 px-3 transition-colors"
                     >
                       {item.icon}
-                      <span>{item.title}</span>
+                      <span>{t(item.title)}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -225,7 +231,7 @@ function DialogNav({
           return (
             <SidebarGroup key={group.title} className="mb-4 w-full p-0">
               <SidebarGroupLabel className="font-medium text-muted-foreground">
-                {group.title}
+                {t(group.title)}
               </SidebarGroupLabel>
 
               {GroupContent}
@@ -241,7 +247,7 @@ function DialogNav({
           >
             <SidebarGroup className="mb-4 w-full p-0">
               <CollapsibleTrigger className="flex h-8 w-full cursor-pointer items-center justify-between rounded-md px-2 text-xs font-medium text-muted-foreground outline-none hover:text-sidebar-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring">
-                {group.title}
+                {t(group.title)}
 
                 <HugeiconsIcon
                   icon={ChevronDownIcon}
@@ -273,12 +279,14 @@ function DialogContentHeader({
   active,
   group,
 }: DialogContentHeaderProps & { group: TabGroup }) {
+  const t = useTranslation();
   const isMobile = useIsMobile();
+
   return (
     <header className="flex shrink-0 items-center border-b px-3 py-3">
       {isMobile && <SidebarTrigger />}
 
-      <span className="ml-2 text-sm text-muted-foreground">{title}</span>
+      <span className="ml-2 text-sm text-muted-foreground">{t(title)}</span>
       <HugeiconsIcon
         icon={ChevronRightIcon}
         strokeWidth={2}
@@ -286,7 +294,7 @@ function DialogContentHeader({
         className="mx-3 size-4 shrink-0 text-muted-foreground/50"
       />
 
-      <span className="text-sm text-muted-foreground">{group.title}</span>
+      <span className="text-sm text-muted-foreground">{t(group.title)}</span>
       <HugeiconsIcon
         icon={ChevronRightIcon}
         strokeWidth={2}
@@ -294,7 +302,7 @@ function DialogContentHeader({
         className="mx-3 size-4 shrink-0 text-muted-foreground/50"
       />
 
-      <span className="text-sm font-medium">{active.title}</span>
+      <span className="text-sm font-medium">{t(active.title)}</span>
 
       <DialogClose
         render={

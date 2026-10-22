@@ -27,8 +27,8 @@ export function UserSettingsDialog(props: UserSettingsDialogProps) {
   return (
     <SettingsDialog
       {...props}
-      title="Profile"
-      description="Manage your profile and application preferences."
+      title="AxiomAccount:Profile"
+      description="AxiomAccount:ProfileDialogDescription"
       groups={tabs.filter((f) => f.title !== DEFAULT_MENU_GROUP)}
     />
   );

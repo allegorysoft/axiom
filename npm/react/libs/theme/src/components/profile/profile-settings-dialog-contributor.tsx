@@ -5,7 +5,7 @@ import { createSettingsDialogContributor } from '../shared/settings-dialog-contr
 export const ProfileSettingsDialogContributor = createSettingsDialogContributor(
   {
     dialogName: 'profile',
-    title: 'Profile',
+    title: 'AxiomAccount:Profile',
     description: 'Manage your profile settings',
     Component: lazy(() =>
       import('./user-settings-dialog').then((m) => ({
