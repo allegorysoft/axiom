@@ -141,7 +141,7 @@ export function SettingsDialog({
             </SidebarHeader>
 
             <SidebarContent className="max-h-[40dvh] px-3 pb-3 pt-0 [scrollbar-color:var(--muted-foreground)_transparent] [scrollbar-width:thin] md:max-h-none">
-              <DialogNav
+              <DialogTab
                 key={search}
                 groups={visibleGroups}
                 tab={tab}
@@ -182,7 +182,7 @@ export function SettingsDialog({
   );
 }
 
-function DialogNav({
+function DialogTab({
   groups,
   tab,
   onTabChange,
