@@ -5,7 +5,7 @@ import type {
   MenuState,
   MenuPatch,
   MenuStore,
-} from '../menu/menu';
+} from '../menu';
 
 export interface Tab<C = unknown> extends MenuNode<Tab<C>> {
   component: LazyExoticComponent<ComponentType<C>> | ComponentType<C>;

@@ -1,5 +1,5 @@
-import { createStoreHook } from '../store/axiom-store';
-import { DEFAULT_MENU_GROUP } from '../menu/menu';
+import { createStoreHook } from '../../store/axiom-store';
+import { DEFAULT_MENU_GROUP } from '../menu';
 import type { Nav, NavGroup, NavState } from './nav';
 import { navStore } from './nav-store';
 

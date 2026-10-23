@@ -1,6 +1,6 @@
-import { createStore } from '../store/axiom-store';
-import { DEFAULT_MENU_GROUP } from '../menu/menu';
-import { edit, find, findGroup } from '../menu/menu-utils';
+import { createStore } from '../../store/axiom-store';
+import { DEFAULT_MENU_GROUP } from '../menu';
+import { edit, find, findGroup } from '../menu-utils';
 import type { Tab, TabGroup, TabPatch, TabState, TabStore } from './tab';
 
 function createInitialState(): TabState {

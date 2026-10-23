@@ -1,5 +1,5 @@
-import { createStoreHook } from '../store/axiom-store';
-import { DEFAULT_MENU_GROUP } from '../menu/menu';
+import { createStoreHook } from '../../store/axiom-store';
+import { DEFAULT_MENU_GROUP } from '../menu';
 import type { Tab, TabGroup, TabState, TabStore } from './tab';
 
 const EMPTY_ITEMS: Tab[] = [];
