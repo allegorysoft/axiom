@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.Localization.Domain\Allegory.Axiom.Localization.Domain.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\framework\src\ef-core\Allegory.Axiom.EntityFrameworkCore.Relational\Allegory.Axiom.EntityFrameworkCore.Relational.csproj"/>
+    </ItemGroup>
+
+</Project>
