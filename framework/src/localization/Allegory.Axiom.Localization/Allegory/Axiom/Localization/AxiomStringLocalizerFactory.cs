@@ -1,21 +1,19 @@
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.Localization;
 
 public class AxiomStringLocalizerFactory(
     IServiceProvider serviceProvider,
-    IOptions<LocalizationOptions> options,
+    ILocalizationStore store,
     ResourceManagerStringLocalizerFactory localizerFactory)
     : IStringLocalizerFactory, ISingletonService
 {
     protected IServiceProvider ServiceProvider { get; } = serviceProvider;
-    protected LocalizationOptions Options { get; } = options.Value;
+    protected ILocalizationStore Store { get; } = store;
     protected ResourceManagerStringLocalizerFactory LocalizerFactory { get; } = localizerFactory;
     protected internal ConcurrentDictionary<string, IStringLocalizer> LocalizerCache { get; } = new();
 
@@ -28,15 +26,14 @@ public class AxiomStringLocalizerFactory(
             return localizer;
         }
 
-        var options = Options.Resources.FirstOrDefault(o => o.Name == resourceName);
-        if (options == null)
+        if (Store.Contexts.TryGetValue(resourceName, out var context))
         {
-            return LocalizerFactory.Create(resourceType);
+            return LocalizerCache.GetOrAdd(
+                resourceName,
+                _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, context));
         }
 
-        return LocalizerCache.GetOrAdd(
-            resourceName,
-            _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options));
+        return LocalizerFactory.Create(resourceType);
     }
 
     public virtual IStringLocalizer Create(string baseName, string location)
@@ -46,14 +43,13 @@ public class AxiomStringLocalizerFactory(
             return localizer;
         }
 
-        var options = Options.Resources.FirstOrDefault(o => o.Name == baseName);
-        if (options == null)
+        if (Store.Contexts.TryGetValue(baseName, out var context))
         {
-            return LocalizerFactory.Create(baseName, location);
+            return LocalizerCache.GetOrAdd(
+                baseName,
+                _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, context));
         }
 
-        return LocalizerCache.GetOrAdd(
-            baseName,
-            _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, options));
+        return LocalizerFactory.Create(baseName, location);
     }
 }

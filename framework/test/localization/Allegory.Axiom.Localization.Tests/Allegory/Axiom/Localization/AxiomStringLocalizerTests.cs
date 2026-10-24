@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Globalization;
 using System.Linq;
 using Allegory.Axiom.Localization.Resources;
@@ -138,24 +139,18 @@ public class AxiomStringLocalizerTests(IntegrationTestFixture fixture) : IClassF
     }
 
     [Fact]
-    public void ShouldReflectDynamicTranslationChangesAcrossAllLocalizers()
+    public void ShouldReflectLocalizationContextChanges()
     {
-        CultureInfo.CurrentUICulture = new CultureInfo("en");
-        var factory = fixture.Service<IStringLocalizerFactory>();
-        var localizer1 = (IAxiomStringLocalizer) factory.Create(typeof(LocalizationResource));
-        var localizer2 = factory.Create(ResourceNameAttribute.Get<LocalizationResource>(), string.Empty);
-        var localizer3 = fixture.Service<IStringLocalizer<LocalizationResource>>();
+        var strings = Localizer.GetAllStrings(includeParentCultures: true);
+        strings.Count().ShouldBeGreaterThan(0);
 
-        localizer1.Translations["en"].TryGetValue("some-key", out _).ShouldBeFalse();
-        localizer2["some-key"].ResourceNotFound.ShouldBeTrue();
-        localizer3["some-key"].ResourceNotFound.ShouldBeTrue();
+        var store = fixture.Service<ILocalizationStore>();
+        store.Contexts.TryGetValue(ResourceNameAttribute.Get<LocalizationResource>(), out var context);
 
-        localizer1.Translations["en"]["some-key"] = "dynamic-translation";
+        context.ShouldNotBeNull();
+        context.Translations = FrozenDictionary<string, FrozenDictionary<string, string>>.Empty;
 
-        localizer1.Translations["en"].TryGetValue("some-key", out _).ShouldBeTrue();
-        localizer2["some-key"].ResourceNotFound.ShouldBeFalse();
-        localizer2["some-key"].Value.ShouldBe("dynamic-translation");
-        localizer3["some-key"].ResourceNotFound.ShouldBeFalse();
-        localizer3["some-key"].Value.ShouldBe("dynamic-translation");
+        strings = Localizer.GetAllStrings(includeParentCultures: true);
+        strings.Count().ShouldBe(0);
     }
 }
