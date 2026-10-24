@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { type TabGroup, profileTabStore } from '@axiomframework/react-core';
+
 import {
   LanguagesIcon,
   Layout01Icon,
@@ -8,6 +8,8 @@ import {
   TextFontIcon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
+
+import { type TabGroup, profileTabStore } from '@axiomframework/react-core';
 
 const GROUPS: TabGroup[] = [
   {
@@ -30,6 +32,7 @@ const GROUPS: TabGroup[] = [
       },
     ],
   },
+
   {
     title: 'Language & Region',
     children: [

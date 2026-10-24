@@ -1,5 +1,5 @@
-import { form } from '../form-wrapper';
-import { number, toggle } from '../utils';
+import { form } from '../shared/form-wrapper';
+import { number, toggle } from '../shared/utils';
 
 export default function PasswordPolicySettings() {
   return form('password-policy', [

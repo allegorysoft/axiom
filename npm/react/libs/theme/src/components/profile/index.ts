@@ -1,1 +1,1 @@
-export { ProfileSettingsDialogContributor } from './profile-settings-dialog-contributor';
+export { ProfileSettingsDialog } from './profile-settings-dialog.tsx';

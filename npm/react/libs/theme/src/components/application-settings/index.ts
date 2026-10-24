@@ -1,1 +1,1 @@
-export { AppSettingsDialogContributor } from './app-settings-dialog-contributor';
+export { ApplicationSettingsDialog } from './application-settings-dialog.tsx';

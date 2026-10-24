@@ -1,5 +1,5 @@
-import { form } from '../form-wrapper';
-import { toggle } from '../utils';
+import { form } from '../shared/form-wrapper';
+import { toggle } from '../shared/utils';
 
 export default function UserProfileSettings() {
   return form('user-profile', [
