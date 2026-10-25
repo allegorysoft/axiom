@@ -9,8 +9,8 @@ internal sealed class LocalizationEntityFrameworkCoreMongoDbPackage : IConfigure
 {
     static LocalizationEntityFrameworkCoreMongoDbPackage()
     {
-        LocalizationDbContext.Contributors.Remove(LocalizationModelBuilderContributor.Instance);
-        LocalizationDbContext.Contributors.Add(MongoDbLocalizationModelBuilderContributor.Instance);
+        LocalizationDbContext.Contributors.Remove(LocalizationRelationalModelBuilderContributor.Instance);
+        LocalizationDbContext.Contributors.Add(LocalizationMongoDbModelBuilderContributor.Instance);
     }
 
     public static Task ConfigureAsync(IHostApplicationBuilder builder)

@@ -158,5 +158,7 @@
     <Project Path="modules/localization/src/Allegory.Axiom.Localization.EntityFrameworkCore.MongoDB/Allegory.Axiom.Localization.EntityFrameworkCore.MongoDB.csproj" />
     <Project Path="modules/localization/src/Allegory.Axiom.Localization.EntityFrameworkCore/Allegory.Axiom.Localization.EntityFrameworkCore.csproj" />
   </Folder>
-  <Folder Name="/modules/localization/test/" />
+  <Folder Name="/modules/localization/test/">
+    <Project Path="modules/localization/test/Allegory.Axiom.Localization.Domain.Tests/Allegory.Axiom.Localization.Domain.Tests.csproj" />
+  </Folder>
 </Solution>

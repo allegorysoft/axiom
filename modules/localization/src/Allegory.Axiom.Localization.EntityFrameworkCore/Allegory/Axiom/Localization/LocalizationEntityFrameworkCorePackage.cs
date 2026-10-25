@@ -9,7 +9,10 @@ internal sealed class LocalizationEntityFrameworkCorePackage : IConfigureApplica
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddAxiomDbContext<LocalizationDbContext>();
+        builder.Services.AddAxiomDbContext<LocalizationDbContext>(o =>
+        {
+            o.AddRepository(typeof(EfCoreLocalizationRecordRepository<>));
+        });
 
         return Task.CompletedTask;
     }

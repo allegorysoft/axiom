@@ -11,7 +11,7 @@ public class LocalizationDbContext(
 {
     public static IList<IModelBuilderContributor> Contributors { get; } =
     [
-        LocalizationModelBuilderContributor.Instance
+        LocalizationRelationalModelBuilderContributor.Instance
     ];
 
     public DbSet<LocalizationRecord> Localizations => Set<LocalizationRecord>();
