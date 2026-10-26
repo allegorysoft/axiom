@@ -149,8 +149,8 @@ public class AxiomStringLocalizerTests(IntegrationTestFixture fixture) : IClassF
         var strings = localizer.GetAllStrings(includeParentCultures: true);
         strings.Count().ShouldBeGreaterThan(0);
 
-        var store = provider.GetRequiredService<ILocalizationStore>();
-        store.Contexts.TryGetValue(ResourceNameAttribute.Get<LocalizationResource>(), out var context);
+        var localizationProvider = provider.GetRequiredService<ILocalizationProvider>();
+        localizationProvider.Contexts.TryGetValue(ResourceNameAttribute.Get<LocalizationResource>(), out var context);
 
         context.ShouldNotBeNull();
         context.Translations = FrozenDictionary<string, FrozenDictionary<string, string>>.Empty;

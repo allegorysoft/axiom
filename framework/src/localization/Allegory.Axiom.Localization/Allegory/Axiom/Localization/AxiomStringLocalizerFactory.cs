@@ -8,12 +8,12 @@ namespace Allegory.Axiom.Localization;
 
 public class AxiomStringLocalizerFactory(
     IServiceProvider serviceProvider,
-    ILocalizationStore store,
+    ILocalizationProvider localizationProvider,
     ResourceManagerStringLocalizerFactory localizerFactory)
     : IStringLocalizerFactory, ISingletonService
 {
     protected IServiceProvider ServiceProvider { get; } = serviceProvider;
-    protected ILocalizationStore Store { get; } = store;
+    protected ILocalizationProvider LocalizationProvider { get; } = localizationProvider;
     protected ResourceManagerStringLocalizerFactory LocalizerFactory { get; } = localizerFactory;
     protected internal ConcurrentDictionary<string, IStringLocalizer> LocalizerCache { get; } = new();
 
@@ -26,7 +26,7 @@ public class AxiomStringLocalizerFactory(
             return localizer;
         }
 
-        if (Store.Contexts.TryGetValue(resourceName, out var context))
+        if (LocalizationProvider.Contexts.TryGetValue(resourceName, out var context))
         {
             return LocalizerCache.GetOrAdd(
                 resourceName,
@@ -43,7 +43,7 @@ public class AxiomStringLocalizerFactory(
             return localizer;
         }
 
-        if (Store.Contexts.TryGetValue(baseName, out var context))
+        if (LocalizationProvider.Contexts.TryGetValue(baseName, out var context))
         {
             return LocalizerCache.GetOrAdd(
                 baseName,
