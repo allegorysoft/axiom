@@ -5,6 +5,6 @@ export {
   userActionStore,
   useUserActionGroups,
   useUserActionGroup,
-  useUserActionItems,
+  useUserActions,
   useUserActionStore,
 } from './user-action-store';

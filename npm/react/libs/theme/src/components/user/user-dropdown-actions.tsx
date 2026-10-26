@@ -7,7 +7,7 @@ import {
   getOrCreateAuthProvider,
   useTranslation,
   useUser,
-  useUserActionItems,
+  useUserActions,
 } from '@axiomframework/react-core';
 
 import {
@@ -23,7 +23,7 @@ export function UserDropdownActions() {
   const t = useTranslation();
   const navigate = useNavigate();
   const authProvider = getOrCreateAuthProvider().get();
-  const actions = useUserActionItems();
+  const userActions = useUserActions();
 
   function logOut() {
     authProvider.logout(() => navigate('/'));
@@ -55,15 +55,15 @@ export function UserDropdownActions() {
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
-      {actions.map((action) => {
+      {userActions.map((item) => {
         return (
           <DropdownMenuItem
-            key={action.title}
+            key={item.title}
             className="gap-2 px-2 py-2"
-            onClick={() => action.action()}
+            onClick={() => item.action()}
           >
-            {action.icon}
-            <span>{action.title}</span>
+            {item.icon}
+            <span>{item.title}</span>
           </DropdownMenuItem>
         );
       })}

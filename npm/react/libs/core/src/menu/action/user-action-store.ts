@@ -7,5 +7,5 @@ export const {
   useActionStore: useUserActionStore,
   useActionGroups: useUserActionGroups,
   useActionGroup: useUserActionGroup,
-  useActionItems: useUserActionItems,
+  useActionItems: useUserActions,
 } = createActionHooks(userActionStore);
