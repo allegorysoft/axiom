@@ -1,5 +1,5 @@
 import { configureProfile } from './profile/config';
-import { configureApplicationSettings } from './application-settings/config';
+import { configureApplicationSettings } from './app-settings/config';
 
 export function configureTheme() {
   configureProfile();

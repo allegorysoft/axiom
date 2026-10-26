@@ -55,8 +55,8 @@ export function UserDropdownActions() {
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
-      {userActions.map((item) => {
-        return (
+      {userActions?.length ? (
+        userActions.map((item) => (
           <DropdownMenuItem
             key={item.title}
             className="gap-2 px-2 py-2"
@@ -65,8 +65,16 @@ export function UserDropdownActions() {
             {item.icon}
             <span>{item.title}</span>
           </DropdownMenuItem>
-        );
-      })}
+        ))
+      ) : (
+        <DropdownMenuItem
+          key="NoItemFound"
+          className="gap-2 px-2 py-2"
+          disabled
+        >
+          {t('AxiomBase:NoItemFound')}
+        </DropdownMenuItem>
+      )}
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
