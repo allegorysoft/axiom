@@ -1,7 +1,9 @@
 using System.Collections.Frozen;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Allegory.Axiom.Localization.Resources;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Shouldly;
 using Xunit;
@@ -139,18 +141,21 @@ public class AxiomStringLocalizerTests(IntegrationTestFixture fixture) : IClassF
     }
 
     [Fact]
-    public void ShouldReflectLocalizationContextChanges()
+    public async Task ShouldReflectLocalizationContextChanges()
     {
-        var strings = Localizer.GetAllStrings(includeParentCultures: true);
+        var provider = await fixture.CreateServiceProviderAsync(null);
+        var localizer = provider.GetRequiredService<IStringLocalizer<LocalizationResource>>();
+
+        var strings = localizer.GetAllStrings(includeParentCultures: true);
         strings.Count().ShouldBeGreaterThan(0);
 
-        var store = fixture.Service<ILocalizationStore>();
+        var store = provider.GetRequiredService<ILocalizationStore>();
         store.Contexts.TryGetValue(ResourceNameAttribute.Get<LocalizationResource>(), out var context);
 
         context.ShouldNotBeNull();
         context.Translations = FrozenDictionary<string, FrozenDictionary<string, string>>.Empty;
 
-        strings = Localizer.GetAllStrings(includeParentCultures: true);
+        strings = localizer.GetAllStrings(includeParentCultures: true);
         strings.Count().ShouldBe(0);
     }
 }
