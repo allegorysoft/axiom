@@ -8,7 +8,8 @@
     "Language": "Dil",
     "LanguageDescription": "Tercih ettiğiniz dili seçin",
     "Support": "Destek",
-    "Documents": "Doküman"
+    "Documents": "Doküman",
+    "NoItemFound": "Hiçbir öğe bulunamadı"
   },
   "AxiomTheme": {
     "Theme": "Tema",
