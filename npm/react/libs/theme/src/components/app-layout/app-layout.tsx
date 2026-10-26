@@ -3,10 +3,8 @@ import { Outlet } from 'react-router';
 import { getCookie } from '@axiomframework/react-core';
 
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
-import { SettingsDialogProvider } from '../shared/settings-dialog-provider';
+import { SettingsDialogProvider } from '../settings-dialog/settings-dialog-provider';
 import { AppSidebar } from '../app-sidebar/app-sidebar';
-import { ProfileSettingsDialogContributor } from '../profile/profile-settings-dialog-contributor';
-import { AppSettingsDialogContributor } from '../application-settings/app-settings-dialog-contributor';
 
 import { Header } from './header';
 import {
@@ -15,6 +13,7 @@ import {
   useScale,
   useRadius,
 } from '../preferences/preferences-hooks';
+import { SettingsDialogHost } from '../settings-dialog/host/settings-dialog-host';
 
 export function AppLayout() {
   const state = getCookie<boolean>('sidebar_state');
@@ -37,8 +36,7 @@ export function AppLayout() {
           </div>
         </SidebarInset>
 
-        <ProfileSettingsDialogContributor />
-        <AppSettingsDialogContributor />
+        <SettingsDialogHost />
       </SettingsDialogProvider>
     </SidebarProvider>
   );

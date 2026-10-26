@@ -59,6 +59,6 @@ export class ApiClient {
 }
 
 let apiClient: ApiClient | undefined;
-export function getOrCreateApiClient() {
+export function getApiClient() {
   return (apiClient ??= new ApiClient());
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 import type { Nav, NavGroup } from '@axiomframework/react-core';
-import { isBranchActive, findStack } from '../nav/nav-utils';
+import { isBranchActive, findStack } from '../menu/nav/nav-utils';
 
 const nav = (n: Partial<Nav>): Nav => n as Nav;
 const group = (children: Nav[]): NavGroup => ({ children } as NavGroup);

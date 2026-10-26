@@ -1,7 +1,7 @@
-import { provideProfileTabs } from './profile/tab-provider';
-import { provideAppSettingsTabs } from './application-settings/tab-provider';
+import { configureProfile } from './profile/config';
+import { configureApplicationSettings } from './application-settings/config';
 
 export function configureTheme() {
-  provideProfileTabs();
-  provideAppSettingsTabs();
+  configureProfile();
+  configureApplicationSettings();
 }

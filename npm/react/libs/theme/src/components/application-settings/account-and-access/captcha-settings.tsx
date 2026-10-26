@@ -1,5 +1,5 @@
-import { form } from '../form-wrapper';
-import { text, toggle } from '../utils';
+import { form } from '../shared/form-wrapper';
+import { text, toggle } from '../shared/utils';
 
 export default function CaptchaSettings() {
   return form('captcha', [

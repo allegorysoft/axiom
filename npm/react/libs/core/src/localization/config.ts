@@ -8,7 +8,7 @@ import {
   remoteLocalizationProvider,
 } from './localization-providers';
 import { seed } from './localization-utils';
-import { withGroupName } from '../nav/nav-utils';
+import { withGroupName } from '../menu/nav/nav-utils';
 
 export type LocalizationOptions = {
   readonly defaultCulture?: string;

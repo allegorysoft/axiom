@@ -1,5 +1,5 @@
-import { form } from '../form-wrapper';
-import { number, text, toggle } from '../utils';
+import { form } from '../shared/form-wrapper';
+import { number, text, toggle } from '../shared/utils';
 
 export default function EmailingSettings() {
   return form('emailing', [

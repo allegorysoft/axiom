@@ -12,22 +12,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { SidebarMenuButton, SidebarMenuItem, useSidebar } from '../ui/sidebar';
 
-import { useSettingsDialog } from '../shared/settings-dialog-provider';
-
-import { MainContent } from './main-content';
+import { UserDropdownActions } from './user-dropdown-actions';
 
 type Props = { placement?: 'navbar' | 'sidebar' };
 export function UserDropdown({ placement = 'navbar' }: Props) {
-  const context = useSettingsDialog();
-  const user = useUser();
-
   const { isMobile } = useSidebar();
   const [open, setOpen] = useState(false);
 
-  if (!context) {
-    throw new Error('UserDropdown must be used within SettingsDialogProvider.');
-  }
-
+  const user = useUser();
   if (!user) {
     return null;
   }
@@ -69,14 +61,8 @@ export function UserDropdown({ placement = 'navbar' }: Props) {
         align="end"
         side={isInSidebar && !isMobile ? 'right' : 'bottom'}
         className="w-64 space-y-1 p-2"
-        finalFocus={context.dialogOpen ? false : context.triggerRef}
       >
-        <MainContent
-          onOpenSettings={(dialogName) => {
-            setOpen(false);
-            context.openDialog(dialogName);
-          }}
-        />
+        <UserDropdownActions />
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -88,11 +74,6 @@ function MenuTrigger({
   placement,
   ...props
 }: Pick<Props, 'placement'> & React.ComponentProps<'button'>) {
-  const context = useSettingsDialog();
-  if (!context) {
-    throw new Error('UserDropdown must be used within SettingsDialogProvider.');
-  }
-
   const { isMobile, state } = useSidebar();
 
   const isInSidebar = placement === 'sidebar';
@@ -101,7 +82,6 @@ function MenuTrigger({
   if (isInSidebar && !collapsedSidebar) {
     return (
       <SidebarMenuButton
-        ref={context.triggerRef}
         size="lg"
         aria-label="User menu"
         className="gap-3 aria-expanded:bg-sidebar-accent"
@@ -112,7 +92,6 @@ function MenuTrigger({
 
   return (
     <button
-      ref={context.triggerRef}
       type="button"
       aria-label="User menu"
       className="cursor-pointer rounded-full outline-none transition-transform active:scale-95"

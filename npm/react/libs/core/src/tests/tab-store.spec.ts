@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { DEFAULT_MENU_GROUP } from '../menu/menu';
-import type { Tab, TabStore } from '../tab/tab';
-import { createTabStore } from '../tab/tab-store';
+import type { Tab, TabStore } from '../menu/tab/tab';
+import { createTabStore } from '../menu/tab/tab-store';
 
 const makeTab = (title: string, isActive = false): Tab => ({
   title,

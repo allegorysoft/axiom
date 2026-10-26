@@ -1,21 +1,21 @@
 import { useState } from 'react';
 
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Checkbox } from '../ui/checkbox';
-import { Field, FieldGroup, FieldLabel, FieldDescription } from '../ui/field';
-import { Separator } from '../ui/separator';
+import { Button } from '../../ui/button';
+import { Input } from '../../ui/input';
+import { Checkbox } from '../../ui/checkbox';
+import { Field, FieldGroup, FieldLabel, FieldDescription } from '../../ui/field';
+import { Separator } from '../../ui/separator';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../ui/select';
+} from '../../ui/select';
 
 import type { FormDefinition } from './models';
-import { useDrafts } from './draft-hooks';
-import { draftStore } from './draft-store';
+import { useDrafts } from '../draft-hooks';
+import { draftStore } from '../draft-store';
 
 export function SettingsForm({ definition }: { definition: FormDefinition }) {
   const saved = useDrafts((state) => state.saved[definition.id]);

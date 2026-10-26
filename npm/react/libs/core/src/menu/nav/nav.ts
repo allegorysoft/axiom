@@ -4,7 +4,7 @@ import type {
   MenuState,
   MenuPatch,
   MenuStore,
-} from '../menu/menu';
+} from '../menu';
 
 export interface Nav extends MenuNode<Nav> {
   url?: string;

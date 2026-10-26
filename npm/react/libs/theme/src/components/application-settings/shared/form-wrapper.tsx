@@ -1,4 +1,4 @@
-import { SettingField } from './models';
+import type { SettingField } from './models';
 import { SettingsForm } from './settings-form';
 
 export function form(id: string, fields: SettingField[]) {
