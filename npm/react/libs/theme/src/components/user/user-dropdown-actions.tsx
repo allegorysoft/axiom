@@ -1,16 +1,13 @@
 import { useNavigate } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  LogOutIcon as LogOut,
-  SettingsIcon as Settings,
-  UserRoundIcon as UserRound,
-} from '@hugeicons/core-free-icons';
+import { LogOutIcon as LogOut } from '@hugeicons/core-free-icons';
 
 import {
   getAvatarFallbackText,
   getOrCreateAuthProvider,
   useTranslation,
   useUser,
+  useUserActionItems,
 } from '@axiomframework/react-core';
 
 import {
@@ -21,20 +18,12 @@ import {
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 
-//TODO: Create store for user menu dropdown options
-const USER_MENU_OPTIONS = [
-  { id: 'profile', title: 'Profile', icon: UserRound },
-  { id: 'settings', title: 'Settings', icon: Settings },
-] as const;
-export function MainContent({
-  onOpenSettings,
-}: {
-  onOpenSettings: (dialogName: (typeof USER_MENU_OPTIONS)[number]['id']) => void;
-}) {
+export function UserDropdownActions() {
   const user = useUser();
   const t = useTranslation();
   const navigate = useNavigate();
   const authProvider = getOrCreateAuthProvider().get();
+  const actions = useUserActionItems();
 
   function logOut() {
     authProvider.logout(() => navigate('/'));
@@ -66,16 +55,18 @@ export function MainContent({
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 
-      {USER_MENU_OPTIONS.map((item) => (
-        <DropdownMenuItem
-          key={item.title}
-          className="gap-2 px-2 py-2"
-          onClick={() => onOpenSettings(item.id)}
-        >
-          <HugeiconsIcon icon={item.icon} strokeWidth={2} />
-          <span>{item.title}</span>
-        </DropdownMenuItem>
-      ))}
+      {actions.map((action) => {
+        return (
+          <DropdownMenuItem
+            key={action.title}
+            className="gap-2 px-2 py-2"
+            onClick={() => action.action()}
+          >
+            {action.icon}
+            <span>{action.title}</span>
+          </DropdownMenuItem>
+        );
+      })}
 
       <DropdownMenuSeparator className="mx-1 my-1" />
 

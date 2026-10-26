@@ -13,6 +13,7 @@ import {
   useScale,
   useRadius,
 } from '../preferences/preferences-hooks';
+import { SettingsDialogHost } from '../settings-dialog/host/settings-dialog-host';
 
 export function AppLayout() {
   const state = getCookie<boolean>('sidebar_state');
@@ -34,6 +35,8 @@ export function AppLayout() {
             <Outlet />
           </div>
         </SidebarInset>
+
+        <SettingsDialogHost />
       </SettingsDialogProvider>
     </SidebarProvider>
   );

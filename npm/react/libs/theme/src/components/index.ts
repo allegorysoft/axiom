@@ -16,8 +16,6 @@ export * from './ui/separator';
 export * from './password-input';
 export * from './app-sidebar/index';
 export * from './settings-dialog/index';
-export * from './application-settings/index';
-export * from './profile/index';
 export * from './preferences/index';
 export * from './app-layout/index';
 export * from './config';
