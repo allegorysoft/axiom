@@ -10,6 +10,7 @@ export * from './menu/index';
 export * from './menu/nav/index';
 export * from './menu/tab/index';
 export * from './menu/action/index';
+export * from './menu/workspace-tab/index';
 export * from './storage/index';
 export * from './store/index';
 export * from './theme/index';
