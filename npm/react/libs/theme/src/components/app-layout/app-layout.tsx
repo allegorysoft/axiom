@@ -1,22 +1,30 @@
-import { Outlet } from 'react-router';
-
-import { getCookie } from '@axiomframework/react-core';
+import {
+  getCookie,
+  useWorkspaceTabs,
+  workspaceTabStore,
+} from '@axiomframework/react-core';
 
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
-import { SettingsDialogProvider } from '../settings-dialog/settings-dialog-provider';
-import { AppSidebar } from '../app-sidebar/app-sidebar';
+import { Tabs } from '../ui/tabs';
 
-import { Header } from './header';
 import {
   useColorTheme,
   useFont,
   useScale,
   useRadius,
 } from '../preferences/preferences-hooks';
+import { AppSidebar } from '../app-sidebar/app-sidebar';
+import { SettingsDialogProvider } from '../settings-dialog/settings-dialog-provider';
 import { SettingsDialogHost } from '../settings-dialog/host/settings-dialog-host';
+
+import { Header } from './header';
+import { AppBreadcrumb } from './app-breadcrumb';
+import { WorkspaceTabLayout } from '../workspace-tab/workspace-tab-layout';
 
 export function AppLayout() {
   const state = getCookie<boolean>('sidebar_state');
+  const tabs = useWorkspaceTabs();
+  const activeTab = tabs.find((tab) => tab.active);
 
   useColorTheme();
   useFont();
@@ -29,11 +37,22 @@ export function AppLayout() {
         <AppSidebar />
 
         <SidebarInset>
-          <Header />
+          <Tabs
+            value={activeTab?.url ?? tabs[0]?.url ?? null}
+            className="mx-1 gap-0"
+            onValueChange={(url) => {
+              if (typeof url === 'string') {
+                workspaceTabStore.setActive(url);
+              }
+            }}
+          >
+            <Header />
+            <AppBreadcrumb />
 
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-1">
-            <Outlet />
-          </div>
+            <div className="mb-2 flex flex-1 flex-col gap-3 px-1 py-1">
+              <WorkspaceTabLayout />
+            </div>
+          </Tabs>
         </SidebarInset>
 
         <SettingsDialogHost />

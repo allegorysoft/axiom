@@ -1,143 +1,106 @@
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Chart,
-  Home,
-  SchoolReportCardIcon,
-  X,
-} from '@hugeicons/core-free-icons';
+import { useEffect, useRef, useState } from 'react';
+import { useLocation, useNavigate, useOutlet } from 'react-router';
 
 import {
+  type Nav,
+  type WorkspaceTab,
+  useNavGroups,
   useWorkspaceTabs,
   workspaceTabStore,
 } from '@axiomframework/react-core';
 
-import { Button } from '../ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '../ui/card';
-import { Outlet } from 'react-router';
-
-const TABS_LIST_CLASS_NAME =
-  'h-10! p-0.5! pb-0! rounded-b-none! bg-card! border-0!';
-const TABS_TRIGGER_CLASS_NAME =
-  'h-full! rounded-b-none! border-0! hover:bg-card/50 data-active:bg-background!';
+import { TabsContent } from '../ui/tabs';
 
 export function WorkspaceTabLayout() {
   const tabs = useWorkspaceTabs();
+  const activeTab = tabs.find((tab) => tab.active) ?? tabs[0];
 
-  return (
-    <Tabs defaultValue={tabs.at(0)!.url as string} className="w-[400px]">
-      <TabsList className={TABS_LIST_CLASS_NAME}>
-        {tabs.map((tab) => (
-          <TabsTrigger
-            key={tab.url}
-            value={tab.url}
-            nativeButton={false}
-            className={TABS_TRIGGER_CLASS_NAME}
-            render={<div className="inline-flex items-center gap-3 " />}
-          >
-            {tab.icon}
-            {tab.title}
-            {tab.active === true && (
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`Close ${tab.title} tab`}
-                onClick={() => workspaceTabStore.remove(tab.title)}
-              >
-                <HugeiconsIcon icon={X} />
-              </Button>
-            )}
-          </TabsTrigger>
-        ))}
-      </TabsList>
+  const groups = useNavGroups();
+  const items = groups.flatMap((group) => group.children);
 
-      <Outlet />
-    </Tabs>
-  );
-}
+  const outlet = useOutlet();
 
-function Overview() {
-  return (
-    <TabsContent value="overview">
-      <Card>
-        <CardHeader>
-          <CardTitle>Overview</CardTitle>
-          <CardDescription>
-            View your key metrics and recent project activity. Track progress
-            across all your active projects.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          You have 12 active projects and 3 pending tasks.
-        </CardContent>
-      </Card>
+  if (!tabs.length) {
+    return outlet;
+  }
+
+  return tabs.map((tab) => (
+    <TabsContent key={tab.url} value={tab.url} keepMounted>
+      <WorkspaceTabPage tab={tab} active={tab === activeTab} items={items} />
     </TabsContent>
-  );
+  ));
 }
 
-function Analytics() {
-  return (
-    <TabsContent value="analytics">
-      <Card>
-        <CardHeader>
-          <CardTitle>Analytics</CardTitle>
-          <CardDescription>
-            Track performance and user engagement metrics. Monitor trends and
-            identify growth opportunities.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground border-0">
-          Page views are up 25% compared to last month.
-        </CardContent>
-      </Card>
-    </TabsContent>
-  );
+type Props = {
+  tab: WorkspaceTab;
+  active: boolean;
+  items: Nav[];
+};
+function WorkspaceTabPage({ tab, active, items }: Props) {
+  const outlet = useOutlet();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const url = location.pathname + location.search + location.hash;
+  const previousLocation = useRef(location);
+  const savedUrl = useRef<string | undefined>(undefined);
+
+  const [content, setContent] = useState(active && !tab.empty ? outlet : null);
+
+  useEffect(() => {
+    const changed = previousLocation.current !== location;
+    previousLocation.current = location;
+
+    if (!active) {
+      return;
+    }
+
+    const targetUrl = savedUrl.current ?? findNav(items, tab.url)?.url;
+    if (!changed && targetUrl && targetUrl !== url) {
+      void navigate(targetUrl);
+      return;
+    }
+
+    if (tab.empty && !changed) {
+      return;
+    }
+
+    if (changed || !content) {
+      setContent(outlet);
+    }
+
+    if (savedUrl.current !== url || tab.empty) {
+      savedUrl.current = url;
+      const item = findNav(items, location.pathname);
+
+      workspaceTabStore.patch(tab.url, {
+        empty: false,
+        title: item?.title ?? location.pathname,
+        ...(item?.icon ? { icon: item.icon } : {}),
+      });
+    }
+  }, [active, content, items, location, navigate, outlet, tab, url]);
+
+  return content;
 }
 
-function Reports() {
-  return (
-    <TabsContent value="reports">
-      <Card>
-        <CardHeader>
-          <CardTitle>Reports</CardTitle>
-          <CardDescription>
-            Generate and download your detailed reports. Export data in multiple
-            formats for analysis.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          You have 5 reports ready and available to export.
-        </CardContent>
-      </Card>
-    </TabsContent>
-  );
-}
+function findNav(items: Nav[], url: string): Nav | undefined {
+  for (const item of items) {
+    if (item.url?.replace(/^\//, '') === url.replace(/^\//, '')) {
+      return item;
+    }
 
-export function createTabs() {
-  workspaceTabStore.add({
-    icon: <HugeiconsIcon icon={Home}></HugeiconsIcon>,
-    title: 'Overview',
-    active: false,
-    url: 'overview',
-  });
-  workspaceTabStore.add({
-    icon: <HugeiconsIcon icon={Chart}></HugeiconsIcon>,
-    title: 'Analytics',
-    active: false,
-    url: 'analytics',
-  });
-  workspaceTabStore.add({
-    icon: <HugeiconsIcon icon={SchoolReportCardIcon}></HugeiconsIcon>,
-    title: 'Reports',
-    active: false,
-    url: 'reports',
-  });
-}
+    const nested = findNav(
+      [
+        ...(item.children ?? []),
+        ...(item.groups?.flatMap((group) => group.children) ?? []),
+      ],
+      url,
+    );
 
-createTabs();
+    if (nested) {
+      return nested;
+    }
+  }
+  return undefined;
+}
