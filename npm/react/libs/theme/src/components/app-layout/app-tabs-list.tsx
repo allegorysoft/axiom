@@ -3,6 +3,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { FileEmptyIcon, Plus, X } from '@hugeicons/core-free-icons';
 
 import {
+  useTranslation,
   useWorkspaceTabs,
   workspaceTabStore,
 } from '@axiomframework/react-core';
@@ -16,6 +17,7 @@ const TABS_TRIGGER_CLASS_NAME =
   'h-full! rounded-b-none! border-0! hover:bg-background/10 data-active:bg-background!';
 
 export function AppTabsList() {
+  const t = useTranslation();
   const tabs = useWorkspaceTabs();
   const initialMount = useRef(true);
 
@@ -40,13 +42,13 @@ export function AppTabsList() {
           render={<div className="inline-flex items-center" />}
         >
           {tab.icon}
-          {tab.title}
+          {t(tab.title)}
 
           <Button
             variant="ghost"
             size="icon-xs"
             aria-label={`Close ${tab.title} tab`}
-            className="opacity-0 group-hover:opacity-100"
+            // className="opacity-100 xl:opacity-0 xl:group-hover:opacity-100"
             onClick={(event) => {
               event.stopPropagation();
               workspaceTabStore.remove(tab.url);
