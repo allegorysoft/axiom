@@ -6,6 +6,7 @@ export interface WorkspaceTab {
   url: string;
   title: string;
   active: boolean;
+  empty?: boolean;
 }
 
 export type WorkspaceTabState = {
@@ -13,9 +14,9 @@ export type WorkspaceTabState = {
 };
 
 export type WorkspaceTabStore = AxiomStore<WorkspaceTabState> & {
-  find(title: string): WorkspaceTab | undefined;
+  find(url: string): WorkspaceTab | undefined;
   add(tab: WorkspaceTab): void;
-  patch(title: string, tab: Partial<WorkspaceTab>): void;
-  setActive(title: string, active?: boolean): void;
-  remove(title: string): void;
+  patch(url: string, tab: Partial<WorkspaceTab>): void;
+  setActive(url: string, active?: boolean): void;
+  remove(url: string): void;
 };

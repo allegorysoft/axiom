@@ -15,58 +15,73 @@ export const workspaceTabStore: WorkspaceTabStore = Object.assign(
   {},
   baseStore,
   {
-    find(title: string): WorkspaceTab | undefined {
-      return find(title, baseStore.get().tabs);
+    find(url: string): WorkspaceTab | undefined {
+      return find(url, baseStore.get().tabs);
     },
+
     add(tab: WorkspaceTab): void {
-      const existing = find(tab.title, baseStore.get().tabs);
+      const emptyTab =
+        tab.empty && baseStore.get().tabs.find((item) => item.empty);
+      if (emptyTab) {
+        this.setActive(emptyTab.url);
+        return;
+      }
 
-      if (existing) {
+      if (this.find(tab.url)) {
         return;
       }
 
       baseStore.set((prev) => ({
-        tabs: [...prev.tabs, tab],
+        tabs: [
+          ...prev.tabs.map((existing) =>
+            tab.active ? { ...existing, active: false } : existing,
+          ),
+          { ...tab, active: tab.active || prev.tabs.length === 0 },
+        ],
       }));
     },
-    patch(title: string, tab: Partial<WorkspaceTab>): void {
-      const existing = find(title, baseStore.get().tabs);
 
-      if (!existing) {
-        throw new Error(`navStore.patchGroup: group "${title}" not found`);
-      }
-
-      const patched = { ...existing, ...tab };
-
+    patch(url: string, changes: Partial<WorkspaceTab>): void {
       baseStore.set((prev) => ({
-        tabs: prev.tabs.map((item) => (item === existing ? patched : item)),
+        tabs: prev.tabs.map((tab) =>
+          equals(tab.url, url) ? { ...tab, ...changes } : tab,
+        ),
       }));
     },
-    setActive(title: string, active = true): void {},
-    remove(title: string): void {
-      if (!find(title, baseStore.get().tabs)) {
+
+    setActive(url: string): void {
+      if (!this.find(url)) {
         return;
       }
 
+      baseStore.set((prev) => ({
+        tabs: prev.tabs.map((tab) => ({
+          ...tab,
+          active: equals(tab.url, url),
+        })),
+      }));
+    },
+
+    remove(url: string): void {
       baseStore.set((prev) => {
-        return {
-          ...prev,
-          tabs: [...prev.tabs.filter((f) => f.title !== title)],
-        };
+        const index = prev.tabs.findIndex((tab) => equals(tab.url, url));
+        const tabs = prev.tabs.filter((tab) => !equals(tab.url, url));
+        if (prev.tabs[index]?.active && tabs.length) {
+          tabs[Math.min(index, tabs.length - 1)] = {
+            ...tabs[Math.min(index, tabs.length - 1)],
+            active: true,
+          };
+        }
+        return { tabs };
       });
     },
   },
 );
 
-workspaceTabStore.setActive = function (title: string, active = true): void {
-  const existing = find(title, baseStore.get().tabs);
-  if (!existing) {
-    return;
-  }
+function find(url: string, tabs: WorkspaceTab[]): WorkspaceTab | undefined {
+  return tabs.find((tab) => equals(tab.url, url));
+}
 
-  workspaceTabStore.patch(title, { active });
-};
-
-function find(title: string, tabs: WorkspaceTab[]) {
-  return tabs.find((f) => f.title.toLocaleUpperCase() === title.toUpperCase());
+function equals(a: string, b: string): boolean {
+  return a.toLocaleUpperCase() === b.toLocaleUpperCase();
 }
