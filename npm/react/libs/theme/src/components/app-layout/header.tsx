@@ -14,7 +14,7 @@ import { UserDropdown } from '../user/user-dropdown';
 import { LoginButton } from '../login-button';
 import { Languages } from './languages';
 
-const HEADER_CLASS_NAMES = `flex h-12 px-3 md:px-4 items-center gap-2 backdrop-blur border m-1 mt-2 rounded-lg`;
+const HEADER_CLASS_NAMES = `flex h-12 px-3 md:px-4 items-center gap-2 backdrop-blur-lg border m-1 mt-2 rounded-lg`;
 const NAVBAR_BEHAVIOR_CLASS_NAMES: Record<NavbarBehavior, string> = {
   sticky: 'sticky top-1 z-50',
   scroll: '',
