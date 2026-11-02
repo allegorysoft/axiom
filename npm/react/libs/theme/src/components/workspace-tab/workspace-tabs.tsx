@@ -11,12 +11,11 @@ import {
 import { TabsList, TabsTrigger } from '../ui/tabs';
 import { Button } from '../ui/button';
 
-const TABS_LIST_CLASS_NAME =
-  'h-full! rounded-b-none! border-0! bg-card! p-0.5! pb-0! gap-1';
-const TABS_TRIGGER_CLASS_NAME =
-  'h-full! rounded-b-none! border-0! hover:bg-background/10 data-active:bg-background!';
+const COMMON_CLASS_NAME = 'border-none!';
+const TAB_LIST_CLASS_NAME = `${COMMON_CLASS_NAME}`;
+const TAB_CLASS_NAME = `${COMMON_CLASS_NAME} `;
 
-export function AppTabsList() {
+export function WorkspaceTabs() {
   const t = useTranslation();
   const tabs = useWorkspaceTabs();
   const initialMount = useRef(true);
@@ -30,15 +29,13 @@ export function AppTabsList() {
   }, [tabs.length]);
 
   return (
-    <TabsList
-      className={`${TABS_LIST_CLASS_NAME} max-w-60 md:max-w-full justify-center-safe overflow-hidden overflow-x-auto`}
-    >
+    <TabsList className={`${TAB_LIST_CLASS_NAME}`}>
       {tabs.map((tab) => (
         <TabsTrigger
           key={tab.url}
           value={tab.url}
           nativeButton={false}
-          className={`${TABS_TRIGGER_CLASS_NAME} group data-active:text-foreground!`}
+          className={`${TAB_CLASS_NAME} rounded-lg! group`}
           render={<div className="inline-flex items-center" />}
         >
           {tab.icon}
@@ -48,7 +45,6 @@ export function AppTabsList() {
             variant="ghost"
             size="icon-xs"
             aria-label={`Close ${tab.title} tab`}
-            // className="opacity-100 xl:opacity-0 xl:group-hover:opacity-100"
             onClick={(event) => {
               event.stopPropagation();
               workspaceTabStore.remove(tab.url);

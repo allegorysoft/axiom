@@ -30,7 +30,7 @@ export function AppBreadcrumb() {
   const path = tab?.empty ? [] : findGroupPath(groups, location.pathname);
 
   return (
-    <Breadcrumb className="py-3 pb-2 px-3 mb-1 border border-t-0 border-card rounded-lg rounded-t-none">
+    <Breadcrumb className="p-1 mx-1 border rounded-lg">
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink href="/">
