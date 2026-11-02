@@ -1,4 +1,3 @@
-import { useEffect, useLayoutEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { PaletteIcon as Palette } from '@hugeicons/core-free-icons';
 
@@ -31,7 +30,6 @@ import {
 import {
   type ColorThemeVariants,
   type FontVariants,
-  type NavbarBehavior,
   type SidebarVariants,
   type BaseSize,
   type RadiusValue,
@@ -90,9 +88,7 @@ export function PreferencesPopover() {
             options={SEGMENTED_OPTIONS.navbar}
             value={preferences.navbarBehavior}
             onChange={(value) =>
-              preferencesStore.patchPreferences({
-                navbarBehavior: value as NavbarBehavior,
-              })
+              preferencesStore.patchPreferences({ navbarBehavior: value })
             }
           />
 
@@ -104,6 +100,15 @@ export function PreferencesPopover() {
               preferencesStore.patchPreferences({
                 sidebarStyle: value as SidebarVariants,
               })
+            }
+          />
+
+          <PreferenceOption
+            label={t('AxiomTheme:Layout')}
+            options={SEGMENTED_OPTIONS.layout}
+            value={preferences.layout}
+            onChange={(value) =>
+              preferencesStore.patchPreferences({ layout: value })
             }
           />
 

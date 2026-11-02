@@ -77,3 +77,13 @@ export function useRadius() {
     document.documentElement.dataset.radius = preferences.radius;
   }, [preferences.radius]);
 }
+
+export function useLayout() {
+  const preferences = usePreferences();
+
+  useLayoutEffect(() => {
+    document.documentElement.dataset.layout = preferences.layout;
+  }, [preferences.layout]);
+
+  return preferences.layout
+}

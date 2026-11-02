@@ -147,6 +147,10 @@ export const SEGMENTED_OPTIONS = {
     { value: 'sidebar', label: 'Sidebar' },
     { value: 'floating', label: 'Floating' },
   ] as const,
+  layout: [
+    { value: 'default', label: 'Default' },
+    { value: 'tab', label: 'Tab' },
+  ],
   radius: [
     { value: 'none', label: 'None', icon: CircleOff },
     { value: 'sm', label: 'SM' },
@@ -166,5 +170,6 @@ export type FontVariants = (typeof FONT_OPTIONS)[number]['value'];
 type SegmentedOptions = typeof SEGMENTED_OPTIONS;
 export type NavbarBehavior = SegmentedOptions['navbar'][number]['value'];
 export type SidebarVariants = SegmentedOptions['sidebar'][number]['value'];
+export type Layout = SegmentedOptions['layout'][number]['value'];
 export type RadiusValue = SegmentedOptions['radius'][number]['value'];
 export type BaseSize = SegmentedOptions['scale'][number]['value'];

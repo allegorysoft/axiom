@@ -4,6 +4,7 @@ import type {
   FontVariants,
   NavbarBehavior,
   SidebarVariants,
+  Layout,
   BaseSize,
   RadiusValue,
 } from './options';
@@ -13,6 +14,7 @@ export interface Preferences {
   font: FontVariants;
   navbarBehavior: NavbarBehavior;
   sidebarStyle: SidebarVariants;
+  layout: Layout;
   userMenuPosition: 'navbar' | 'sidebar';
   scale: BaseSize;
   radius: RadiusValue;

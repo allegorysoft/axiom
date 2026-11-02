@@ -22,6 +22,7 @@
     "Font": "Yazı tipi",
     "NavbarBehavior": "Gezinme çubuğu davranışı",
     "SidebarStyle": "Yan menü stili",
+    "Layout": "İskelet",
     "Scale": "Ölçek",
     "Radius": "Köşe yuvarlaklığı",
     "RestoreDefaults": "Varsayılanları geri yükle"

@@ -16,6 +16,7 @@ export const defaultPreferences: Preferences = {
   font: 'inter',
   navbarBehavior: 'sticky',
   sidebarStyle: 'floating',
+  layout: 'default',
   userMenuPosition: 'navbar',
   radius: 'md',
   scale: 'md',
