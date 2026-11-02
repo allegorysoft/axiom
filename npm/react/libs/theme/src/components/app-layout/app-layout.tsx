@@ -39,7 +39,7 @@ export function AppLayout() {
         <SidebarInset>
           <Tabs
             value={activeTab?.url ?? tabs[0]?.url ?? null}
-            className="mx-1 gap-0"
+            className="gap-0 mx-1"
             onValueChange={(url) => {
               if (typeof url === 'string') {
                 workspaceTabStore.setActive(url);
@@ -49,7 +49,7 @@ export function AppLayout() {
             <Header />
             <AppBreadcrumb />
 
-            <div className="mb-2 flex flex-1 flex-col gap-3 px-1 py-1">
+            <div className="flex flex-1 flex-col my-1 gap-3 p-1">
               <WorkspaceTabLayout />
             </div>
           </Tabs>
