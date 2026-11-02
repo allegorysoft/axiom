@@ -37,7 +37,7 @@ export function AppLayout() {
   const Default = (
     <>
       {TopBar}
-      <div className="flex flex-1 flex-col m-1 mb-2 gap-3 p-2 border rounded-lg">
+      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg">
         <Outlet />
       </div>
     </>

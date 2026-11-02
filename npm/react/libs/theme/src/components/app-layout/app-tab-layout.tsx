@@ -18,12 +18,12 @@ export function AppTabLayout({ children }: { children?: React.ReactNode }) {
   return (
     <Tabs
       value={activeTab?.url ?? ''}
-      className="gap-0 flex flex-1"
+      className="gap-0 flex-1"
       onValueChange={handleTabChange}
     >
       {children}
 
-      <div className="flex flex-1 flex-col m-1 mb-2 gap-3 p-2 border rounded-lg">
+      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg">
         <WorkspaceTabLayout />
       </div>
     </Tabs>

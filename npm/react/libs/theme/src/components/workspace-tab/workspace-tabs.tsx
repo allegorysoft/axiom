@@ -35,7 +35,7 @@ export function WorkspaceTabs() {
           key={tab.url}
           value={tab.url}
           nativeButton={false}
-          className={`${TAB_CLASS_NAME} rounded-lg! group`}
+          className={`${TAB_CLASS_NAME} group`}
           render={<div className="inline-flex items-center" />}
         >
           {tab.icon}
