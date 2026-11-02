@@ -10,6 +10,7 @@ import {
 } from '@axiomframework/react-core';
 
 import { TabsContent } from '../ui/tabs';
+import { findNavPath } from './workspace-tab-utils';
 
 export function WorkspaceTabLayout() {
   const tabs = useWorkspaceTabs();
@@ -55,7 +56,7 @@ function WorkspaceTabPage({ tab, active, items }: Props) {
       return;
     }
 
-    const targetUrl = savedUrl.current ?? findNav(items, tab.url)?.url;
+    const targetUrl = savedUrl.current ?? findNavPath(items, tab.url).at(-1)?.url;
     if (!changed && targetUrl && targetUrl !== url) {
       void navigate(targetUrl);
       return;
@@ -71,7 +72,7 @@ function WorkspaceTabPage({ tab, active, items }: Props) {
 
     if (savedUrl.current !== url || tab.empty) {
       savedUrl.current = url;
-      const item = findNav(items, location.pathname);
+      const item = findNavPath(items, location.pathname).at(-1);
 
       workspaceTabStore.patch(tab.url, {
         empty: false,
@@ -82,25 +83,4 @@ function WorkspaceTabPage({ tab, active, items }: Props) {
   }, [active, content, items, location, navigate, outlet, tab, url]);
 
   return content;
-}
-
-function findNav(items: Nav[], url: string): Nav | undefined {
-  for (const item of items) {
-    if (item.url?.replace(/^\//, '') === url.replace(/^\//, '')) {
-      return item;
-    }
-
-    const nested = findNav(
-      [
-        ...(item.children ?? []),
-        ...(item.groups?.flatMap((group) => group.children) ?? []),
-      ],
-      url,
-    );
-
-    if (nested) {
-      return nested;
-    }
-  }
-  return undefined;
 }

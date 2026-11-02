@@ -38,7 +38,7 @@ export function AppTabsList() {
           key={tab.url}
           value={tab.url}
           nativeButton={false}
-          className={`${TABS_TRIGGER_CLASS_NAME} group`}
+          className={`${TABS_TRIGGER_CLASS_NAME} group data-active:text-foreground!`}
           render={<div className="inline-flex items-center" />}
         >
           {tab.icon}
@@ -61,8 +61,7 @@ export function AppTabsList() {
       <Button
         variant="ghost"
         size="icon"
-        aria-label={`Add tab`}
-        className={TABS_TRIGGER_CLASS_NAME}
+        aria-label="Add tab"
         onClick={() => addEmptyTab()}
       >
         <HugeiconsIcon icon={Plus} />
