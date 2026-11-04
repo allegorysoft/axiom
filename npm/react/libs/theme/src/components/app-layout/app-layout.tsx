@@ -3,20 +3,24 @@ import { Outlet } from 'react-router';
 import { getCookie } from '@axiomframework/react-core';
 
 import { SidebarInset, SidebarProvider } from '../ui/sidebar';
-import { SettingsDialogProvider } from '../settings-dialog/settings-dialog-provider';
-import { AppSidebar } from '../app-sidebar/app-sidebar';
-
-import { Header } from './header';
 import {
   useColorTheme,
   useFont,
   useScale,
   useRadius,
+  useLayout,
 } from '../preferences/preferences-hooks';
+import { AppSidebar } from '../app-sidebar/app-sidebar';
+import { SettingsDialogProvider } from '../settings-dialog/settings-dialog-provider';
 import { SettingsDialogHost } from '../settings-dialog/host/settings-dialog-host';
+
+import { AppTabLayout } from './app-tab-layout';
+import { Header } from './header';
+import { AppBreadcrumb } from './app-breadcrumb';
 
 export function AppLayout() {
   const state = getCookie<boolean>('sidebar_state');
+  const layout = useLayout();
 
   useColorTheme();
   useFont();
@@ -29,15 +33,32 @@ export function AppLayout() {
         <AppSidebar />
 
         <SidebarInset>
-          <Header />
+          {layout === 'default' ? (
+            <DefaultLayout />
+          ) : (
+            <AppTabLayout>
+              <Header />
+            </AppTabLayout>
+          )}
 
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-1">
-            <Outlet />
-          </div>
+          <footer className="mb-2 shrink-0 sticky bottom-0 px-0.5">
+            <AppBreadcrumb />
+          </footer>
         </SidebarInset>
 
         <SettingsDialogHost />
       </SettingsDialogProvider>
     </SidebarProvider>
+  );
+}
+
+function DefaultLayout() {
+  return (
+    <>
+      <Header />
+      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg">
+        <Outlet />
+      </div>
+    </>
   );
 }

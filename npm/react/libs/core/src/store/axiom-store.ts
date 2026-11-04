@@ -1,10 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { AxiomStore } from '../models/common';
-
-export interface AxiomStoreHook<T> {
-  <TSelected>(selector: (state: Readonly<T>) => TSelected): TSelected;
-  get(): Readonly<T>;
-}
+import type { AxiomStore, AxiomStoreHook } from '../models/common';
 
 export function createStore<T extends object>(initialState: T): AxiomStore<T> {
   let state = Object.freeze(initialState);

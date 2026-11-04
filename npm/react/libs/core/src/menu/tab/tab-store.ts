@@ -80,22 +80,22 @@ export function createTabStore(): TabStore {
       });
     },
     patchGroup(title: string, patched: Partial<TabGroup>): TabGroup {
-    const group = findGroup(baseStore.get().groups, title);
+      const group = findGroup(baseStore.get().groups, title);
 
-    if (!group) {
-      throw new Error(`navStore.patchGroup: group "${title}" not found`);
-    }
+      if (!group) {
+        throw new Error(`navStore.patchGroup: group "${title}" not found`);
+      }
 
-    const patchedGroup: TabGroup = { ...group, ...patched };
+      const patchedGroup: TabGroup = { ...group, ...patched };
 
-    baseStore.set((prev) => ({
-      groups: prev.groups.map((item) =>
-        item === group ? patchedGroup : item,
-      ),
-    }));
+      baseStore.set((prev) => ({
+        groups: prev.groups.map((item) =>
+          item === group ? patchedGroup : item,
+        ),
+      }));
 
-    return patchedGroup;
-  },
+      return patchedGroup;
+    },
 
     find(title: string, group = DEFAULT_MENU_GROUP): Tab | undefined {
       return find(getGroup(group)?.children ?? [], title);
