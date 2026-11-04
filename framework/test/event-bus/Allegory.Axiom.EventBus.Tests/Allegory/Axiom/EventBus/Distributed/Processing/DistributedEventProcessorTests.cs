@@ -34,9 +34,9 @@ public class DistributedEventProcessorTests(
                 new TestEvent(),
                 CancellationToken: TestContext.Current.CancellationToken));
 
-        Processor.PendingProcesses.ShouldBe(1);
-        pendingCounter.Dispose();
-        Processor.PendingProcesses.ShouldBe(0);
+        Processor.Pending.ShouldBe(1);
+        await pendingCounter.DisposeAsync();
+        Processor.Pending.ShouldBe(0);
     }
 
     [Fact]
@@ -53,7 +53,7 @@ public class DistributedEventProcessorTests(
                     CancellationToken: TestContext.Current.CancellationToken));
         });
 
-        Processor.PendingProcesses.ShouldBe(0);
+        Processor.Pending.ShouldBe(0);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class DistributedEventProcessorTests(
     {
         var handler = fixture.Service<EventHandler1>();
 
-        using var counter = await Processor.ProcessAsync(
+        await using var counter = await Processor.ProcessAsync(
             new DistributedEventProcessContext(
                 "test-queue",
                 Entry,
@@ -78,7 +78,7 @@ public class DistributedEventProcessorTests(
     {
         var handler = fixture.Service<EventHandler1>();
 
-        using var counter = await Processor.ProcessAsync(
+        await using var counter = await Processor.ProcessAsync(
             new DistributedEventProcessContext(
                 "test-queue",
                 Entry,
@@ -95,7 +95,7 @@ public class DistributedEventProcessorTests(
     {
         var handler = fixture.Service<EventHandler1>();
 
-        using var counter = await Processor.ProcessAsync(
+        await using var counter = await Processor.ProcessAsync(
             new DistributedEventProcessContext(
                 "test-queue",
                 Entry,
@@ -114,7 +114,7 @@ public class DistributedEventProcessorTests(
     {
         var handler = fixture.Service<EventHandler1>();
 
-        using (await Processor.ProcessAsync(
+        await using (await Processor.ProcessAsync(
                    new DistributedEventProcessContext(
                        "test-queue",
                        Entry,
@@ -127,7 +127,7 @@ public class DistributedEventProcessorTests(
 
         handler.CapturedTenantId.ShouldBe(fixture.Tenant1.Id);
 
-        using var counter = await Processor.ProcessAsync(
+        await using var counter = await Processor.ProcessAsync(
             new DistributedEventProcessContext(
                 "test-queue",
                 Entry,
@@ -144,7 +144,7 @@ public class DistributedEventProcessorTests(
     {
         var exception = await Should.ThrowAsync<NotFoundException>(async () =>
         {
-            using var counter = await Processor.ProcessAsync(
+            await using var counter = await Processor.ProcessAsync(
                 new DistributedEventProcessContext(
                     "test-queue",
                     Entry,

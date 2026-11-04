@@ -17,7 +17,7 @@ public class DistributedEventProcessorCompletionService(
     {
         try
         {
-            logger.LogWaitingForPendingEvents(eventProcessor.PendingProcesses);
+            logger.LogWaitingForPendingEvents(eventProcessor.Pending);
             await eventProcessor.WaitForCompletionAsync(cancellationToken);
             logger.LogPendingEventsCompleted();
         }

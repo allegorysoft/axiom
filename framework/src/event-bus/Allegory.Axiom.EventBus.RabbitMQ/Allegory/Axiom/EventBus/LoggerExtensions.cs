@@ -15,7 +15,7 @@ internal static partial class LoggerExtensions
         string routingKey);
 
     [LoggerMessage(
-        Message = "RabbitMqDistributedEventBus couldn't handle event.",
+        Message = "RabbitMqDistributedEventBus couldn't handle event",
         Level = LogLevel.Error)]
     public static partial void LogException(this ILogger logger, Exception exception);
 

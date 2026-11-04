@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.Disposables;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Hosting;
@@ -15,12 +16,9 @@ public class DistributedEventProcessor(
     ITenantStore tenantStore,
     IHostApplicationLifetime applicationLifetime) : ISingletonService
 {
-    protected internal int PendingProcesses;
-    protected internal TaskCompletionSource? TaskCompletionSource;
-
     protected readonly SemaphoreSlim Synchronizer = new(1, 1);
     protected readonly TaskCompletionSource Completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    protected int Pending;
+    protected internal int Pending;
     protected bool Stopping;
 
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
@@ -28,41 +26,9 @@ public class DistributedEventProcessor(
     protected ITenantStore TenantStore { get; } = tenantStore;
     protected IHostApplicationLifetime ApplicationLifetime { get; } = applicationLifetime;
 
-    public async Task BeginProcessAsync()
+    public virtual async Task<IAsyncDisposable> ProcessAsync(DistributedEventProcessContext context)
     {
-        await Synchronizer.WaitAsync();
-        try
-        {
-            if (Stopping || ApplicationLifetime.ApplicationStopping.IsCancellationRequested)
-            {
-                throw new OperationCanceledException();
-            }
-
-            Pending++;
-        }
-        finally
-        {
-            Synchronizer.Release();
-        }
-    }
-
-    private async Task CompleteProcessAsync()
-    {
-        await Synchronizer.WaitAsync();
-        Pending -= 1;
-
-        if (Pending == 0 && Stopping)
-        {
-            Completion.SetResult();
-        }
-
-        Synchronizer.Release();
-    }
-
-    public virtual async Task<DistributedEventProcessCounter> ProcessAsync(DistributedEventProcessContext context)
-    {
-        ApplicationLifetime.ApplicationStopping.ThrowIfCancellationRequested();
-        var counter = new DistributedEventProcessCounter(this);
+        await BeginProcessAsync();
 
         try
         {
@@ -86,11 +52,51 @@ public class DistributedEventProcessor(
         }
         catch
         {
-            counter.Dispose();
+            await CompleteProcessAsync();
             throw;
         }
 
-        return counter;
+        return new AsyncDisposableDelegate<DistributedEventProcessor>(
+            static async instance => { await instance.CompleteProcessAsync(); },
+            this);
+    }
+
+    protected virtual async Task BeginProcessAsync()
+    {
+        await Synchronizer.WaitAsync();
+
+        try
+        {
+            if (Stopping || ApplicationLifetime.ApplicationStopping.IsCancellationRequested)
+            {
+                throw new OperationCanceledException();
+            }
+
+            Pending++;
+        }
+        finally
+        {
+            Synchronizer.Release();
+        }
+    }
+
+    protected virtual async Task CompleteProcessAsync()
+    {
+        await Synchronizer.WaitAsync();
+
+        try
+        {
+            Pending--;
+
+            if (Pending == 0 && Stopping)
+            {
+                Completion.SetResult();
+            }
+        }
+        finally
+        {
+            Synchronizer.Release();
+        }
     }
 
     protected virtual Activity? TryGetActivity(DistributedEventProcessContext context)
@@ -148,27 +154,24 @@ public class DistributedEventProcessor(
         }
     }
 
-    public virtual async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
+    protected internal virtual async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
     {
         await Synchronizer.WaitAsync(cancellationToken);
 
-        Stopping = true;
-
-        if (Pending == 0)
+        try
         {
-            return;
+            Stopping = true;
+
+            if (Pending == 0)
+            {
+                return;
+            }
+        }
+        finally
+        {
+            Synchronizer.Release();
         }
 
-        if (Interlocked.CompareExchange(ref TaskCompletionSource, new TaskCompletionSource(), null) != null)
-        {
-            return;
-        }
-
-        if (Volatile.Read(ref PendingProcesses) == 0)
-        {
-            return;
-        }
-
-        await TaskCompletionSource.Task.WaitAsync(cancellationToken);
+        await Completion.Task.WaitAsync(cancellationToken);
     }
 }

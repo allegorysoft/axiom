@@ -58,7 +58,7 @@ public class RabbitMqEventConsumer
                 return;
             }
 
-            using var processCounter = await EventProcessor.ProcessAsync(
+            await using var processCounter = await EventProcessor.ProcessAsync(
                 new DistributedEventProcessContext
                 {
                     QueueName = QueueName,
