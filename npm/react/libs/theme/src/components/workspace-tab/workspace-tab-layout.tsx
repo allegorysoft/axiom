@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate, useOutlet } from 'react-router';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { FileEmptyIcon } from '@hugeicons/core-free-icons';
 
 import {
   type Nav,
@@ -11,6 +13,7 @@ import {
 
 import { TabsContent } from '../ui/tabs';
 import { findNavPath } from './workspace-tab-utils';
+import { WorkspaceTabEmpty } from './workspace-tab-empty';
 
 export function WorkspaceTabLayout() {
   const tabs = useWorkspaceTabs();
@@ -72,15 +75,21 @@ function WorkspaceTabPage({ tab, active, items }: Props) {
 
     if (savedUrl.current !== url || tab.empty) {
       savedUrl.current = url;
-      const item = findNavPath(items, location.pathname).at(-1);
+      const path = findNavPath(items, location.pathname);
+      const item = path.at(-1);
+
+      const fallbackIcon = path
+        .slice(0, -1)
+        .reverse()
+        .find((parent) => parent.icon)?.icon 
 
       workspaceTabStore.patch(tab.url, {
         empty: false,
         title: item?.title ?? location.pathname,
-        ...(item?.icon ? { icon: item.icon } : {}),
+        icon: item?.icon ?? fallbackIcon ?? <HugeiconsIcon icon={FileEmptyIcon} strokeWidth={2} />,
       });
     }
   }, [active, content, items, location, navigate, outlet, tab, url]);
 
-  return content;
+  return tab.empty ? <WorkspaceTabEmpty /> : content;
 }

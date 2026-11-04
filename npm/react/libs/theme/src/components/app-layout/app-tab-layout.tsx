@@ -51,7 +51,7 @@ export function AppTabLayout({ children }: { children?: React.ReactNode }) {
   return (
     <Tabs
       value={activeTab?.url ?? ''}
-      className="gap-0 flex-1"
+      className="flex-1 gap-0"
       onValueChange={handleTabChange}
     >
       {children}
