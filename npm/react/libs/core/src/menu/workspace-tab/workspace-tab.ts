@@ -7,6 +7,7 @@ export interface WorkspaceTab {
   title: string;
   active: boolean;
   empty?: boolean;
+  ephemeral?: boolean;
 }
 
 export type WorkspaceTabState = {

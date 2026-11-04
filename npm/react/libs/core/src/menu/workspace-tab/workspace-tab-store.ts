@@ -31,14 +31,23 @@ export const workspaceTabStore: WorkspaceTabStore = Object.assign(
         return;
       }
 
-      baseStore.set((prev) => ({
-        tabs: [
-          ...prev.tabs.map((existing) =>
-            tab.active ? { ...existing, active: false } : existing,
-          ),
-          { ...tab, active: tab.active || prev.tabs.length === 0 },
-        ],
-      }));
+      baseStore.set((prev) => {
+        const ephemeral =
+          tab.ephemeral &&
+          (prev.tabs.find((item) => item.active && item.empty) ??
+            prev.tabs.find((item) => item.ephemeral));
+
+        const newTab = { ...tab, active: tab.active || prev.tabs.length === 0 };
+
+        const tabs = prev.tabs.map((existing) =>
+          existing === ephemeral
+            ? newTab
+            : tab.active
+              ? { ...existing, active: false }
+              : existing,
+        );
+        return { tabs: ephemeral ? tabs : [...tabs, newTab] };
+      });
     },
 
     patch(url: string, changes: Partial<WorkspaceTab>): void {
