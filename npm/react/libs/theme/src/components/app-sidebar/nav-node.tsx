@@ -13,7 +13,10 @@ import {
   useTranslation,
   isBranchActive,
   isExternalUrl,
+  workspaceTabStore,
 } from '@axiomframework/react-core';
+
+import { usePreferencesStore } from '../preferences/preferences-hooks';
 
 import {
   SidebarMenuButton,
@@ -49,6 +52,7 @@ export function NavItemNode({
   onSwitchPanel,
 }: NodeProps) {
   const t = useTranslation();
+  const tabLayout = usePreferencesStore((s) => s.preferences.layout === 'tab');
   const hasChildren = Boolean(item.children?.length);
   const branchActive = isBranchActive(item, pathname);
   const isSub = variant === 'sub';
@@ -62,7 +66,14 @@ export function NavItemNode({
   );
 
   if (!hasChildren && !isSwitchPanel) {
-    return renderMenuItem(item, target, branchActive, isSub, external);
+    return renderMenuItem(
+      item,
+      target,
+      branchActive,
+      isSub,
+      tabLayout,
+      external,
+    );
   }
 
   if (isSwitchPanel) {
@@ -155,6 +166,7 @@ function renderMenuItem(
   target: string | undefined,
   branchActive: boolean,
   isSub: boolean,
+  tabLayout: boolean,
   external?: boolean,
 ) {
   const t = useTranslation();
@@ -167,7 +179,40 @@ function renderMenuItem(
     render = isExternal ? (
       <a href={url} target={target} />
     ) : (
-      <Link to={url} target={target} />
+      <Link
+        to={url}
+        target={target}
+        onClick={(event) => {
+          if (
+            !tabLayout ||
+            isExternalUrl(url) ||
+            (target && target !== '_self') ||
+            event.button !== 0 ||
+            event.ctrlKey ||
+            event.metaKey ||
+            event.shiftKey ||
+            event.altKey
+          ) {
+            return;
+          }
+
+          event.preventDefault();
+          if (workspaceTabStore.find(url)) {
+            workspaceTabStore.setActive(url);
+            if (event.detail === 2) {
+              workspaceTabStore.patch(url, { ephemeral: false });
+            }
+          } else {
+            workspaceTabStore.add({
+              url,
+              title: item.title,
+              icon: item.icon,
+              active: true,
+              ephemeral: event.detail !== 2,
+            });
+          }
+        }}
+      />
     );
   }
 

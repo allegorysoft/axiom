@@ -48,6 +48,9 @@ export function WorkspaceTabs() {
             <TabsTrigger
               key={tab.url}
               value={tab.url}
+              onDoubleClick={() =>
+                workspaceTabStore.patch(tab.url, { ephemeral: false })
+              }
               onAuxClick={(event) => {
                 if (event.button === 1) {
                   event.preventDefault();
@@ -59,7 +62,14 @@ export function WorkspaceTabs() {
               render={<div className="inline-flex items-center" />}
             >
               {tab.icon}
-              <span className="truncate" title={t(tab.title)}>
+              <span
+                className={
+                  tab.ephemeral
+                    ? 'truncate select-none italic'
+                    : 'truncate select-none'
+                }
+                title={t(tab.title)}
+              >
                 {t(tab.title)}
               </span>
 
@@ -100,9 +110,19 @@ function MobileWorkspaceTabs({ tabs }: { tabs: WorkspaceTab[] }) {
         <DropdownMenuTrigger
           render={<Button variant="ghost" className="min-w-0 max-w-40 gap-2" />}
           aria-label="Select workspace tab"
+          onDoubleClick={() => {
+            if (activeTab)
+              workspaceTabStore.patch(activeTab.url, { ephemeral: false });
+          }}
         >
           {activeTab?.icon}
-          <span className="truncate">
+          <span
+            className={
+              activeTab?.ephemeral
+                ? 'truncate select-none italic'
+                : 'truncate select-none'
+            }
+          >
             {activeTab ? t(activeTab.title) : 'Tabs'}
           </span>
           <HugeiconsIcon icon={ChevronDownIcon} />
@@ -115,7 +135,15 @@ function MobileWorkspaceTabs({ tabs }: { tabs: WorkspaceTab[] }) {
               className={tab.active ? 'bg-accent' : undefined}
             >
               {tab.icon}
-              <span className="truncate">{t(tab.title)}</span>
+              <span
+                className={
+                  tab.ephemeral
+                    ? 'truncate select-none italic'
+                    : 'truncate select-none'
+                }
+              >
+                {t(tab.title)}
+              </span>
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

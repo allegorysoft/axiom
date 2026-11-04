@@ -81,9 +81,10 @@ function WorkspaceTabPage({ tab, active, items }: Props) {
       const fallbackIcon = path
         .slice(0, -1)
         .reverse()
-        .find((parent) => parent.icon)?.icon 
+        .find((parent) => parent.icon)?.icon;
 
       workspaceTabStore.patch(tab.url, {
+        url: tab.url.startsWith('/empty/') ? url : tab.url,
         empty: false,
         title: item?.title ?? location.pathname,
         icon: item?.icon ?? fallbackIcon ?? <HugeiconsIcon icon={FileEmptyIcon} strokeWidth={2} />,
