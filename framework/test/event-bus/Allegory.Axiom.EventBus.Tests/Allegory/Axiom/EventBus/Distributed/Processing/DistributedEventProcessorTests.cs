@@ -10,7 +10,7 @@ using NSubstitute;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EventBus.Distributed;
+namespace Allegory.Axiom.EventBus.Distributed.Processing;
 
 public class DistributedEventProcessorTests(
     DistributedEventProcessorFixture fixture)
@@ -27,11 +27,12 @@ public class DistributedEventProcessorTests(
     public async Task ShouldTrackPendingProcessesWhileInFlight()
     {
         var pendingCounter = await Processor.ProcessAsync(
-            "test-queue",
-            Entry,
-            Guid.NewGuid(),
-            new TestEvent(),
-            cancellationToken: TestContext.Current.CancellationToken);
+            new DistributedEventProcessContext(
+                "test-queue",
+                Entry,
+                Guid.NewGuid(),
+                new TestEvent(),
+                CancellationToken: TestContext.Current.CancellationToken));
 
         Processor.PendingProcesses.ShouldBe(1);
         pendingCounter.Dispose();
@@ -44,13 +45,14 @@ public class DistributedEventProcessorTests(
         await Should.ThrowAsync<InvalidCastException>(async () =>
         {
             await Processor.ProcessAsync(
-                "test-queue",
-                Entry,
-                Guid.NewGuid(),
-                1, // Cannot cast int to TestEvent
-                cancellationToken: TestContext.Current.CancellationToken);
+                new DistributedEventProcessContext(
+                    "test-queue",
+                    Entry,
+                    Guid.NewGuid(),
+                    1,
+                    CancellationToken: TestContext.Current.CancellationToken));
         });
-        
+
         Processor.PendingProcesses.ShouldBe(0);
     }
 
@@ -60,12 +62,13 @@ public class DistributedEventProcessorTests(
         var handler = fixture.Service<EventHandler1>();
 
         using var counter = await Processor.ProcessAsync(
-            "test-queue",
-            Entry,
-            Guid.NewGuid(),
-            new TestEvent(),
-            tenantId: fixture.Tenant1.Id,
-            cancellationToken: TestContext.Current.CancellationToken);
+            new DistributedEventProcessContext(
+                "test-queue",
+                Entry,
+                Guid.NewGuid(),
+                new TestEvent(),
+                TenantId: fixture.Tenant1.Id,
+                CancellationToken: TestContext.Current.CancellationToken));
 
         handler.CapturedTenantId.ShouldBe(fixture.Tenant1.Id);
     }
@@ -76,12 +79,13 @@ public class DistributedEventProcessorTests(
         var handler = fixture.Service<EventHandler1>();
 
         using var counter = await Processor.ProcessAsync(
-            "test-queue",
-            Entry,
-            Guid.NewGuid(),
-            new TestEvent(),
-            tenantId: null,
-            cancellationToken: TestContext.Current.CancellationToken);
+            new DistributedEventProcessContext(
+                "test-queue",
+                Entry,
+                Guid.NewGuid(),
+                new TestEvent(),
+                TenantId: null,
+                CancellationToken: TestContext.Current.CancellationToken));
 
         handler.CapturedTenantId.ShouldBeNull();
     }
@@ -92,12 +96,13 @@ public class DistributedEventProcessorTests(
         var handler = fixture.Service<EventHandler1>();
 
         using var counter = await Processor.ProcessAsync(
-            "test-queue",
-            Entry,
-            Guid.NewGuid(),
-            new TestEvent(),
-            tenantId: fixture.Tenant1.Id,
-            cancellationToken: TestContext.Current.CancellationToken);
+            new DistributedEventProcessContext(
+                "test-queue",
+                Entry,
+                Guid.NewGuid(),
+                new TestEvent(),
+                TenantId: fixture.Tenant1.Id,
+                CancellationToken: TestContext.Current.CancellationToken));
 
         handler.CapturedTenantId.ShouldBe(fixture.Tenant1.Id);
         // Assert ambient context doesn't leak past this processing call
@@ -110,18 +115,26 @@ public class DistributedEventProcessorTests(
         var handler = fixture.Service<EventHandler1>();
 
         using (await Processor.ProcessAsync(
-                   "test-queue", Entry, Guid.NewGuid(), new TestEvent(),
-                   tenantId: fixture.Tenant1.Id,
-                   cancellationToken: TestContext.Current.CancellationToken))
+                   new DistributedEventProcessContext(
+                       "test-queue",
+                       Entry,
+                       Guid.NewGuid(),
+                       new TestEvent(),
+                       TenantId: fixture.Tenant1.Id,
+                       CancellationToken: TestContext.Current.CancellationToken)))
         {
         }
 
         handler.CapturedTenantId.ShouldBe(fixture.Tenant1.Id);
 
         using var counter = await Processor.ProcessAsync(
-            "test-queue", Entry, Guid.NewGuid(), new TestEvent(),
-            tenantId: null,
-            cancellationToken: TestContext.Current.CancellationToken);
+            new DistributedEventProcessContext(
+                "test-queue",
+                Entry,
+                Guid.NewGuid(),
+                new TestEvent(),
+                TenantId: null,
+                CancellationToken: TestContext.Current.CancellationToken));
 
         handler.CapturedTenantId.ShouldBeNull();
     }
@@ -132,12 +145,13 @@ public class DistributedEventProcessorTests(
         var exception = await Should.ThrowAsync<NotFoundException>(async () =>
         {
             using var counter = await Processor.ProcessAsync(
-                "test-queue",
-                Entry,
-                Guid.NewGuid(),
-                new TestEvent(),
-                tenantId: Guid.NewGuid(),
-                cancellationToken: TestContext.Current.CancellationToken);
+                new DistributedEventProcessContext(
+                    "test-queue",
+                    Entry,
+                    Guid.NewGuid(),
+                    new TestEvent(),
+                    TenantId: Guid.NewGuid(),
+                    CancellationToken: TestContext.Current.CancellationToken));
         });
 
         exception.Code.ShouldBe(MultiTenancyExceptionCodes.TenantNotFound);
@@ -164,7 +178,7 @@ file class EventHandler1(ITenantContextAccessor accessor) : IDistributedEventHan
 {
     public Guid? CapturedTenantId { get; protected set; }
 
-    public Task HandleAsync(TestEvent payload, EventContext context)
+    public Task HandleAsync(TestEvent payload)
     {
         CapturedTenantId = accessor.Current?.Id;
 

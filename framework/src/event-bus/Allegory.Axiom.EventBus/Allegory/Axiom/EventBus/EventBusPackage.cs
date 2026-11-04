@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
+using Allegory.Axiom.EventBus.Distributed.Processing;
 using Allegory.Axiom.EventBus.Local;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Priority;
@@ -75,10 +76,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
             builder.Services.TryAdd(ServiceDescriptor.Singleton(handler, handler));
         }
 
-        builder.Services.Configure<LocalEventBusOptions>(options =>
-        {
-            options.Events = events;
-        });
+        builder.Services.Configure<LocalEventBusOptions>(options => { options.Events = events; });
     }
 
     private static void RegisterDistributedEvents(
@@ -105,10 +103,7 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
             builder.Services.TryAdd(ServiceDescriptor.Singleton(handler, handler));
         }
 
-        builder.Services.Configure<DistributedEventBusOptions>(options =>
-        {
-            options.Events = events.ToImmutable();
-        });
+        builder.Services.Configure<DistributedEventBusOptions>(options => { options.Events = events.ToImmutable(); });
     }
 
     private static FrozenDictionary<Type, ImmutableArray<Type>> GetEvents<T>(ImmutableArray<Assembly> assemblies)

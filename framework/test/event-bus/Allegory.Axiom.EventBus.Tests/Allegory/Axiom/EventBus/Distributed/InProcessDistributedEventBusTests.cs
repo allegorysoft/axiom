@@ -181,7 +181,7 @@ file class TestEventHandler : IDistributedEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
 
-    public Task HandleAsync(TestEvent payload, EventContext context)
+    public Task HandleAsync(TestEvent payload)
     {
         Received.Add(payload);
         return Task.CompletedTask;
@@ -192,7 +192,7 @@ file class TestEventHandler2 : IDistributedEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
 
-    public Task HandleAsync(TestEvent payload, EventContext context)
+    public Task HandleAsync(TestEvent payload)
     {
         Received.Add(payload);
         return Task.CompletedTask;
@@ -203,7 +203,7 @@ file class ValueTestEventHandler : IDistributedEventHandler<ValueTestEvent>
 {
     public List<ValueTestEvent> Received { get; } = [];
 
-    public Task HandleAsync(ValueTestEvent payload, EventContext context)
+    public Task HandleAsync(ValueTestEvent payload)
     {
         Received.Add(payload);
         return Task.CompletedTask;
@@ -212,7 +212,7 @@ file class ValueTestEventHandler : IDistributedEventHandler<ValueTestEvent>
 
 file class ThrowingTestEventHandler : IDistributedEventHandler<ThrowingTestEvent>
 {
-    public Task HandleAsync(ThrowingTestEvent payload, EventContext context) =>
+    public Task HandleAsync(ThrowingTestEvent payload) =>
         throw new InvalidOperationException("handler-failure");
 }
 
@@ -227,7 +227,7 @@ file class ScopedEventHandler1(IUnitOfWorkManager manager) : IDistributedEventHa
 {
     public ScopedImplementation? Received { get; protected set; }
 
-    public Task HandleAsync(ScopedEvent payload, EventContext context)
+    public Task HandleAsync(ScopedEvent payload)
     {
         Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<ScopedImplementation>();
         return Task.CompletedTask;
@@ -238,7 +238,7 @@ file class ScopedEventHandler2(IUnitOfWorkManager manager) : IDistributedEventHa
 {
     public ScopedImplementation? Received { get; protected set; }
 
-    public Task HandleAsync(ScopedEvent payload, EventContext context)
+    public Task HandleAsync(ScopedEvent payload)
     {
         Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<ScopedImplementation>();
         return Task.CompletedTask;

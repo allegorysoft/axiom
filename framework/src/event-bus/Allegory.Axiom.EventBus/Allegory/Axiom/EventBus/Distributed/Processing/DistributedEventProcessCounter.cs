@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace Allegory.Axiom.EventBus.Distributed;
+namespace Allegory.Axiom.EventBus.Distributed.Processing;
 
 public readonly struct DistributedEventProcessCounter : IDisposable
 {

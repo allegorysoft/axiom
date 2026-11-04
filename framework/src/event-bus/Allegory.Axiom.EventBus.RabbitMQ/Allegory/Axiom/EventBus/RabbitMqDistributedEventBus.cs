@@ -21,14 +21,14 @@ public class RabbitMqDistributedEventBus(
     ILogger<RabbitMqDistributedEventBus> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
-    DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
     ITenantContextAccessor tenantContextAccessor,
     IInboxStore inboxStore,
     IOutboxStore outboxStore,
     RabbitMqConnectionFactory connectionFactory,
-    IServiceProvider serviceProvider)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
+    IServiceProvider serviceProvider) :
+    DistributedEventBusBase(
+        logger, options, eventHandlerManager, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
 {
     protected static string PublisherChannelName { get; } = "event-bus.publisher";
     protected RabbitMqConnectionFactory ConnectionFactory { get; } = connectionFactory;
@@ -106,7 +106,8 @@ public class RabbitMqDistributedEventBus(
         using var lease = await connection.RentChannelAsync(PublisherChannelName);
 
         await lease.Channel.ExchangeDeclareAsync(
-            Options.RabbitMq.ExchangeName ?? throw new InvalidOperationException("RabbitMQ exchange name cannot be null"),
+            Options.RabbitMq.ExchangeName ??
+            throw new InvalidOperationException("RabbitMQ exchange name cannot be null"),
             ExchangeType.Direct,
             durable: true,
             autoDelete: false);

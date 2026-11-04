@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
+using Allegory.Axiom.EventBus.Distributed.Processing;
 using Allegory.Axiom.RabbitMQ;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -57,20 +58,18 @@ public class RabbitMqEventConsumer
                 return;
             }
 
-            var id = GetId(properties);
-            var traceParent = TryGetTraceParent(properties);
-            var tenantId = TryGetTenantId(properties);
-            var payload = JsonSerializer.Deserialize(args.Body.Span, eventQueueEntry.Descriptor.Type)!;
-
             using var processCounter = await EventProcessor.ProcessAsync(
-                QueueName,
-                eventQueueEntry,
-                id,
-                payload,
-                traceParent: traceParent,
-                tenantId: tenantId,
-                messagingSystem: "rabbitmq",
-                cancellationToken: args.CancellationToken);
+                new DistributedEventProcessContext
+                {
+                    QueueName = QueueName,
+                    Entry = eventQueueEntry,
+                    Id = GetId(properties),
+                    Payload = JsonSerializer.Deserialize(args.Body.Span, eventQueueEntry.Descriptor.Type)!,
+                    TraceParent = TryGetTraceParent(properties),
+                    TenantId = TryGetTenantId(properties),
+                    MessagingSystem = "rabbitmq",
+                    CancellationToken = args.CancellationToken
+                });
 
             await Consumer.Channel.BasicAckAsync(args.DeliveryTag, false);
         }
@@ -117,7 +116,7 @@ public class RabbitMqEventConsumer
                 _ => throw new InvalidOperationException("Trace parent cannot be parsed")
             };
     }
-    
+
     protected virtual Guid? TryGetTenantId(IReadOnlyBasicProperties properties)
     {
         if (properties.Headers == null ||

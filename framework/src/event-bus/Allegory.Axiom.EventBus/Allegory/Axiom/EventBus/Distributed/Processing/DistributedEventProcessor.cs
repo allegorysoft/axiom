@@ -7,52 +7,74 @@ using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Hosting;
 
-namespace Allegory.Axiom.EventBus.Distributed;
+namespace Allegory.Axiom.EventBus.Distributed.Processing;
 
 public class DistributedEventProcessor(
     IUnitOfWorkManager unitOfWorkManager,
     ITenantContextAccessor tenantContextAccessor,
     ITenantStore tenantStore,
-    IHostApplicationLifetime applicationLifetime)
-    : ISingletonService
+    IHostApplicationLifetime applicationLifetime) : ISingletonService
 {
-    protected IUnitOfWorkManager UnitOfWorkManager { get; set; } = unitOfWorkManager;
-    protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
-    protected ITenantStore TenantStore { get; } = tenantStore;
-    protected IHostApplicationLifetime ApplicationLifetime { get; } = applicationLifetime;
     protected internal int PendingProcesses;
     protected internal TaskCompletionSource? TaskCompletionSource;
 
-    public virtual async Task<DistributedEventProcessCounter> ProcessAsync(
-        string queueName,
-        EventQueueEntry entry,
-        Guid id,
-        object payload,
-        string? traceParent = null,
-        Guid? tenantId = null,
-        string? messagingSystem = null,
-        CancellationToken cancellationToken = default)
+    protected readonly SemaphoreSlim Synchronizer = new(1, 1);
+    protected readonly TaskCompletionSource Completion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    protected int Pending;
+    protected bool Stopping;
+
+    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+    protected ITenantStore TenantStore { get; } = tenantStore;
+    protected IHostApplicationLifetime ApplicationLifetime { get; } = applicationLifetime;
+
+    public async Task BeginProcessAsync()
+    {
+        await Synchronizer.WaitAsync();
+        try
+        {
+            if (Stopping || ApplicationLifetime.ApplicationStopping.IsCancellationRequested)
+            {
+                throw new OperationCanceledException();
+            }
+
+            Pending++;
+        }
+        finally
+        {
+            Synchronizer.Release();
+        }
+    }
+
+    private async Task CompleteProcessAsync()
+    {
+        await Synchronizer.WaitAsync();
+        Pending -= 1;
+
+        if (Pending == 0 && Stopping)
+        {
+            Completion.SetResult();
+        }
+
+        Synchronizer.Release();
+    }
+
+    public virtual async Task<DistributedEventProcessCounter> ProcessAsync(DistributedEventProcessContext context)
     {
         ApplicationLifetime.ApplicationStopping.ThrowIfCancellationRequested();
         var counter = new DistributedEventProcessCounter(this);
 
         try
         {
-            using var activity = TryGetActivity(queueName, entry, id, traceParent, messagingSystem);
-            TenantContextAccessor.Set(await TryGetTenantContextAsync(tenantId));
+            using var activity = TryGetActivity(context);
+            TenantContextAccessor.Set(await TryGetTenantContextAsync(context.TenantId));
             await using var uow = UnitOfWorkManager.Begin(
                 UnitOfWorkOptions.RequiresNew,
-                cancellationToken: cancellationToken);
-
-            var context = new EventContext
-            {
-                Id = id,
-                Activity = activity
-            };
+                cancellationToken: context.CancellationToken);
 
             try
             {
-                await InvokeHandlersAsync(entry, payload, context);
+                await InvokeHandlersAsync(context.Entry, context.Payload);
             }
             catch (Exception e)
             {
@@ -71,26 +93,24 @@ public class DistributedEventProcessor(
         return counter;
     }
 
-    protected virtual Activity? TryGetActivity(
-        string queueName,
-        EventQueueEntry entry,
-        Guid id,
-        string? traceParent,
-        string? messagingSystem = null)
+    protected virtual Activity? TryGetActivity(DistributedEventProcessContext context)
     {
-        if (traceParent == null)
+        if (context.TraceParent == null)
         {
             return null;
         }
 
-        var activity = EventBusActivity.Source.StartActivity("EventBus.Consume", ActivityKind.Consumer, parentId: traceParent);
+        var activity = EventBusActivity.Source.StartActivity(
+            "EventBus.Consume",
+            ActivityKind.Consumer,
+            parentId: context.TraceParent);
 
         if (activity is not null)
         {
-            activity.SetTag("messaging.message.id", id);
-            activity.SetTag("messaging.message.type", entry.Descriptor.Name);
-            activity.SetTag("messaging.destination.name", $"{queueName}; {entry.Descriptor.Topic}");
-            activity.SetTag("messaging.system", messagingSystem);
+            activity.SetTag("messaging.message.id", context.Id);
+            activity.SetTag("messaging.message.type", context.Entry.Descriptor.Name);
+            activity.SetTag("messaging.destination.name", $"{context.QueueName}; {context.Entry.Descriptor.Topic}");
+            activity.SetTag("messaging.system", context.MessagingSystem);
         }
 
         return activity;
@@ -106,14 +126,14 @@ public class DistributedEventProcessor(
         return ValueTask.FromResult<TenantContext?>(null);
     }
 
-    protected virtual async Task InvokeHandlersAsync(EventQueueEntry entry, object payload, EventContext context)
+    protected virtual async Task InvokeHandlersAsync(EventQueueEntry entry, object payload)
     {
         foreach (var handler in entry.Handlers)
         {
             using var activity = EventBusActivity.Source.StartActivity($"Handle.{handler.ServiceType.Name}");
             try
             {
-                await handler.HandleAsync(payload, context);
+                await handler.HandleAsync(payload);
             }
             catch (Exception ex)
             {
@@ -130,6 +150,15 @@ public class DistributedEventProcessor(
 
     public virtual async Task WaitForCompletionAsync(CancellationToken cancellationToken = default)
     {
+        await Synchronizer.WaitAsync(cancellationToken);
+
+        Stopping = true;
+
+        if (Pending == 0)
+        {
+            return;
+        }
+
         if (Interlocked.CompareExchange(ref TaskCompletionSource, new TaskCompletionSource(), null) != null)
         {
             return;

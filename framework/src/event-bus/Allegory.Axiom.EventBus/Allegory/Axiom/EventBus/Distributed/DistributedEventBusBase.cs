@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
+using Allegory.Axiom.EventBus.Distributed.Processing;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Logging;
@@ -20,7 +21,6 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         ILogger<DistributedEventBusBase> logger,
         IOptions<DistributedEventBusOptions> options,
         DistributedEventHandlerManager eventHandlerManager,
-        DistributedEventProcessor eventProcessor,
         IUnitOfWorkManager unitOfWorkManager,
         ITenantContextAccessor tenantContextAccessor,
         IInboxStore inboxStore,
@@ -29,7 +29,6 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
         Logger = logger;
         Options = options.Value;
         EventHandlerManager = eventHandlerManager;
-        EventProcessor = eventProcessor;
         UnitOfWorkManager = unitOfWorkManager;
         TenantContextAccessor = tenantContextAccessor;
         OutboxStore = outboxStore;
@@ -42,7 +41,6 @@ public abstract class DistributedEventBusBase : IDistributedEventBus, ISingleton
     protected ILogger<DistributedEventBusBase> Logger { get; }
     protected DistributedEventBusOptions Options { get; }
     protected DistributedEventHandlerManager EventHandlerManager { get; }
-    protected DistributedEventProcessor EventProcessor { get; }
     protected IUnitOfWorkManager UnitOfWorkManager { get; }
     protected ITenantContextAccessor TenantContextAccessor { get; }
     protected IInboxStore InboxStore { get; }

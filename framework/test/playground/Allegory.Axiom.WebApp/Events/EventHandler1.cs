@@ -12,7 +12,7 @@ public class EventHandler1(
 {
     protected ILogger<EventHandler1> Logger { get; } = logger;
 
-    public virtual async Task HandleAsync(Event1 payload, EventContext context)
+    public virtual async Task HandleAsync(Event1 payload)
     {
         Logger.LogInformation("{EventHandler} - started: {Payload}", GetType().Name, payload);
         await Task.Delay(TimeSpan.FromSeconds(Random.Shared.Next(1, 5)), unitOfWorkManager.RequiredCurrent.CancellationToken);

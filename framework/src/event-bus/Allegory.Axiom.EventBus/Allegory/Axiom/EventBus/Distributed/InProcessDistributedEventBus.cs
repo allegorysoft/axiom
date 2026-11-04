@@ -19,12 +19,12 @@ public class InProcessDistributedEventBus(
     ILogger<InProcessDistributedEventBus> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
-    DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
     ITenantContextAccessor tenantContextAccessor,
     IInboxStore inboxStore,
-    IOutboxStore outboxStore)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
+    IOutboxStore outboxStore) :
+    DistributedEventBusBase(
+        logger, options, eventHandlerManager, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
 {
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
 
@@ -67,7 +67,8 @@ public class InProcessDistributedEventBus(
         }
     }
 
-    protected override DistributedEventPublishMode GetPublishMode(DistributedEventPublishMode publishMode, Type payloadType)
+    protected override DistributedEventPublishMode GetPublishMode(DistributedEventPublishMode publishMode,
+        Type payloadType)
     {
         if (publishMode == DistributedEventPublishMode.Immediate || UnitOfWorkManager.Current == null)
         {
@@ -84,17 +85,12 @@ public class InProcessDistributedEventBus(
 
     protected override async Task PublishToMessageBrokerAsync(EventEnvelope envelope)
     {
-        var context = new EventContext
-        {
-            Id = envelope.Id
-        };
-
         foreach (var handler in Handlers[envelope.PayloadType])
         {
             // We should change tenant if envelope.TenantId != tenantAccessor.Current
             // OnUnitOfWorkCompleted triggers might change tenant when they publish
             // Same apply for LocalEventBus
-            await handler.HandleAsync(envelope.Payload, context);
+            await handler.HandleAsync(envelope.Payload);
         }
     }
 

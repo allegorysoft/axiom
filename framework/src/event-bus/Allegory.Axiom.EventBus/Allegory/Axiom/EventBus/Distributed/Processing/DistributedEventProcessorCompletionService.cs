@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Allegory.Axiom.EventBus.Distributed;
+namespace Allegory.Axiom.EventBus.Distributed.Processing;
 
 public class DistributedEventProcessorCompletionService(
     DistributedEventProcessor eventProcessor,
-    ILogger<DistributedEventProcessorCompletionService> logger)
-    : IHostedService
+    ILogger<DistributedEventProcessorCompletionService> logger) :
+    IHostedService
 {
     public Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 

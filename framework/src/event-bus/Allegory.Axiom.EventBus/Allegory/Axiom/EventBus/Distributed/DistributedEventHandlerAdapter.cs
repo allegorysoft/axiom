@@ -11,19 +11,19 @@ namespace Allegory.Axiom.EventBus.Distributed;
 public interface IDistributedEventHandlerAdapter
 {
     Type ServiceType { get; }
-    Task HandleAsync(object payload, EventContext context);
+    Task HandleAsync(object payload);
 }
 
 public class DistributedEventHandlerAdapter<T>(
-    IDistributedEventHandler<T> service)
-    : IDistributedEventHandlerAdapter
+    IDistributedEventHandler<T> service) :
+    IDistributedEventHandlerAdapter
 {
     public Type ServiceType => Service.GetType();
 
     protected internal readonly IDistributedEventHandler<T> Service = service;
 
-    public Task HandleAsync(object payload, EventContext context)
+    public Task HandleAsync(object payload)
     {
-        return Service.HandleAsync((T) payload, context);
+        return Service.HandleAsync((T) payload);
     }
 }
