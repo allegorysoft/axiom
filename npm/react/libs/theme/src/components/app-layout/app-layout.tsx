@@ -41,7 +41,7 @@ export function AppLayout() {
             </AppTabLayout>
           )}
 
-          <footer className="shrink-0 sticky bottom-0 mb-2 px-0.5">
+          <footer className="mb-2 shrink-0 sticky bottom-0 px-0.5">
             <AppBreadcrumb />
           </footer>
         </SidebarInset>
