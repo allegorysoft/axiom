@@ -27,22 +27,6 @@ export function AppLayout() {
   useScale();
   useRadius();
 
-  const TopBar = (
-    <>
-      <Header />
-      <AppBreadcrumb />
-    </>
-  );
-
-  const Default = (
-    <>
-      {TopBar}
-      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg">
-        <Outlet />
-      </div>
-    </>
-  );
-
   return (
     <SidebarProvider defaultOpen={state ?? true}>
       <SettingsDialogProvider>
@@ -50,14 +34,31 @@ export function AppLayout() {
 
         <SidebarInset>
           {layout === 'default' ? (
-            Default
+            <DefaultLayout />
           ) : (
-            <AppTabLayout>{TopBar}</AppTabLayout>
+            <AppTabLayout>
+              <Header />
+            </AppTabLayout>
           )}
+
+          <footer className="shrink-0 sticky bottom-0 mb-2">
+            <AppBreadcrumb />
+          </footer>
         </SidebarInset>
 
         <SettingsDialogHost />
       </SettingsDialogProvider>
     </SidebarProvider>
+  );
+}
+
+function DefaultLayout() {
+  return (
+    <>
+      <Header />
+      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg">
+        <Outlet />
+      </div>
+    </>
   );
 }
