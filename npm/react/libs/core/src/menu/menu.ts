@@ -5,7 +5,7 @@ export const DEFAULT_MENU_GROUP = 'Default';
 
 export interface MenuGroup<C = MenuNode<unknown>> {
   title: string;
-  isActive?: boolean;
+  active?: boolean;
   mode?: 'default' | 'collapsible';
   children: C[];
 }
@@ -15,7 +15,7 @@ export interface MenuNode<C> {
   title: string;
   badge?: string;
   permission?: string;
-  isActive?: boolean;
+  active?: boolean;
   children?: C[];
 }
 

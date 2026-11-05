@@ -42,7 +42,7 @@ export function NavGroupSection({
   const isCollapsible = group.mode === 'collapsible';
 
   const initialOpen =
-    group.isActive ||
+    group.active ||
     group.children.some((item) => isBranchActive(item, pathname));
 
   const [open, setOpen] = useState(initialOpen);

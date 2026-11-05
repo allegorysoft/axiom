@@ -13,7 +13,7 @@ import { ProfileTabKeys } from './enums/profile-tab-keys';
 export function provideProfileTabs() {
   profileTabStore.addGroup(ProfileTabKeys.Account, {
     mode: 'collapsible',
-    isActive: false,
+    active: false,
   });
 
   profileTabStore.add(

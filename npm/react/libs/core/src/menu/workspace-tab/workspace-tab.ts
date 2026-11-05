@@ -1,11 +1,9 @@
-import type { ReactNode } from 'react';
 import type { AxiomStore } from '../../models/common';
+import type { MenuNode } from '../menu';
 
-export interface WorkspaceTab {
-  icon?: ReactNode;
+type InternalWorkspaceTab = Pick<MenuNode<unknown>, 'icon' | 'title' | 'active'>;
+export interface WorkspaceTab extends InternalWorkspaceTab {
   url: string;
-  title: string;
-  active: boolean;
   empty?: boolean;
   ephemeral?: boolean;
 }
