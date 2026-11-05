@@ -4,7 +4,7 @@ import { edit, find, findGroup } from '../menu-utils';
 import type { Nav, NavGroup, NavPatch, NavState, NavStore } from './nav';
 
 const initialState: NavState = {
-  groups: [{ title: DEFAULT_MENU_GROUP, isActive: false, children: [] }],
+  groups: [{ title: DEFAULT_MENU_GROUP, active: false, children: [] }],
 };
 
 const baseStore = createStore<NavState>(initialState);
@@ -24,7 +24,7 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
       title,
       children: [],
       mode: 'default',
-      isActive: true,
+      active: true,
       ...options,
     };
 
@@ -72,7 +72,7 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
             ...prev.groups,
             {
               title: group,
-              isActive: false,
+              active: false,
               children: [item],
             },
           ],
@@ -109,7 +109,7 @@ export const navStore: NavStore = Object.assign({}, baseStore, {
   toggle(title: string, group = DEFAULT_MENU_GROUP): void {
     updateNode(group, title, (node) => ({
       ...node,
-      isActive: !node.isActive,
+      active: !node.active,
     }));
   },
 });

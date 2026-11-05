@@ -55,8 +55,8 @@ const GROUPS: TabGroup[] = [
 ];
 
 export function provideProfileTabs() {
-  for (const { title, children, isActive, mode } of GROUPS) {
-    profileTabStore.addGroup(title, { isActive, mode });
+  for (const { title, children, active, mode } of GROUPS) {
+    profileTabStore.addGroup(title, { active, mode });
     for (const tab of children) {
       profileTabStore.add(tab, title);
     }

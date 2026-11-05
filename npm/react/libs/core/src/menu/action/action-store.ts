@@ -11,7 +11,7 @@ import type {
 
 function createInitialState(): ActionState {
   return {
-    groups: [{ title: DEFAULT_MENU_GROUP, isActive: false, children: [] }],
+    groups: [{ title: DEFAULT_MENU_GROUP, active: false, children: [] }],
   };
 }
 
@@ -67,7 +67,7 @@ export function createActionStore(): ActionStore {
 
       const group: ActionGroup = {
         title,
-        isActive: false,
+        active: false,
         children: [],
         ...options,
       };
@@ -116,7 +116,7 @@ export function createActionStore(): ActionStore {
               ...prev.groups,
               {
                 title: group,
-                isActive: false,
+                active: false,
                 children: [item],
               },
             ],
@@ -153,7 +153,7 @@ export function createActionStore(): ActionStore {
     toggle(title: string, group = DEFAULT_MENU_GROUP): void {
       updateNode(group, title, (node) => ({
         ...node,
-        isActive: !node.isActive,
+        active: !node.active,
       }));
     },
   });

@@ -3,9 +3,9 @@ import { DEFAULT_MENU_GROUP } from '../menu/menu';
 import type { Tab, TabStore } from '../menu/tab/tab';
 import { createTabStore } from '../menu/tab/tab-store';
 
-const makeTab = (title: string, isActive = false): Tab => ({
+const makeTab = (title: string, active = false): Tab => ({
   title,
-  isActive,
+  active,
   component: (() => null) as never,
 });
 
@@ -19,7 +19,7 @@ describe('tab-store', () => {
   describe('state', () => {
     it('starts with the default group', () => {
       expect(store.get().groups).toEqual([
-        { title: DEFAULT_MENU_GROUP, isActive: false, children: [] },
+        { title: DEFAULT_MENU_GROUP, active: false, children: [] },
       ]);
     });
 
@@ -38,7 +38,7 @@ describe('tab-store', () => {
     it('getGroup returns the default group', () => {
       expect(store.getGroup()).toEqual({
         title: DEFAULT_MENU_GROUP,
-        isActive: false,
+        active: false,
         children: [],
       });
     });
@@ -52,7 +52,7 @@ describe('tab-store', () => {
 
       expect(group).toEqual({
         title: 'Checkout',
-        isActive: false,
+        active: false,
         children: [],
       });
       expect(store.getGroup('Checkout')).toEqual(group);
@@ -61,13 +61,13 @@ describe('tab-store', () => {
     it('addGroup applies options', () => {
       const child = makeTab('Cart');
       const group = store.addGroup('Checkout', {
-        isActive: true,
+        active: true,
         children: [child],
       });
 
       expect(group).toEqual({
         title: 'Checkout',
-        isActive: true,
+        active: true,
         children: [child],
       });
     });
@@ -99,11 +99,11 @@ describe('tab-store', () => {
   describe('patchGroup', () => {
     it('patches an existing group and returns the patched group', () => {
       store.addGroup('Checkout');
-      const patched = store.patchGroup('Checkout', { isActive: true });
+      const patched = store.patchGroup('Checkout', { active: true });
 
       expect(patched).toEqual({
         title: 'Checkout',
-        isActive: true,
+        active: true,
         children: [],
       });
       expect(store.getGroup('Checkout')).toEqual(patched);
@@ -111,34 +111,34 @@ describe('tab-store', () => {
 
     it('patches the default group', () => {
       const patched = store.patchGroup(DEFAULT_MENU_GROUP, {
-        isActive: true,
+        active: true,
       });
 
-      expect(patched.isActive).toBe(true);
-      expect(store.getGroup()?.isActive).toBe(true);
+      expect(patched.active).toBe(true);
+      expect(store.getGroup()?.active).toBe(true);
     });
 
     it('preserves existing children when patching', () => {
       store.add(makeTab('Home'));
-      store.patchGroup(DEFAULT_MENU_GROUP, { isActive: true });
+      store.patchGroup(DEFAULT_MENU_GROUP, { active: true });
 
       const group = store.getGroup();
-      expect(group?.isActive).toBe(true);
+      expect(group?.active).toBe(true);
       expect(group?.children).toHaveLength(1);
       expect(group?.children[0].title).toBe('Home');
     });
 
     it('does not mutate the previous group object', () => {
       const original = store.addGroup('Checkout');
-      store.patchGroup('Checkout', { isActive: true });
+      store.patchGroup('Checkout', { active: true });
 
-      expect(original.isActive).toBe(false);
-      expect(store.getGroup('Checkout')?.isActive).toBe(true);
+      expect(original.active).toBe(false);
+      expect(store.getGroup('Checkout')?.active).toBe(true);
     });
 
     it('returns the same reference that is stored in the state', () => {
       store.addGroup('Checkout');
-      const patched = store.patchGroup('Checkout', { isActive: true });
+      const patched = store.patchGroup('Checkout', { active: true });
 
       expect(store.getGroup('Checkout')).toBe(patched);
     });
@@ -147,13 +147,13 @@ describe('tab-store', () => {
       store.addGroup('Checkout');
       const untouched = store.getGroup(DEFAULT_MENU_GROUP);
 
-      store.patchGroup('Checkout', { isActive: true });
+      store.patchGroup('Checkout', { active: true });
 
       expect(store.getGroup(DEFAULT_MENU_GROUP)).toBe(untouched);
     });
 
     it('throws when the group does not exist', () => {
-      expect(() => store.patchGroup('Missing', { isActive: true })).toThrow(
+      expect(() => store.patchGroup('Missing', { active: true })).toThrow(
         /group "Missing" not found/,
       );
     });
@@ -220,43 +220,43 @@ describe('tab-store', () => {
   describe('update', () => {
     it('applies a partial patch', () => {
       store.add(makeTab('Home'));
-      store.update('Home', { isActive: true });
+      store.update('Home', { active: true });
 
-      expect(store.find('Home')?.isActive).toBe(true);
+      expect(store.find('Home')?.active).toBe(true);
     });
 
     it('applies a functional patch', () => {
       store.add(makeTab('Home', false));
-      store.update('Home', (tab) => ({ ...tab, isActive: !tab.isActive }));
+      store.update('Home', (tab) => ({ ...tab, active: !tab.active }));
 
-      expect(store.find('Home')?.isActive).toBe(true);
+      expect(store.find('Home')?.active).toBe(true);
     });
 
     it('updates a nested tab', () => {
       store.add(makeTab('Home'));
       store.add(makeTab('Sub', false), DEFAULT_MENU_GROUP, 'Home');
-      store.update('Sub', { isActive: true });
+      store.update('Sub', { active: true });
 
-      expect(store.find('Sub')?.isActive).toBe(true);
+      expect(store.find('Sub')?.active).toBe(true);
     });
 
     it('is a no-op when the tab is missing', () => {
       const before = store.get();
-      store.update('Missing', { isActive: true });
+      store.update('Missing', { active: true });
 
       expect(store.get()).toBe(before);
     });
   });
 
   describe('toggle', () => {
-    it('flips isActive', () => {
+    it('flips active', () => {
       store.add(makeTab('Home', false));
 
       store.toggle('Home');
-      expect(store.find('Home')?.isActive).toBe(true);
+      expect(store.find('Home')?.active).toBe(true);
 
       store.toggle('Home');
-      expect(store.find('Home')?.isActive).toBe(false);
+      expect(store.find('Home')?.active).toBe(false);
     });
 
     it('toggles a nested tab', () => {
@@ -264,7 +264,7 @@ describe('tab-store', () => {
       store.add(makeTab('Sub', false), DEFAULT_MENU_GROUP, 'Home');
 
       store.toggle('Sub');
-      expect(store.find('Sub')?.isActive).toBe(true);
+      expect(store.find('Sub')?.active).toBe(true);
     });
 
     it('is a no-op when the tab is missing', () => {

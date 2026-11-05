@@ -5,7 +5,7 @@ import type { Tab, TabGroup, TabPatch, TabState, TabStore } from './tab';
 
 function createInitialState(): TabState {
   return {
-    groups: [{ title: DEFAULT_MENU_GROUP, isActive: false, children: [] }],
+    groups: [{ title: DEFAULT_MENU_GROUP, active: false, children: [] }],
   };
 }
 
@@ -61,7 +61,7 @@ export function createTabStore(): TabStore {
 
       const group: TabGroup = {
         title,
-        isActive: false,
+        active: false,
         children: [],
         ...options,
       };
@@ -110,7 +110,7 @@ export function createTabStore(): TabStore {
               ...prev.groups,
               {
                 title: group,
-                isActive: false,
+                active: false,
                 children: [item],
               },
             ],
@@ -147,7 +147,7 @@ export function createTabStore(): TabStore {
     toggle(title: string, group = DEFAULT_MENU_GROUP): void {
       updateNode(group, title, (node) => ({
         ...node,
-        isActive: !node.isActive,
+        active: !node.active,
       }));
     },
   });

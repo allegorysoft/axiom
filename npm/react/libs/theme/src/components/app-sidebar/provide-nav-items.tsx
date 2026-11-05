@@ -103,7 +103,7 @@ export function provideNavItems() {
         {
           title: 'Users Management',
           mode: 'collapsible',
-          isActive: false,
+          active: false,
           children: [
             {
               title: 'Overview',
