@@ -1,2 +1,1 @@
-export type { ValidationOptions } from './models';
-export { configureValidation } from './config';
+export { DEFAULT_PATTERNS } from './patterns';

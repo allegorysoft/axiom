@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { DEFAULT_PATTERNS } from '@axiomframework/react-shared';
 
 export const schema = z
   .object({
@@ -6,11 +7,7 @@ export const schema = z
     surname: z.string().trim().min(1),
     username: z.string().trim().min(3),
     email: z.email().trim(),
-    password: z
-      .string()
-      .trim()
-      .min(7)
-      .regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).+$/),
+    password: z.string().trim().min(7).regex(DEFAULT_PATTERNS.password),
     confirmPassword: z.string().trim().min(7),
   })
   .required()

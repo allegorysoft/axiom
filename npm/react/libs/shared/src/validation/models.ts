@@ -8,5 +8,5 @@ export type AxiomInvalidFormatResolver = (
 ) => { key: string } | null;
 
 export type ValidationOptions = {
-  formatResolvers: Record<string, AxiomInvalidFormatResolver>;
+  formatResolvers?: Record<string, AxiomInvalidFormatResolver>;
 };

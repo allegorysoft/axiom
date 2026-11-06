@@ -2,6 +2,7 @@
   "extends": "./tsconfig.json",
   "references": [
     { "path": "../core/tsconfig.lib.json" },
+    { "path": "../shared/tsconfig.lib.json" },
     { "path": "../theme/tsconfig.lib.json" },
     { "path": "../components/tsconfig.lib.json" }
   ],
