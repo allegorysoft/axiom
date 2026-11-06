@@ -19,8 +19,6 @@
     "json-server": "json-server ./api/db.json"
   },
   "devDependencies": {
-    "@babel/core": "^7",
-    "@babel/preset-react": "^7",
     "@nx/js": "catalog:",
     "@nx/react": "catalog:",
     "@nx/vite": "catalog:",
