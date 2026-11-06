@@ -113,7 +113,7 @@ export function Component() {
               {t('AxiomAccount:Password')} *
             </FieldLabel>
             <PasswordInput
-              {...register('password')}
+              {...register('password', { deps: ['confirmPassword'] })}
               id="new-password"
               autoComplete="new-password"
               placeholder={t('AxiomAccount:Password')}
