@@ -170,7 +170,7 @@ public class Cache(
 
     protected virtual string NormalizeKey(string key, CacheTypeDescriptor descriptor)
     {
-        if (descriptor.IsTenantAgnostic || TenantContextAccessor.Current is null)
+        if (!descriptor.IsTenantOwned || TenantContextAccessor.Current is null)
         {
             //Host: prefix:{context}:{key}
             return $"{Options.KeyPrefix}{descriptor.Name}:{key}";
@@ -187,7 +187,7 @@ public class Cache(
         return new CacheTypeDescriptor
         {
             Name = item?.Name ?? GetContextName(type),
-            IsTenantAgnostic = item?.IsTenantAgnostic ?? type.IsDefined(typeof(TenantAgnosticAttribute), false),
+            IsTenantOwned = item?.IsTenantOwned ?? type.IsDefined(typeof(TenantOwnedAttribute), true),
             EntryOptions = item?.EntryOptions,
         };
 

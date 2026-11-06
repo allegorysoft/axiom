@@ -31,12 +31,12 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
         Cache.Descriptor<NamedCacheItem>().Name.ShouldBe("custom:name");
 
     [Fact]
-    public void ShouldMarkTenantAgnosticType() =>
-        Cache.Descriptor<AgnosticCacheItem>().IsTenantAgnostic.ShouldBeTrue();
+    public void ShouldMarkTenantOwnedType() =>
+        Cache.Descriptor<TenantOwnedCacheItem>().IsTenantOwned.ShouldBeTrue();
 
     [Fact]
-    public void ShouldNotMarkTenantAgnosticByDefault() =>
-        Cache.Descriptor<SomeCacheItem>().IsTenantAgnostic.ShouldBeFalse();
+    public void ShouldNotMarkTenantOwnedByDefault() =>
+        Cache.Descriptor<SomeCacheItem>().IsTenantOwned.ShouldBeFalse();
 
     [Fact]
     public void ShouldHaveNullEntryOptionsWhenUnconfigured() =>
@@ -51,19 +51,22 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             fixture.Service<HybridCache>(),
             Options.Create(new CacheOptions
             {
-                Types = {[typeof(SomeCacheItem)] = new CacheTypeOptions
+                Types =
                 {
-                    Name = "custom-name",
-                    IsTenantAgnostic = true,
-                    EntryOptions = entryOptions
-                }}
+                    [typeof(SomeCacheItem)] = new CacheTypeOptions
+                    {
+                        Name = "custom-name",
+                        IsTenantOwned = true,
+                        EntryOptions = entryOptions
+                    }
+                }
             }),
             fixture.Service<ITenantContextAccessor>(),
             fixture.Service<IUnitOfWorkManager>());
 
         var descriptor = cache.Descriptor<SomeCacheItem>();
         descriptor.Name.ShouldBe("custom-name");
-        descriptor.IsTenantAgnostic.ShouldBeTrue();
+        descriptor.IsTenantOwned.ShouldBeTrue();
         descriptor.EntryOptions.ShouldBeSameAs(entryOptions);
     }
 
@@ -92,26 +95,16 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
     [Fact]
     public void ShouldNormalizeTenantKey()
     {
-        var hostKey = Cache.Normalize<SomeCacheItem>("abc");
+        var hostKey = Cache.Normalize<TenantOwnedCacheItem>("abc");
         string tenantKey;
 
         using (TenantContextAccessor.Change(Tenant))
         {
-            tenantKey = Cache.Normalize<SomeCacheItem>("abc");
+            tenantKey = Cache.Normalize<TenantOwnedCacheItem>("abc");
         }
 
-        hostKey.ShouldBe("allegory:axiom:caching:some:abc");
-        tenantKey.ShouldBe($"tenant:{Tenant.Id:D}:allegory:axiom:caching:some:abc");
-    }
-
-    [Fact]
-    public void ShouldIgnoreTenantForTenantAgnosticType()
-    {
-        using (TenantContextAccessor.Change(Tenant))
-        {
-            Cache.Normalize<AgnosticCacheItem>("abc")
-                .ShouldBe("allegory:axiom:caching:agnostic:abc");
-        }
+        hostKey.ShouldBe("allegory:axiom:caching:tenant-owned:abc");
+        tenantKey.ShouldBe($"tenant:{Tenant.Id:D}:allegory:axiom:caching:tenant-owned:abc");
     }
 
     [Fact]
@@ -199,11 +192,11 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             {
                 await Cache.SetAsync(
                     "mm-tenant",
-                    new SomeCacheItem(),
+                    new TenantOwnedCacheItem(),
                     mutationMode: CacheMutationMode.OnUnitOfWorkComplete,
                     cancellationToken: TestContext.Current.CancellationToken);
 
-                (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeFalse();
+                (await Cache.ExistsAsync<TenantOwnedCacheItem>("mm-tenant")).ShouldBeFalse();
             }
 
             await unitOfWork.CompleteAsync(CancellationToken.None);
@@ -211,10 +204,10 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 
         using (TenantContextAccessor.Change(Tenant))
         {
-            (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeTrue();
+            (await Cache.ExistsAsync<TenantOwnedCacheItem>("mm-tenant")).ShouldBeTrue();
         }
 
-        (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeFalse();
+        (await Cache.ExistsAsync<TenantOwnedCacheItem>("mm-tenant")).ShouldBeFalse();
     }
 
     // Remove
@@ -430,8 +423,8 @@ public class TestableCache(
 
 public class SomeCacheItem;
 
-[TenantAgnostic]
-public class AgnosticCacheItem;
+[TenantOwned]
+public class TenantOwnedCacheItem;
 
 [CacheName("Custom.Name")]
 public class NamedCacheItem;
