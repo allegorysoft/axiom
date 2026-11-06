@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Text.Json;
 using Allegory.Axiom.EntityFrameworkCore;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +25,8 @@ public abstract class LocalizationModelBuilderContributorBase : IModelBuilderCon
 
             e.Property(p => p.Translations)
                 .HasConversion(
-                    static v => v.Count == 0 ? string.Empty : JsonSerializer.Serialize(v),
-                    static v => JsonSerializer.Deserialize<Dictionary<string, string>>(v)
-                                ?? new Dictionary<string, string>());
+                    static v => LocalizationSerializer.Instance.Serialize(v),
+                    static v => LocalizationSerializer.Instance.Deserialize(v));
 
             e.HasIndex(p => new {p.Name, p.Culture}).IsUnique();
         });

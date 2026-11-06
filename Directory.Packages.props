@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <RuntimePackageVersion>10.0.11</RuntimePackageVersion>
+        <RuntimePackageVersion>10.0.14</RuntimePackageVersion>
         <OpenTelemetryVersion>1.17.0</OpenTelemetryVersion>
         <FusionCacheVersion>2.6.0</FusionCacheVersion>
         <TestcontainersVersion>4.14.0</TestcontainersVersion>
@@ -71,6 +71,7 @@
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="System.IO.Hashing" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="System.Text.Json" Version="$(RuntimePackageVersion)"/>
         <!-- Official Microsoft Section End -->
 

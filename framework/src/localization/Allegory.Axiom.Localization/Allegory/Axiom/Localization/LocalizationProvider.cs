@@ -13,7 +13,9 @@ namespace Allegory.Axiom.Localization;
 
 public class LocalizationProvider : ILocalizationProvider, ISingletonService
 {
-    public LocalizationProvider(IOptions<LocalizationOptions> options, IFileProviderManager fileProviderManager)
+    public LocalizationProvider(
+        IOptions<LocalizationOptions> options,
+        IFileProviderManager fileProviderManager)
     {
         Options = options;
         FileProviderManager = fileProviderManager;
@@ -21,10 +23,10 @@ public class LocalizationProvider : ILocalizationProvider, ISingletonService
         FillContexts();
     }
 
+    public ConcurrentDictionary<string, LocalizationContext> Contexts { get; } = [];
+
     protected IOptions<LocalizationOptions> Options { get; }
     protected IFileProviderManager FileProviderManager { get; }
-
-    public ConcurrentDictionary<string, LocalizationContext> Contexts { get; } = [];
 
     protected void FillContexts()
     {
