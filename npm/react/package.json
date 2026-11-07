@@ -39,7 +39,7 @@
     "tslib": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
+    "unplugin-dts": "catalog:",
     "vite-plugin-static-copy": "catalog:",
     "vitest": "catalog:",
     "@testing-library/react": "catalog:",
