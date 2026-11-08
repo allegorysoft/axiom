@@ -1,4 +1,5 @@
-import { type ValidationOptions, configureValidation } from '../validation';
+import type { ValidationOptions } from '../validation/models';
+import { configureValidation } from '../validation/config';
 
 type SharedOptions = {
   validation?: ValidationOptions;

@@ -2,7 +2,7 @@
 import * as path from 'path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import dts from 'vite-plugin-dts';
+import dts from 'unplugin-dts/vite';
 import tailwindcss from '@tailwindcss/vite';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
 
@@ -52,6 +52,7 @@ export default defineConfig(() => ({
       external: [
         /^react$/,
         /^react-dom(\/.*)?$/,
+        /^react-router(\/.*)?$/,
         /^react\/jsx-runtime$/,
         /^@floating-ui/,
         /^@base-ui/,

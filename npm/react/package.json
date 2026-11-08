@@ -9,7 +9,7 @@
   "engines": {
     "node": ">= 24"
   },
-  "packageManager": "pnpm@11.20.0",
+  "packageManager": "pnpm@12.18.0",
   "scripts": {
     "dev": "nx dev",
     "build": "nx build",
@@ -19,8 +19,6 @@
     "json-server": "json-server ./api/db.json"
   },
   "devDependencies": {
-    "@babel/core": "^7",
-    "@babel/preset-react": "^7",
     "@nx/js": "catalog:",
     "@nx/react": "catalog:",
     "@nx/vite": "catalog:",
@@ -41,7 +39,7 @@
     "tslib": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:",
+    "unplugin-dts": "catalog:",
     "vite-plugin-static-copy": "catalog:",
     "vitest": "catalog:",
     "@testing-library/react": "catalog:",

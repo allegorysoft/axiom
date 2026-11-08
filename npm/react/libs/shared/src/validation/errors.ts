@@ -33,6 +33,9 @@ export const DEFAULT_ERRORS: Record<string, ValidationError> = {
 
       for (const resolver of Object.values(invalidFormatResolvers)) {
         value = resolver(<InvalidStringFormat>issue);
+        if (value) {
+          break;
+        }
       }
 
       return value;
