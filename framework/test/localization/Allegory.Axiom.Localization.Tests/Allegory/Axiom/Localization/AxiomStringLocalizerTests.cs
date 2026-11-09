@@ -1,4 +1,3 @@
-using System.Collections.Frozen;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -153,7 +152,7 @@ public class AxiomStringLocalizerTests(IntegrationTestFixture fixture) : IClassF
         localizationProvider.Contexts.TryGetValue(ResourceNameAttribute.Get<LocalizationResource>(), out var context);
 
         context.ShouldNotBeNull();
-        context.Translations = FrozenDictionary<string, FrozenDictionary<string, string>>.Empty;
+        context.Translations.Clear();
 
         strings = localizer.GetAllStrings(includeParentCultures: true);
         strings.Count().ShouldBe(0);

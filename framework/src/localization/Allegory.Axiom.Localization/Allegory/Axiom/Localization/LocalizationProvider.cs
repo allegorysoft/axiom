@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.FileProvider;
@@ -57,9 +58,9 @@ public class LocalizationProvider : ILocalizationProvider, ISingletonService
         var context = new LocalizationContext
         {
             DefaultCulture = resource.DefaultCulture.Name,
-            Translations = cultures.ToFrozenDictionary(
+            Translations = new ConcurrentDictionary<string, FrozenDictionary<string, string>>(cultures.ToDictionary(
                 x => x.Key,
-                x => x.Value.ToFrozenDictionary())
+                x => x.Value.ToFrozenDictionary()))
         };
 
         Contexts[resource.Name] = context;
