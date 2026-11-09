@@ -2,28 +2,23 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.Priority;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
-using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.Caching;
 
 public class Cache(
     HybridCache hybridCache,
-    IOptions<CacheOptions> options,
-    ITenantContextAccessor tenantContextAccessor,
-    IUnitOfWorkManager unitOfWorkManager)
-    : ICache, ISingletonService
+    ICacheKeyNormalizer keyNormalizer,
+    IUnitOfWorkManager unitOfWorkManager) :
+    ICache, ISingletonService
 {
     protected HybridCache HybridCache { get; } = hybridCache;
-    protected CacheOptions Options { get; } = options.Value;
-    protected ITenantContextAccessor TenantContextAccessor { get; } = tenantContextAccessor;
+    protected ICacheKeyNormalizer KeyNormalizer { get; } = keyNormalizer;
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected ConcurrentDictionary<Type, CacheTypeDescriptor> CacheTypeDescriptors { get; } = new();
 
@@ -35,10 +30,10 @@ public class Cache(
         IEnumerable<string>? tags = null,
         CancellationToken cancellationToken = default)
     {
-        var descriptor = CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
+        var descriptor = KeyNormalizer.GetDescriptor<T>();
 
         return HybridCache.GetOrCreateAsync(
-            NormalizeKey(key, descriptor),
+            KeyNormalizer.Normalize(key, descriptor),
             state,
             factory,
             options: options ?? descriptor.EntryOptions,
@@ -53,10 +48,10 @@ public class Cache(
         IEnumerable<string>? tags = null,
         CancellationToken cancellationToken = default)
     {
-        var descriptor = CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
+        var descriptor = KeyNormalizer.GetDescriptor<T>();
 
         return HybridCache.GetOrCreateAsync(
-            NormalizeKey(key, descriptor),
+            KeyNormalizer.Normalize(key, descriptor),
             factory,
             options: options ?? descriptor.EntryOptions,
             tags: tags,
@@ -71,11 +66,11 @@ public class Cache(
         CacheMutationMode mutationMode = CacheMutationMode.Immediate,
         CancellationToken cancellationToken = default)
     {
-        var descriptor = CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
-        var normalizedKey = NormalizeKey(key, descriptor);
+        var descriptor = KeyNormalizer.GetDescriptor<T>();
+        var normalizedKey = KeyNormalizer.Normalize(key, descriptor);
         var entryOptions = options ?? descriptor.EntryOptions;
 
-        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not {} unitOfWork)
+        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not { } unitOfWork)
         {
             return HybridCache.SetAsync(normalizedKey, value, entryOptions, tags, cancellationToken);
         }
@@ -93,10 +88,9 @@ public class Cache(
         CacheMutationMode mutationMode = CacheMutationMode.Immediate,
         CancellationToken cancellationToken = default)
     {
-        var descriptor = CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
-        var normalizedKey = NormalizeKey(key, descriptor);
+        var normalizedKey = KeyNormalizer.Normalize<T>(key);
 
-        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not {} unitOfWork)
+        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not { } unitOfWork)
         {
             return HybridCache.RemoveAsync(normalizedKey, cancellationToken);
         }
@@ -114,15 +108,16 @@ public class Cache(
         CacheMutationMode mutationMode = CacheMutationMode.Immediate,
         CancellationToken cancellationToken = default)
     {
-        var descriptor = CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
-        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not {} unitOfWork)
+        var descriptor = KeyNormalizer.GetDescriptor<T>();
+
+        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not { } unitOfWork)
         {
             return HybridCache.RemoveAsync(
-                keys.Select(key => NormalizeKey(key, descriptor)),
+                keys.Select(key => KeyNormalizer.Normalize(key, descriptor)),
                 cancellationToken);
         }
 
-        var normalizedKeys = keys.Select(key => NormalizeKey(key, descriptor)).ToArray();
+        var normalizedKeys = keys.Select(key => KeyNormalizer.Normalize(key, descriptor)).ToArray();
 
         unitOfWork.AddHook(
             UnitOfWorkHookPoint.AfterComplete,
@@ -137,7 +132,7 @@ public class Cache(
         CacheMutationMode mutationMode = CacheMutationMode.Immediate,
         CancellationToken cancellationToken = default)
     {
-        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not {} unitOfWork)
+        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not { } unitOfWork)
         {
             return HybridCache.RemoveByTagAsync(tag, cancellationToken);
         }
@@ -155,7 +150,7 @@ public class Cache(
         CacheMutationMode mutationMode = CacheMutationMode.Immediate,
         CancellationToken cancellationToken = default)
     {
-        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not {} unitOfWork)
+        if (mutationMode is CacheMutationMode.Immediate || UnitOfWorkManager.Current is not { } unitOfWork)
         {
             return HybridCache.RemoveByTagAsync(tags, cancellationToken: cancellationToken);
         }
@@ -166,38 +161,5 @@ public class Cache(
             PriorityLevel.Highest);
 
         return ValueTask.CompletedTask;
-    }
-
-    protected virtual string NormalizeKey(string key, CacheTypeDescriptor descriptor)
-    {
-        if (!descriptor.IsTenantOwned || TenantContextAccessor.Current is null)
-        {
-            //Host: prefix:{context}:{key}
-            return $"{Options.KeyPrefix}{descriptor.Name}:{key}";
-        }
-
-        //Tenant: prefix:tenant:{tenant-id}:{context}:{key}
-        return $"{Options.KeyPrefix}tenant:{TenantContextAccessor.Current.Id:D}:{descriptor.Name}:{key}";
-    }
-
-    protected static CacheTypeDescriptor GetCacheTypeDescriptor(Type type, CacheOptions options)
-    {
-        options.Types.TryGetValue(type, out var item);
-
-        return new CacheTypeDescriptor
-        {
-            Name = item?.Name ?? GetContextName(type),
-            IsTenantOwned = item?.IsTenantOwned ?? type.IsDefined(typeof(TenantOwnedAttribute), true),
-            EntryOptions = item?.EntryOptions,
-        };
-
-        static string GetContextName(Type t) =>
-            JsonNamingPolicy.KebabCaseLower.ConvertName(
-                Strip(CacheNameAttribute.Get(t).Replace('.', ':')));
-
-        static string Strip(string name) =>
-            name.EndsWith("CacheItem", StringComparison.OrdinalIgnoreCase)
-                ? name[..^9]
-                : name;
     }
 }
