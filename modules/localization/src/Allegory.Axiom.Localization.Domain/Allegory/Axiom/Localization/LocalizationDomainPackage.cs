@@ -10,7 +10,7 @@ internal sealed class LocalizationDomainPackage : IConfigureApplication
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
         builder.Services.AddSingleton(LocalizationSerializer.Instance);
-        builder.Services.AddHostedService<LocalizationContextWorker>();
+        builder.Services.AddHostedService<LocalizationSynchronizerWorker>();
 
         return Task.CompletedTask;
     }

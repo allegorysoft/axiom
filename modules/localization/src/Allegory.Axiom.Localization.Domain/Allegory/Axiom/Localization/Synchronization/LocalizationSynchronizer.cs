@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO.Hashing;
 using System.Security.Cryptography;
@@ -24,6 +25,30 @@ public class LocalizationSynchronizer(
 
     public virtual async Task PushAsync()
     {
+        /*
+        localizations:resources
+        [
+             {
+               "name": "App",
+               "defaultCulture": "en",
+               "cultures": ["en", "tr", "fr", "de"]
+             },
+             {
+               "name": "Identity",
+               "defaultCulture": "en",
+               "cultures": ["en", "tr"]
+             }
+         ]
+         
+         localizations:translations:App:en
+         {
+             "Welcome": "Welcome",
+             "Logout": "Log out",
+             "Save": "Save",
+             "Cancel": "Cancel"
+         }
+        */
+
         foreach (var context in LocalizationProvider.Contexts)
         {
             await PushAsync(context.Key, context.Value);
@@ -40,10 +65,13 @@ public class LocalizationSynchronizer(
             return;
         }
 
+        //context.Translations["a"] = new Dictionary<string, string>().ToFrozenDictionary();
+        
         foreach (var (culture, translations) in context.Translations)
         {
             var json = Serializer.Serialize(translations);
             var hash = XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(json));
+            //localizations:sync:name:culture
         }
     }
 

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Localization;
 
-public class LocalizationContextWorker(
+public class LocalizationSynchronizerWorker(
     ILocalizationProvider localizationProvider,
     ILocalizationRecordRepository localizationRepository,
     ICache cache,
@@ -26,9 +26,7 @@ public class LocalizationContextWorker(
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
         }
-        // Cache models:
-        // app:localizations:resources = [ { Name=XModule, DefaultCulture=en } ]
-        // app:localizations:translations:xmodule = { "en": { "key": value }, "tr": { "key": value } }
+
     }
 
     protected virtual async Task SynchronizeAsync(CancellationToken cancellationToken)
