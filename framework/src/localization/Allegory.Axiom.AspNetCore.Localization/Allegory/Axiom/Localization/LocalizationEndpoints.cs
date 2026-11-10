@@ -1,9 +1,10 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.Localization;
@@ -18,7 +19,7 @@ public static class LocalizationEndpoints
         var group = routes.MapGroup("/api/axiom/application/localization");
 
         group.MapGet("/languages", GetLanguages);
-        group.MapGet("/translations", GetTranslationsAsync);
+        group.MapGet("/translations", GetTranslations);
     }
 
     private static IResult GetLanguages(IOptions<RequestLocalizationOptions> options)
@@ -36,8 +37,16 @@ public static class LocalizationEndpoints
         return Results.Ok(Languages);
     }
 
-    private static async ValueTask<IResult> GetTranslationsAsync()
+    private static IResult GetTranslations(ILocalizationProvider provider, IStringLocalizerFactory factory)
     {
-        return Results.Ok();
+        var translations = new Dictionary<string, Dictionary<string, string>>();
+
+        foreach (var context in provider.Contexts)
+        {
+            var localizer = factory.Create(context.Key, string.Empty);
+            translations[context.Key] = localizer.GetAllStrings(true).ToDictionary(x => x.Name, x => x.Value);
+        }
+
+        return Results.Ok(translations);
     }
 }
