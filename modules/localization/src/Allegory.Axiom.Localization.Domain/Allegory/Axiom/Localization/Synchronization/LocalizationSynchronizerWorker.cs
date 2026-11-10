@@ -7,29 +7,17 @@ using Microsoft.Extensions.Hosting;
 
 namespace Allegory.Axiom.Localization;
 
-public class LocalizationSynchronizerWorker(
-    ILocalizationProvider localizationProvider,
-    ILocalizationRecordRepository localizationRepository,
-    ICache cache,
-    IUnitOfWorkManager unitOfWorkManager) :
-    BackgroundService
+public class LocalizationSynchronizerWorker(LocalizationSynchronizer synchronizer) : BackgroundService
 {
-    public ILocalizationProvider LocalizationProvider { get; } = localizationProvider;
-    public ILocalizationRecordRepository LocalizationRepository { get; } = localizationRepository;
-    public ICache Cache { get; } = cache;
-    public IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+    public LocalizationSynchronizer Synchronizer { get; } = synchronizer;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        // Sync first?
+        await Synchronizer.PushAsync(); // Re-try policy
+
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
         }
-
-    }
-
-    protected virtual async Task SynchronizeAsync(CancellationToken cancellationToken)
-    {
     }
 }

@@ -152,7 +152,9 @@
   </Folder>
   <Folder Name="/modules/" />
   <Folder Name="/modules/localization/" />
-  <Folder Name="/modules/localization/host/" />
+  <Folder Name="/modules/localization/host/">
+    <Project Path="modules/localization/Allegory.Axiom.Localization.ConsoleApp/Allegory.Axiom.Localization.ConsoleApp.csproj" />
+  </Folder>
   <Folder Name="/modules/localization/src/">
     <Project Path="modules/localization/src/Allegory.Axiom.Localization.Domain/Allegory.Axiom.Localization.Domain.csproj" />
     <Project Path="modules/localization/src/Allegory.Axiom.Localization.EntityFrameworkCore.MongoDB/Allegory.Axiom.Localization.EntityFrameworkCore.MongoDB.csproj" />
