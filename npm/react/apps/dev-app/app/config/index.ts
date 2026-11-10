@@ -21,11 +21,11 @@ export async function loadEnvironment() {
 }
 
 export function configureApplication() {
-  configureAccount()
   configureCore({ localization: { remote: { skipProvider: true } } });
   configureShared();
   configureOAuth({ skipDiscovery: true });
   configureTheme();
+  configureAccount();
 
   initPreferencesSync();
 

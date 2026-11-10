@@ -3,11 +3,18 @@ import type { AxiomStore } from '../models/common';
 
 export const DEFAULT_MENU_GROUP = 'Default';
 
+export const enum MenuPriority {
+  High = 1,
+  Medium = 0,
+  Low = -1,
+}
+
 export interface MenuGroup<C = MenuNode<unknown>> {
   title: string;
   active?: boolean;
   mode?: 'default' | 'collapsible';
   children: C[];
+  priority?: MenuPriority | number;
 }
 
 export interface MenuNode<C> {
@@ -17,6 +24,7 @@ export interface MenuNode<C> {
   permission?: string;
   active?: boolean;
   children?: C[];
+  priority?: MenuPriority | number;
 }
 
 export type MenuState<TNode> = { groups: MenuGroup<TNode>[] };

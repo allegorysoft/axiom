@@ -32,10 +32,12 @@ export function SettingsDialog({
   const { setActiveGroup, setActiveTab } = useSettingsDialog();
   const [query, setQuery] = useState('');
 
-  let visibleGroups = groups;
+  let visibleGroups = [...groups].sort(
+    (a, b) => (b.priority || 0) - (a.priority || 0),
+  );
   const search = query.trim().toLowerCase();
   if (search) {
-    visibleGroups = groups.filter((g) =>
+    visibleGroups = visibleGroups.filter((g) =>
       g.children.some((item) =>
         [item.title, g.title].some((label) =>
           label.toLowerCase().includes(search),
@@ -47,10 +49,10 @@ export function SettingsDialog({
   useLayoutEffect(() => {
     if (open) {
       setQuery('');
-      const firstGroup = groups.at(0);
+      const firstGroup = visibleGroups[0];
       if (firstGroup) {
         setActiveGroup(firstGroup);
-        setActiveTab(firstGroup.children.at(0));
+        setActiveTab(firstGroup.children[0]);
       }
     }
   }, [open]);
