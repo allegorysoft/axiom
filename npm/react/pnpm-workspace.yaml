@@ -49,5 +49,6 @@ catalog:
   '@types/react': ^19
   '@types/react-dom': ^19
 
-  typescript: ~6.0.0
+  "typescript": "npm:@typescript/typescript6@~6.0.0"
+  "@typescript/native": "npm:typescript@~7.0.0"
   json-server: ~0.17.0

@@ -5,8 +5,6 @@
     "jsx": "react-jsx",
     "lib": ["DOM", "ES2022"],
     "allowJs": false,
-    "esModuleInterop": false,
-    "ignoreDeprecations": "6.0",
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "types": ["vite/client"],

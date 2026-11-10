@@ -38,6 +38,7 @@
     "prettier": "catalog:",
     "tslib": "catalog:",
     "typescript": "catalog:",
+    "@typescript/native": "catalog:",
     "vite": "catalog:",
     "unplugin-dts": "catalog:",
     "vite-plugin-static-copy": "catalog:",
