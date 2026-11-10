@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Allegory.Axiom.EntityFrameworkCore;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Allegory.Axiom.Localization;
 
@@ -26,7 +28,8 @@ public abstract class LocalizationModelBuilderContributorBase : IModelBuilderCon
             e.Property(p => p.Translations)
                 .HasConversion(
                     static v => LocalizationSerializer.Instance.Serialize(v),
-                    static v => LocalizationSerializer.Instance.Deserialize(v));
+                    static v => LocalizationSerializer.Instance.Deserialize(v),
+                    ValueComparer.CreateDefault<Dictionary<string, string>>(favorStructuralComparisons: false));
 
             e.HasIndex(p => new {p.Name, p.Culture}).IsUnique();
         });

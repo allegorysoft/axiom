@@ -7,6 +7,7 @@ using Allegory.Axiom.Domain.Entities.Auditing;
 using Allegory.Axiom.Extensibility;
 using Allegory.Axiom.MultiTenancy;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Allegory.Axiom.EntityFrameworkCore;
@@ -160,7 +161,8 @@ public class GlobalModelBuilder
                 .Property<IDictionary<string, object>>(nameof(IExtraProperties.ExtraProperties))
                 .HasConversion(
                     static v => ExtraPropertiesManager.Instance.Serialize(v),
-                    static v => ExtraPropertiesManager.Instance.Deserialize(v));
+                    static v => ExtraPropertiesManager.Instance.Deserialize(v),
+                    ValueComparer.CreateDefault<IDictionary<string, object>>(favorStructuralComparisons: false));
         }
     }
 
