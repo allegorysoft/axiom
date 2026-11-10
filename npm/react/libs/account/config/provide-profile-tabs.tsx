@@ -7,13 +7,14 @@ import {
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 
-import { profileTabStore } from '@axiomframework/react-core';
+import { MenuPriority, profileTabStore } from '@axiomframework/react-core';
 import { ProfileTabKeys } from './enums/profile-tab-keys';
 
 export function provideProfileTabs() {
   profileTabStore.addGroup(ProfileTabKeys.Account, {
     mode: 'collapsible',
     active: false,
+    priority: MenuPriority.High,
   });
 
   profileTabStore.add(
