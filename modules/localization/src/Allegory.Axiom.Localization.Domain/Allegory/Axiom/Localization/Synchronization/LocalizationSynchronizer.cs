@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Frozen;
 using System.IO.Hashing;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Allegory.Axiom.Caching;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.DistributedLocking;
-using Allegory.Axiom.Domain.Repositories;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -36,9 +37,9 @@ public class LocalizationSynchronizer(
 
     public virtual async Task PushAsync()
     {
-        foreach (var context in LocalizationProvider.Contexts)
+        foreach (var (name, context) in LocalizationProvider.Contexts)
         {
-            await PushAsync(context.Key, context.Value);
+            await PushAsync(name, context);
         }
     }
 
@@ -46,7 +47,7 @@ public class LocalizationSynchronizer(
     {
         await using var handle = await DistributedLock.TryAcquireAsync(name);
 
-        if (handle == null)
+        if (handle is null)
         {
             Logger.LogSynchronizationSkipped(name);
             return;
@@ -64,11 +65,10 @@ public class LocalizationSynchronizer(
         string culture,
         FrozenDictionary<string, string> translations)
     {
-        //localizations:sync:name:culture
-        var key = CacheKeyNormalizer.Normalize($"localizations:sync:{name}:{culture}");
+        var cacheKey = CacheKeyNormalizer.Normalize($"localizations:sync:{name}:{culture}");
         var cachedHash = await HybridCache.GetOrCreateAsync(
-            key,
-            static _ => ValueTask.FromResult((ulong) 0));
+            cacheKey,
+            static _ => ValueTask.FromResult(0UL));
 
         var json = Serializer.Serialize(translations);
         var hash = XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(json));
@@ -80,7 +80,32 @@ public class LocalizationSynchronizer(
         }
 
         await using var uow = UnitOfWorkManager.Begin();
-        var record = await Repository.FindAsync(e => e.Name == name && e.Culture == culture);
+
+        var record = await Repository.FindAsync(x => x.Name == name && x.Culture == culture);
+        var translationDictionary = translations.ToDictionary();
+
+        if (record is null)
+        {
+            await Repository.AddAsync(new LocalizationRecord(name, culture, context.DefaultCulture == culture)
+            {
+                Translations = translationDictionary
+            });
+        }
+        else
+        {
+            record.Translations = translationDictionary;
+        }
+
+        uow.AddHook(UnitOfWorkHookPoint.AfterComplete, async () =>
+        {
+            await HybridCache.SetAsync(cacheKey, hash, new HybridCacheEntryOptions
+            {
+                Expiration = TimeSpan.FromDays(30)
+            });
+            Logger.LogSynchronizationCompleted(name, culture);
+        });
+
+        await uow.TryCompleteAsync();
     }
 
     //Pull
