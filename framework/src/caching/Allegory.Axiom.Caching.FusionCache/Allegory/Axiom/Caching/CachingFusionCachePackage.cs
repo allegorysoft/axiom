@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.Json;
+using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,7 @@ internal sealed class CachingFusionCachePackage : IConfigureApplication
     {
         var cacheBuilder = builder.Services
             .AddFusionCache()
-            .WithSerializer(new FusionCacheSystemTextJsonSerializer())
+            .WithSerializer(new FusionCacheSystemTextJsonSerializer(new JsonSerializerOptions { IncludeFields = true }))
             .WithDistributedCache(sp => sp.GetRequiredService<IDistributedCache>())
             .WithBackplane(sp =>
             {
