@@ -5,7 +5,6 @@
     "outDir": "../../dist/apps",
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["vite/client", "node"],
-    "esModuleInterop": true,
     "jsx": "react-jsx",
     "resolveJsonModule": true,
     "allowJs": true,

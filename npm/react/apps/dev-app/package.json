@@ -20,6 +20,7 @@
     "tailwindcss": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "typescript": "catalog:",
+    "@typescript/native": "catalog:",
     "vite": "catalog:",
     "@vitejs/plugin-react": "catalog:"
   }
