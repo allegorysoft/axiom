@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\framework\src\caching\Allegory.Axiom.Caching.FusionCache\Allegory.Axiom.Caching.FusionCache.csproj"/>
+        <ProjectReference Include="..\..\..\framework\src\distributed-locking\Allegory.Axiom.DistributedLocking.Madelson\Allegory.Axiom.DistributedLocking.Madelson.csproj"/>
         <ProjectReference Include="..\..\..\framework\src\template\Allegory.Axiom.Template.Framework.Implementations\Allegory.Axiom.Template.Framework.Implementations.csproj"/>
         <ProjectReference Include="..\src\Allegory.Axiom.Localization.EntityFrameworkCore\Allegory.Axiom.Localization.EntityFrameworkCore.csproj"/>
     </ItemGroup>

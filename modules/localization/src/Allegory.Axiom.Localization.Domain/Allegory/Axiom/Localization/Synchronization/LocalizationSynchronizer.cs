@@ -3,6 +3,7 @@ using System.Collections.Frozen;
 using System.IO.Hashing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Caching;
 using Allegory.Axiom.DependencyInjection;
@@ -35,17 +36,22 @@ public class LocalizationSynchronizer(
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected ILocalizationRecordRepository Repository { get; } = repository;
 
-    public virtual async Task PushAsync()
+    public virtual async Task PushAsync(CancellationToken cancellationToken = default)
     {
         foreach (var (name, context) in LocalizationProvider.Contexts)
         {
-            await PushAsync(name, context);
+            await PushAsync(name, context, cancellationToken);
         }
     }
 
-    protected virtual async Task PushAsync(string name, LocalizationContext context)
+    protected virtual async Task PushAsync(
+        string name,
+        LocalizationContext context,
+        CancellationToken cancellationToken = default)
     {
-        await using var handle = await DistributedLock.TryAcquireAsync(name);
+        await using var handle = await DistributedLock.TryAcquireAsync(
+            $"localizations:sync:{name}",
+            cancellationToken: cancellationToken);
 
         if (handle is null)
         {
@@ -55,7 +61,7 @@ public class LocalizationSynchronizer(
 
         foreach (var (culture, translations) in context.Translations)
         {
-            await PushAsync(name, context, culture, translations);
+            await PushAsync(name, context, culture, translations, cancellationToken);
         }
     }
 
@@ -63,12 +69,18 @@ public class LocalizationSynchronizer(
         string name,
         LocalizationContext context,
         string culture,
-        FrozenDictionary<string, string> translations)
+        FrozenDictionary<string, string> translations,
+        CancellationToken cancellationToken = default)
     {
         var cacheKey = CacheKeyNormalizer.Normalize($"localizations:sync:{name}:{culture}");
         var cachedHash = await HybridCache.GetOrCreateAsync(
             cacheKey,
-            static _ => ValueTask.FromResult(0UL));
+            static _ => ValueTask.FromResult<ulong>(0), // Never called because DisableUnderlyingData flag
+            new HybridCacheEntryOptions
+            {
+                Flags = HybridCacheEntryFlags.DisableUnderlyingData
+            },
+            cancellationToken: cancellationToken);
 
         var json = Serializer.Serialize(translations);
         var hash = XxHash64.HashToUInt64(Encoding.UTF8.GetBytes(json));
@@ -79,17 +91,20 @@ public class LocalizationSynchronizer(
             return;
         }
 
-        await using var uow = UnitOfWorkManager.Begin();
+        await using var uow = UnitOfWorkManager.Begin(cancellationToken: cancellationToken);
 
-        var record = await Repository.FindAsync(x => x.Name == name && x.Culture == culture);
+        var record = await Repository.FindAsync(
+            x => x.Name == name && x.Culture == culture,
+            cancellationToken: CancellationToken.None);
         var translationDictionary = translations.ToDictionary();
 
         if (record is null)
         {
-            await Repository.AddAsync(new LocalizationRecord(name, culture, context.DefaultCulture == culture)
-            {
-                Translations = translationDictionary
-            });
+            await Repository.AddAsync(
+                new LocalizationRecord(name, culture, context.DefaultCulture == culture)
+                {
+                    Translations = translationDictionary
+                }, cancellationToken: CancellationToken.None);
         }
         else
         {
@@ -98,14 +113,18 @@ public class LocalizationSynchronizer(
 
         uow.AddHook(UnitOfWorkHookPoint.AfterComplete, async () =>
         {
-            await HybridCache.SetAsync(cacheKey, hash, new HybridCacheEntryOptions
-            {
-                Expiration = TimeSpan.FromDays(30)
-            });
-            Logger.LogSynchronizationCompleted(name, culture);
+            await HybridCache.SetAsync(
+                cacheKey,
+                hash,
+                new HybridCacheEntryOptions
+                {
+                    Expiration = TimeSpan.FromDays(30),
+                    Flags = HybridCacheEntryFlags.DisableLocalCache
+                }, cancellationToken: CancellationToken.None);
+            Logger.LogSynchronized(name, culture);
         });
 
-        await uow.TryCompleteAsync();
+        await uow.TryCompleteAsync(CancellationToken.None);
     }
 
     //Pull
