@@ -20,4 +20,5 @@ export * from './app-sidebar/index';
 export * from './settings-dialog/index';
 export * from './preferences/index';
 export * from './app-layout/index';
+export * from './data-table/index';
 export * from './config';

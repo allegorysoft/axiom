@@ -43,6 +43,7 @@
     "@base-ui/react": "catalog:",
     "shadcn": "catalog:",
     "cn": "catalog:",
-    "tw-animate-css": "^1"
+    "tw-animate-css": "^1",
+    "@tanstack/react-table": "catalog:"
   }
 }

@@ -72,7 +72,7 @@ export function UserDropdownActions() {
           className="gap-2 px-2 py-2"
           disabled
         >
-          {t('AxiomBase:NoItemFound')}
+          {t('AxiomBase:NoRecordFound')}
         </DropdownMenuItem>
       )}
 
