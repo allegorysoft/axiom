@@ -17,6 +17,7 @@ public class LocalizationSynchronizerWorker(
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
         await PushAsync(cancellationToken);
+        await Synchronizer.RefreshAsync(cancellationToken);
 
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
         while (await timer.WaitForNextTickAsync(cancellationToken))

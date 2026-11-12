@@ -127,5 +127,46 @@ public class LocalizationSynchronizer(
         await uow.TryCompleteAsync(CancellationToken.None);
     }
 
-    //Pull
+    public virtual async Task RefreshAsync(CancellationToken cancellationToken = default)
+    {
+        var resources = await GetResourcesAsync(cancellationToken);
+
+        foreach (var resource in resources.Items)
+        {
+            var context = LocalizationProvider.Contexts.GetOrAdd(
+                resource.Name,
+                static (_, r) => new LocalizationContext
+                {
+                    DefaultCulture = r.DefaultCulture
+                }, resource);
+
+            foreach (var culture in resource.Cultures)
+            {
+                //context.Translations[culture] = 
+            }
+        }
+    }
+
+    protected virtual ValueTask<LocalizationResourcesCacheItem> GetResourcesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return HybridCache.GetOrCreateAsync(
+            "localizations:resources",
+            this,
+            static async (instance, ct) =>
+            {
+                await using var uow = instance.UnitOfWorkManager.Begin(
+                    cancellationToken: ct,
+                    options: UnitOfWorkOptions.Suppress);
+
+                var resources = await instance.Repository.GetResourceListAsync(ct);
+
+                return new LocalizationResourcesCacheItem
+                {
+                    Items = resources
+                };
+            },
+            new HybridCacheEntryOptions {Expiration = TimeSpan.FromHours(1)},
+            cancellationToken: cancellationToken);
+    }
 }

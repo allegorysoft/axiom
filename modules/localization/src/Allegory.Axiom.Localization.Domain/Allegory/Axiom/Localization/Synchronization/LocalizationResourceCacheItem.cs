@@ -1,25 +1,10 @@
 using System.Collections.Immutable;
+using System.ComponentModel;
 
 namespace Allegory.Axiom.Localization;
 
-public class LocalizationResourceCacheItem
+[ImmutableObject(true)]
+public sealed class LocalizationResourcesCacheItem
 {
-    /*
-     localizations:resources
-       [
-            {
-              "name": "App",
-              "defaultCulture": "en",
-              "cultures": ["en", "tr", "fr", "de"]
-            },
-            {
-              "name": "Identity",
-              "defaultCulture": "en",
-              "cultures": ["en", "tr"]
-            }
-        ]
-     */
-    public string Name { get; set; } = null!;
-    public string DefaultCulture { get; set; } = null!;
-    public ImmutableArray<string> Cultures { get; set; }
+    public ImmutableArray<LocalizationResourceProjection> Items { get; set; }
 }
