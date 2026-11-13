@@ -44,6 +44,9 @@
     "shadcn": "catalog:",
     "cn": "catalog:",
     "tw-animate-css": "^1",
-    "@tanstack/react-table": "catalog:"
+    "@tanstack/react-table": "catalog:",
+    "@dnd-kit/core": "catalog:",
+    "@dnd-kit/utilities": "catalog:",
+    "@dnd-kit/modifiers": "catalog:"
   }
 }

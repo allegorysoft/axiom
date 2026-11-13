@@ -33,6 +33,9 @@ catalog:
   '@hugeicons/react': ~1.1.0
   '@hugeicons/core-free-icons': ~4.4.0
   '@tanstack/react-table': ~9.3.0
+  '@dnd-kit/core': ~6.3.0
+  '@dnd-kit/utilities': ~3.2.0
+  '@dnd-kit/modifiers': ~9.0.0
 
   vite: ^8
   vitest: ~5.1.0

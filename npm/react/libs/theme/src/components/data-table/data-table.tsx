@@ -116,7 +116,7 @@ function renderHeaderRow<T extends TableFeatures, D extends RowData>(
         let content = table.FlexRender({ header });
         const isString = typeof column.columnDef.header === 'string';
 
-        if (header.isPlaceholder === null && isString) {
+        if (header.isPlaceholder !== null && isString) {
           content = t(column.columnDef.header as string);
         }
 

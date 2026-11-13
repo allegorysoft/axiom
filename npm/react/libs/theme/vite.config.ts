@@ -56,6 +56,7 @@ export default defineConfig(() => ({
         /^react\/jsx-runtime$/,
         /^@floating-ui/,
         /^@base-ui/,
+        /^@dnd-kit/,
         "@tanstack/react-table",
         '@axiomframework/react-core',
         '@hugeicons/react',
