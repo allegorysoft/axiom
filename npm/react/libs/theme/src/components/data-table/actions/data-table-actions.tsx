@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import type {
   CellContext,
   RowData,
@@ -12,40 +13,57 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
+import { useTranslation } from '@axiomframework/react-core';
 
 interface DataTableAction<TData> {
+  icon?: ReactNode;
   label: string;
   onClick: (data: TData) => void;
   permission?: string;
 }
 
 export function createDataTableActionsColumn<
-  TFeatures extends TableFeatures,
-  TData extends RowData,
->(actions: DataTableAction<TData>[]) {
+  T extends TableFeatures,
+  D extends RowData,
+>(actions: DataTableAction<D>[]) {
   return {
     id: 'actions',
     header: 'AxiomTheme:Actions',
-    cell: ({ row }: CellContext<TFeatures, TData>) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger
-          render={
-            <Button variant="ghost" size="icon-sm" aria-label="Row actions">
-              <HugeiconsIcon icon={MoreHorizontalIcon} />
-            </Button>
-          }
-        />
-        <DropdownMenuContent align="end">
-          {actions.map((action) => (
-            <DropdownMenuItem
-              key={action.label}
-              onClick={() => action.onClick(row.original)}
-            >
-              {action.label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+    cell: ({ row }: CellContext<T, D>) => (
+      <DataTableActionsCell actions={actions} data={row.original} />
     ),
   };
+}
+
+function DataTableActionsCell<TData extends RowData>({
+  actions,
+  data,
+}: {
+  actions: DataTableAction<TData>[];
+  data: TData;
+}) {
+  const t = useTranslation();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button variant="ghost" size="icon-sm" aria-label="Row actions">
+            <HugeiconsIcon icon={MoreHorizontalIcon} />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end">
+        {actions.map((action) => (
+          <DropdownMenuItem
+            key={action.label}
+            onClick={() => action.onClick(data)}
+          >
+            {action.icon}
+            {t(action.label)}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
