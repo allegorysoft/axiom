@@ -28,12 +28,12 @@ internal static partial class LoggerExtensions
 
     [LoggerMessage(
         LogLevel.Error,
-        Message = "Localization synchronization failed")]
+        "Localization synchronization failed")]
     public static partial void LogSynchronizationException(this ILogger logger, Exception exception);
 
     [LoggerMessage(
         LogLevel.Warning,
-        Message = "Localization synchronization failed. Retrying in {Seconds} seconds...")]
+        "Localization synchronization failed. Retrying in {Seconds} seconds...")]
     public static partial void LogSynchronizationFailedRetry(this ILogger logger, int seconds);
 
     [LoggerMessage(
@@ -43,4 +43,17 @@ internal static partial class LoggerExtensions
         this ILogger logger,
         string name,
         string culture);
+
+    [LoggerMessage(
+        LogLevel.Debug,
+        "Translations for localization resource '{Name}' ({Culture}) loaded from database")]
+    public static partial void LogTranslationsLoadedFromDatabase(
+        this ILogger<LocalizationSynchronizer> logger,
+        string name,
+        string culture);
+
+    [LoggerMessage(
+        LogLevel.Warning,
+        Message = "Localization reload failed")]
+    public static partial void LogReloadFailed(this ILogger logger, Exception exception);
 }

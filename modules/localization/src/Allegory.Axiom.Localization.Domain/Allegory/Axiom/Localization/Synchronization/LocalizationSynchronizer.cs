@@ -34,15 +34,15 @@ public class LocalizationSynchronizer(
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected ILocalizationRecordRepository Repository { get; } = repository;
 
-    public virtual async Task PushAsync(CancellationToken cancellationToken = default)
+    public virtual async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
         foreach (var (name, context) in LocalizationProvider.Contexts)
         {
-            await PushAsync(name, context, cancellationToken);
+            await SynchronizeAsync(name, context, cancellationToken);
         }
     }
 
-    protected virtual async Task PushAsync(
+    protected virtual async Task SynchronizeAsync(
         string name,
         LocalizationContext context,
         CancellationToken cancellationToken = default)
@@ -59,11 +59,11 @@ public class LocalizationSynchronizer(
 
         foreach (var (culture, translations) in context.Translations)
         {
-            await PushAsync(name, context, culture, translations, cancellationToken);
+            await SynchronizeAsync(name, context, culture, translations, cancellationToken);
         }
     }
 
-    protected virtual async Task PushAsync(
+    protected virtual async Task SynchronizeAsync(
         string name,
         LocalizationContext context,
         string culture,
@@ -125,7 +125,7 @@ public class LocalizationSynchronizer(
         await uow.TryCompleteAsync(CancellationToken.None);
     }
 
-    public virtual async Task RefreshAsync(CancellationToken cancellationToken = default)
+    public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
     {
         var resources = await GetResourcesAsync(cancellationToken);
 
@@ -141,15 +141,7 @@ public class LocalizationSynchronizer(
             foreach (var culture in resource.Cultures)
             {
                 var cacheItem = await GetTranslationsAsync(resource, culture, cancellationToken);
-
-                if (cacheItem == null)
-                {
-                    Logger.LogTranslationNotFound(resource.Name, culture);
-                }
-                else
-                {
-                    context.Translations[culture] = cacheItem.Translations;
-                }
+                context.Translations[culture] = cacheItem.Translations;
             }
         }
     }
@@ -168,32 +160,23 @@ public class LocalizationSynchronizer(
                     cancellationToken: ct,
                     options: UnitOfWorkOptions.Suppress);
 
-                var resources = await instance.Repository.GetResourceListAsync(ct);
+                var resources = await instance.Repository.GetResourceListAsync(
+                    cancellationToken: CancellationToken.None);
 
                 return new LocalizationResourcesCacheItem
                 {
                     Items = resources
                 };
             },
-            new HybridCacheEntryOptions
-            {
-                Expiration = TimeSpan.FromDays(1),
-                Flags = HybridCacheEntryFlags.DisableDistributedCache
-            },
+            new HybridCacheEntryOptions {Expiration = TimeSpan.FromDays(1),},
             cancellationToken: cancellationToken);
     }
 
-    protected virtual ValueTask<LocalizationTranslationCacheItem?> GetTranslationsAsync(
+    protected virtual ValueTask<LocalizationTranslationCacheItem> GetTranslationsAsync(
         LocalizationResourceProjection resource,
         string culture,
         CancellationToken cancellationToken = default)
     {
-        // L2 caching is intentionally avoided to prevent redundant serialization,
-        // deserialization, and memory allocations across distributed cache operations.
-        // Falling back to the database when the L1 cache misses is sufficient.
-        // Additionally, Translations uses FrozenDictionary, which requires a custom
-        // System.Text.Json converter (e.g. FrozenDictionaryJsonConverter) for L2 serialization.
-
         var key = CacheKeyNormalizer.Normalize($"localizations:translations:{resource.Name}:{culture}");
 
         return HybridCache.GetOrCreateAsync(
@@ -211,19 +194,22 @@ public class LocalizationSynchronizer(
 
                 if (record is null)
                 {
-                    return null;
+                    state.instance.Logger.LogTranslationNotFound(state.resource.Name, state.culture);
+
+                    return new LocalizationTranslationCacheItem
+                    {
+                        Translations = FrozenDictionary<string, string>.Empty
+                    };
                 }
+
+                state.instance.Logger.LogTranslationsLoadedFromDatabase(state.resource.Name, state.culture);
 
                 return new LocalizationTranslationCacheItem
                 {
                     Translations = record.Translations.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value)
                 };
             },
-            new HybridCacheEntryOptions
-            {
-                Expiration = TimeSpan.FromDays(1),
-                Flags = HybridCacheEntryFlags.DisableDistributedCache
-            },
+            new HybridCacheEntryOptions {Expiration = TimeSpan.FromDays(1)},
             cancellationToken: cancellationToken);
     }
 }

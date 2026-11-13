@@ -16,17 +16,17 @@ public class LocalizationSynchronizerWorker(
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)
     {
-        await PushAsync(cancellationToken);
-        await Synchronizer.RefreshAsync(cancellationToken);
-        //await Synchronizer.RefreshAsync(cancellationToken);
+        await SynchronizeAsync(cancellationToken);
+        await ReloadAsync(cancellationToken);
 
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
+            await ReloadAsync(cancellationToken);
         }
     }
 
-    protected async Task PushAsync(CancellationToken cancellationToken)
+    protected async Task SynchronizeAsync(CancellationToken cancellationToken)
     {
         const int maxAttempts = 10;
 
@@ -36,7 +36,7 @@ public class LocalizationSynchronizerWorker(
 
             try
             {
-                await Synchronizer.PushAsync(cancellationToken);
+                await Synchronizer.SynchronizeAsync(cancellationToken);
                 break;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -56,6 +56,22 @@ public class LocalizationSynchronizerWorker(
                     await Task.Delay(TimeSpan.FromSeconds(wait), cancellationToken);
                 }
             }
+        }
+    }
+
+    protected async Task ReloadAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Synchronizer.ReloadAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            Logger.LogReloadFailed(exception);
         }
     }
 }
