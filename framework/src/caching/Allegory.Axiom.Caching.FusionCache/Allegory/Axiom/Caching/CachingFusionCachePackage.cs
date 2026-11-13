@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,11 @@ internal sealed class CachingFusionCachePackage : IConfigureApplication
     {
         var cacheBuilder = builder.Services
             .AddFusionCache()
-            .WithSerializer(new FusionCacheSystemTextJsonSerializer(new JsonSerializerOptions { IncludeFields = true }))
+            .WithSerializer(sp =>
+            {
+                var options = sp.GetRequiredKeyedService<JsonSerializerOptions>(typeof(IHybridCacheSerializer<>));
+                return new FusionCacheSystemTextJsonSerializer(options);
+            })
             .WithDistributedCache(sp => sp.GetRequiredService<IDistributedCache>())
             .WithBackplane(sp =>
             {
