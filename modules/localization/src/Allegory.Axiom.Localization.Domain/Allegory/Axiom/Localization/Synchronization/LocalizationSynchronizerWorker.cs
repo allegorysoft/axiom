@@ -18,6 +18,7 @@ public class LocalizationSynchronizerWorker(
     {
         await PushAsync(cancellationToken);
         await Synchronizer.RefreshAsync(cancellationToken);
+        //await Synchronizer.RefreshAsync(cancellationToken);
 
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
         while (await timer.WaitForNextTickAsync(cancellationToken))

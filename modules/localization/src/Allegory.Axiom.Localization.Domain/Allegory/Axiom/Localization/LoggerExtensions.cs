@@ -35,4 +35,12 @@ internal static partial class LoggerExtensions
         LogLevel.Warning,
         Message = "Localization synchronization failed. Retrying in {Seconds} seconds...")]
     public static partial void LogSynchronizationFailedRetry(this ILogger logger, int seconds);
+
+    [LoggerMessage(
+        LogLevel.Warning,
+        "Translation not found for localization resource '{Name}' ({Culture})")]
+    public static partial void LogTranslationNotFound(
+        this ILogger logger,
+        string name,
+        string culture);
 }

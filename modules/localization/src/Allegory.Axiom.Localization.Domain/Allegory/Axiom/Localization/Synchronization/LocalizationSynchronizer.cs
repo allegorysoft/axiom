@@ -19,7 +19,6 @@ public class LocalizationSynchronizer(
     ILocalizationProvider localizationProvider,
     IDistributedLock distributedLock,
     LocalizationSerializer serializer,
-    ICache cache,
     ICacheKeyNormalizer cacheKeyNormalizer,
     HybridCache hybridCache,
     IUnitOfWorkManager unitOfWorkManager,
@@ -30,7 +29,6 @@ public class LocalizationSynchronizer(
     protected ILocalizationProvider LocalizationProvider { get; } = localizationProvider;
     protected IDistributedLock DistributedLock { get; } = distributedLock;
     protected LocalizationSerializer Serializer { get; } = serializer;
-    protected ICache Cache { get; } = cache;
     protected ICacheKeyNormalizer CacheKeyNormalizer { get; } = cacheKeyNormalizer;
     protected HybridCache HybridCache { get; } = hybridCache;
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
@@ -142,7 +140,16 @@ public class LocalizationSynchronizer(
 
             foreach (var culture in resource.Cultures)
             {
-                //context.Translations[culture] = 
+                var cacheItem = await GetTranslationsAsync(resource, culture, cancellationToken);
+
+                if (cacheItem == null)
+                {
+                    Logger.LogTranslationNotFound(resource.Name, culture);
+                }
+                else
+                {
+                    context.Translations[culture] = cacheItem.Translations;
+                }
             }
         }
     }
@@ -150,8 +157,10 @@ public class LocalizationSynchronizer(
     protected virtual ValueTask<LocalizationResourcesCacheItem> GetResourcesAsync(
         CancellationToken cancellationToken = default)
     {
+        var key = CacheKeyNormalizer.Normalize("localizations:resources");
+
         return HybridCache.GetOrCreateAsync(
-            "localizations:resources",
+            key,
             this,
             static async (instance, ct) =>
             {
@@ -166,7 +175,55 @@ public class LocalizationSynchronizer(
                     Items = resources
                 };
             },
-            new HybridCacheEntryOptions {Expiration = TimeSpan.FromHours(1)},
+            new HybridCacheEntryOptions
+            {
+                Expiration = TimeSpan.FromDays(1),
+                Flags = HybridCacheEntryFlags.DisableDistributedCache
+            },
+            cancellationToken: cancellationToken);
+    }
+
+    protected virtual ValueTask<LocalizationTranslationCacheItem?> GetTranslationsAsync(
+        LocalizationResourceProjection resource,
+        string culture,
+        CancellationToken cancellationToken = default)
+    {
+        // L2 caching is intentionally avoided to prevent redundant serialization,
+        // deserialization, and memory allocations across distributed cache operations.
+        // Falling back to the database when the L1 cache misses is sufficient.
+        // Additionally, Translations uses FrozenDictionary, which requires a custom
+        // System.Text.Json converter (e.g. FrozenDictionaryJsonConverter) for L2 serialization.
+
+        var key = CacheKeyNormalizer.Normalize($"localizations:translations:{resource.Name}:{culture}");
+
+        return HybridCache.GetOrCreateAsync(
+            key,
+            (instance: this, resource, culture),
+            static async (state, ct) =>
+            {
+                await using var uow = state.instance.UnitOfWorkManager.Begin(
+                    cancellationToken: ct,
+                    options: UnitOfWorkOptions.Suppress);
+
+                var record = await state.instance.Repository.FindAsync(
+                    e => e.Culture == state.culture && e.Name == state.resource.Name,
+                    cancellationToken: CancellationToken.None);
+
+                if (record is null)
+                {
+                    return null;
+                }
+
+                return new LocalizationTranslationCacheItem
+                {
+                    Translations = record.Translations.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value)
+                };
+            },
+            new HybridCacheEntryOptions
+            {
+                Expiration = TimeSpan.FromDays(1),
+                Flags = HybridCacheEntryFlags.DisableDistributedCache
+            },
             cancellationToken: cancellationToken);
     }
 }
