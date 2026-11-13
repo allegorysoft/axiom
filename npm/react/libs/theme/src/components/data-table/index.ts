@@ -1,11 +1,11 @@
+export * from './select/index';
+export * from './sorting/index';
+export * from './actions/index';
+export * from './pagination/index';
+
 export {
   type AxiomDataTableFeatures,
   axiomDataTableFeatures,
 } from './data-table-features';
 export { createDataTableColumnHelper } from './data-table-utils';
-
-export { DataTableColumnHeader } from './column/data-table-column-header';
-export { createDataTableActionsColumn } from './actions/data-table-actions';
-export { AxiomDataTablePagination } from './pagination/data-table-pagination';
-
 export { AxiomDataTable } from './data-table';

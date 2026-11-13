@@ -2,6 +2,8 @@
 import { useTranslation } from '@axiomframework/react-core';
 import {
   useTable,
+  type ReactTable,
+  type HeaderGroup,
   type RowData,
   type Table_RowPagination,
   type TableFeatures,
@@ -31,22 +33,9 @@ export function AxiomDataTable<T extends TableFeatures, D extends RowData>(
     <div className="overflow-hidden rounded border">
       <Table>
         <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                return (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder ? null : typeof header.column
-                        .columnDef.header === 'string' ? (
-                      t(header.column.columnDef.header)
-                    ) : (
-                      <table.FlexRender header={header} />
-                    )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
+          {table
+            .getHeaderGroups()
+            .map((headerGroup) => renderHeaderRow(headerGroup, table, t))}
         </TableHeader>
 
         <TableBody>
@@ -109,5 +98,30 @@ export function AxiomDataTable<T extends TableFeatures, D extends RowData>(
         </TableFooter>
       </Table>
     </div>
+  );
+}
+
+function renderHeaderRow<T extends TableFeatures, D extends RowData>(
+  headerGroup: HeaderGroup<T, D>,
+  table: ReactTable<T, D>,
+  t: ReturnType<typeof useTranslation>,
+) {
+  const key = headerGroup.id;
+  const headers = headerGroup.headers;
+
+  return (
+    <TableRow key={key}>
+      {headers.map((header) => {
+        const { column } = header;
+        let content = table.FlexRender({ header });
+        const isString = typeof column.columnDef.header === 'string';
+
+        if (header.isPlaceholder === null && isString) {
+          content = t(column.columnDef.header as string);
+        }
+
+        return <TableHead key={header.id}>{content}</TableHead>;
+      })}
+    </TableRow>
   );
 }

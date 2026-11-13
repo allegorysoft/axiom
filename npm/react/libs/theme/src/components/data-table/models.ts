@@ -1,4 +1,8 @@
 import type {
+  Column_ColumnResizing,
+  Column_ColumnSizing,
+  Header_ColumnResizing,
+  Header_ColumnSizing,
   RowData,
   Row_ColumnVisibility,
   Row_RowSelection,
@@ -12,4 +16,9 @@ export type OptionalRow<T extends TableFeatures, D extends RowData> = Partial<
 export type DataTableProps<
   T extends TableFeatures,
   D extends RowData,
-> = TableOptions<T, D> & { showPageButtons?: boolean };
+> = TableOptions<T, D> & {
+  showPageButtons?: boolean;
+  columnResizing?: boolean;
+};
+
+export type ColumnResizing = Header_ColumnSizing & Partial<Header_ColumnResizing & Column_ColumnResizing & Column_ColumnSizing>;
