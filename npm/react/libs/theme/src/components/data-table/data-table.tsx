@@ -1,13 +1,7 @@
 'use client';
+
 import { useId, useState } from 'react';
-import type {
-  ReactTable,
-  HeaderGroup,
-  RowData,
-  Table_RowPagination,
-  TableFeatures,
-  Header,
-} from '@tanstack/react-table';
+import type { HeaderGroup, ReactTable } from '@tanstack/react-table';
 import { useTable } from '@tanstack/react-table';
 
 import {
@@ -33,24 +27,22 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHeader,
   TableRow,
 } from '../ui/table';
 
-import { AxiomDataTablePagination } from './pagination/data-table-pagination';
 import { DraggableTableHeader } from './draggable/draggable-table-header';
 import { DraggableCell } from './draggable/draggable-table-cell';
-import type { DataTableProps, OptionalRow } from './models';
+import { AxiomDataTablePaginationFooter } from './pagination/data-table-pagination-footer';
 
-export function AxiomDataTable<T extends TableFeatures, D extends RowData>(
-  props: DataTableProps<T, D>,
-) {
+import type { TData, TFeat, DataTableProps, OptionalRow } from './models';
+
+export function AxiomDataTable(props: DataTableProps) {
+  const t = useTranslation();
   const [columnOrder, setColumnOrder] = useState<string[]>(
     props.columns.map((column) => column.id as string),
   );
 
-  const t = useTranslation();
   const table = useTable({
     ...props,
     state: {
@@ -58,7 +50,6 @@ export function AxiomDataTable<T extends TableFeatures, D extends RowData>(
     },
     onColumnOrderChange: setColumnOrder,
   });
-  const pagination = table as Partial<Table_RowPagination<T, D>>;
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -114,7 +105,7 @@ export function AxiomDataTable<T extends TableFeatures, D extends RowData>(
             {!table.getRowModel().rows?.length && <NoRecordFound />}
 
             {table?.getRowModel()?.rows?.map((row) => {
-              const optionalRow = row as OptionalRow<T, D>;
+              const optionalRow = row as OptionalRow;
               const cells =
                 optionalRow.getVisibleCells?.() ?? row.getAllCells();
 
@@ -137,38 +128,24 @@ export function AxiomDataTable<T extends TableFeatures, D extends RowData>(
             })}
           </TableBody>
 
-          <TableFooter>
-            <TableRow>
-              <TableCell
-                colSpan={
-                  table.getHeaderGroups().at(-1)?.headers.length ??
-                  props.columns.length
-                }
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-sm text-muted-foreground">
-                    {t('AxiomTheme:TableCountInfo', [
-                      table.getRowModel().rows.length,
-                      pagination.getRowCount?.() ?? props.data.length,
-                    ])}
-                  </span>
-                  <AxiomDataTablePagination
-                    table={table}
-                    showPageButtons={props.showPageButtons}
-                  />
-                </div>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
+          <AxiomDataTablePaginationFooter
+            table={table}
+            dataLength={props.data.length}
+            colSpan={
+              table.getHeaderGroups().at(-1)?.headers.length ??
+              props.columns.length
+            }
+            showPageButtons={props.showPageButtons}
+          />
         </Table>
       </DndContext>
     </div>
   );
 }
 
-function renderHeaderRow<T extends TableFeatures, D extends RowData>(
-  headerGroup: HeaderGroup<T, D>,
-  table: ReactTable<T, D>,
+function renderHeaderRow(
+  headerGroup: HeaderGroup<TFeat, TData>,
+  table: ReactTable<TFeat, TData>,
   columnOrder: string[],
 ) {
   const key = headerGroup.id;
@@ -179,11 +156,7 @@ function renderHeaderRow<T extends TableFeatures, D extends RowData>(
         strategy={horizontalListSortingStrategy}
       >
         {headerGroup.headers.map((header) => (
-          <DraggableTableHeader
-            key={header.id}
-            header={header as Header<T, D, unknown>}
-            table={table}
-          />
+          <DraggableTableHeader key={header.id} header={header} table={table} />
         ))}
       </SortableContext>
     </TableRow>

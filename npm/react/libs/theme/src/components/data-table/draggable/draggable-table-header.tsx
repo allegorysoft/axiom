@@ -1,28 +1,30 @@
 import type { CSSProperties } from 'react';
 
+import { HugeiconsIcon } from '@hugeicons/react';
+import { GripVerticalIcon } from '@hugeicons/core-free-icons';
+
 import type {
   Column_ColumnSizing,
   Header,
   ReactTable,
-  RowData,
-  TableFeatures,
 } from '@tanstack/react-table';
 
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
+
 import { TableHead } from '../../ui/table';
 import { Button } from '../../ui/button';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { GripVerticalIcon } from '@hugeicons/core-free-icons';
 
-type DraggableTableHeaderProps<T extends TableFeatures, D extends RowData> = {
-  header: Header<T, D, unknown>;
-  table: ReactTable<T, D>;
+import type { TData, TFeat } from '../models';
+
+type DraggableTableHeaderProps = {
+  header: Header<TFeat, TData, unknown>;
+  table: ReactTable<TFeat, TData>;
 };
-export function DraggableTableHeader<
-  T extends TableFeatures,
-  D extends RowData,
->({ header, table }: DraggableTableHeaderProps<T, D>) {
+export function DraggableTableHeader({
+  header,
+  table,
+}: DraggableTableHeaderProps) {
   const {
     attributes,
     isDragging,

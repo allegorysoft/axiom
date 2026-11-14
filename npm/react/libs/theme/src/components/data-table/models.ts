@@ -10,13 +10,11 @@ import type {
   TableOptions,
 } from '@tanstack/react-table';
 
-export type OptionalRow<T extends TableFeatures, D extends RowData> = Partial<
-  Row_ColumnVisibility<T, D> & Row_RowSelection
->;
-export type DataTableProps<
-  T extends TableFeatures,
-  D extends RowData,
-> = TableOptions<T, D> & {
+export type TFeat = TableFeatures;
+export type TData = RowData;
+
+export type OptionalRow = Partial<Row_ColumnVisibility<TFeat, TData> & Row_RowSelection>;
+export type DataTableProps = TableOptions<TFeat, TData> & {
   showPageButtons?: boolean;
   columnResizing?: boolean;
 };

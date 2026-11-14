@@ -1,8 +1,4 @@
-import type {
-  RowData,
-  TableFeatures,
-  TableState_RowPagination,
-} from '@tanstack/react-table';
+import type { TableState_RowPagination } from '@tanstack/react-table';
 
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -23,11 +19,11 @@ import { Button } from '../../ui/button';
 import { Separator } from '../../ui/separator';
 import type { DataTablePaginationProps, Pagination } from './models';
 
-export function AxiomDataTablePagination<
-  T extends TableFeatures,
-  D extends RowData,
->({ table, showPageButtons = true }: DataTablePaginationProps<T, D>) {
-  const pagination = table as Pagination<T, D>;
+export function AxiomDataTablePagination({
+  table,
+  showPageButtons = true,
+}: DataTablePaginationProps) {
+  const pagination = table as Pagination;
   const tableState = table.state as Partial<TableState_RowPagination>;
   const paginationState = tableState.pagination;
 
