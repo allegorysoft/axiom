@@ -1,4 +1,6 @@
 import {
+  columnOrderingFeature,
+  columnSizingFeature,
   columnFilteringFeature,
   columnVisibilityFeature,
   createFilteredRowModel,
@@ -11,9 +13,13 @@ import {
   sortFn_alphanumeric,
   sortFn_text,
   tableFeatures,
+  columnResizingFeature,
 } from '@tanstack/react-table';
 
 export const axiomDataTableFeatures = tableFeatures({
+  columnOrderingFeature,
+  columnSizingFeature,
+  columnResizingFeature,
   columnFilteringFeature,
   columnVisibilityFeature,
   rowPaginationFeature,

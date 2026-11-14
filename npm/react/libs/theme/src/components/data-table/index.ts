@@ -1,5 +1,6 @@
 export * from './select/index';
 export * from './sorting/index';
+export * from './draggable/index';
 export * from './actions/index';
 export * from './pagination/index';
 

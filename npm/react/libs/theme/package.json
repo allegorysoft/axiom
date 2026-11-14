@@ -47,6 +47,7 @@
     "@tanstack/react-table": "catalog:",
     "@dnd-kit/core": "catalog:",
     "@dnd-kit/utilities": "catalog:",
-    "@dnd-kit/modifiers": "catalog:"
+    "@dnd-kit/modifiers": "catalog:",
+    "@dnd-kit/sortable": "catalog:"
   }
 }
