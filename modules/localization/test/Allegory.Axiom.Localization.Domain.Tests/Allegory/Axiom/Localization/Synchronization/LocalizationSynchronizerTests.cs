@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -16,6 +17,9 @@ public class LocalizationSynchronizerTests(
     protected ILocalizationRecordRepository Repository => fixture.Service<ILocalizationRecordRepository>();
     protected LocalizationSynchronizer Synchronizer => fixture.Service<LocalizationSynchronizer>();
     protected ILocalizationProvider Provider => fixture.Service<ILocalizationProvider>();
+
+    // Each test method gets new resource name
+    protected string Resource { get; } = Random.Shared.Next().ToString();
 
     [Fact]
     public async Task ShouldSaveResourcesAndTranslationsOnSynchronizeAsync()
@@ -43,7 +47,7 @@ public class LocalizationSynchronizerTests(
                     .ToFrozenDictionary(),
             }
         };
-        Provider.Contexts.TryAdd("TestResource", context);
+        Provider.Contexts.TryAdd(Resource, context);
 
         await Synchronizer.SynchronizeAsync(TestContext.Current.CancellationToken);
 
@@ -51,8 +55,8 @@ public class LocalizationSynchronizerTests(
         {
             var resourcesAfter = await Repository.GetResourceListAsync(CancellationToken.None);
 
-            var resource = resourcesAfter.Single(r => r.Name == "TestResource");
-            resource.Name.ShouldBe("TestResource");
+            var resource = resourcesAfter.Single(r => r.Name == Resource);
+            resource.Name.ShouldBe(Resource);
             resource.DefaultCulture.ShouldBe("en");
             resource.Cultures.ShouldBe(["en", "tr"], ignoreOrder: true);
         });
@@ -69,7 +73,7 @@ public class LocalizationSynchronizerTests(
                 ["en"] = new Dictionary<string, string> {["Key1"] = "Value1"}.ToFrozenDictionary(),
             }
         };
-        Provider.Contexts.TryAdd("Resource1", context);
+        Provider.Contexts.TryAdd(Resource, context);
         await Synchronizer.SynchronizeAsync(TestContext.Current.CancellationToken);
 
         context.Translations["en"] = new Dictionary<string, string>
@@ -80,7 +84,7 @@ public class LocalizationSynchronizerTests(
 
         await fixture.RunInUnitOfWorkAsync(async _ =>
         {
-            var record = await Repository.FindAsync(r => r.Name == "Resource1" && r.Culture == "en");
+            var record = await Repository.FindAsync(r => r.Name == Resource && r.Culture == "en");
             record.ShouldNotBeNull();
             record.Translations["Key1"].ShouldBe("UpdatedValue1");
             record.Translations["Key2"].ShouldBe("NewValue");
@@ -90,7 +94,7 @@ public class LocalizationSynchronizerTests(
     [Fact]
     public async Task ShouldReloadContextsFromDatabaseOnReloadAsync()
     {
-        Provider.Contexts.TryAdd("Resource1", new LocalizationContext
+        Provider.Contexts.TryAdd(Resource, new LocalizationContext
         {
             DefaultCulture = "en",
             Translations = new ConcurrentDictionary<string, FrozenDictionary<string, string>>
@@ -103,8 +107,8 @@ public class LocalizationSynchronizerTests(
         Provider.Contexts.Clear();
         await Synchronizer.ReloadAsync(TestContext.Current.CancellationToken);
 
-        Provider.Contexts.ShouldContainKey("Resource1");
-        var reloaded = Provider.Contexts["Resource1"];
+        Provider.Contexts.ShouldContainKey(Resource);
+        var reloaded = Provider.Contexts[Resource];
         reloaded.DefaultCulture.ShouldBe("en");
         reloaded.Translations["en"]["Key"].ShouldBe("Value");
     }

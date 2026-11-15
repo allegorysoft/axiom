@@ -30,7 +30,13 @@ public class AxiomStringLocalizerFactory(
         {
             return LocalizerCache.GetOrAdd(
                 resourceName,
-                _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, context));
+                static (_, state) =>
+                {
+                    return ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(
+                        state.instance.ServiceProvider,
+                        state.context);
+                },
+                (instance: this, context));
         }
 
         return LocalizerFactory.Create(resourceType);
@@ -47,7 +53,13 @@ public class AxiomStringLocalizerFactory(
         {
             return LocalizerCache.GetOrAdd(
                 baseName,
-                _ => ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(ServiceProvider, context));
+                static (_, state) =>
+                {
+                    return ActivatorUtilities.CreateInstance<AxiomStringLocalizer>(
+                        state.instance.ServiceProvider,
+                        state.context);
+                },
+                (instance: this, context));
         }
 
         return LocalizerFactory.Create(baseName, location);
