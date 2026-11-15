@@ -102,7 +102,7 @@ public abstract class IntegrationTest : IAsyncLifetime
     {
         provider ??= Host.Services;
         var manager = provider.GetRequiredService<IUnitOfWorkManager>();
-        await using var uow = manager.Begin(options, provider);
+        await using var uow = manager.Begin(options, provider, TestContext.Current.CancellationToken);
         action(uow);
         
         if (uow.State == UnitOfWorkState.Started)
@@ -118,7 +118,7 @@ public abstract class IntegrationTest : IAsyncLifetime
     {
         provider ??= Host.Services;
         var manager = provider.GetRequiredService<IUnitOfWorkManager>();
-        await using var uow = manager.Begin(options, provider);
+        await using var uow = manager.Begin(options, provider, TestContext.Current.CancellationToken);
         await func(uow);
 
         if (uow.State == UnitOfWorkState.Started)
