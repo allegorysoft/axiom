@@ -1,5 +1,4 @@
 using Allegory.Axiom.Localization;
-using Allegory.Axiom.Security;
 
 namespace Localization;
 
