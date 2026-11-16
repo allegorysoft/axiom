@@ -3,19 +3,17 @@ import {
   flexRender,
   type Cell,
   type Column_ColumnSizing,
-  type RowData,
-  type TableFeatures,
 } from '@tanstack/react-table';
 
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
-import { TableCell } from '../../ui/table';
 
-export function DraggableCell<T extends TableFeatures, D extends RowData>({
-  cell,
-}: {
-  cell: Cell<T, D, unknown>;
-}) {
+import { TableCell } from '../../ui/table';
+import type { TData, TFeat } from '../models';
+
+type Props = { cell: Cell<TFeat, TData, unknown> };
+
+export function DraggableCell({ cell }: Props) {
   const { isDragging, setNodeRef, transform, transition } = useSortable({
     id: cell.column.id,
   });

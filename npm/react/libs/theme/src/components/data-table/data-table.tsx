@@ -1,22 +1,9 @@
 'use client';
 
-import { useId, useState } from 'react';
 import type { HeaderGroup, ReactTable } from '@tanstack/react-table';
 import { useTable } from '@tanstack/react-table';
 
 import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import { restrictToHorizontalAxis } from '@dnd-kit/modifiers';
-import {
-  arrayMove,
   horizontalListSortingStrategy,
   SortableContext,
 } from '@dnd-kit/sortable';
@@ -31,17 +18,20 @@ import {
   TableRow,
 } from '../ui/table';
 
-import { DraggableTableHeader } from './draggable/draggable-table-header';
-import { DraggableCell } from './draggable/draggable-table-cell';
+import {
+  DataTableDndContext,
+  DraggableCell,
+  DraggableTableHeader,
+  useDataTableColumnOrder,
+} from './draggable';
 import { AxiomDataTablePaginationFooter } from './pagination/data-table-pagination-footer';
 
 import type { TData, TFeat, DataTableProps, OptionalRow } from './models';
 
 export function AxiomDataTable(props: DataTableProps) {
   const t = useTranslation();
-  const [columnOrder, setColumnOrder] = useState<string[]>(
-    props.columns.map((column) => column.id as string),
-  );
+  const { columnOrder, setColumnOrder, sensors, handleDragEnd } =
+    useDataTableColumnOrder(props.columns);
 
   const table = useTable({
     ...props,
@@ -50,25 +40,6 @@ export function AxiomDataTable(props: DataTableProps) {
     },
     onColumnOrderChange: setColumnOrder,
   });
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (active && over && active.id !== over.id) {
-      setColumnOrder((columnOrder) => {
-        const oldIndex = columnOrder.indexOf(active.id as string);
-        const newIndex = columnOrder.indexOf(over.id as string);
-
-        return arrayMove(columnOrder, oldIndex, newIndex);
-      });
-    }
-  }
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {}),
-    useSensor(TouchSensor, {}),
-    useSensor(KeyboardSensor, {}),
-  );
 
   const NoRecordFound = () => (
     <TableRow>
@@ -85,13 +56,7 @@ export function AxiomDataTable(props: DataTableProps) {
 
   return (
     <div className="overflow-hidden rounded border">
-      <DndContext
-        id={useId()}
-        collisionDetection={closestCenter}
-        modifiers={[restrictToHorizontalAxis]}
-        onDragEnd={handleDragEnd}
-        sensors={sensors}
-      >
+      <DataTableDndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Table>
           <TableHeader>
             {table
@@ -138,7 +103,7 @@ export function AxiomDataTable(props: DataTableProps) {
             showPageButtons={props.showPageButtons}
           />
         </Table>
-      </DndContext>
+      </DataTableDndContext>
     </div>
   );
 }
