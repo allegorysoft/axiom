@@ -28,11 +28,16 @@ export function createDataTableActionsColumn<
 >(actions: DataTableAction<D>[]) {
   return {
     id: 'actions',
-    header: 'AxiomTheme:Actions',
+    header: DataTableActionsHeader,
     cell: ({ row }: CellContext<T, D>) => (
       <DataTableActionsCell actions={actions} data={row.original} />
     ),
   };
+}
+
+function DataTableActionsHeader() {
+  const t = useTranslation();
+  return t('AxiomTheme:Actions');
 }
 
 function DataTableActionsCell<TData extends RowData>({
