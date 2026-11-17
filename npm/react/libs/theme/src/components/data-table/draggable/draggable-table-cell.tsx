@@ -1,8 +1,10 @@
 import type { CSSProperties } from 'react';
 import {
-  flexRender,
+  type RowData,
+  type TableFeatures,
   type Cell,
   type Column_ColumnSizing,
+  flexRender,
 } from '@tanstack/react-table';
 
 import { CSS } from '@dnd-kit/utilities';

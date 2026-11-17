@@ -17,14 +17,16 @@ import { Button } from '../../ui/button';
 
 import type { TData, TFeat } from '../models';
 
-type DraggableTableHeaderProps = {
-  header: Header<TFeat, TData, unknown>;
-  table: ReactTable<TFeat, TData>;
+type DraggableTableHeaderProps<D extends TData> = {
+  header: Header<TFeat, D, unknown>;
+  table: ReactTable<TFeat, D>;
+  columnResizing?: boolean;
 };
-export function DraggableTableHeader({
+export function DraggableTableHeader<D extends TData>({
   header,
   table,
-}: DraggableTableHeaderProps) {
+  columnResizing,
+}: DraggableTableHeaderProps<D>) {
   const {
     attributes,
     isDragging,
@@ -48,11 +50,19 @@ export function DraggableTableHeader({
     zIndex: isDragging ? 1 : 0,
   };
 
+  const canResize = columnResizing && header.column.getCanResize();
+
   return (
     <TableHead
       ref={setNodeRef}
-      className="before:bg-border relative h-10 border-t before:absolute before:inset-y-0 before:left-0 before:w-px first:before:bg-transparent"
-      style={style}
+      className="before:bg-border relative h-10 border-t before:absolute before:inset-y-0 before:left-0 before:w-px first:before:bg-transparent group/head select-none last:[&>.cursor-col-resize]:opacity-0"
+      {...{
+        colSpan: header.colSpan,
+        style: {
+          ...style,
+          width: header.getSize(),
+        },
+      }}
     >
       <div className="flex items-center justify-start gap-0.5">
         <Button
@@ -73,6 +83,18 @@ export function DraggableTableHeader({
           {header.isPlaceholder ? null : table.FlexRender({ header })}
         </span>
       </div>
+
+      {canResize && (
+        <div
+          {...{
+            onDoubleClick: () => header.column.resetSize(),
+            onMouseDown: header.getResizeHandler(),
+            onTouchStart: header.getResizeHandler(),
+            className:
+              'group-last/head:hidden absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:translate-x-px',
+          }}
+        />
+      )}
     </TableHead>
   );
 }

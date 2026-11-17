@@ -1,7 +1,6 @@
 import { type RowData, createColumnHelper } from '@tanstack/react-table';
+import type { TFeat } from './models';
 
-import type { AxiomDataTableFeatures } from './data-table-features';
-
-export function createDataTableColumnHelper<TData extends RowData>() {
-  return createColumnHelper<AxiomDataTableFeatures, TData>();
+export function createDataTableColumnHelper<D extends RowData>() {
+  return createColumnHelper<TFeat, D>();
 }

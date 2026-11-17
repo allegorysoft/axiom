@@ -1,6 +1,5 @@
 'use client';
 
-import type { HeaderGroup, ReactTable } from '@tanstack/react-table';
 import { useTable } from '@tanstack/react-table';
 
 import {
@@ -14,6 +13,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHeader,
   TableRow,
 } from '../ui/table';
@@ -24,9 +24,10 @@ import {
   DraggableTableHeader,
   useDataTableColumnOrder,
 } from './draggable';
-import { AxiomDataTablePaginationFooter } from './pagination/data-table-pagination-footer';
 
-import type { TData, TFeat, DataTableProps, OptionalRow } from './models';
+import { type Pagination, AxiomDataTablePagination } from './pagination/index';
+
+import type { DataTableProps, OptionalRow } from './models';
 
 export function AxiomDataTable(props: DataTableProps) {
   const t = useTranslation();
@@ -39,7 +40,12 @@ export function AxiomDataTable(props: DataTableProps) {
       columnOrder,
     },
     onColumnOrderChange: setColumnOrder,
+    columnResizeMode: 'onChange',
   });
+
+  const pagination = table as Pagination;
+  const dataLength = props.data.length;
+  const colSpan = table.getHeaderGroups().at(-1)?.headers.length ?? props.columns.length;
 
   const NoRecordFound = () => (
     <TableRow>
@@ -59,11 +65,26 @@ export function AxiomDataTable(props: DataTableProps) {
       <DataTableDndContext onDragEnd={handleDragEnd} sensors={sensors}>
         <Table>
           <TableHeader>
-            {table
-              .getHeaderGroups()
-              .map((headerGroup) =>
-                renderHeaderRow(headerGroup, table, columnOrder),
-              )}
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow
+                key={headerGroup.id}
+                className="bg-muted/50 [&>th]:border-t-0"
+              >
+                <SortableContext
+                  items={columnOrder}
+                  strategy={horizontalListSortingStrategy}
+                >
+                  {headerGroup.headers.map((header) => (
+                    <DraggableTableHeader
+                      key={header.id}
+                      header={header}
+                      table={table}
+                      columnResizing={props.columnResizing}
+                    />
+                  ))}
+                </SortableContext>
+              </TableRow>
+            ))}
           </TableHeader>
 
           <TableBody>
@@ -93,37 +114,27 @@ export function AxiomDataTable(props: DataTableProps) {
             })}
           </TableBody>
 
-          <AxiomDataTablePaginationFooter
-            table={table}
-            dataLength={props.data.length}
-            colSpan={
-              table.getHeaderGroups().at(-1)?.headers.length ??
-              props.columns.length
-            }
-            showPageButtons={props.showPageButtons}
-          />
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={colSpan}>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-sm text-muted-foreground">
+                    {t('AxiomTheme:TableCountInfo', [
+                      table.getRowModel().rows.length,
+                      pagination.getRowCount?.() ?? dataLength,
+                    ])}
+                  </span>
+
+                  <AxiomDataTablePagination
+                    table={table}
+                    showPageButtons={props.showPageButtons}
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </DataTableDndContext>
     </div>
-  );
-}
-
-function renderHeaderRow(
-  headerGroup: HeaderGroup<TFeat, TData>,
-  table: ReactTable<TFeat, TData>,
-  columnOrder: string[],
-) {
-  const key = headerGroup.id;
-  return (
-    <TableRow key={key} className="bg-muted/50 [&>th]:border-t-0">
-      <SortableContext
-        items={columnOrder}
-        strategy={horizontalListSortingStrategy}
-      >
-        {headerGroup.headers.map((header) => (
-          <DraggableTableHeader key={header.id} header={header} table={table} />
-        ))}
-      </SortableContext>
-    </TableRow>
   );
 }

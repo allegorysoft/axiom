@@ -31,5 +31,3 @@ export const axiomDataTableFeatures = tableFeatures({
   filterFns: { includesString: filterFn_includesString },
   sortFns: { alphanumeric: sortFn_alphanumeric, text: sortFn_text },
 });
-
-export type AxiomDataTableFeatures = typeof axiomDataTableFeatures;
