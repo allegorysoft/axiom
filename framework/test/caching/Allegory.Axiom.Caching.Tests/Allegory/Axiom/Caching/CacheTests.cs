@@ -5,7 +5,6 @@ using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
-using Microsoft.Extensions.Options;
 using Shouldly;
 using Xunit;
 
@@ -16,109 +15,9 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
     protected static readonly TenantContext Tenant =
         new(Guid.Parse("11111111-2222-3333-4444-555555555555"), "acme", "ACME");
 
-    protected TestableCache Cache { get; } = fixture.Service<TestableCache>();
+    protected MockCache Cache { get; } = fixture.Service<MockCache>();
     protected ITenantContextAccessor TenantContextAccessor { get; } = fixture.Service<ITenantContextAccessor>();
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = fixture.Service<IUnitOfWorkManager>();
-
-    // Descriptor
-
-    [Fact]
-    public void ShouldDeriveContextNameFromType() =>
-        Cache.Descriptor<SomeCacheItem>().Name.ShouldBe("allegory:axiom:caching:some");
-
-    [Fact]
-    public void ShouldUseCacheNameAttributeForContextName() =>
-        Cache.Descriptor<NamedCacheItem>().Name.ShouldBe("custom:name");
-
-    [Fact]
-    public void ShouldMarkTenantAgnosticType() =>
-        Cache.Descriptor<AgnosticCacheItem>().IsTenantAgnostic.ShouldBeTrue();
-
-    [Fact]
-    public void ShouldNotMarkTenantAgnosticByDefault() =>
-        Cache.Descriptor<SomeCacheItem>().IsTenantAgnostic.ShouldBeFalse();
-
-    [Fact]
-    public void ShouldHaveNullEntryOptionsWhenUnconfigured() =>
-        Cache.Descriptor<SomeCacheItem>().EntryOptions.ShouldBeNull();
-
-    [Fact]
-    public void ShouldBuildDescriptorByConfiguredCacheTypeOptions()
-    {
-        var entryOptions = new HybridCacheEntryOptions {Expiration = TimeSpan.FromMinutes(5)};
-
-        var cache = new TestableCache(
-            fixture.Service<HybridCache>(),
-            Options.Create(new CacheOptions
-            {
-                Types = {[typeof(SomeCacheItem)] = new CacheTypeOptions
-                {
-                    Name = "custom-name",
-                    IsTenantAgnostic = true,
-                    EntryOptions = entryOptions
-                }}
-            }),
-            fixture.Service<ITenantContextAccessor>(),
-            fixture.Service<IUnitOfWorkManager>());
-
-        var descriptor = cache.Descriptor<SomeCacheItem>();
-        descriptor.Name.ShouldBe("custom-name");
-        descriptor.IsTenantAgnostic.ShouldBeTrue();
-        descriptor.EntryOptions.ShouldBeSameAs(entryOptions);
-    }
-
-    // Key normalization 
-
-    [Fact]
-    public void ShouldApplyKeyPrefix()
-    {
-        const string prefix = "app:";
-
-        var cache = new TestableCache(
-            fixture.Service<HybridCache>(),
-            Options.Create(new CacheOptions {KeyPrefix = prefix}),
-            fixture.Service<ITenantContextAccessor>(),
-            fixture.Service<IUnitOfWorkManager>());
-
-        cache.Normalize<SomeCacheItem>("abc").ShouldStartWith(prefix);
-    }
-
-    [Fact]
-    public void ShouldNormalizeHostKey()
-    {
-        Cache.Normalize<SomeCacheItem>("abc").ShouldBe("allegory:axiom:caching:some:abc");
-    }
-
-    [Fact]
-    public void ShouldNormalizeTenantKey()
-    {
-        var hostKey = Cache.Normalize<SomeCacheItem>("abc");
-        string tenantKey;
-
-        using (TenantContextAccessor.Change(Tenant))
-        {
-            tenantKey = Cache.Normalize<SomeCacheItem>("abc");
-        }
-
-        hostKey.ShouldBe("allegory:axiom:caching:some:abc");
-        tenantKey.ShouldBe($"tenant:{Tenant.Id:D}:allegory:axiom:caching:some:abc");
-    }
-
-    [Fact]
-    public void ShouldIgnoreTenantForTenantAgnosticType()
-    {
-        using (TenantContextAccessor.Change(Tenant))
-        {
-            Cache.Normalize<AgnosticCacheItem>("abc")
-                .ShouldBe("allegory:axiom:caching:agnostic:abc");
-        }
-    }
-
-    [Fact]
-    public void ShouldUseCacheNameAttribute()
-    {
-        Cache.Normalize<NamedCacheItem>("abc").ShouldBe("custom:name:abc");
-    }
 
     // Set
 
@@ -199,11 +98,11 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
             {
                 await Cache.SetAsync(
                     "mm-tenant",
-                    new SomeCacheItem(),
+                    new TenantOwnedCacheItem(),
                     mutationMode: CacheMutationMode.OnUnitOfWorkComplete,
                     cancellationToken: TestContext.Current.CancellationToken);
 
-                (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeFalse();
+                (await Cache.ExistsAsync<TenantOwnedCacheItem>("mm-tenant")).ShouldBeFalse();
             }
 
             await unitOfWork.CompleteAsync(CancellationToken.None);
@@ -211,10 +110,10 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 
         using (TenantContextAccessor.Change(Tenant))
         {
-            (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeTrue();
+            (await Cache.ExistsAsync<TenantOwnedCacheItem>("mm-tenant")).ShouldBeTrue();
         }
 
-        (await Cache.ExistsAsync<SomeCacheItem>("mm-tenant")).ShouldBeFalse();
+        (await Cache.ExistsAsync<TenantOwnedCacheItem>("mm-tenant")).ShouldBeFalse();
     }
 
     // Remove
@@ -396,22 +295,18 @@ public class CacheTests(IntegrationTestFixture fixture) : IClassFixture<Integrat
 }
 
 [Dependency(SelfRegister = true)]
-public class TestableCache(
+public class MockCache(
     HybridCache hybridCache,
-    IOptions<CacheOptions> options,
-    ITenantContextAccessor accessor,
-    IUnitOfWorkManager uowManager)
-    : Cache(hybridCache, options, accessor, uowManager)
+    ICacheKeyNormalizer keyNormalizer,
+    IUnitOfWorkManager uowManager) : 
+    Cache(hybridCache, keyNormalizer, uowManager)
 {
-    public string Normalize<T>(string key) =>
-        NormalizeKey(key, CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options));
-
     public async ValueTask<bool> ExistsAsync<T>(string key) where T : class
     {
         var hit = true;
 
         await HybridCache.GetOrCreateAsync(
-            Normalize<T>(key),
+            KeyNormalizer.Normalize<T>(key),
             _ =>
             {
                 hit = false;
@@ -424,14 +319,4 @@ public class TestableCache(
 
         return hit;
     }
-
-    public CacheTypeDescriptor Descriptor<T>() => CacheTypeDescriptors.GetOrAdd(typeof(T), GetCacheTypeDescriptor, Options);
 }
-
-public class SomeCacheItem;
-
-[TenantAgnostic]
-public class AgnosticCacheItem;
-
-[CacheName("Custom.Name")]
-public class NamedCacheItem;

@@ -31,8 +31,7 @@ internal sealed class MultiTenancyPackage : IConfigureApplication
         {
             options.Types[typeof(TenantContext)] = new CacheTypeOptions
             {
-                Name = "tenants",
-                IsTenantAgnostic = true
+                Name = "tenants"
             };
         });
 

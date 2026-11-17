@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using Allegory.Axiom.Localization.Resources;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Shouldly;
 using Xunit;
@@ -138,24 +140,21 @@ public class AxiomStringLocalizerTests(IntegrationTestFixture fixture) : IClassF
     }
 
     [Fact]
-    public void ShouldReflectDynamicTranslationChangesAcrossAllLocalizers()
+    public async Task ShouldReflectLocalizationContextChanges()
     {
-        CultureInfo.CurrentUICulture = new CultureInfo("en");
-        var factory = fixture.Service<IStringLocalizerFactory>();
-        var localizer1 = (IAxiomStringLocalizer) factory.Create(typeof(LocalizationResource));
-        var localizer2 = factory.Create(ResourceNameAttribute.Get<LocalizationResource>(), string.Empty);
-        var localizer3 = fixture.Service<IStringLocalizer<LocalizationResource>>();
+        var provider = await fixture.CreateServiceProviderAsync(null);
+        var localizer = provider.GetRequiredService<IStringLocalizer<LocalizationResource>>();
 
-        localizer1.Translations["en"].TryGetValue("some-key", out _).ShouldBeFalse();
-        localizer2["some-key"].ResourceNotFound.ShouldBeTrue();
-        localizer3["some-key"].ResourceNotFound.ShouldBeTrue();
+        var strings = localizer.GetAllStrings(includeParentCultures: true);
+        strings.Count().ShouldBeGreaterThan(0);
 
-        localizer1.Translations["en"]["some-key"] = "dynamic-translation";
+        var localizationProvider = provider.GetRequiredService<ILocalizationProvider>();
+        localizationProvider.Contexts.TryGetValue(ResourceNameAttribute.Get<LocalizationResource>(), out var context);
 
-        localizer1.Translations["en"].TryGetValue("some-key", out _).ShouldBeTrue();
-        localizer2["some-key"].ResourceNotFound.ShouldBeFalse();
-        localizer2["some-key"].Value.ShouldBe("dynamic-translation");
-        localizer3["some-key"].ResourceNotFound.ShouldBeFalse();
-        localizer3["some-key"].Value.ShouldBe("dynamic-translation");
+        context.ShouldNotBeNull();
+        context.Translations.Clear();
+
+        strings = localizer.GetAllStrings(includeParentCultures: true);
+        strings.Count().ShouldBe(0);
     }
 }

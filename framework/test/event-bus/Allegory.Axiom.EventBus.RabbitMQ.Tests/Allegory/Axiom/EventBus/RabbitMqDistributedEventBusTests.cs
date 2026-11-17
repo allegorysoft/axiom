@@ -114,7 +114,7 @@ file class RabbitTestEventHandler : IDistributedEventHandler<RabbitTestEvent>
 {
     public ConcurrentBag<int> Received { get; } = [];
 
-    public Task HandleAsync(RabbitTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitTestEvent payload)
     {
         Received.Add(payload.Value);
         return Task.CompletedTask;
@@ -127,7 +127,7 @@ file class RabbitMultiTestEventHandler1 : IDistributedEventHandler<RabbitMultiTe
 {
     public ConcurrentBag<int> Received { get; } = [];
 
-    public Task HandleAsync(RabbitMultiTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitMultiTestEvent payload)
     {
         Received.Add(payload.Value);
         return Task.CompletedTask;
@@ -138,7 +138,7 @@ file class RabbitMultiTestEventHandler2 : IDistributedEventHandler<RabbitMultiTe
 {
     public ConcurrentBag<int> Received { get; } = [];
 
-    public Task HandleAsync(RabbitMultiTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitMultiTestEvent payload)
     {
         Received.Add(payload.Value);
         return Task.CompletedTask;
@@ -151,7 +151,7 @@ file class RabbitValueTestEventHandler : IDistributedEventHandler<RabbitValueTes
 {
     public ConcurrentBag<int> Received { get; } = [];
 
-    public Task HandleAsync(RabbitValueTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitValueTestEvent payload)
     {
         Received.Add(payload.Value);
         return Task.CompletedTask;
@@ -169,7 +169,7 @@ file class RabbitScopedTestEventHandler1(IUnitOfWorkManager manager) : IDistribu
 {
     public RabbitScopedImplementation? Received { get; private set; }
 
-    public Task HandleAsync(RabbitScopedTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitScopedTestEvent payload)
     {
         Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<RabbitScopedImplementation>();
         return Task.CompletedTask;
@@ -180,7 +180,7 @@ file class RabbitScopedTestEventHandler2(IUnitOfWorkManager manager) : IDistribu
 {
     public RabbitScopedImplementation? Received { get; private set; }
 
-    public Task HandleAsync(RabbitScopedTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitScopedTestEvent payload)
     {
         Received = manager.RequiredCurrent.ServiceProvider.GetRequiredService<RabbitScopedImplementation>();
         return Task.CompletedTask;
@@ -195,7 +195,7 @@ file record RabbitOrderedTestEvent
 [Priority(PriorityLevel.High)]
 file class RabbitOrderedTestEventHandler1 : IDistributedEventHandler<RabbitOrderedTestEvent>
 {
-    public Task HandleAsync(RabbitOrderedTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitOrderedTestEvent payload)
     {
         payload.Items.Add(nameof(RabbitOrderedTestEventHandler1));
         return Task.CompletedTask;
@@ -207,7 +207,7 @@ file class RabbitOrderedTestEventHandler3 : IDistributedEventHandler<RabbitOrder
 {
     public List<string>? CapturedOrder { get; private set; }
 
-    public Task HandleAsync(RabbitOrderedTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitOrderedTestEvent payload)
     {
         payload.Items.Add(nameof(RabbitOrderedTestEventHandler3));
         CapturedOrder = [..payload.Items];
@@ -218,7 +218,7 @@ file class RabbitOrderedTestEventHandler3 : IDistributedEventHandler<RabbitOrder
 [Priority(PriorityLevel.Normal)]
 file class RabbitOrderedTestEventHandler2 : IDistributedEventHandler<RabbitOrderedTestEvent>
 {
-    public Task HandleAsync(RabbitOrderedTestEvent payload, EventContext context)
+    public Task HandleAsync(RabbitOrderedTestEvent payload)
     {
         payload.Items.Add(nameof(RabbitOrderedTestEventHandler2));
         return Task.CompletedTask;

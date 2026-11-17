@@ -1,27 +1,13 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
-using Allegory.Axiom.FileProvider;
 using Microsoft.Extensions.Localization;
 
 namespace Allegory.Axiom.Localization;
 
-public class AxiomStringLocalizer : IAxiomStringLocalizer
+public class AxiomStringLocalizer(LocalizationContext context) : IStringLocalizer
 {
-    public AxiomStringLocalizer(LocalizationResourceOptions options, IFileProviderManager fileProviderManager)
-    {
-        Options = options;
-        FileProviderManager = fileProviderManager;
-        InitialSeed();
-    }
-
-    public ConcurrentDictionary<string, ConcurrentDictionary<string, string>> Translations { get; } = new(StringComparer.OrdinalIgnoreCase);
-    protected LocalizationResourceOptions Options { get; }
-    protected IFileProviderManager FileProviderManager { get; }
+    protected LocalizationContext Context { get; } = context;
 
     public virtual LocalizedString this[string name]
     {
@@ -48,7 +34,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
 
         if (!includeParentCultures)
         {
-            return Translations.TryGetValue(culture.Name, out var translations)
+            return Context.Translations.TryGetValue(culture.Name, out var translations)
                 ? translations.Select(t => new LocalizedString(t.Key, t.Value))
                 : [];
         }
@@ -58,7 +44,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
 
         foreach (var item in cultures)
         {
-            if (!Translations.TryGetValue(item, out var translations))
+            if (!Context.Translations.TryGetValue(item, out var translations))
             {
                 continue;
             }
@@ -82,9 +68,9 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
 
             if (current.Parent.Equals(CultureInfo.InvariantCulture))
             {
-                if (!cultures.Contains(Options.DefaultCulture.Name))
+                if (!cultures.Contains(Context.DefaultCulture))
                 {
-                    cultures.Add(Options.DefaultCulture.Name);
+                    cultures.Add(Context.DefaultCulture);
                 }
 
                 break;
@@ -102,7 +88,7 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
 
         while (true)
         {
-            if (Translations.TryGetValue(current.Name, out var translations) &&
+            if (Context.Translations.TryGetValue(current.Name, out var translations) &&
                 translations.TryGetValue(name, out var value))
             {
                 return value;
@@ -110,31 +96,14 @@ public class AxiomStringLocalizer : IAxiomStringLocalizer
 
             if (current.Parent.Equals(CultureInfo.InvariantCulture))
             {
-                return current.Equals(Options.DefaultCulture)
+                return current.Name.Equals(Context.DefaultCulture)
                     ? null
-                    : Translations.GetValueOrDefault(Options.DefaultCulture.Name)?.GetValueOrDefault(name) ?? null;
+                    : Context.Translations
+                        .GetValueOrDefault(Context.DefaultCulture)
+                        ?.GetValueOrDefault(name) ?? null;
             }
 
             current = current.Parent;
-        }
-    }
-
-    private void InitialSeed()
-    {
-        foreach (var path in Options.Paths)
-        {
-            foreach (var content in FileProviderManager.GetDirectoryContents(path).Where(x => !x.IsDirectory))
-            {
-                var key = Path.GetFileNameWithoutExtension(content.Name);
-                var translations = Translations.GetOrAdd(key, _ => new ConcurrentDictionary<string, string>());
-                using var stream = content.CreateReadStream();
-                var contentTranslations = JsonSerializer.Deserialize<Dictionary<string, string>>(stream) ?? [];
-
-                foreach (var text in contentTranslations)
-                {
-                    translations[text.Key] = text.Value;
-                }
-            }
         }
     }
 }

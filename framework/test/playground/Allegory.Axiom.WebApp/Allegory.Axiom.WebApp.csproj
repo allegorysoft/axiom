@@ -3,10 +3,12 @@
     <PropertyGroup>
         <TargetFramework>$(DotnetVersion)</TargetFramework>
         <RootNamespace/>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded"/>
 
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol"/>
         <PackageReference Include="OpenTelemetry.Extensions.Hosting"/>
@@ -17,13 +19,18 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\aspnetcore\Allegory.Axiom.AspNetCore.Mvc\Allegory.Axiom.AspNetCore.Mvc.csproj"/>
         <ProjectReference Include="..\..\..\src\template\Allegory.Axiom.Template.Framework.Implementations\Allegory.Axiom.Template.Framework.Implementations.csproj"/>
+        <ProjectReference Include="..\..\..\src\multi-tenancy\Allegory.Axiom.MultiTenancy.DefaultStore\Allegory.Axiom.MultiTenancy.DefaultStore.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\src\caching\Allegory.Axiom.Caching.FusionCache\Allegory.Axiom.Caching.FusionCache.csproj"/>
         <ProjectReference Include="..\..\..\src\core\Allegory.Axiom.OpenTelemetry\Allegory.Axiom.OpenTelemetry.csproj"/>
-        <ProjectReference Include="..\..\..\src\event-bus\Allegory.Axiom.EventBus.RabbitMQ\Allegory.Axiom.EventBus.RabbitMQ.csproj"/>
-        <ProjectReference Include="..\..\..\src\multi-tenancy\Allegory.Axiom.MultiTenancy.DefaultStore\Allegory.Axiom.MultiTenancy.DefaultStore.csproj"/>
+<!--        <ProjectReference Include="..\..\..\src\caching\Allegory.Axiom.Caching.FusionCache\Allegory.Axiom.Caching.FusionCache.csproj"/>-->
+<!--        <ProjectReference Include="..\..\..\src\event-bus\Allegory.Axiom.EventBus.RabbitMQ\Allegory.Axiom.EventBus.RabbitMQ.csproj"/>-->
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Localization\Resources\*.json"/>
+        <Content Remove="Localization\Resources\*.json"/>
     </ItemGroup>
 
 </Project>

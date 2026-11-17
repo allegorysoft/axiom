@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace Allegory.Axiom.UnitOfWork;
 
 public readonly struct UnitOfWorkDescriptor(bool isEnabled, UnitOfWorkOptions? options = null)

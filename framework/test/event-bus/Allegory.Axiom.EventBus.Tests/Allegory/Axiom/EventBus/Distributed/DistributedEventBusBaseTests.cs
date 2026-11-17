@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.EventBus.Distributed.Inbox;
 using Allegory.Axiom.EventBus.Distributed.Outbox;
+using Allegory.Axiom.EventBus.Distributed.Processing;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
@@ -245,13 +246,12 @@ public class DistributedEventBusImp(
     ILogger<DistributedEventBusImp> logger,
     IOptions<DistributedEventBusOptions> options,
     DistributedEventHandlerManager eventHandlerManager,
-    DistributedEventProcessor eventProcessor,
     IUnitOfWorkManager unitOfWorkManager,
     ITenantContextAccessor tenantContextAccessor,
     IInboxStore inboxStore,
-    IOutboxStore outboxStore)
-    : DistributedEventBusBase(logger, options, eventHandlerManager, eventProcessor, unitOfWorkManager,
-        tenantContextAccessor, inboxStore, outboxStore)
+    IOutboxStore outboxStore) :
+    DistributedEventBusBase(
+        logger, options, eventHandlerManager, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
 {
     protected FrozenDictionary<Type, ImmutableArray<IDistributedEventHandlerAdapter>> Handlers { get; set; } = null!;
 
@@ -261,7 +261,7 @@ public class DistributedEventBusImp(
     {
         foreach (var handler in Handlers[envelope.PayloadType])
         {
-            await handler.HandleAsync(envelope.Payload, new EventContext());
+            await handler.HandleAsync(envelope.Payload);
         }
     }
 
@@ -271,7 +271,7 @@ public class DistributedEventBusImp(
 
         foreach (var handler in Handlers[envelope.PayloadType])
         {
-            await handler.HandleAsync(envelope.Payload, new EventContext());
+            await handler.HandleAsync(envelope.Payload);
         }
     }
 
@@ -317,7 +317,7 @@ file class TestEventHandler : IDistributedEventHandler<TestEvent>
 {
     public List<TestEvent> Received { get; } = [];
 
-    public Task HandleAsync(TestEvent payload, EventContext context)
+    public Task HandleAsync(TestEvent payload)
     {
         Received.Add(payload);
         return Task.CompletedTask;

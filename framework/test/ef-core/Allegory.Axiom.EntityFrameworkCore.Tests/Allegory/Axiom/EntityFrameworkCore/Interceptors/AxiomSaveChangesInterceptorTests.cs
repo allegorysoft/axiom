@@ -425,7 +425,7 @@ file class EventHandler : ILocalEventHandler<Event1>, IDistributedEventHandler<E
         return Task.CompletedTask;
     }
 
-    public Task HandleAsync(Event2 payload, EventContext context)
+    public Task HandleAsync(Event2 payload)
     {
         Received.Add(payload.Id);
         return Task.CompletedTask;

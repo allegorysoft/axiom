@@ -1,0 +1,11 @@
+@localization = {{api}}/axiom/application/localization
+
+### Languages
+
+GET {{localization}}/languages
+Accept: application/json
+
+### Translations
+
+GET {{localization}}/translations?culture=en
+Accept: application/json

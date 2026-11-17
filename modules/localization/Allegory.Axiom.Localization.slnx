@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/host/" />
+  <Folder Name="/src/" />
+  <Folder Name="/src/core/">
+    <Project Path="src/Allegory.Axiom.Localization.Domain/Allegory.Axiom.Localization.Domain.csproj" />
+    <Project Path="src/Allegory.Axiom.Localization.EntityFrameworkCore/Allegory.Axiom.Localization.EntityFrameworkCore.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+</Solution>

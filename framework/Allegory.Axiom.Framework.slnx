@@ -1,0 +1,152 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/aspnetcore/">
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Abstractions/Allegory.Axiom.AspNetCore.Abstractions.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.ExceptionHandling/Allegory.Axiom.AspNetCore.ExceptionHandling.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Http/Allegory.Axiom.AspNetCore.Http.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Mvc.Abstractions/Allegory.Axiom.AspNetCore.Mvc.Abstractions.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore.Mvc/Allegory.Axiom.AspNetCore.Mvc.csproj" />
+    <Project Path="src/aspnetcore/Allegory.Axiom.AspNetCore/Allegory.Axiom.AspNetCore.csproj" />
+  </Folder>
+  <Folder Name="/src/caching/">
+    <Project Path="src/caching/Allegory.Axiom.Caching.Abstractions/Allegory.Axiom.Caching.Abstractions.csproj" />
+    <Project Path="src/caching/Allegory.Axiom.Caching.FusionCache/Allegory.Axiom.Caching.FusionCache.csproj" />
+    <Project Path="src/caching/Allegory.Axiom.Caching/Allegory.Axiom.Caching.csproj" />
+    <Project Path="src/caching/Allegory.Axiom.Caching.Redis/Allegory.Axiom.Caching.Redis.csproj" />
+  </Folder>
+  <Folder Name="/src/core/">
+    <Project Path="src/core/Allegory.Axiom.Core/Allegory.Axiom.Core.csproj" />
+    <Project Path="src/core/Allegory.Axiom.Filter/Allegory.Axiom.Filter.csproj" />
+    <Project Path="src/core/Allegory.Axiom.OpenTelemetry/Allegory.Axiom.OpenTelemetry.csproj" />
+    <Project Path="src/core/Allegory.Axiom.TestBase/Allegory.Axiom.TestBase.csproj" />
+  </Folder>
+  <Folder Name="/src/file-provider/">
+    <Project Path="src/file-provider/Allegory.Axiom.FileProvider.Abstractions/Allegory.Axiom.FileProvider.Abstractions.csproj" />
+    <Project Path="src/file-provider/Allegory.Axiom.FileProvider/Allegory.Axiom.FileProvider.csproj" />
+  </Folder>
+  <Folder Name="/src/data/">
+    <Project Path="src/data/Allegory.Axiom.Data.Abstractions/Allegory.Axiom.Data.Abstractions.csproj" />
+    <Project Path="src/data/Allegory.Axiom.Data/Allegory.Axiom.Data.csproj" />
+  </Folder>
+  <Folder Name="/src/ddd/">
+    <Project Path="src/ddd/Allegory.Axiom.Domain/Allegory.Axiom.Domain.csproj" />
+  </Folder>
+  <Folder Name="/src/distributed-locking/">
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking.Abstractions/Allegory.Axiom.DistributedLocking.Abstractions.csproj" />
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking.Madelson/Allegory.Axiom.DistributedLocking.Madelson.csproj" />
+    <Project Path="src/distributed-locking/Allegory.Axiom.DistributedLocking/Allegory.Axiom.DistributedLocking.csproj" />
+  </Folder>
+  <Folder Name="/src/ef-core/">
+    <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB/Allegory.Axiom.EntityFrameworkCore.MongoDB.csproj" />
+    <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational/Allegory.Axiom.EntityFrameworkCore.Relational.csproj" />
+    <Project Path="src/ef-core/Allegory.Axiom.EntityFrameworkCore/Allegory.Axiom.EntityFrameworkCore.csproj" />
+  </Folder>
+  <Folder Name="/src/event-bus/">
+    <Project Path="src/event-bus/Allegory.Axiom.EventBus.Abstractions/Allegory.Axiom.EventBus.Abstractions.csproj" />
+    <Project Path="src/event-bus/Allegory.Axiom.EventBus.RabbitMQ/Allegory.Axiom.EventBus.RabbitMQ.csproj" />
+    <Project Path="src/event-bus/Allegory.Axiom.EventBus/Allegory.Axiom.EventBus.csproj" />
+  </Folder>
+  <Folder Name="/src/integration/">
+    <Project Path="src/integration/Allegory.Axiom.RabbitMQ/Allegory.Axiom.RabbitMQ.csproj" />
+    <Project Path="src/integration/Allegory.Axiom.Redis/Allegory.Axiom.Redis.csproj" />
+  </Folder>
+  <Folder Name="/src/interception/">
+    <Project Path="src/interception/Allegory.Axiom.Interception.Abstractions/Allegory.Axiom.Interception.Abstractions.csproj" />
+    <Project Path="src/interception/Allegory.Axiom.Interception.Castle.Core/Allegory.Axiom.Interception.Castle.Core.csproj" />
+    <Project Path="src/interception/Allegory.Axiom.Interception/Allegory.Axiom.Interception.csproj" />
+  </Folder>
+  <Folder Name="/src/localization/">
+    <Project Path="src/localization/Allegory.Axiom.AspNetCore.Localization/Allegory.Axiom.AspNetCore.Localization.csproj" />
+    <Project Path="src/localization/Allegory.Axiom.Localization.Abstractions/Allegory.Axiom.Localization.Abstractions.csproj" />
+    <Project Path="src/localization/Allegory.Axiom.Localization/Allegory.Axiom.Localization.csproj" />
+  </Folder>
+  <Folder Name="/src/modularity/">
+    <Project Path="src/modularity/Allegory.Axiom.DependencyInjection.Abstractions/Allegory.Axiom.DependencyInjection.Abstractions.csproj" />
+    <Project Path="src/modularity/Allegory.Axiom.Hosting.Abstractions/Allegory.Axiom.Hosting.Abstractions.csproj" />
+  </Folder>
+  <Folder Name="/src/multi-tenancy/">
+    <Project Path="src/multi-tenancy/Allegory.Axiom.AspNetCore.MultiTenancy/Allegory.Axiom.AspNetCore.MultiTenancy.csproj" />
+    <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.Abstractions/Allegory.Axiom.MultiTenancy.Abstractions.csproj" />
+    <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy.DefaultStore/Allegory.Axiom.MultiTenancy.DefaultStore.csproj" />
+    <Project Path="src/multi-tenancy/Allegory.Axiom.MultiTenancy/Allegory.Axiom.MultiTenancy.csproj" />
+  </Folder>
+  <Folder Name="/src/security/">
+    <Project Path="src/security/Allegory.Axiom.Security.Abstractions/Allegory.Axiom.Security.Abstractions.csproj" />
+    <Project Path="src/security/Allegory.Axiom.Security/Allegory.Axiom.Security.csproj" />
+    <Project Path="src/security/Allegory.Axiom.AspNetCore.Security/Allegory.Axiom.AspNetCore.Security.csproj" />
+  </Folder>
+  <Folder Name="/src/template/">
+    <Project Path="src/template/Allegory.Axiom.Template.Framework.Abstractions/Allegory.Axiom.Template.Framework.Abstractions.csproj" />
+    <Project Path="src/template/Allegory.Axiom.Template.Framework.Implementations/Allegory.Axiom.Template.Framework.Implementations.csproj" />
+  </Folder>
+  <Folder Name="/src/unit-of-work/">
+    <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork.Abstractions/Allegory.Axiom.UnitOfWork.Abstractions.csproj" />
+    <Project Path="src/unit-of-work/Allegory.Axiom.UnitOfWork/Allegory.Axiom.UnitOfWork.csproj" />
+    <Project Path="src/unit-of-work/Allegory.Axiom.AspNetCore.UnitOfWork/Allegory.Axiom.AspNetCore.UnitOfWork.csproj" />
+  </Folder>
+  <Folder Name="/test/" />
+  <Folder Name="/test/aspnetcore/">
+    <Project Path="test/aspnetcore/Allegory.Axiom.AspNetCore.ExceptionHandling.Tests/Allegory.Axiom.AspNetCore.ExceptionHandling.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/caching/">
+    <Project Path="test/caching/Allegory.Axiom.Caching.Tests/Allegory.Axiom.Caching.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/core/">
+    <Project Path="test/core/Allegory.Axiom.Core.Tests/Allegory.Axiom.Core.Tests.csproj" />
+    <Project Path="test/core/Allegory.Axiom.Filter.Tests/Allegory.Axiom.Filter.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/data/">
+    <Project Path="test/data/Allegory.Axiom.Data.Tests/Allegory.Axiom.Data.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/distributed-locking/">
+    <Project Path="test/distributed-locking/Allegory.Axiom.DistributedLocking.Tests/Allegory.Axiom.DistributedLocking.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/ef-core/">
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Relational.Tests/Allegory.Axiom.EntityFrameworkCore.Relational.Tests.csproj" />
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.Tests/Allegory.Axiom.EntityFrameworkCore.Tests.csproj" />
+    <Project Path="test/ef-core/Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests/Allegory.Axiom.EntityFrameworkCore.MongoDB.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/event-bus/">
+    <Project Path="test/event-bus/Allegory.Axiom.EventBus.Tests/Allegory.Axiom.EventBus.Tests.csproj" />
+    <Project Path="test/event-bus/Allegory.Axiom.EventBus.RabbitMQ.Tests/Allegory.Axiom.EventBus.RabbitMQ.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/file-provider/">
+    <Project Path="test/file-provider/Allegory.Axiom.FileProvider.Tests/Allegory.Axiom.FileProvider.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/integration/">
+    <Project Path="test/integration/Allegory.Axiom.RabbitMQ.Tests/Allegory.Axiom.RabbitMQ.Tests.csproj" />
+    <Project Path="test/integration/Allegory.Axiom.Redis.Tests/Allegory.Axiom.Redis.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/interception/">
+    <Project Path="test/interception/Allegory.Axiom.Interception.Abstractions.Tests/Allegory.Axiom.Interception.Abstractions.Tests.csproj" />
+    <Project Path="test/interception/Allegory.Axiom.Interception.Castle.Core.Tests/Allegory.Axiom.Interception.Castle.Core.Tests.csproj" />
+    <Project Path="test/interception/Allegory.Axiom.Interception.Tests/Allegory.Axiom.Interception.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/localization/">
+    <Project Path="test/localization/Allegory.Axiom.Localization.Abstractions.Tests/Allegory.Axiom.Localization.Abstractions.Tests.csproj" />
+    <Project Path="test/localization/Allegory.Axiom.Localization.Tests/Allegory.Axiom.Localization.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/modularity/">
+    <Project Path="test/modularity/Allegory.Axiom.DependencyInjection.Abstractions.Tests/Allegory.Axiom.DependencyInjection.Abstractions.Tests.csproj" />
+    <Project Path="test/modularity/Allegory.Axiom.Hosting.Abstractions.Tests/Allegory.Axiom.Hosting.Abstractions.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/multi-tenancy/">
+    <Project Path="test/multi-tenancy/Allegory.Axiom.AspNetCore.MultiTenancy.Tests/Allegory.Axiom.AspNetCore.MultiTenancy.Tests.csproj" />
+    <Project Path="test/multi-tenancy/Allegory.Axiom.MultiTenancy.Tests/Allegory.Axiom.MultiTenancy.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/playground/">
+    <Project Path="test/playground/Allegory.Axiom.Assembly1/Allegory.Axiom.Assembly1.csproj" />
+    <Project Path="test/playground/Allegory.Axiom.Assembly2/Allegory.Axiom.Assembly2.csproj" />
+    <Project Path="test/playground/Allegory.Axiom.Assembly3/Allegory.Axiom.Assembly3.csproj" />
+    <Project Path="test/playground/Allegory.Axiom.ConsoleApp/Allegory.Axiom.ConsoleApp.csproj" />
+    <Project Path="test/playground/Allegory.Axiom.WebApp/Allegory.Axiom.WebApp.csproj" />
+  </Folder>
+  <Folder Name="/test/security/">
+    <Project Path="test/security/Allegory.Axiom.AspNetCore.Security.Tests/Allegory.Axiom.AspNetCore.Security.Tests.csproj" />
+    <Project Path="test/security/Allegory.Axiom.Security.Tests/Allegory.Axiom.Security.Tests.csproj" />
+  </Folder>
+  <Folder Name="/test/unit-of-work/">
+    <Project Path="test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
+    <Project Path="test/unit-of-work/Allegory.Axiom.AspNetCore.UnitOfWork.Tests/Allegory.Axiom.AspNetCore.UnitOfWork.Tests.csproj" />
+  </Folder>
+</Solution>

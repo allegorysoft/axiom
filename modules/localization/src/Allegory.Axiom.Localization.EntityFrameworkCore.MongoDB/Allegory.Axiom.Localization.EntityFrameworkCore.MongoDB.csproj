@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.Localization.EntityFrameworkCore\Allegory.Axiom.Localization.EntityFrameworkCore.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\..\framework\src\ef-core\Allegory.Axiom.EntityFrameworkCore.MongoDB\Allegory.Axiom.EntityFrameworkCore.MongoDB.csproj"/>
+    </ItemGroup>
+
+</Project>

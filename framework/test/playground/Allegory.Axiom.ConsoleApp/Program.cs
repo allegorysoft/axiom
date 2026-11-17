@@ -32,7 +32,8 @@ public class EventHandler1 : IDistributedEventHandler<Event1>
     {
         _lifetime = lifetime;
     }
-    public async Task HandleAsync(Event1 payload, EventContext context)
+
+    public async Task HandleAsync(Event1 payload)
     {
         await Task.Delay(3_000);
     }
