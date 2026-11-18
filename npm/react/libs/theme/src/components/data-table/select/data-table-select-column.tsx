@@ -16,7 +16,7 @@ export function createDataTableSelectColumn<D extends RowData>(
 
   return columnHelper.display({
     id: options.id ?? 'select',
-    maxSize: 40,
+    maxSize: 60,
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}
@@ -35,6 +35,5 @@ export function createDataTableSelectColumn<D extends RowData>(
       />
     ),
     enableSorting: false,
-    enableHiding: false,
   });
 }

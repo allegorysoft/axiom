@@ -1,7 +1,5 @@
 import type { CSSProperties } from 'react';
 import {
-  type RowData,
-  type TableFeatures,
   type Cell,
   type Column_ColumnSizing,
   flexRender,

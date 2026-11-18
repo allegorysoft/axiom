@@ -36,8 +36,7 @@ export function DataTableSortingHeader<
     <div className={cn('flex items-center gap-2', className)}>
       <Button
         variant="ghost"
-        size="sm"
-        className="-ml-1 h-8"
+        size="default"
         onClick={() => column.toggleSorting()}
       >
         <span>{t(title)}</span>

@@ -1,7 +1,13 @@
 import type { CSSProperties } from 'react';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import { GripVerticalIcon } from '@hugeicons/core-free-icons';
+import {
+  ArrowLeftFromLineIcon,
+  ArrowRightFromLineIcon,
+  EllipsisIcon,
+  EyeClosedIcon,
+  GripVerticalIcon,
+} from '@hugeicons/core-free-icons';
 
 import type {
   Column_ColumnSizing,
@@ -12,10 +18,18 @@ import type {
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 
+import { useTranslation } from '@axiomframework/react-core';
+
 import { TableHead } from '../../ui/table';
 import { Button } from '../../ui/button';
 
 import type { TData, TFeat } from '../models';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../ui/dropdown-menu';
 
 type Props<D extends TData> = {
   header: Header<TFeat, D, unknown>;
@@ -27,6 +41,7 @@ export function DraggableTableHeader<D extends TData>({
   table,
   columnResizing,
 }: Props<D>) {
+  const t = useTranslation();
   const {
     attributes,
     isDragging,
@@ -82,6 +97,38 @@ export function DraggableTableHeader<D extends TData>({
         <span className="grow truncate">
           {header.isPlaceholder ? null : table.FlexRender({ header })}
         </span>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                size="icon"
+                variant="ghost"
+                aria-label={`Options for ${header.column.columnDef.id as string} column`}
+              >
+                <HugeiconsIcon
+                  icon={EllipsisIcon}
+                  className="opacity-70"
+                  aria-hidden="true"
+                />
+              </Button>
+            }
+          />
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() =>
+                header.column.toggleVisibility(!header.column.getIsVisible())
+              }
+            >
+              <HugeiconsIcon
+                icon={EyeClosedIcon}
+                className="opacity-60"
+                aria-hidden="true"
+              />
+              {t('AxiomTheme:Hide')}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {canResize && (
