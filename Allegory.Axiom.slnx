@@ -76,6 +76,10 @@
     <Project Path="framework/src/security/Allegory.Axiom.Security/Allegory.Axiom.Security.csproj" />
     <Project Path="framework/src/security/Allegory.Axiom.AspNetCore.Security/Allegory.Axiom.AspNetCore.Security.csproj" />
   </Folder>
+  <Folder Name="/framework/src/settings/">
+    <Project Path="framework/src/settings/Allegory.Axiom.Settings.Abstractions/Allegory.Axiom.Settings.Abstractions.csproj" />
+    <Project Path="framework/src/settings/Allegory.Axiom.Settings/Allegory.Axiom.Settings.csproj" />
+  </Folder>
   <Folder Name="/framework/src/template/">
     <Project Path="framework/src/template/Allegory.Axiom.Template.Framework.Abstractions/Allegory.Axiom.Template.Framework.Abstractions.csproj" />
     <Project Path="framework/src/template/Allegory.Axiom.Template.Framework.Implementations/Allegory.Axiom.Template.Framework.Implementations.csproj" />
@@ -145,6 +149,9 @@
   <Folder Name="/framework/test/security/">
     <Project Path="framework/test/security/Allegory.Axiom.AspNetCore.Security.Tests/Allegory.Axiom.AspNetCore.Security.Tests.csproj" />
     <Project Path="framework/test/security/Allegory.Axiom.Security.Tests/Allegory.Axiom.Security.Tests.csproj" />
+  </Folder>
+  <Folder Name="/framework/test/settings/">
+    <Project Path="framework/test/settings/Allegory.Axiom.Settings.Tests/Allegory.Axiom.Settings.Tests.csproj" />
   </Folder>
   <Folder Name="/framework/test/unit-of-work/">
     <Project Path="framework/test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
