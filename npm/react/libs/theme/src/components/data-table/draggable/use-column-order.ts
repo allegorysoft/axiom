@@ -12,8 +12,8 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 import type { DataTableProps } from '../models';
 
-export function useDataTableColumnOrder(columns: DataTableProps['columns']) {
-  const [columnOrder, setColumnOrder] = useState<string[]>(
+export function useColumnOrder(columns: DataTableProps['columns']) {
+  const [columnOrder, setColumnOrder] = useState(
     columns.map((column) => column.id as string),
   );
 

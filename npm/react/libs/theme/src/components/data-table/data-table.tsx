@@ -22,17 +22,16 @@ import {
   DataTableDndContext,
   DraggableCell,
   DraggableTableHeader,
-  useDataTableColumnOrder,
-} from './draggable';
+  useColumnOrder,
+} from './draggable/index';
 
 import { type Pagination, AxiomDataTablePagination } from './pagination/index';
 
-import type { DataTableProps, OptionalRow } from './models';
+import type { DataTableProps } from './models';
 
 export function AxiomDataTable(props: DataTableProps) {
   const t = useTranslation();
-  const { columnOrder, setColumnOrder, sensors, handleDragEnd } =
-    useDataTableColumnOrder(props.columns);
+  const { columnOrder, setColumnOrder, sensors, handleDragEnd } = useColumnOrder(props.columns);
 
   const table = useTable({
     ...props,
@@ -45,7 +44,9 @@ export function AxiomDataTable(props: DataTableProps) {
 
   const pagination = table as Pagination;
   const dataLength = props.data.length;
-  const colSpan = table.getHeaderGroups().at(-1)?.headers.length ?? props.columns.length;
+
+  const headers = table.getHeaderGroups().at(-1)?.headers;
+  const colSpan = headers?.length ?? props.columns.length;
 
   const NoRecordFound = () => (
     <TableRow>
@@ -91,14 +92,13 @@ export function AxiomDataTable(props: DataTableProps) {
             {!table.getRowModel().rows?.length && <NoRecordFound />}
 
             {table?.getRowModel()?.rows?.map((row) => {
-              const optionalRow = row as OptionalRow;
-              const cells =
-                optionalRow.getVisibleCells?.() ?? row.getAllCells();
+              const visibleCells = row.getVisibleCells?.();
+              const cells = visibleCells ?? row.getAllCells();
 
               return (
                 <TableRow
                   key={row.id}
-                  data-state={optionalRow.getIsSelected?.() && 'selected'}
+                  data-state={row.getIsSelected?.() && 'selected'}
                 >
                   {cells.map((cell) => (
                     <SortableContext
