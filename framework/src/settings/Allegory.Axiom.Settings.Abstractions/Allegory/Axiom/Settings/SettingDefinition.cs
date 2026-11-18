@@ -1,18 +1,67 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Immutable;
+using System.ComponentModel;
+using System.Text.Json;
 
 namespace Allegory.Axiom.Settings;
 
-public class SettingDefinition
+[ImmutableObject(true)]
+public sealed class SettingDefinition(
+    string name,
+    JsonElement? defaultValue = null,
+    bool isPublic = false,
+    bool isEncrypted = false,
+    ImmutableHashSet<string>? contributors = null)
 {
-    public string Name { get; set; } = null!;
-    public JsonElement? DefaultValue { get; set; }
-    public bool IsEncrypted { get; set; }
+    public string Name { get; } = name;
+    public JsonElement? DefaultValue { get; } = defaultValue;
+    public bool IsPublic { get; } = isPublic;
+    public bool IsEncrypted { get; } = isEncrypted;
+    public ImmutableHashSet<string> Contributors { get; } = contributors ?? ImmutableHashSet<string>.Empty;
 
-    public static SettingDefinition Create<T>(T value)
+    public static SettingDefinition Create<T>(
+        string name,
+        T value,
+        bool isPublic = false,
+        bool isEncrypted = false,
+        ImmutableHashSet<string>? contributors = null)
     {
-        return new SettingDefinition
-        {
-            DefaultValue = JsonSerializer.SerializeToElement(value)
-        };
+        return new SettingDefinition(
+            name,
+            JsonSerializer.SerializeToElement(value),
+            isPublic,
+            isEncrypted,
+            contributors);
     }
+
+    public SettingDefinition Clone(
+        JsonElement? defaultValue = null,
+        bool? isPublic = null,
+        bool? isEncrypted = null,
+        ImmutableHashSet<string>? contributors = null)
+    {
+        return new SettingDefinition(
+            Name,
+            defaultValue ?? DefaultValue?.Clone(),
+            isPublic ?? IsPublic,
+            isEncrypted ?? IsEncrypted,
+            contributors ?? Contributors);
+    }
+
+    public SettingDefinition Clone<T>(
+        T defaultValue,
+        bool? isPublic = null,
+        bool? isEncrypted = null,
+        ImmutableHashSet<string>? contributors = null)
+    {
+        return new SettingDefinition(
+            Name,
+            JsonSerializer.SerializeToElement(defaultValue),
+            isPublic ?? IsPublic,
+            isEncrypted ?? IsEncrypted,
+            contributors ?? Contributors);
+    }
+
+    public override bool Equals(object? obj) => obj is SettingDefinition setting && setting.Name == Name;
+
+    public override int GetHashCode() => Name.GetHashCode();
 }

@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.DependencyInjection.Abstractions\Allegory.Axiom.DependencyInjection.Abstractions.csproj"/>
         <ProjectReference Include="..\Allegory.Axiom.Settings.Abstractions\Allegory.Axiom.Settings.Abstractions.csproj"/>
     </ItemGroup>
 
