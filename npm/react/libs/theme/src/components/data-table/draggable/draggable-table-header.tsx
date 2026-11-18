@@ -17,7 +17,7 @@ import { Button } from '../../ui/button';
 
 import type { TData, TFeat } from '../models';
 
-type DraggableTableHeaderProps<D extends TData> = {
+type Props<D extends TData> = {
   header: Header<TFeat, D, unknown>;
   table: ReactTable<TFeat, D>;
   columnResizing?: boolean;
@@ -26,7 +26,7 @@ export function DraggableTableHeader<D extends TData>({
   header,
   table,
   columnResizing,
-}: DraggableTableHeaderProps<D>) {
+}: Props<D>) {
   const {
     attributes,
     isDragging,

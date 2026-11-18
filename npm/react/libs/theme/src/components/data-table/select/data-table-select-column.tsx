@@ -3,19 +3,20 @@ import type { RowData } from '@tanstack/react-table';
 import { Checkbox } from '../../ui/checkbox';
 import { createDataTableColumnHelper } from '../data-table-utils';
 
-export interface DataTableSelectColumnOptions {
+type Options = {
   id?: string;
   selectAllLabel?: string;
   selectRowLabel?: string;
-}
+};
 
-export function createDataTableSelectColumn<TData extends RowData>(
-  options: DataTableSelectColumnOptions = {},
+export function createDataTableSelectColumn<D extends RowData>(
+  options: Options = {},
 ) {
-  const columnHelper = createDataTableColumnHelper<TData>();
+  const columnHelper = createDataTableColumnHelper<D>();
 
   return columnHelper.display({
     id: options.id ?? 'select',
+    maxSize: 40,
     header: ({ table }) => (
       <Checkbox
         checked={table.getIsAllPageRowsSelected()}

@@ -1,7 +1,11 @@
 import { ReactNode } from 'react';
-import type { CellContext, RowData } from '@tanstack/react-table';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { MoreHorizontalIcon } from '@hugeicons/core-free-icons';
+
+import type { RowData } from '@tanstack/react-table';
+
+import { useTranslation } from '@axiomframework/react-core';
+
 import { Button } from '../../ui/button';
 import {
   DropdownMenu,
@@ -9,26 +13,30 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
-import { useTranslation } from '@axiomframework/react-core';
-import { TData, TFeat } from '../models';
 
-interface DataTableAction<D extends TData> {
+import type { TData } from '../models';
+import { createDataTableColumnHelper } from '../data-table-utils';
+
+type DataTableAction<D extends TData> = {
   icon?: ReactNode;
   label: string;
   onClick: (data: D) => void;
   permission?: string;
-}
+};
 
 export function createDataTableActionsColumn<D extends TData>(
   actions: DataTableAction<D>[],
 ) {
-  return {
+  const columnHelper = createDataTableColumnHelper<D>();
+
+  return columnHelper.display({
     id: 'actions',
+    maxSize: 50,
     header: DataTableActionsHeader,
-    cell: ({ row }: CellContext<TFeat, D>) => (
+    cell: ({ row }) => (
       <DataTableActionsCell actions={actions} data={row.original} />
     ),
-  };
+  });
 }
 
 function DataTableActionsHeader() {
@@ -36,13 +44,11 @@ function DataTableActionsHeader() {
   return t('AxiomTheme:Actions');
 }
 
-function DataTableActionsCell<D extends RowData>({
-  actions,
-  data,
-}: {
+type Props<D extends RowData> = {
   actions: DataTableAction<D>[];
   data: D;
-}) {
+};
+function DataTableActionsCell<D extends RowData>({ actions, data }: Props<D>) {
   const t = useTranslation();
 
   return (
