@@ -1,13 +1,14 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.Security.Encryption;
 
 public class StringEncryptionService(
     IOptions<StringEncryptionOptions> options) :
-    IStringEncryptionService
+    IStringEncryptionService, ISingletonService
 {
     protected const int SaltSize = 32;
     protected const int NonceSize = 12;
