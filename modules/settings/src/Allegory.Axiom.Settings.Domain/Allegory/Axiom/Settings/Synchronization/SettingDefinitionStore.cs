@@ -1,0 +1,61 @@
+using System.Collections.Frozen;
+using System.Collections.Immutable;
+using System.Threading;
+using System.Threading.Tasks;
+using Allegory.Axiom.Caching;
+using Allegory.Axiom.Settings.Synchronization;
+using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.Caching.Hybrid;
+
+namespace Allegory.Axiom.Settings;
+
+public class SettingDefinitionStore(
+    ICacheKeyNormalizer cacheKeyNormalizer,
+    HybridCache hybridCache,
+    ISettingDefinitionRecordRepository repository,
+    IUnitOfWorkManager unitOfWorkManager) :
+    ISettingDefinitionStore
+{
+    protected ICacheKeyNormalizer CacheKeyNormalizer { get; } = cacheKeyNormalizer;
+    protected HybridCache HybridCache { get; } = hybridCache;
+    protected ISettingDefinitionRecordRepository Repository { get; } = repository;
+    protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+
+    public virtual async ValueTask<ImmutableArray<SettingDefinition>> GetListAsync()
+    {
+        var settings = await GetSettingsAsync();
+        return settings.Values;
+    }
+
+    public virtual async ValueTask<SettingDefinition?> FindAsync(string name)
+    {
+        var settings = await GetSettingsAsync();
+        settings.TryGetValue(name, out var setting);
+        return setting;
+    }
+
+    protected virtual async ValueTask<FrozenDictionary<string, SettingDefinition>> GetSettingsAsync()
+    {
+        var key = CacheKeyNormalizer.Normalize($"settings:definitions"); // create field for this
+
+        var cache = await HybridCache.GetOrCreateAsync(
+            key,
+            this,
+            static async (instance, ct) =>
+            {
+                await using var uow = instance.UnitOfWorkManager.Begin(
+                    cancellationToken: ct,
+                    options: UnitOfWorkOptions.Suppress);
+
+                var settings = await instance.Repository.GetDefinitionListAsync(
+                    cancellationToken: CancellationToken.None);
+
+                return new SettingDefinitionCacheItem
+                {
+                    Settings = settings.ToFrozenDictionary(kvp => kvp.Name, kvp => kvp)
+                };
+            });
+
+        return cache.Settings;
+    }
+}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using Allegory.Axiom.Domain.Entities;
@@ -14,7 +15,7 @@ public class SettingDefinitionRecord : AggregateRoot<Guid>
     public string? DefaultValue { get; protected set; }
     public bool IsPublic { get; set; }
     public bool IsEncrypted { get; set; }
-    public ReadOnlySet<string> Contributors { get; set; } = ReadOnlySet<string>.Empty;
+    public ImmutableHashSet<string> Contributors { get; set; } = ImmutableHashSet<string>.Empty;
 
     public void SetName(string name)
     {
