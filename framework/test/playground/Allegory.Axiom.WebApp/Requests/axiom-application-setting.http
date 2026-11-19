@@ -1,0 +1,6 @@
+@setting = {{api}}/axiom/application/settings
+
+### Settings
+
+GET {{setting}}
+Accept: application/json

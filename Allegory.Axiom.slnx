@@ -79,6 +79,7 @@
   <Folder Name="/framework/src/settings/">
     <Project Path="framework/src/settings/Allegory.Axiom.Settings.Abstractions/Allegory.Axiom.Settings.Abstractions.csproj" />
     <Project Path="framework/src/settings/Allegory.Axiom.Settings/Allegory.Axiom.Settings.csproj" />
+    <Project Path="framework/src/settings/Allegory.Axiom.AspNetCore.Settings/Allegory.Axiom.AspNetCore.Settings.csproj" />
   </Folder>
   <Folder Name="/framework/src/template/">
     <Project Path="framework/src/template/Allegory.Axiom.Template.Framework.Abstractions/Allegory.Axiom.Template.Framework.Abstractions.csproj" />
