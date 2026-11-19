@@ -2,7 +2,8 @@
 
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <RuntimePackageVersion>10.0.14</RuntimePackageVersion>
+        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+        <RuntimePackageVersion>10.0.15</RuntimePackageVersion>
         <OpenTelemetryVersion>1.17.0</OpenTelemetryVersion>
         <FusionCacheVersion>2.9.0</FusionCacheVersion>
         <TestcontainersVersion>4.16.0</TestcontainersVersion>
@@ -17,7 +18,7 @@
         <PackageVersion Include="Castle.Core" Version="5.2.1"/>
         <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0"/>
 
-        <PackageVersion Include="DistributedLock" Version="2.8.3"/>
+        <PackageVersion Include="DistributedLock" Version="2.8.4"/>
 
         <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3"/>
         <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="10.0.2"/>
@@ -71,6 +72,7 @@
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(RuntimePackageVersion)"/>
+        <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="System.IO.Hashing" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="System.Text.Json" Version="$(RuntimePackageVersion)"/>
         <!-- Official Microsoft Section End -->

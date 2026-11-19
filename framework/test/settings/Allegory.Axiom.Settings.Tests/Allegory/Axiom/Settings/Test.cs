@@ -1,5 +1,8 @@
-﻿using System.Text.Json;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Caching.Hybrid;
 using Xunit;
 
@@ -7,18 +10,12 @@ namespace Allegory.Axiom.Settings;
 
 public class Test(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {
+    protected ISettingDefinitionProvider Provider => fixture.Service<ISettingDefinitionProvider>();
+    protected HybridCache Cache => fixture.Service<HybridCache>();
+
     [Fact]
     public async Task Test1()
     {
-        using var document = JsonDocument.Parse("""
-                                                {
-                                                   "Name": "Ahmet",
-                                                   "Age": 29
-                                                }
-                                                """);
-        document.RootElement.GetRawText();
-
-
         var element = JsonElement.Parse("""
                                         {
                                            "Name": "Ahmet",
@@ -26,12 +23,7 @@ public class Test(IntegrationTestFixture fixture) : IClassFixture<IntegrationTes
                                         }
                                         """);
 
-
-        var definition = new SettingDefinition
-        {
-            Name = "Person",
-            DefaultValue = element
-        };
+        var definition = new SettingDefinition("Person", element);
 
         var cache = fixture.Service<HybridCache>();
 
@@ -47,7 +39,23 @@ public class Test(IntegrationTestFixture fixture) : IClassFixture<IntegrationTes
     }
 }
 
-public struct a
+public class SmtpSettingDefinitionContributor : ISettingDefinitionContributor, ISingletonService
 {
-    
+    public void Contribute(SettingDefinitionContext context)
+    {
+        for (int i = 0; i < 500; i++)
+        {
+            context.Add(SettingDefinition.Create($"smtp{i}", new SmtpSetting
+            {
+                Host = "127.0.0.1",
+                Port = 25
+            }));
+        }
+    }
+}
+
+public class SmtpSetting
+{
+    public string Host { get; set; } = null!;
+    public int Port { get; set; }
 }
