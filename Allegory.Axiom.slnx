@@ -175,6 +175,9 @@
   </Folder>
   <Folder Name="/modules/settings/" />
   <Folder Name="/modules/settings/host/" />
-  <Folder Name="/modules/settings/src/" />
+  <Folder Name="/modules/settings/src/">
+    <Project Path="modules/settings/src/Allegory.Axiom.Settings.Domain/Allegory.Axiom.Settings.Domain.csproj" />
+    <Project Path="modules/settings/src/Allegory.Axiom.Settings.EntityFrameworkCore/Allegory.Axiom.Settings.EntityFrameworkCore.csproj" />
+  </Folder>
   <Folder Name="/modules/settings/test/" />
 </Solution>
