@@ -11,11 +11,13 @@ public static class SettingEndpoints
 {
     public static void MapSettingEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api/axiom/application/settings");
+        var group = routes
+            .MapGroup("/api/axiom/application/settings")
+            .WithTags("application", "settings");
 
         // AddApplicationContributor("settings", GetSettings)
 
-        group.MapGet("", GetSettingsAsync);
+        group.MapGet("/", GetSettingsAsync);
     }
 
     private static async ValueTask<IResult> GetSettingsAsync(ISettingDefinitionStore store)

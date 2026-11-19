@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
@@ -16,17 +17,20 @@ public static class LocalizationEndpoints
 
     public static void MapLocalizationEndpoints(this IEndpointRouteBuilder routes)
     {
-        var group = routes.MapGroup("/api/axiom/application/localization");
+        var group = routes
+            .MapGroup("/api/axiom/application/localization")
+            .WithTags("application", "localization");
 
         group.MapGet("/languages", GetLanguages);
         group.MapGet("/translations", GetTranslations);
     }
 
-    private static IResult GetLanguages(IOptions<RequestLocalizationOptions> options)
+    private static Ok<ImmutableList<ApplicationLanguageDto>> GetLanguages(IOptions<RequestLocalizationOptions> options)
     {
         if (_languages is null)
         {
             var cultures = options.Value.SupportedUICultures ?? options.Value.SupportedCultures;
+
             _languages = cultures?.Select(x => new ApplicationLanguageDto
             {
                 Name = x.Name,
@@ -34,19 +38,22 @@ public static class LocalizationEndpoints
             }).ToImmutableList() ?? ImmutableList<ApplicationLanguageDto>.Empty;
         }
 
-        return Results.Ok(Languages);
+        return TypedResults.Ok(Languages);
     }
 
-    private static IResult GetTranslations(ILocalizationProvider provider, IStringLocalizerFactory factory)
+    private static Ok<Dictionary<string, Dictionary<string, string>>> GetTranslations(
+        ILocalizationProvider provider,
+        IStringLocalizerFactory factory)
     {
         var translations = new Dictionary<string, Dictionary<string, string>>();
 
         foreach (var context in provider.Contexts)
         {
             var localizer = factory.Create(context.Key, string.Empty);
-            translations[context.Key] = localizer.GetAllStrings(true).ToDictionary(x => x.Name, x => x.Value);
+            translations[context.Key] = localizer.GetAllStrings(true)
+                .ToDictionary(x => x.Name, x => x.Value);
         }
 
-        return Results.Ok(translations);
+        return TypedResults.Ok(translations);
     }
 }
