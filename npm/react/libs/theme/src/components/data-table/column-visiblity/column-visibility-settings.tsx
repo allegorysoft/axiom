@@ -1,9 +1,9 @@
 'use client';
 
-import { Column, ReactTable, type TableState } from '@tanstack/react-table';
+import type { Column } from '@tanstack/react-table';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Columns3CogIcon, RefreshCcwIcon } from '@hugeicons/core-free-icons';
+import { RefreshCcwIcon, SlidersHorizontal } from '@hugeicons/core-free-icons';
 
 import { useTranslation } from '@axiomframework/react-core';
 
@@ -15,32 +15,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
-import { TData, TFeat } from '../models';
 import { Button } from '../../ui/button';
 
-type TableType<
-  F extends TFeat = TFeat,
-  D extends TData = TData,
-  S extends TableState<F> = TableState<F>,
-> = ReactTable<F, D, S>;
+import type { TData, TFeat } from '../models';
 
+type Props = {
+  columns: Column<TFeat, TData, unknown>[];
+  resetColumnVisibility: (defaultState?: boolean | undefined) => void;
+};
 export function ColumnVisibilitySettings({
   columns,
-  table,
-}: {
-  columns: Column<TFeat, TData, unknown>[];
-  table: TableType;
-}) {
+  resetColumnVisibility,
+}: Props) {
   const t = useTranslation();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" className=" justify-between cursor-pointer">
-            <span className="flex items-center gap-2">
-              <HugeiconsIcon icon={Columns3CogIcon} />
-            </span>
+          <Button variant="outline" className="cursor-pointer items-center">
+            <HugeiconsIcon icon={SlidersHorizontal} />
           </Button>
         }
       />
@@ -58,11 +52,7 @@ export function ColumnVisibilitySettings({
         ))}
 
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => {
-            table.resetColumnVisibility();
-          }}
-        >
+        <DropdownMenuItem onClick={() => resetColumnVisibility()}>
           <HugeiconsIcon icon={RefreshCcwIcon} /> {t('AxiomTheme:Reset')}
         </DropdownMenuItem>
       </DropdownMenuContent>

@@ -7,9 +7,6 @@ import {
   SortableContext,
 } from '@dnd-kit/sortable';
 
-import { HugeiconsIcon } from '@hugeicons/react';
-import { FilterIcon } from '@hugeicons/core-free-icons';
-
 import { useTranslation } from '@axiomframework/react-core';
 
 import {
@@ -21,21 +18,19 @@ import {
   TableRow,
 } from '../ui/table';
 
+import { DataTableFilter } from './filtering/index';
 import {
   DataTableDndContext,
   DraggableCell,
   DraggableTableHeader,
   useColumnOrder,
 } from './draggable/index';
-
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-
-import { type Pagination, AxiomDataTablePagination } from './pagination/index';
 import {
   ColumnVisibilitySettings,
   useColumnVisibility,
 } from './column-visiblity/index';
+import { AxiomDataTablePagination } from './pagination/index';
+
 import type { DataTableProps } from './models';
 
 export function AxiomDataTable(props: DataTableProps) {
@@ -50,6 +45,7 @@ export function AxiomDataTable(props: DataTableProps) {
   const table = useTable({
     ...props,
     state: {
+      ...props.state,
       columnOrder,
       columnVisibility,
     },
@@ -57,9 +53,6 @@ export function AxiomDataTable(props: DataTableProps) {
     columnResizeMode: 'onChange',
     onColumnVisibilityChange: setColumnVisibility,
   });
-
-  const pagination = table as Pagination;
-  const dataLength = props.data.length;
 
   const headers = table.getHeaderGroups().at(-1)?.headers;
   const colSpan = headers?.length ?? props.columns.length;
@@ -82,11 +75,15 @@ export function AxiomDataTable(props: DataTableProps) {
   return (
     <>
       <div
-        className="flex items-center justify-end gap-2"
-        aria-label="Data table options"
+        aria-label="Data table options section"
+        className="flex items-center justify-end gap-2 mx-2 sm:mx-0.5"
       >
-        <ColumnVisibilitySettings columns={columns} table={table} />
-        <Filters t={t} />
+        <DataTableFilter filter={props.filter} />
+
+        <ColumnVisibilitySettings
+          columns={columns}
+          resetColumnVisibility={table.resetColumnVisibility}
+        />
       </div>
 
       <div className="overflow-hidden rounded-lg border">
@@ -145,16 +142,9 @@ export function AxiomDataTable(props: DataTableProps) {
               <TableRow>
                 <TableCell colSpan={colSpan}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-sm text-muted-foreground">
-                      {t('AxiomTheme:TableCountInfo', [
-                        table.getRowModel().rows.length,
-                        pagination.getRowCount?.() ?? dataLength,
-                      ])}
-                    </span>
-
                     <AxiomDataTablePagination
                       table={table}
-                      showPageButtons={props.showPageButtons}
+                      pageOptions={props.pageOptions}
                     />
                   </div>
                 </TableCell>
@@ -163,23 +153,6 @@ export function AxiomDataTable(props: DataTableProps) {
           </Table>
         </DataTableDndContext>
       </div>
-    </>
-  );
-}
-
-function Filters({ t }: { t: ReturnType<typeof useTranslation> }) {
-  return (
-    <>
-      <Input className="max-w-3xs" placeholder="Search" />
-      <Button
-        variant="outline"
-        className="max-w-3xs justify-between cursor-pointer"
-      >
-        <span className="flex items-center gap-2">
-          {t('AxiomTheme:Filters')}
-          <HugeiconsIcon icon={FilterIcon} />
-        </span>
-      </Button>
     </>
   );
 }

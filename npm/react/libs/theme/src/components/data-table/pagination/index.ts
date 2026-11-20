@@ -1,2 +1,2 @@
-export type { Pagination } from './models';
+export type { TanstackPagination } from './models';
 export { AxiomDataTablePagination } from './data-table-pagination';

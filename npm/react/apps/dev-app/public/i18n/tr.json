@@ -9,7 +9,7 @@
     "LanguageDescription": "Tercih ettiğiniz dili seçin",
     "Support": "Destek",
     "Documents": "Doküman",
-    "NoItemFound": "Hiçbir öğe bulunamadı"
+    "NoRecordFound": "Kayıt bulunamadı"
   },
   "AxiomTheme": {
     "Theme": "Tema",
@@ -25,7 +25,15 @@
     "Layout": "İskelet",
     "Scale": "Ölçek",
     "Radius": "Köşe yuvarlaklığı",
-    "RestoreDefaults": "Varsayılanları geri yükle"
+    "RestoreDefaults": "Varsayılanları geri yükle",
+    "TableCountInfo": "Toplam {1} kayıttan {0} kayıt gösteriliyor",
+    "Actions": "İşlemler",
+    "Edit": "Düzenle",
+    "Delete": "Sil",
+    "Hide": "Gizle",
+    "Reset": "Sıfırla",
+    "Filters": "Filtreler",
+    "Search": "Ara"
   },
   "AxiomAccount": {
     "Account": "Hesap",
@@ -63,6 +71,11 @@
     "Copyright": "© 2026 Allegorysoft. Tüm hakları saklıdır"
   },
   "AxiomIdentity": {
-    "Welcome": "Hoşgeldin i18n, {name}"
+    "Welcome": "Hoşgeldin i18n, {name}",
+    "Name": "Adı",
+    "Surname": "Soyadı",
+    "Email": "Email",
+    "BirthDate": "Doğum tarihi",
+    "Address": "Adres"
   }
 }
