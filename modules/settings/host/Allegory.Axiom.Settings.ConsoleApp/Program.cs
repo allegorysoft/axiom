@@ -36,7 +36,6 @@ internal sealed class AppPackage : IConfigureApplication, IInitializeApplication
     public static async Task InitializeAsync(IHost host)
     {
         await MigrateDatabase(host);
-        await SynchronizeAsync(host);
     }
 
     static async Task MigrateDatabase(IHost host)
@@ -50,17 +49,5 @@ internal sealed class AppPackage : IConfigureApplication, IInitializeApplication
         await context.Database.EnsureCreatedAsync();
 
         await uow.CompleteAsync();
-    }
-
-    static async Task SynchronizeAsync(IHost host)
-    {
-        var synchronizer = host.Services.GetRequiredService<SettingDefinitionSynchronizer>();
-        await synchronizer.SynchronizeAsync();
-
-        var store = host.Services.GetRequiredService<ISettingDefinitionStore>();
-
-        var settings = await store.GetListAsync();
-        var settings2 = await store.GetListAsync();
-        var settings3 = await store.GetListAsync();
     }
 }

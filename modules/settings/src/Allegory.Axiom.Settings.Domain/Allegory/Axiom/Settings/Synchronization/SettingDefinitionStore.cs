@@ -8,16 +8,19 @@ using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Settings.Synchronization;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Logging;
 
 namespace Allegory.Axiom.Settings;
 
 public class SettingDefinitionStore(
+    ILogger<SettingDefinitionStore> logger,
     ICacheKeyNormalizer cacheKeyNormalizer,
     HybridCache hybridCache,
     ISettingDefinitionRecordRepository repository,
     IUnitOfWorkManager unitOfWorkManager) :
     ISettingDefinitionStore, ISingletonService
 {
+    protected ILogger<SettingDefinitionStore> Logger { get; } = logger;
     protected HybridCache HybridCache { get; } = hybridCache;
     protected ISettingDefinitionRecordRepository Repository { get; } = repository;
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
@@ -51,6 +54,8 @@ public class SettingDefinitionStore(
 
                 var settings = await instance.Repository.GetDefinitionListAsync(
                     cancellationToken: CancellationToken.None);
+
+                instance.Logger.LogSettingsLoadedFromDatabase();
 
                 return new SettingDefinitionCacheItem
                 {

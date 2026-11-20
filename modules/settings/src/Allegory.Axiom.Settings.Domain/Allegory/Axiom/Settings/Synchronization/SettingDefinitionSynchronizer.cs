@@ -60,7 +60,7 @@ public class SettingDefinitionSynchronizer(
 
         if (handle is null)
         {
-            //Logger.LogSynchronizationSkipped(name);
+            Logger.LogSynchronizationSkipped(setting.Name);
             return;
         }
 
@@ -76,7 +76,7 @@ public class SettingDefinitionSynchronizer(
 
         if (hash == cachedHash)
         {
-            //Logger.LogSynchronizationSkippedNoChanges(name, culture);
+            Logger.LogSynchronizationSkippedNoChanges(setting.Name);
             return;
         }
 
@@ -112,7 +112,7 @@ public class SettingDefinitionSynchronizer(
                 hash,
                 HashWriteCacheOptions,
                 cancellationToken: CancellationToken.None);
-            //Logger.LogSynchronized(name);
+            Logger.LogSynchronized(setting.Name);
         });
 
         await uow.TryCompleteAsync(CancellationToken.None);
