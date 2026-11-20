@@ -1,7 +1,7 @@
 using System.Collections.Frozen;
 using System.ComponentModel;
 
-namespace Allegory.Axiom.Settings.Synchronization;
+namespace Allegory.Axiom.Settings;
 
 [ImmutableObject(true)]
 public sealed class SettingDefinitionCacheItem

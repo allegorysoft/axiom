@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Caching;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.Settings.Synchronization;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -26,22 +25,23 @@ public class SettingDefinitionStore(
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
 
     protected string CacheKey { get; } = cacheKeyNormalizer.Normalize("settings:definitions");
-    protected HybridCacheEntryOptions CacheOptions { get; } = new() {Expiration = TimeSpan.FromDays(1)};
+    protected HybridCacheEntryOptions ReadCacheOptions { get; } = new() {Expiration = TimeSpan.FromDays(1)};
 
     public virtual async ValueTask<ImmutableArray<SettingDefinition>> GetListAsync()
     {
-        var settings = await GetSettingsAsync();
-        return settings.Values;
+        var definitions = await GetDefinitionsAsync();
+        return definitions.Values;
     }
 
     public virtual async ValueTask<SettingDefinition?> FindAsync(string name)
     {
-        var settings = await GetSettingsAsync();
-        settings.TryGetValue(name, out var setting);
+        var definitions = await GetDefinitionsAsync();
+        definitions.TryGetValue(name, out var setting);
+
         return setting;
     }
 
-    protected virtual async ValueTask<FrozenDictionary<string, SettingDefinition>> GetSettingsAsync()
+    protected virtual async ValueTask<FrozenDictionary<string, SettingDefinition>> GetDefinitionsAsync()
     {
         var cache = await HybridCache.GetOrCreateAsync(
             CacheKey,
@@ -62,7 +62,7 @@ public class SettingDefinitionStore(
                     Settings = settings.ToFrozenDictionary(kvp => kvp.Name, kvp => kvp)
                 };
             },
-            CacheOptions);
+            ReadCacheOptions);
 
         return cache.Settings;
     }

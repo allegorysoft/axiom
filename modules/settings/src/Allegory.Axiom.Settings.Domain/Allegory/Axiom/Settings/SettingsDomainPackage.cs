@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Allegory.Axiom.Hosting;
-using Allegory.Axiom.Settings.Synchronization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -10,7 +9,7 @@ internal sealed class SettingsDomainPackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.AddHostedService<SettingSynchronizerWorker>();
+        builder.Services.AddHostedService<SettingDefinitionSynchronizerWorker>();
 
         return Task.CompletedTask;
     }

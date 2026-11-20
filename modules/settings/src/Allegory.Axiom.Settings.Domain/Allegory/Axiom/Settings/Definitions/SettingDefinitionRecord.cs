@@ -31,7 +31,7 @@ public class SettingDefinitionRecord : AggregateRoot<Guid>
     public string? DefaultValue { get; protected set; }
     public bool IsPublic { get; set; }
     public bool IsEncrypted { get; set; }
-    public ImmutableSortedSet<string> Contributors { get; set; }
+    public ImmutableSortedSet<string> Contributors { get; set; } = null!;
 
     public void SetName(string name)
     {

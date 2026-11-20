@@ -23,8 +23,7 @@ public abstract class SettingModelBuilderContributorBase : IModelBuilderContribu
                 .IsRequired();
 
             e.Property(p => p.DefaultValue)
-                .HasMaxLength(SettingDefinitionRecord.MaxDefaultValue)
-                .IsRequired();
+                .HasMaxLength(SettingDefinitionRecord.MaxDefaultValue);
 
             e.Property(p => p.Contributors)
                 .HasConversion(

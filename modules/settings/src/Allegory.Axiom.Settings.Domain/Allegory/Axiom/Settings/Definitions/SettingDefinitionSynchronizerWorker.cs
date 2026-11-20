@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Allegory.Axiom.Settings.Synchronization;
+namespace Allegory.Axiom.Settings;
 
-public class SettingSynchronizerWorker(
-    ILogger<SettingSynchronizerWorker> logger,
+public class SettingDefinitionSynchronizerWorker(
+    ILogger<SettingDefinitionSynchronizerWorker> logger,
     SettingDefinitionSynchronizer synchronizer) :
     BackgroundService
 {
-    protected ILogger<SettingSynchronizerWorker> Logger { get; } = logger;
+    protected ILogger<SettingDefinitionSynchronizerWorker> Logger { get; } = logger;
     public SettingDefinitionSynchronizer Synchronizer { get; } = synchronizer;
 
     protected override async Task ExecuteAsync(CancellationToken cancellationToken)

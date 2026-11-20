@@ -6,9 +6,9 @@ using Allegory.Axiom.Priority;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
 
-namespace Allegory.Axiom.Settings.Synchronization;
+namespace Allegory.Axiom.Settings;
 
-public class SettingInvalidator(
+public class SettingDefinitionCacheInvalidator(
     HybridCache cache,
     ICacheKeyNormalizer cacheKeyNormalizer,
     IUnitOfWorkManager unitOfWorkManager) :

@@ -11,7 +11,7 @@ using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
-namespace Allegory.Axiom.Settings.Synchronization;
+namespace Allegory.Axiom.Settings;
 
 public class SettingDefinitionSynchronizer(
     ILogger<SettingDefinitionSynchronizer> logger,
