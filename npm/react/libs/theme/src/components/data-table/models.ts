@@ -1,23 +1,16 @@
-import type { ReactNode, SubmitEventHandler } from 'react';
 import type {
   RowData,
   TableFeatures,
   TableOptions,
 } from '@tanstack/react-table';
-import type { PageOptions } from './pagination/models';
+import type { PaginationOptions } from './pagination/models';
+import { FilterOptions } from './filtering/models';
 
-export type TFeat = TableFeatures;
-export type TData = RowData;
-
-export type DataTableProps = TableOptions<TFeat, TData> & {
+export type DataTableProps<
+  TData extends RowData,
+  TFeat extends TableFeatures = TableFeatures,
+> = TableOptions<TFeat, TData> & {
   columnResizing?: boolean;
-  filter?: {
-    title?: string;
-    description?: string;
-    content: ReactNode;
-    onSubmit: SubmitEventHandler<HTMLFormElement>;
-    onClear: () => void;
-  };
-
-  pageOptions?: PageOptions;
+  filterOptions?: FilterOptions;
+  paginationOptions?: PaginationOptions;
 };

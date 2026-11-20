@@ -1,6 +1,6 @@
 'use client';
 
-import { useTable } from '@tanstack/react-table';
+import { type RowData, useTable } from '@tanstack/react-table';
 
 import {
   horizontalListSortingStrategy,
@@ -33,14 +33,13 @@ import { AxiomDataTablePagination } from './pagination/index';
 
 import type { DataTableProps } from './models';
 
-export function AxiomDataTable(props: DataTableProps) {
+export function AxiomDataTable<TData extends RowData>(
+  props: DataTableProps<TData>,
+) {
   const t = useTranslation();
+  const { columnVisibility, setColumnVisibility } = useColumnVisibility();
   const { columnOrder, setColumnOrder, sensors, handleDragEnd } =
-    useColumnOrder(props.columns);
-
-  const { columnVisibility, setColumnVisibility } = useColumnVisibility(
-    props.columns,
-  );
+    useColumnOrder<TData>(props.columns);
 
   const table = useTable({
     ...props,
@@ -56,21 +55,8 @@ export function AxiomDataTable(props: DataTableProps) {
 
   const headers = table.getHeaderGroups().at(-1)?.headers;
   const colSpan = headers?.length ?? props.columns.length;
-
-  const NoRecordFound = () => (
-    <TableRow>
-      <TableCell
-        colSpan={
-          table.getHeaderGroups().at(-1)?.headers.length ?? props.columns.length
-        }
-        className="h-24 text-center"
-      >
-        {t('AxiomTheme:NoRecordFound')}
-      </TableCell>
-    </TableRow>
-  );
-
   const columns = table.getAllColumns().filter((column) => column.getCanHide());
+  const rows = table?.getRowModel()?.rows;
 
   return (
     <>
@@ -78,7 +64,7 @@ export function AxiomDataTable(props: DataTableProps) {
         aria-label="Data table options section"
         className="flex items-center justify-end gap-2 mx-2 sm:mx-0.5"
       >
-        <DataTableFilter filter={props.filter} />
+        <DataTableFilter filterOptions={props.filterOptions!} />
 
         <ColumnVisibilitySettings
           columns={columns}
@@ -113,9 +99,21 @@ export function AxiomDataTable(props: DataTableProps) {
             </TableHeader>
 
             <TableBody>
-              {!table.getRowModel().rows?.length && <NoRecordFound />}
+              {!rows?.length && (
+                <TableRow>
+                  <TableCell
+                    colSpan={
+                      table.getHeaderGroups().at(-1)?.headers.length ??
+                      props.columns.length
+                    }
+                    className="h-24 text-center"
+                  >
+                    {t('AxiomTheme:NoRecordFound')}
+                  </TableCell>
+                </TableRow>
+              )}
 
-              {table?.getRowModel()?.rows?.map((row) => {
+              {rows?.map((row) => {
                 const visibleCells = row.getVisibleCells?.();
                 const cells = visibleCells ?? row.getAllCells();
 
@@ -144,7 +142,7 @@ export function AxiomDataTable(props: DataTableProps) {
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <AxiomDataTablePagination
                       table={table}
-                      pageOptions={props.pageOptions}
+                      paginationOptions={props.paginationOptions}
                     />
                   </div>
                 </TableCell>

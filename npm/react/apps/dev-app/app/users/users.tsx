@@ -49,17 +49,15 @@ export function Component() {
         features={axiomDataTableFeatures}
         columns={userColumns}
         data={data}
-
-        initialState={{ pagination: { pageIndex: 0, pageSize: 5 } }}
-        filter={{
+        filterOptions={{
           title: 'User list',
           description: 'Filter user list entity',
           content: <Filter filters={filters} />,
           onSubmit: onFilterSubmit,
           onClear: () => setFilters({}),
         }}
-
-        pageOptions={{ showNavigationButtons: true }}
+        paginationOptions={{ showNavigationButtons: true }}
+        initialState={{ pagination: { pageIndex: 0, pageSize: 5 } }}
       />
     </div>
   );

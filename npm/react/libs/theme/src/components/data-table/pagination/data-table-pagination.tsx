@@ -1,4 +1,9 @@
-import type { TableState_RowPagination } from '@tanstack/react-table';
+import type {
+  RowData,
+  Table_RowPagination,
+  TableFeatures,
+  TableState_RowPagination,
+} from '@tanstack/react-table';
 
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -19,15 +24,17 @@ import {
 } from '../../ui/select';
 import { Button } from '../../ui/button';
 import { Separator } from '../../ui/separator';
-import type { DataTablePaginationProps, TanstackPagination } from './models';
+import type { DataTablePaginationProps } from './models';
 
-export function AxiomDataTablePagination({
+type TanstackPagination = Partial<Table_RowPagination<TableFeatures, RowData>>;
+
+export function AxiomDataTablePagination<TData extends RowData>({
   table,
-  pageOptions,
-}: DataTablePaginationProps) {
+  paginationOptions,
+}: DataTablePaginationProps<TData>) {
   const t = useTranslation();
-  const pagination = table as TanstackPagination;
-  const tableState = table.state as Partial<TableState_RowPagination>;
+  const pagination: TanstackPagination = table;
+  const tableState: Partial<TableState_RowPagination> = table.state;
   const paginationState = tableState.pagination;
 
   if (!paginationState || !pagination.previousPage) {
@@ -87,9 +94,9 @@ export function AxiomDataTablePagination({
 
         <Separator orientation="vertical" className="h-5" />
 
-        {!pageOptions?.showNavigationButtons && <CurrentPage />}
+        {!paginationOptions?.showNavigationButtons && <CurrentPage />}
 
-        {pageOptions?.showNavigationButtons && (
+        {paginationOptions?.showNavigationButtons && (
           <>
             <Button
               variant="outline"

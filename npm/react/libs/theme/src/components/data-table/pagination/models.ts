@@ -1,12 +1,10 @@
-import type { ReactTable, Table_RowPagination } from '@tanstack/react-table';
-import type { TData, TFeat } from '../models';
+import type { ReactTable, RowData, TableFeatures } from '@tanstack/react-table';
 
-export interface DataTablePaginationProps {
-  table: ReactTable<TFeat, TData>;
-  pageOptions?: PageOptions;
+export interface DataTablePaginationProps<TData extends RowData> {
+  table: ReactTable<TableFeatures, TData>;
+  paginationOptions?: PaginationOptions;
 }
 
-export type TanstackPagination = Partial<Table_RowPagination<TFeat, TData>>;
-export type PageOptions = {
+export type PaginationOptions = {
   showNavigationButtons?: boolean;
 };

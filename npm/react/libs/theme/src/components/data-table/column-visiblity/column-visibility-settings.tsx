@@ -1,6 +1,6 @@
 'use client';
 
-import type { Column } from '@tanstack/react-table';
+import type { Column, RowData, TableFeatures } from '@tanstack/react-table';
 
 import { HugeiconsIcon } from '@hugeicons/react';
 import { RefreshCcwIcon, SlidersHorizontal } from '@hugeicons/core-free-icons';
@@ -17,16 +17,15 @@ import {
 } from '../../ui/dropdown-menu';
 import { Button } from '../../ui/button';
 
-import type { TData, TFeat } from '../models';
-
-type Props = {
-  columns: Column<TFeat, TData, unknown>[];
-  resetColumnVisibility: (defaultState?: boolean | undefined) => void;
+type Props<TData extends RowData> = {
+  columns: Column<TableFeatures, TData, unknown>[];
+  resetColumnVisibility: (defaultState?: boolean) => void;
 };
-export function ColumnVisibilitySettings({
+
+export function ColumnVisibilitySettings<TData extends RowData>({
   columns,
   resetColumnVisibility,
-}: Props) {
+}: Props<TData>) {
   const t = useTranslation();
 
   return (

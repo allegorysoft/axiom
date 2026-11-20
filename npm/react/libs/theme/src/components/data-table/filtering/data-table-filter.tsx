@@ -26,22 +26,21 @@ import {
   InputGroupInput,
 } from '../../ui/input-group';
 
-import type { DataTableProps } from '../models';
 import { Separator } from '../../ui/separator';
+import { FilterOptions } from './models';
 
-type FilterProps = Pick<DataTableProps, 'filter'>;
 type Props = {
   globalFilter?: string;
   setGlobalFilter?: OnChangeFn<string>;
-} & FilterProps;
+  filterOptions: FilterOptions;
+};
 
 export function DataTableFilter({
   globalFilter,
   setGlobalFilter,
-  filter,
+  filterOptions,
 }: Props) {
   const t = useTranslation();
-  const Content = filter?.content;
 
   return (
     <section className="flex items-center gap-2">
@@ -74,50 +73,44 @@ export function DataTableFilter({
           align="end"
           className="max-h-[min(32rem,80vh)] w-[min(35rem,calc(100vw-2rem))] overflow-y-auto"
         >
-          {(filter?.title || filter?.description) && (
+          {(filterOptions?.title || filterOptions?.description) && (
             <PopoverHeader>
-              <PopoverTitle>{filter?.title}</PopoverTitle>
-              <PopoverDescription>{filter?.description}</PopoverDescription>
+              <PopoverTitle>{filterOptions?.title}</PopoverTitle>
+              <PopoverDescription>
+                {filterOptions?.description}
+              </PopoverDescription>
             </PopoverHeader>
           )}
 
-          {Content && (
-            <form
-              className="grid gap-2 p-1"
-              autoComplete="off"
-              onSubmit={filter.onSubmit}
-            >
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {Content}
-              </div>
+          <form
+            className="grid gap-2 p-1"
+            autoComplete="off"
+            onSubmit={filterOptions.onSubmit}
+          >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {filterOptions.content}
+            </div>
 
-              <Separator />
+            <Separator />
 
-              <div className="col-span-full flex justify-end gap-1">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={(event) => {
-                    filter?.onClear();
-                    event.currentTarget.form?.reset();
-                  }}
-                >
-                  <HugeiconsIcon
-                    icon={FilterResetIcon}
-                    className="mr-2 size-4"
-                  />
-                  Clear
-                </Button>
-                <Button type="submit">
-                  <HugeiconsIcon
-                    icon={FloppyDiskIcon}
-                    className="mr-2 size-4"
-                  />
-                  Save
-                </Button>
-              </div>
-            </form>
-          )}
+            <div className="col-span-full flex justify-end gap-1">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(event) => {
+                  filterOptions?.onClear();
+                  event.currentTarget.form?.reset();
+                }}
+              >
+                <HugeiconsIcon icon={FilterResetIcon} className="mr-2 size-4" />
+                Clear
+              </Button>
+              <Button type="submit">
+                <HugeiconsIcon icon={FloppyDiskIcon} className="mr-2 size-4" />
+                Save
+              </Button>
+            </div>
+          </form>
         </PopoverContent>
       </Popover>
     </section>

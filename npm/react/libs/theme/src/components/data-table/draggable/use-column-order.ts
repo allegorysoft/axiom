@@ -11,8 +11,11 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import type { DataTableProps } from '../models';
+import { RowData } from '@tanstack/react-table';
 
-export function useColumnOrder(columns: DataTableProps['columns']) {
+export function useColumnOrder<TData extends RowData>(
+  columns: DataTableProps<TData>['columns'],
+) {
   const [columnOrder, setColumnOrder] = useState(
     columns.map((column) => column.id as string),
   );
