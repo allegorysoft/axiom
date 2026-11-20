@@ -10,20 +10,20 @@ public sealed class SettingDefinition(
     JsonElement? defaultValue = null,
     bool isPublic = false,
     bool isEncrypted = false,
-    ImmutableHashSet<string>? contributors = null)
+    ImmutableSortedSet<string>? contributors = null)
 {
     public string Name { get; } = name;
     public JsonElement? DefaultValue { get; } = defaultValue;
     public bool IsPublic { get; } = isPublic;
     public bool IsEncrypted { get; } = isEncrypted;
-    public ImmutableHashSet<string> Contributors { get; } = contributors ?? ImmutableHashSet<string>.Empty;
+    public ImmutableSortedSet<string> Contributors { get; } = contributors ?? ImmutableSortedSet<string>.Empty;
 
     public static SettingDefinition Create<T>(
         string name,
         T value,
         bool isPublic = false,
         bool isEncrypted = false,
-        ImmutableHashSet<string>? contributors = null)
+        ImmutableSortedSet<string>? contributors = null)
     {
         return new SettingDefinition(
             name,
@@ -37,7 +37,7 @@ public sealed class SettingDefinition(
         JsonElement? defaultValue = null,
         bool? isPublic = null,
         bool? isEncrypted = null,
-        ImmutableHashSet<string>? contributors = null)
+        ImmutableSortedSet<string>? contributors = null)
     {
         return new SettingDefinition(
             Name,
@@ -51,7 +51,7 @@ public sealed class SettingDefinition(
         T defaultValue,
         bool? isPublic = null,
         bool? isEncrypted = null,
-        ImmutableHashSet<string>? contributors = null)
+        ImmutableSortedSet<string>? contributors = null)
     {
         return new SettingDefinition(
             Name,

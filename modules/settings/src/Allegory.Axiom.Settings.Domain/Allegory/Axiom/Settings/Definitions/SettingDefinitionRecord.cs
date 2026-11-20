@@ -17,21 +17,21 @@ public class SettingDefinitionRecord : AggregateRoot<Guid>
         JsonElement? defaultValue = null,
         bool isPublic = false,
         bool isEncrypted = false,
-        ImmutableHashSet<string>? contributors = null)
+        ImmutableSortedSet<string>? contributors = null)
     {
         SetName(name);
         SetDefaultValue(defaultValue);
 
         IsPublic = isPublic;
         IsEncrypted = isEncrypted;
-        Contributors = contributors ?? ImmutableHashSet<string>.Empty;
+        Contributors = contributors ?? ImmutableSortedSet<string>.Empty;
     }
 
     public string Name { get; protected set; } = null!;
     public string? DefaultValue { get; protected set; }
     public bool IsPublic { get; set; }
     public bool IsEncrypted { get; set; }
-    public ImmutableHashSet<string> Contributors { get; set; }
+    public ImmutableSortedSet<string> Contributors { get; set; }
 
     public void SetName(string name)
     {

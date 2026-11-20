@@ -30,10 +30,10 @@ public abstract class SettingModelBuilderContributorBase : IModelBuilderContribu
                 .HasConversion(
                     static v => v.Count > 0 ? JsonSerializer.Serialize(v) : string.Empty,
                     static v => string.IsNullOrWhiteSpace(v)
-                        ? ImmutableHashSet<string>.Empty
-                        : JsonSerializer.Deserialize<ImmutableHashSet<string>>(v) ??
-                          ImmutableHashSet<string>.Empty,
-                    ValueComparer.CreateDefault<ImmutableHashSet<string>>(favorStructuralComparisons: false));
+                        ? ImmutableSortedSet<string>.Empty
+                        : JsonSerializer.Deserialize<ImmutableSortedSet<string>>(v) ??
+                          ImmutableSortedSet<string>.Empty,
+                    ValueComparer.CreateDefault<ImmutableSortedSet<string>>(favorStructuralComparisons: false));
 
             e.HasIndex(p => new {p.Name}).IsUnique();
         });
