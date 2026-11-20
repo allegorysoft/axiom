@@ -2,13 +2,11 @@
 using Allegory.Axiom.EntityFrameworkCore;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Settings;
-using Allegory.Axiom.Settings.Synchronization;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ZiggyCreatures.Caching.Fusion;
 
 var builder = Host.CreateApplicationBuilder(args);
 await builder.ConfigureApplicationAsync();
@@ -23,11 +21,6 @@ internal sealed class AppPackage : IConfigureApplication, IInitializeApplication
         builder.Services.ConfigureAxiomDbContext<SettingDbContext>(o =>
         {
             o.Configure(b => b.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
-        });
-
-        builder.AddBuilderAction<IFusionCacheBuilder>(b =>
-        {
-            b.WithOptions(options => { options.DistributedCacheKeyModifierMode = CacheKeyModifierMode.None; });
         });
 
         return Task.CompletedTask;

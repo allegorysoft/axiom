@@ -1,0 +1,29 @@
+using System;
+using System.Text.Json;
+using Allegory.Axiom.DependencyInjection;
+using Allegory.Axiom.Settings;
+
+namespace DefaultNamespace;
+
+public class WebApp1SettingDefinitionContributor : ISettingDefinitionContributor, ISingletonService
+{
+    public void Contribute(SettingDefinitionContext context)
+    {
+        context.Add(new SettingDefinition("WebApp1-Private", JsonElement.Parse("1")));
+
+        context.Add(SettingDefinition.Create("WebApp1-Bool", true, isPublic: true));
+        context.Add(SettingDefinition.Create("WebApp1-String", "string-value", isPublic: true));
+        context.Add(SettingDefinition.Create("WebApp1-Datetime", DateTime.MinValue, isPublic: true));
+        context.Add(SettingDefinition.Create("WebApp1-Complex", new WebApp1ComplexSetting
+        {
+            Host = "127.0.0.1",
+            Port = 1234
+        }, isPublic: true, contributors: ["A", "B"]));
+    }
+}
+
+public class WebApp1ComplexSetting
+{
+    public string Host { get; set; } = null!;
+    public int Port { get; set; }
+}

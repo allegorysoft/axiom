@@ -176,6 +176,8 @@
   <Folder Name="/modules/settings/" />
   <Folder Name="/modules/settings/host/">
     <Project Path="modules/settings/host/Allegory.Axiom.Settings.ConsoleApp/Allegory.Axiom.Settings.ConsoleApp.csproj" />
+    <Project Path="modules/settings/host/Allegory.Axiom.Settings.WebApp1/Allegory.Axiom.Settings.WebApp1.csproj" />
+    <Project Path="modules/settings/host/Allegory.Axiom.Settings.WebApp2/Allegory.Axiom.Settings.WebApp2.csproj" />
   </Folder>
   <Folder Name="/modules/settings/src/">
     <Project Path="modules/settings/src/Allegory.Axiom.Settings.Domain/Allegory.Axiom.Settings.Domain.csproj" />
