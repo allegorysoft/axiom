@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Frozen;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Caching;
+using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.Settings.Synchronization;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -14,12 +16,14 @@ public class SettingDefinitionStore(
     HybridCache hybridCache,
     ISettingDefinitionRecordRepository repository,
     IUnitOfWorkManager unitOfWorkManager) :
-    ISettingDefinitionStore
+    ISettingDefinitionStore, ISingletonService
 {
-    protected ICacheKeyNormalizer CacheKeyNormalizer { get; } = cacheKeyNormalizer;
     protected HybridCache HybridCache { get; } = hybridCache;
     protected ISettingDefinitionRecordRepository Repository { get; } = repository;
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
+
+    protected string CacheKey { get; } = cacheKeyNormalizer.Normalize("settings:definitions");
+    protected HybridCacheEntryOptions CacheOptions { get; } = new() {Expiration = TimeSpan.FromDays(1)};
 
     public virtual async ValueTask<ImmutableArray<SettingDefinition>> GetListAsync()
     {
@@ -36,10 +40,8 @@ public class SettingDefinitionStore(
 
     protected virtual async ValueTask<FrozenDictionary<string, SettingDefinition>> GetSettingsAsync()
     {
-        var key = CacheKeyNormalizer.Normalize($"settings:definitions"); // create field for this
-
         var cache = await HybridCache.GetOrCreateAsync(
-            key,
+            CacheKey,
             this,
             static async (instance, ct) =>
             {
@@ -54,7 +56,8 @@ public class SettingDefinitionStore(
                 {
                     Settings = settings.ToFrozenDictionary(kvp => kvp.Name, kvp => kvp)
                 };
-            });
+            },
+            CacheOptions);
 
         return cache.Settings;
     }

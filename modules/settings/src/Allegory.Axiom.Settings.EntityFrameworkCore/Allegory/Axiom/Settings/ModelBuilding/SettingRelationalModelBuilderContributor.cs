@@ -1,5 +1,4 @@
 using Allegory.Axiom.EntityFrameworkCore;
-using Allegory.Axiom.Settings;
 using Microsoft.EntityFrameworkCore;
 
 namespace Allegory.Axiom.Settings;

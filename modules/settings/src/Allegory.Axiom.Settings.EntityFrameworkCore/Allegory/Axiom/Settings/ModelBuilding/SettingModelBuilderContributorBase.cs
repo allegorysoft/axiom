@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Text.Json;
 using Allegory.Axiom.EntityFrameworkCore;
 using Allegory.Axiom.MultiTenancy;
@@ -29,9 +28,11 @@ public abstract class SettingModelBuilderContributorBase : IModelBuilderContribu
 
             e.Property(p => p.Contributors)
                 .HasConversion(
-                    static v => JsonSerializer.Serialize(v),
-                    static v => JsonSerializer.Deserialize<ImmutableHashSet<string>>(v) ??
-                                ImmutableHashSet<string>.Empty,
+                    static v => v.Count > 0 ? JsonSerializer.Serialize(v) : string.Empty,
+                    static v => string.IsNullOrWhiteSpace(v)
+                        ? ImmutableHashSet<string>.Empty
+                        : JsonSerializer.Deserialize<ImmutableHashSet<string>>(v) ??
+                          ImmutableHashSet<string>.Empty,
                     ValueComparer.CreateDefault<ImmutableHashSet<string>>(favorStructuralComparisons: false));
 
             e.HasIndex(p => new {p.Name}).IsUnique();

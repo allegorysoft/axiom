@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Text.Json;
 using Allegory.Axiom.Domain.Entities;
 
@@ -11,11 +10,28 @@ public class SettingDefinitionRecord : AggregateRoot<Guid>
     public const int MaxNameLength = 128;
     public const int MaxDefaultValue = 1_000;
 
+    protected SettingDefinitionRecord() { }
+
+    public SettingDefinitionRecord(
+        string name,
+        JsonElement? defaultValue = null,
+        bool isPublic = false,
+        bool isEncrypted = false,
+        ImmutableHashSet<string>? contributors = null)
+    {
+        SetName(name);
+        SetDefaultValue(defaultValue);
+
+        IsPublic = isPublic;
+        IsEncrypted = isEncrypted;
+        Contributors = contributors ?? ImmutableHashSet<string>.Empty;
+    }
+
     public string Name { get; protected set; } = null!;
     public string? DefaultValue { get; protected set; }
     public bool IsPublic { get; set; }
     public bool IsEncrypted { get; set; }
-    public ImmutableHashSet<string> Contributors { get; set; } = ImmutableHashSet<string>.Empty;
+    public ImmutableHashSet<string> Contributors { get; set; }
 
     public void SetName(string name)
     {

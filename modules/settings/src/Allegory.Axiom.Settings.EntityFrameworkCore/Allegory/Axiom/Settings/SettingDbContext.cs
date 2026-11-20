@@ -14,7 +14,7 @@ public class SettingDbContext(
         SettingRelationalModelBuilderContributor.Instance
     ];
 
-    public DbSet<SettingDefinitionRecord> Settings { get; set; }
+    public DbSet<SettingDefinitionRecord> Settings => Set<SettingDefinitionRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

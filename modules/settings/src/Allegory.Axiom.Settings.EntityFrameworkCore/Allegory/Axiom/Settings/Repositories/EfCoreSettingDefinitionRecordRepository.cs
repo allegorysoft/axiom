@@ -21,14 +21,24 @@ public class EfCoreSettingDefinitionRecordRepository<TDbContext>(
         cancellationToken = GetCancellationToken(cancellationToken);
         var queryable = await GetQueryableAsync(false, cancellationToken);
 
-        var settings = await queryable.Select(x => new SettingDefinition(
+        var records = await queryable
+            .Select(x => new
+            {
+                x.Name,
+                x.DefaultValue,
+                x.IsPublic,
+                x.IsEncrypted,
+                x.Contributors
+            })
+            .ToListAsync(cancellationToken);
+
+        return records
+            .Select(x => new SettingDefinition(
                 x.Name,
                 x.DefaultValue == null ? null : JsonElement.Parse(x.DefaultValue),
                 x.IsPublic,
                 x.IsEncrypted,
                 x.Contributors))
-            .ToListAsync(cancellationToken: cancellationToken);
-
-        return settings.ToImmutableArray();
+            .ToImmutableArray();
     }
 }
