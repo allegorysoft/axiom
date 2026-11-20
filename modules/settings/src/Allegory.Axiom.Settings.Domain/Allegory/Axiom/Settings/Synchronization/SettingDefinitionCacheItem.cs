@@ -6,5 +6,5 @@ namespace Allegory.Axiom.Settings.Synchronization;
 [ImmutableObject(true)]
 public sealed class SettingDefinitionCacheItem
 {
-    public FrozenDictionary<string, SettingDefinition> Settings { get; set; } = null!;
+    public FrozenDictionary<string, SettingDefinition> Settings { get; init; } = null!;
 }
