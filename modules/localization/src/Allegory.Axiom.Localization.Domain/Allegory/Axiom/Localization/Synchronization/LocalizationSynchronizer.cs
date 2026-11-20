@@ -33,6 +33,18 @@ public class LocalizationSynchronizer(
     protected HybridCache HybridCache { get; } = hybridCache;
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected ILocalizationRecordRepository Repository { get; } = repository;
+    protected HybridCacheEntryOptions ReadCacheOptions { get; } = new() {Expiration = TimeSpan.FromDays(1)};
+
+    protected HybridCacheEntryOptions HashReadCacheOptions { get; } = new()
+    {
+        Flags = HybridCacheEntryFlags.DisableUnderlyingData
+    };
+
+    protected HybridCacheEntryOptions HashWriteCacheOptions { get; } = new()
+    {
+        Expiration = TimeSpan.FromDays(30),
+        Flags = HybridCacheEntryFlags.DisableLocalCache
+    };
 
     public virtual async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
@@ -48,7 +60,7 @@ public class LocalizationSynchronizer(
         CancellationToken cancellationToken = default)
     {
         await using var handle = await DistributedLock.TryAcquireAsync(
-            $"localizations:sync:{name}",
+            $"localizations:syncing:{name}",
             cancellationToken: cancellationToken);
 
         if (handle is null)
@@ -74,10 +86,7 @@ public class LocalizationSynchronizer(
         var cachedHash = await HybridCache.GetOrCreateAsync(
             cacheKey,
             static _ => ValueTask.FromResult<ulong>(0), // Never called because DisableUnderlyingData flag
-            new HybridCacheEntryOptions
-            {
-                Flags = HybridCacheEntryFlags.DisableUnderlyingData
-            },
+            HashReadCacheOptions,
             cancellationToken: cancellationToken);
 
         var json = Serializer.Serialize(translations);
@@ -114,11 +123,8 @@ public class LocalizationSynchronizer(
             await HybridCache.SetAsync(
                 cacheKey,
                 hash,
-                new HybridCacheEntryOptions
-                {
-                    Expiration = TimeSpan.FromDays(30),
-                    Flags = HybridCacheEntryFlags.DisableLocalCache
-                }, cancellationToken: CancellationToken.None);
+                HashWriteCacheOptions,
+                cancellationToken: CancellationToken.None);
             Logger.LogSynchronized(name, culture);
         });
 
@@ -168,7 +174,7 @@ public class LocalizationSynchronizer(
                     Items = resources
                 };
             },
-            new HybridCacheEntryOptions {Expiration = TimeSpan.FromDays(1),},
+            ReadCacheOptions,
             cancellationToken: cancellationToken);
     }
 
@@ -209,7 +215,7 @@ public class LocalizationSynchronizer(
                     Translations = record.Translations.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value)
                 };
             },
-            new HybridCacheEntryOptions {Expiration = TimeSpan.FromDays(1)},
+            ReadCacheOptions,
             cancellationToken: cancellationToken);
     }
 }

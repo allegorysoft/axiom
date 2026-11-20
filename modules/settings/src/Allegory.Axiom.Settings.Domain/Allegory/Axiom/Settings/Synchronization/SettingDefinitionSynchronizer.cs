@@ -31,6 +31,17 @@ public class SettingDefinitionSynchronizer(
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected ISettingDefinitionRecordRepository Repository { get; } = repository;
 
+    protected HybridCacheEntryOptions HashReadCacheOptions { get; } = new()
+    {
+        Flags = HybridCacheEntryFlags.DisableUnderlyingData
+    };
+
+    protected HybridCacheEntryOptions HashWriteCacheOptions { get; } = new()
+    {
+        Expiration = TimeSpan.FromDays(30),
+        Flags = HybridCacheEntryFlags.DisableLocalCache
+    };
+
     public virtual async Task SynchronizeAsync(CancellationToken cancellationToken = default)
     {
         foreach (var (_, setting) in SettingDefinitionProvider.Settings)
@@ -57,10 +68,7 @@ public class SettingDefinitionSynchronizer(
         var cachedHash = await HybridCache.GetOrCreateAsync(
             cacheKey,
             static _ => ValueTask.FromResult<ulong>(0), // Never called because DisableUnderlyingData flag
-            new HybridCacheEntryOptions
-            {
-                Flags = HybridCacheEntryFlags.DisableUnderlyingData
-            },
+            HashReadCacheOptions,
             cancellationToken: cancellationToken);
 
         var json = JsonSerializer.Serialize(setting);
@@ -102,11 +110,8 @@ public class SettingDefinitionSynchronizer(
             await HybridCache.SetAsync(
                 cacheKey,
                 hash,
-                new HybridCacheEntryOptions
-                {
-                    Expiration = TimeSpan.FromDays(30),
-                    Flags = HybridCacheEntryFlags.DisableLocalCache
-                }, cancellationToken: CancellationToken.None);
+                HashWriteCacheOptions,
+                cancellationToken: CancellationToken.None);
             //Logger.LogSynchronized(name);
         });
 
