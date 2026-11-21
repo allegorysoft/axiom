@@ -2,6 +2,8 @@ import type { CSSProperties } from 'react';
 import {
   type Cell,
   type Column_ColumnSizing,
+  type RowData,
+  type TableFeatures,
   flexRender,
 } from '@tanstack/react-table';
 
@@ -9,11 +11,10 @@ import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 
 import { TableCell } from '../../ui/table';
-import type { TData, TFeat } from '../models';
 
-type Props = { cell: Cell<TFeat, TData, unknown> };
+type Props<D extends RowData> = { cell: Cell<TableFeatures, D, unknown> };
 
-export function DraggableCell({ cell }: Props) {
+export function DraggableCell<D extends RowData>({ cell }: Props<D>) {
   const { isDragging, setNodeRef, transform, transition } = useSortable({
     id: cell.column.id,
   });

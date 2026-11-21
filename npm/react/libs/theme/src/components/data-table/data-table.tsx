@@ -34,13 +34,11 @@ import { AxiomDataTablePagination } from './pagination/index';
 
 import type { DataTableProps } from './models';
 
-export function AxiomDataTable<TData extends RowData>(
-  props: DataTableProps<TData>,
-) {
+export function AxiomDataTable<D extends RowData>(props: DataTableProps<D>) {
   const t = useTranslation();
   const { columnVisibility, setColumnVisibility } = useColumnVisibility();
   const { columnOrder, setColumnOrder, sensors, handleDragEnd } =
-    useColumnOrder<TData>(props.columns);
+    useColumnOrder<D>(props.columns);
 
   const table = useTable({
     ...props,

@@ -2,8 +2,6 @@ import type { CSSProperties } from 'react';
 
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  ArrowLeftFromLineIcon,
-  ArrowRightFromLineIcon,
   EllipsisIcon,
   EyeClosedIcon,
   GripVerticalIcon,
@@ -13,6 +11,8 @@ import type {
   Column_ColumnSizing,
   Header,
   ReactTable,
+  RowData,
+  TableFeatures,
 } from '@tanstack/react-table';
 
 import { CSS } from '@dnd-kit/utilities';
@@ -23,7 +23,6 @@ import { useTranslation } from '@axiomframework/react-core';
 import { TableHead } from '../../ui/table';
 import { Button } from '../../ui/button';
 
-import type { TData, TFeat } from '../models';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,12 +30,12 @@ import {
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
 
-type Props<D extends TData> = {
-  header: Header<TFeat, D, unknown>;
-  table: ReactTable<TFeat, D>;
+type Props<D extends RowData> = {
+  header: Header<TableFeatures, D, unknown>;
+  table: ReactTable<TableFeatures, D>;
   columnResizing?: boolean;
 };
-export function DraggableTableHeader<D extends TData>({
+export function DraggableTableHeader<D extends RowData>({
   header,
   table,
   columnResizing,

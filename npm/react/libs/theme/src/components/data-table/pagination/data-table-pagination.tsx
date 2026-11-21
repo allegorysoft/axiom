@@ -28,10 +28,10 @@ import type { DataTablePaginationProps } from './models';
 
 type TanstackPagination = Partial<Table_RowPagination<TableFeatures, RowData>>;
 
-export function AxiomDataTablePagination<TData extends RowData>({
+export function AxiomDataTablePagination<D extends RowData>({
   table,
   paginationOptions,
-}: DataTablePaginationProps<TData>) {
+}: DataTablePaginationProps<D>) {
   const t = useTranslation();
   const pagination: TanstackPagination = table;
   const tableState: Partial<TableState_RowPagination> = table.state;

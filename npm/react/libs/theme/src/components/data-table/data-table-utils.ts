@@ -1,6 +1,9 @@
-import { createColumnHelper } from '@tanstack/react-table';
-import type { TData, TFeat } from './models';
+import {
+  type RowData,
+  type TableFeatures,
+  createColumnHelper,
+} from '@tanstack/react-table';
 
-export function createDataTableColumnHelper<D extends TData>() {
-  return createColumnHelper<TFeat, D>();
+export function createDataTableColumnHelper<D extends RowData>() {
+  return createColumnHelper<TableFeatures, D>();
 }

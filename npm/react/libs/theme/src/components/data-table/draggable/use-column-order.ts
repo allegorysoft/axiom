@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+
+import type { RowData } from '@tanstack/react-table';
 import {
   KeyboardSensor,
   MouseSensor,
@@ -10,11 +12,11 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import type { DataTableProps } from '../models';
-import { RowData } from '@tanstack/react-table';
 
-export function useColumnOrder<TData extends RowData>(
-  columns: DataTableProps<TData>['columns'],
+import type { DataTableProps } from '../models';
+
+export function useColumnOrder<D extends RowData>(
+  columns: DataTableProps<D>['columns'],
 ) {
   const [columnOrder, setColumnOrder] = useState(
     columns.map((column) => column.id as string),

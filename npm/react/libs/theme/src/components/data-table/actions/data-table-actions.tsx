@@ -14,17 +14,16 @@ import {
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
 
-import type { TData } from '../models';
 import { createDataTableColumnHelper } from '../data-table-utils';
 
-type DataTableAction<D extends TData> = {
+type DataTableAction<D extends RowData> = {
   icon?: ReactNode;
   label: string;
   onClick: (data: D) => void;
   permission?: string;
 };
 
-export function createDataTableActionsColumn<D extends TData>(
+export function createDataTableActionsColumn<D extends RowData>(
   actions: DataTableAction<D>[],
 ) {
   const columnHelper = createDataTableColumnHelper<D>();

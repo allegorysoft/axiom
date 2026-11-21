@@ -17,15 +17,15 @@ import {
 } from '../../ui/dropdown-menu';
 import { Button } from '../../ui/button';
 
-type Props<TData extends RowData> = {
-  columns: Column<TableFeatures, TData, unknown>[];
+type Props<D extends RowData> = {
+  columns: Column<TableFeatures, D, unknown>[];
   resetColumnVisibility: (defaultState?: boolean) => void;
 };
 
-export function ColumnVisibilitySettings<TData extends RowData>({
+export function ColumnVisibilitySettings<D extends RowData>({
   columns,
   resetColumnVisibility,
-}: Props<TData>) {
+}: Props<D>) {
   const t = useTranslation();
 
   return (
