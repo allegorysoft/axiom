@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { type RowData, useTable } from '@tanstack/react-table';
 
 import {
@@ -57,6 +58,23 @@ export function AxiomDataTable<TData extends RowData>(
   const colSpan = headers?.length ?? props.columns.length;
   const columns = table.getAllColumns().filter((column) => column.getCanHide());
   const rows = table?.getRowModel()?.rows;
+
+  useEffect(() => {
+    const notify = () => {
+      props.load?.({
+        sorting: table.atoms.sorting.get() ?? [],
+        pagination: table.atoms.pagination.get(),
+      });
+    };
+
+    const _filters = table.atoms.sorting.subscribe(notify);
+    const _pagination = table.atoms.pagination.subscribe(notify);
+
+    return () => {
+      _filters.unsubscribe();
+      _pagination.unsubscribe();
+    };
+  }, [props.load, table]);
 
   return (
     <>
