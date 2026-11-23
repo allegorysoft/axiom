@@ -4,7 +4,7 @@ using System.ComponentModel;
 namespace Allegory.Axiom.Localization;
 
 [ImmutableObject(true)]
-public sealed class LocalizationResourcesCacheItem
+public sealed class LocalizationCacheItem
 {
-    public ImmutableArray<LocalizationResourceProjection> Items { get; init; }
+    public ImmutableArray<LocalizationResourceProjection> Resources { get; init; }
 }

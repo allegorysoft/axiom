@@ -8,7 +8,7 @@ using Microsoft.Extensions.Caching.Hybrid;
 
 namespace Allegory.Axiom.Localization;
 
-public class LocalizationInvalidator(
+public class LocalizationCacheInvalidator(
     HybridCache cache,
     ICacheKeyNormalizer cacheKeyNormalizer,
     IUnitOfWorkManager unitOfWorkManager) :

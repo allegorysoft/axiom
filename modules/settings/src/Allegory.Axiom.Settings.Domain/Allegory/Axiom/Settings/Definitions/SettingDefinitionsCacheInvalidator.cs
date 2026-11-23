@@ -8,7 +8,7 @@ using Microsoft.Extensions.Caching.Hybrid;
 
 namespace Allegory.Axiom.Settings;
 
-public class SettingDefinitionCacheInvalidator(
+public class SettingDefinitionsCacheInvalidator(
     HybridCache cache,
     ICacheKeyNormalizer cacheKeyNormalizer,
     IUnitOfWorkManager unitOfWorkManager) :

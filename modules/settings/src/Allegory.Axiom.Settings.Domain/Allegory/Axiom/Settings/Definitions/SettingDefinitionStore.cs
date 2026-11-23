@@ -29,19 +29,19 @@ public class SettingDefinitionStore(
 
     public virtual async ValueTask<ImmutableArray<SettingDefinition>> GetListAsync()
     {
-        var definitions = await GetDefinitionsAsync();
+        var definitions = await GetDefinitionListAsync();
         return definitions.Values;
     }
 
     public virtual async ValueTask<SettingDefinition?> FindAsync(string name)
     {
-        var definitions = await GetDefinitionsAsync();
+        var definitions = await GetDefinitionListAsync();
         definitions.TryGetValue(name, out var setting);
 
         return setting;
     }
 
-    protected virtual async ValueTask<FrozenDictionary<string, SettingDefinition>> GetDefinitionsAsync()
+    protected virtual async ValueTask<FrozenDictionary<string, SettingDefinition>> GetDefinitionListAsync()
     {
         var cache = await HybridCache.GetOrCreateAsync(
             CacheKey,
@@ -57,7 +57,7 @@ public class SettingDefinitionStore(
 
                 instance.Logger.LogSettingsLoadedFromDatabase();
 
-                return new SettingDefinitionCacheItem
+                return new SettingDefinitionsCacheItem
                 {
                     Settings = settings.ToFrozenDictionary(kvp => kvp.Name, kvp => kvp)
                 };

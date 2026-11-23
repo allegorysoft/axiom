@@ -135,7 +135,7 @@ public class LocalizationSynchronizer(
     {
         var resources = await GetResourcesAsync(cancellationToken);
 
-        foreach (var resource in resources.Items)
+        foreach (var resource in resources.Resources)
         {
             var context = LocalizationProvider.Contexts.GetOrAdd(
                 resource.Name,
@@ -152,7 +152,7 @@ public class LocalizationSynchronizer(
         }
     }
 
-    protected virtual ValueTask<LocalizationResourcesCacheItem> GetResourcesAsync(
+    protected virtual ValueTask<LocalizationCacheItem> GetResourcesAsync(
         CancellationToken cancellationToken = default)
     {
         var key = CacheKeyNormalizer.Normalize("localizations:resources");
@@ -169,9 +169,9 @@ public class LocalizationSynchronizer(
                 var resources = await instance.Repository.GetResourceListAsync(
                     cancellationToken: CancellationToken.None);
 
-                return new LocalizationResourcesCacheItem
+                return new LocalizationCacheItem
                 {
-                    Items = resources
+                    Resources = resources
                 };
             },
             ReadCacheOptions,
