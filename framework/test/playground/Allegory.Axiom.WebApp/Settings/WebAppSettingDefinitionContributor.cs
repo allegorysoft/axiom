@@ -1,7 +1,7 @@
 using System;
 using System.Text.Json;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.Settings;
+using Allegory.Axiom.Setting;
 
 namespace Settings;
 

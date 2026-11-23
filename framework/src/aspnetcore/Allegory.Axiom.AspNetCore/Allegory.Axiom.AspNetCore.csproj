@@ -12,7 +12,7 @@
         <ProjectReference Include="..\..\localization\Allegory.Axiom.AspNetCore.Localization\Allegory.Axiom.AspNetCore.Localization.csproj"/>
         <ProjectReference Include="..\..\multi-tenancy\Allegory.Axiom.AspNetCore.MultiTenancy\Allegory.Axiom.AspNetCore.MultiTenancy.csproj"/>
         <ProjectReference Include="..\..\security\Allegory.Axiom.AspNetCore.Security\Allegory.Axiom.AspNetCore.Security.csproj"/>
-        <ProjectReference Include="..\..\settings\Allegory.Axiom.AspNetCore.Settings\Allegory.Axiom.AspNetCore.Settings.csproj"/>
+        <ProjectReference Include="..\..\setting\Allegory.Axiom.AspNetCore.Setting\Allegory.Axiom.AspNetCore.Setting.csproj"/>
         <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.AspNetCore.UnitOfWork\Allegory.Axiom.AspNetCore.UnitOfWork.csproj"/>
     </ItemGroup>
 

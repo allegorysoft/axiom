@@ -76,10 +76,10 @@
     <Project Path="framework/src/security/Allegory.Axiom.Security/Allegory.Axiom.Security.csproj" />
     <Project Path="framework/src/security/Allegory.Axiom.AspNetCore.Security/Allegory.Axiom.AspNetCore.Security.csproj" />
   </Folder>
-  <Folder Name="/framework/src/settings/">
-    <Project Path="framework/src/settings/Allegory.Axiom.Settings.Abstractions/Allegory.Axiom.Settings.Abstractions.csproj" />
-    <Project Path="framework/src/settings/Allegory.Axiom.Settings/Allegory.Axiom.Settings.csproj" />
-    <Project Path="framework/src/settings/Allegory.Axiom.AspNetCore.Settings/Allegory.Axiom.AspNetCore.Settings.csproj" />
+  <Folder Name="/framework/src/setting/">
+    <Project Path="framework/src/setting/Allegory.Axiom.AspNetCore.Setting/Allegory.Axiom.AspNetCore.Setting.csproj" />
+    <Project Path="framework/src/setting/Allegory.Axiom.Setting.Abstractions/Allegory.Axiom.Setting.Abstractions.csproj" />
+    <Project Path="framework/src/setting/Allegory.Axiom.Setting/Allegory.Axiom.Setting.csproj" />
   </Folder>
   <Folder Name="/framework/src/template/">
     <Project Path="framework/src/template/Allegory.Axiom.Template.Framework.Abstractions/Allegory.Axiom.Template.Framework.Abstractions.csproj" />
@@ -151,8 +151,8 @@
     <Project Path="framework/test/security/Allegory.Axiom.AspNetCore.Security.Tests/Allegory.Axiom.AspNetCore.Security.Tests.csproj" />
     <Project Path="framework/test/security/Allegory.Axiom.Security.Tests/Allegory.Axiom.Security.Tests.csproj" />
   </Folder>
-  <Folder Name="/framework/test/settings/">
-    <Project Path="framework/test/settings/Allegory.Axiom.Settings.Tests/Allegory.Axiom.Settings.Tests.csproj" />
+  <Folder Name="/framework/test/setting/">
+    <Project Path="framework/test/setting/Allegory.Axiom.Setting.Tests/Allegory.Axiom.Setting.Tests.csproj" />
   </Folder>
   <Folder Name="/framework/test/unit-of-work/">
     <Project Path="framework/test/unit-of-work/Allegory.Axiom.UnitOfWork.Tests/Allegory.Axiom.UnitOfWork.Tests.csproj" />
@@ -173,15 +173,15 @@
   <Folder Name="/modules/localization/test/">
     <Project Path="modules/localization/test/Allegory.Axiom.Localization.Domain.Tests/Allegory.Axiom.Localization.Domain.Tests.csproj" />
   </Folder>
-  <Folder Name="/modules/settings/" />
-  <Folder Name="/modules/settings/host/">
-    <Project Path="modules/settings/host/Allegory.Axiom.Settings.ConsoleApp/Allegory.Axiom.Settings.ConsoleApp.csproj" />
-    <Project Path="modules/settings/host/Allegory.Axiom.Settings.WebApp1/Allegory.Axiom.Settings.WebApp1.csproj" />
-    <Project Path="modules/settings/host/Allegory.Axiom.Settings.WebApp2/Allegory.Axiom.Settings.WebApp2.csproj" />
+  <Folder Name="/modules/setting/" />
+  <Folder Name="/modules/setting/host/">
+    <Project Path="modules/setting/host/Allegory.Axiom.Setting.ConsoleApp/Allegory.Axiom.Setting.ConsoleApp.csproj" />
+    <Project Path="modules/setting/host/Allegory.Axiom.Setting.WebApp1/Allegory.Axiom.Setting.WebApp1.csproj" />
+    <Project Path="modules/setting/host/Allegory.Axiom.Setting.WebApp2/Allegory.Axiom.Setting.WebApp2.csproj" />
   </Folder>
-  <Folder Name="/modules/settings/src/">
-    <Project Path="modules/settings/src/Allegory.Axiom.Settings.Domain/Allegory.Axiom.Settings.Domain.csproj" />
-    <Project Path="modules/settings/src/Allegory.Axiom.Settings.EntityFrameworkCore/Allegory.Axiom.Settings.EntityFrameworkCore.csproj" />
+  <Folder Name="/modules/setting/src/">
+    <Project Path="modules/setting/src/Allegory.Axiom.Setting.Domain/Allegory.Axiom.Setting.Domain.csproj" />
+    <Project Path="modules/setting/src/Allegory.Axiom.Setting.EntityFrameworkCore/Allegory.Axiom.Setting.EntityFrameworkCore.csproj" />
   </Folder>
-  <Folder Name="/modules/settings/test/" />
+  <Folder Name="/modules/setting/test/" />
 </Solution>
