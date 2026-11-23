@@ -1,9 +1,6 @@
 using Allegory.Axiom.DependencyInjection;
 
-namespace Allegory.Axiom.EventBus.Distributed.Inbox;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
-public class NullInboxStore : IInboxStore
-{
-    
-}
+public class NullInboxStore : IInboxStore;

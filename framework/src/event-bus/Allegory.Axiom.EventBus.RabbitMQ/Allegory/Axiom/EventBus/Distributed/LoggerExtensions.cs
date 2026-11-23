@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 internal static partial class LoggerExtensions
 {

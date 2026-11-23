@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Allegory.Axiom.EventBus.Distributed.Processing;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventProcessorCompletionService(
     DistributedEventProcessor eventProcessor,

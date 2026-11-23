@@ -115,6 +115,7 @@ public class LocalizationSynchronizer(
         }
         else
         {
+            record.IsDefault = context.DefaultCulture == culture;
             record.Translations = translationDictionary;
         }
 
@@ -133,26 +134,27 @@ public class LocalizationSynchronizer(
 
     public virtual async Task ReloadAsync(CancellationToken cancellationToken = default)
     {
-        var resources = await GetResourcesAsync(cancellationToken);
+        var cache = await GetResourceListAsync(cancellationToken);
 
-        foreach (var resource in resources.Resources)
+        foreach (var resource in cache.Resources)
         {
             var context = LocalizationProvider.Contexts.GetOrAdd(
                 resource.Name,
                 static (_, r) => new LocalizationContext
                 {
                     DefaultCulture = r.DefaultCulture
-                }, resource);
+                },
+                resource);
 
             foreach (var culture in resource.Cultures)
             {
-                var cacheItem = await GetTranslationsAsync(resource, culture, cancellationToken);
-                context.Translations[culture] = cacheItem.Translations;
+                var translationCache = await GetTranslationAsync(resource, culture, cancellationToken);
+                context.Translations[culture] = translationCache.Translations;
             }
         }
     }
 
-    protected virtual ValueTask<LocalizationCacheItem> GetResourcesAsync(
+    protected virtual ValueTask<LocalizationCacheItem> GetResourceListAsync(
         CancellationToken cancellationToken = default)
     {
         var key = CacheKeyNormalizer.Normalize("localizations:resources");
@@ -178,7 +180,7 @@ public class LocalizationSynchronizer(
             cancellationToken: cancellationToken);
     }
 
-    protected virtual ValueTask<LocalizationTranslationCacheItem> GetTranslationsAsync(
+    protected virtual ValueTask<LocalizationTranslationCacheItem> GetTranslationAsync(
         LocalizationResourceProjection resource,
         string culture,
         CancellationToken cancellationToken = default)

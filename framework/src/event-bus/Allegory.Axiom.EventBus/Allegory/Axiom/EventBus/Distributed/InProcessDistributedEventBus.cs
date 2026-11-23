@@ -5,8 +5,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.EventBus.Distributed.Inbox;
-using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Logging;

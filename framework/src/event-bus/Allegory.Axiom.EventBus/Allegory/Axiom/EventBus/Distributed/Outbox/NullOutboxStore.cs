@@ -1,6 +1,6 @@
 using Allegory.Axiom.DependencyInjection;
 
-namespace Allegory.Axiom.EventBus.Distributed.Outbox;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 [Dependency(Strategy = RegistrationStrategy.TryAdd)]
-public class NullOutboxStore : IOutboxStore {}
+public class NullOutboxStore : IOutboxStore;

@@ -8,7 +8,7 @@ using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Hosting;
 
-namespace Allegory.Axiom.EventBus.Distributed.Processing;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventProcessor(
     IUnitOfWorkManager unitOfWorkManager,

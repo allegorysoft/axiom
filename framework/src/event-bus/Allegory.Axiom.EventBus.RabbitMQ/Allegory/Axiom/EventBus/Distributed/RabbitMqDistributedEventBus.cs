@@ -4,9 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Allegory.Axiom.EventBus.Distributed;
-using Allegory.Axiom.EventBus.Distributed.Inbox;
-using Allegory.Axiom.EventBus.Distributed.Outbox;
 using Allegory.Axiom.MultiTenancy;
 using Allegory.Axiom.RabbitMQ;
 using Allegory.Axiom.UnitOfWork;
@@ -15,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class RabbitMqDistributedEventBus(
     ILogger<RabbitMqDistributedEventBus> logger,

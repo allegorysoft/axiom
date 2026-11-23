@@ -1,11 +1,10 @@
 using System.Threading.Tasks;
-using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 internal sealed class EventBusRabbitMqPackage : IConfigureApplication
 {

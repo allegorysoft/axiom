@@ -4,13 +4,13 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Allegory.Axiom.EventBus.Distributed.Outbox;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class OutboxWorker(
     ILogger<OutboxWorker> logger,
     IOptions<DistributedEventBusOptions> options,
-    IOutboxStore store)
-    : BackgroundService
+    IOutboxStore store) : 
+    BackgroundService
 {
     protected ILogger<OutboxWorker> Logger { get; } = logger;
     protected OutboxOptions Options { get; } = options.Value.Outbox;

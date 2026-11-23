@@ -2,15 +2,13 @@ using System;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Allegory.Axiom.EventBus.Distributed;
-using Allegory.Axiom.EventBus.Distributed.Processing;
 using Allegory.Axiom.RabbitMQ;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class RabbitMqEventConsumer
 {

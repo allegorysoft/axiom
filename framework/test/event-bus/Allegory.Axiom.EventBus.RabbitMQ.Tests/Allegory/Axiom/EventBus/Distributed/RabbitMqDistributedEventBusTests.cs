@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
-using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.Priority;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.DependencyInjection;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class RabbitMqDistributedEventBusTests(IntegrationTestFixture fixture) : IClassFixture<IntegrationTestFixture>
 {

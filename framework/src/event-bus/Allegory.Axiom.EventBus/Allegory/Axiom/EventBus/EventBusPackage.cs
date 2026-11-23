@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Allegory.Axiom.EventBus.Distributed;
-using Allegory.Axiom.EventBus.Distributed.Processing;
 using Allegory.Axiom.EventBus.Local;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Priority;
@@ -43,7 +42,6 @@ internal sealed class EventBusPackage : IConfigureApplication, IInitializeApplic
         // builder.Configuration.GetSection(
         //         "Axiom:EventBus:Distributed:Outbox")
         //     .Bind(options.Outbox);
-
         // });
         //
         // builder.Services.AddHostedService<InboxWorker>();

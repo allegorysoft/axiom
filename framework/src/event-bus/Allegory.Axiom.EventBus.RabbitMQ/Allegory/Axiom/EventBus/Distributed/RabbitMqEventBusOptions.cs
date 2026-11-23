@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Allegory.Axiom.RabbitMQ;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class RabbitMqEventBusOptions
 {

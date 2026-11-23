@@ -1,8 +1,7 @@
-using Allegory.Axiom.EventBus.Distributed;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class RabbitMqEventBusOptionsExtensionsTests
 {

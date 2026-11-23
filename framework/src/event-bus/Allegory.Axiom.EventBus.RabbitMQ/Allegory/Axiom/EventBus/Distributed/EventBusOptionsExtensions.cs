@@ -1,7 +1,6 @@
-using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.Extensibility;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public static class EventBusOptionsExtensions
 {

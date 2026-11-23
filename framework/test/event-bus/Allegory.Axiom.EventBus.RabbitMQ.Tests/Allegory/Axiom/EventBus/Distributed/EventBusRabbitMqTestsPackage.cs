@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Allegory.Axiom.EventBus.Distributed;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.RabbitMQ;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using Testcontainers.RabbitMq;
 
-namespace Allegory.Axiom.EventBus;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 internal sealed class EventBusRabbitMqTestsPackage : IPostConfigureApplication
 {
