@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Microsoft.Extensions.Caching.Hybrid;
 using Xunit;
@@ -11,49 +10,30 @@ public class Test(IntegrationTestFixture fixture) : IClassFixture<IntegrationTes
     protected ISettingDefinitionProvider Provider => fixture.Service<ISettingDefinitionProvider>();
     protected HybridCache Cache => fixture.Service<HybridCache>();
 
+    protected ISettingValueManager ValueManager => fixture.Service<ISettingValueManager>();
+
     [Fact]
-    public async Task Test1()
+    public async Task T()
     {
-        var element = JsonElement.Parse("""
-                                        {
-                                           "Name": "Ahmet",
-                                           "Age": 29
-                                        }
-                                        """);
+        var value = await ValueManager.FindAsync<SmtpSetting>(SmtpSetting.Name);
 
-        var definition = new SettingDefinition("Person", element);
-
-        var cache = fixture.Service<HybridCache>();
-
-        var x = await cache.GetOrCreateAsync(
-            "p:1",
-            _ => ValueTask.FromResult(definition),
-            cancellationToken: TestContext.Current.CancellationToken);
-
-        var y = await cache.GetOrCreateAsync(
-            "p:1",
-            _ => ValueTask.FromResult(definition),
-            cancellationToken: TestContext.Current.CancellationToken);
+        var value2 = await ValueManager.FindAsync(SmtpSetting.Name);
     }
 }
 
-public class SmtpSettingDefinitionContributor : ISettingDefinitionContributor, ISingletonService
+public class TestSettingDefinitionContributor : ISettingDefinitionContributor, ISingletonService
 {
     public void Contribute(SettingDefinitionContext context)
     {
-        for (int i = 0; i < 500; i++)
-        {
-            context.Add(SettingDefinition.Create($"smtp{i}", new SmtpSetting
-            {
-                Host = "127.0.0.1",
-                Port = 25
-            }));
-        }
+        context.Add(new SettingDefinition(
+            SmtpSetting.Name,
+            isEncrypted: true));
     }
 }
 
-public class SmtpSetting
+public record SmtpSetting(string Host, int Port, bool UseSsl, SmtpChildSetting Child)
 {
-    public string Host { get; set; } = null!;
-    public int Port { get; set; }
+    public const string Name = "SMTP";
 }
+
+public record SmtpChildSetting(string ChildName, int ChildPort);
