@@ -20,16 +20,17 @@ public static class SettingEndpoints
         group.MapGet("/", GetSettingsAsync);
     }
 
-    private static async ValueTask<IResult> GetSettingsAsync(ISettingDefinitionStore store)
+    private static async ValueTask<IResult> GetSettingsAsync(ISettingDefinitionStore store, ISettingValueManager valueManager)
     {
         var values = new Dictionary<string, object>();
 
         var settings = await store.GetListAsync();
         foreach (var setting in settings.Where(s => s.IsPublic))
         {
-            if (setting.DefaultValue.HasValue)
+            var value = await valueManager.FindAsync(setting);
+            if (value is not null)
             {
-                values[setting.Name] = setting.DefaultValue;
+                values[setting.Name] = value.Value;
             }
         }
 

@@ -15,6 +15,7 @@ public class SettingDbContext(
     ];
 
     public DbSet<SettingDefinitionRecord> SettingDefinitions => Set<SettingDefinitionRecord>();
+    public DbSet<SettingValueRecord> SettingValues => Set<SettingValueRecord>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

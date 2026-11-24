@@ -29,6 +29,7 @@ internal sealed class AppPackage : IConfigureApplication, IInitializeApplication
     public static async Task InitializeAsync(IHost host)
     {
         await MigrateDatabase(host);
+        await Test(host);
     }
 
     static async Task MigrateDatabase(IHost host)
@@ -42,5 +43,16 @@ internal sealed class AppPackage : IConfigureApplication, IInitializeApplication
         await context.Database.EnsureCreatedAsync();
 
         await uow.CompleteAsync();
+    }
+
+    static async Task Test(IHost host)
+    {
+        var definitionStore = host.Services.GetRequiredService<ISettingDefinitionStore>();
+        var valueManager = host.Services.GetRequiredService<ISettingValueManager>();
+
+        foreach (var definition in await definitionStore.GetListAsync())
+        {
+            var r = await valueManager.FindAsync(definition);
+        }
     }
 }

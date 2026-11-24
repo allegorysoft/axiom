@@ -12,6 +12,7 @@ internal sealed class SettingEntityFrameworkCorePackage : IConfigureApplication
         builder.Services.AddAxiomDbContext<SettingDbContext>(o =>
         {
             o.AddRepository(typeof(EfCoreSettingDefinitionRecordRepository<>));
+            o.AddRepository(typeof(EfCoreSettingValueRecordRepository<>));
         });
 
         return Task.CompletedTask;

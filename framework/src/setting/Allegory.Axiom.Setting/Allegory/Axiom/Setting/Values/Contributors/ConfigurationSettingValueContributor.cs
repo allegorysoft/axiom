@@ -77,7 +77,7 @@ public class ConfigurationSettingValueContributor(IConfiguration configuration) 
         return value;
     }
 
-    private static bool IsSequentialArray(
+    protected virtual bool IsSequentialArray(
         IConfigurationSection[] children,
         out IConfigurationSection[] orderedChildren)
     {

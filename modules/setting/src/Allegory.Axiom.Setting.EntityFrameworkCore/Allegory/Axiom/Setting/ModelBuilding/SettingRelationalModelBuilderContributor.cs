@@ -15,5 +15,10 @@ public class SettingRelationalModelBuilderContributor : SettingModelBuilderContr
         {
             e.ToTable(DbDefaults.TablePrefix + "SettingDefinitions", DbDefaults.Schema);
         });
+
+        builder.Entity<SettingValueRecord>(e =>
+        {
+            e.ToTable(DbDefaults.TablePrefix + "SettingValues", DbDefaults.Schema);
+        });
     }
 }

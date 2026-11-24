@@ -37,6 +37,26 @@ public abstract class SettingModelBuilderContributorBase : IModelBuilderContribu
             e.HasIndex(p => new {p.Name}).IsUnique();
         });
 
+        builder.Entity<SettingValueRecord>(e =>
+        {
+            e.Property(p => p.Name)
+                .HasMaxLength(SettingValueRecord.MaxNameLength)
+                .IsRequired();
+
+            e.Property(p => p.ContributorName)
+                .HasMaxLength(SettingValueRecord.MaxContributorNameLength)
+                .IsRequired();
+
+            e.Property(p => p.ContributorKey)
+                .HasMaxLength(SettingValueRecord.MaxContributorKeyLength);
+
+            e.Property(p => p.Value)
+                .HasMaxLength(SettingValueRecord.MaxValueLength)
+                .IsRequired();
+
+            e.HasIndex(p => new {p.Name, p.ContributorName, p.ContributorKey}).IsUnique();
+        });
+
         ContributeCore(builder, context);
     }
 
