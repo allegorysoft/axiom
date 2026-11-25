@@ -3,11 +3,12 @@
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-        <RuntimePackageVersion>10.0.15</RuntimePackageVersion>
-        <OpenTelemetryVersion>1.17.0</OpenTelemetryVersion>
-        <FusionCacheVersion>2.9.0</FusionCacheVersion>
-        <TestcontainersVersion>4.16.0</TestcontainersVersion>
+        <RuntimePackageVersion>11.0.0</RuntimePackageVersion>
+        <OpenTelemetryVersion>1.21.0</OpenTelemetryVersion>
+        <FusionCacheVersion>2.10.0</FusionCacheVersion>
+        <TestcontainersVersion>4.17.0</TestcontainersVersion>
         <XUnitVersion>4.0.3</XUnitVersion>
+        <CodeAnalysisVersion>5.12.0</CodeAnalysisVersion>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,9 +21,9 @@
 
         <PackageVersion Include="DistributedLock" Version="2.8.4"/>
 
-        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3"/>
-        <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="10.0.2"/>
-        <PackageVersion Include="MongoDB.Driver" Version="3.10.0"/>
+        <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0"/>
+        <PackageVersion Include="MongoDB.EntityFrameworkCore" Version="10.0.6"/>
+        <PackageVersion Include="MongoDB.Driver" Version="3.14.1"/>
 
         <PackageVersion Include="OpenTelemetry.Api" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)"/>
@@ -30,9 +31,9 @@
         <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryVersion)"/>
         <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryVersion)"/>
 
-        <PackageVersion Include="RabbitMQ.Client" Version="7.2.1"/>
+        <PackageVersion Include="RabbitMQ.Client" Version="7.3.0"/>
 
-        <PackageVersion Include="StackExchange.Redis" Version="3.3.1"/>
+        <PackageVersion Include="StackExchange.Redis" Version="3.4.35"/>
 
         <PackageVersion Include="ZiggyCreatures.FusionCache" Version="$(FusionCacheVersion)"/>
         <PackageVersion Include="ZiggyCreatures.FusionCache.Backplane.StackExchangeRedis" Version="$(FusionCacheVersion)"/>
@@ -43,9 +44,9 @@
         <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(RuntimePackageVersion)"/>
 
-        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="$(CodeAnalysisVersion)"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)"/>
 
         <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(RuntimePackageVersion)"/>
@@ -56,7 +57,7 @@
 
         <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="$(RuntimePackageVersion)"/>
-        <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.8.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(RuntimePackageVersion)"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(RuntimePackageVersion)"/>
@@ -78,8 +79,8 @@
         <!-- Official Microsoft Section End -->
 
         <!-- Test Section Begin -->
-        <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.11.2"/>
-        <PackageVersion Include="Microsoft.Testing.Extensions.GitHubActionsReport" Version="2.4.1"/>
+        <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.12.0"/>
+        <PackageVersion Include="Microsoft.Testing.Extensions.GitHubActionsReport" Version="2.5.3"/>
         <PackageVersion Include="NSubstitute" Version="6.2.0"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
         <PackageVersion Include="Testcontainers" Version="$(TestcontainersVersion)"/>

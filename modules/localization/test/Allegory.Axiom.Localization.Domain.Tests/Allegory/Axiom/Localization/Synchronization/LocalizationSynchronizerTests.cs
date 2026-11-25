@@ -26,7 +26,14 @@ public class LocalizationSynchronizerTests(
     {
         await fixture.RunInUnitOfWorkAsync(async _ =>
         {
-            var resourcesBefore = await Repository.GetResourceListAsync(CancellationToken.None);
+            // Clean up existing resources that may have been created by other tests.
+            var resourcesBefore = await Repository.GetListAsync();
+            await Repository.RemoveRangeAsync(resourcesBefore);
+        });
+        
+        await fixture.RunInUnitOfWorkAsync(async _ =>
+        {
+            var resourcesBefore = await Repository.GetResourceListAsync();
             resourcesBefore.ShouldBeEmpty();
         });
 
