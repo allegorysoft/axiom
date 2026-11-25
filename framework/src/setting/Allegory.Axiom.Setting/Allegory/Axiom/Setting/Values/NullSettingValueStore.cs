@@ -11,32 +11,26 @@ public class NullSettingValueStore(
 {
     public ILogger<NullSettingValueStore> Logger { get; } = logger;
 
-    public ValueTask<SettingValue?> FindAsync(
-        SettingDefinition definition,
-        string contributorName,
-        string? contributorKey)
+    public ValueTask<SettingValue?> FindAsync(SettingDefinition definition, SettingValueIdentifier identifier)
     {
         Logger.LogError(
-            "Setting value store is not configured. Cannot retrieve setting {SettingName} for contributor {ContributorName} with key {ContributorKey}",
+            "Setting value store is not configured. Cannot retrieve setting {SettingName} for {Identifier}",
             definition.Name,
-            contributorName,
-            contributorKey);
+            identifier);
 
         return ValueTask.FromResult<SettingValue?>(null);
     }
 
     public Task SetAsync<T>(
         SettingDefinition definition,
-        string contributorName,
-        string? contributorKey,
+        SettingValueIdentifier identifier,
         T value,
         bool checkFallbackValue = true)
     {
         Logger.LogError(
-            "Setting value store is not configured. Cannot persist setting {SettingName} for contributor {ContributorName} with key {ContributorKey}",
+            "Setting value store is not configured. Cannot persist setting {SettingName} for {Identifier}",
             definition.Name,
-            contributorName,
-            contributorKey);
+            identifier);
 
         return Task.CompletedTask;
     }

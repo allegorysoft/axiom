@@ -6,13 +6,11 @@ public interface ISettingValueStore
 {
     ValueTask<SettingValue?> FindAsync(
         SettingDefinition definition,
-        string contributorName,
-        string? contributorKey);
+        SettingValueIdentifier identifier);
 
     Task SetAsync<T>(
         SettingDefinition definition,
-        string contributorName,
-        string? contributorKey,
+        SettingValueIdentifier identifier,
         T value,
         bool checkFallbackValue = true);
 }

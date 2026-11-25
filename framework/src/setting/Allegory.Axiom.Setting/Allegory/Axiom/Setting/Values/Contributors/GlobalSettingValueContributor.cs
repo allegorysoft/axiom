@@ -9,6 +9,6 @@ public class GlobalSettingValueContributor(ISettingValueStore store) : ISettingV
 
     public virtual ValueTask<SettingValue?> FindAsync(SettingDefinition definition)
     {
-        return Store.FindAsync(definition, Name, null);
+        return Store.FindAsync(definition, new SettingValueIdentifier(Name, null));
     }
 }

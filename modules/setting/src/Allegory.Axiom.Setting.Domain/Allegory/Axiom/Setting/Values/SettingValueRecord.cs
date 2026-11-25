@@ -6,31 +6,24 @@ namespace Allegory.Axiom.Setting;
 public class SettingValueRecord : AggregateRoot<Guid>
 {
     public static int MaxNameLength { get; set; } = 128;
-    public static int MaxContributorNameLength { get; set; } = 64;
-    public static int MaxContributorKeyLength { get; set; } = 64;
+    public static int MaxIdentifierNameLength { get; set; } = 64;
+    public static int MaxIdentifierKeyLength { get; set; } = 64;
     public static int MaxValueLength { get; set; } = 4_000;
 
     protected SettingValueRecord() { }
 
     public SettingValueRecord(
         string name,
-        string contributorName,
-        string? contributorKey,
+        SettingValueIdentifier identifier,
         string value)
     {
         SetName(name);
-        SetContributorName(contributorName);
+        SetIdentifier(identifier);
         SetValue(value);
-
-        if (contributorKey is not null)
-        {
-            SetContributorKey(contributorKey);
-        }
     }
 
     public string Name { get; protected set; } = null!;
-    public string ContributorName { get; protected set; } = null!;
-    public string? ContributorKey { get; protected set; }
+    public SettingValueIdentifier Identifier { get; protected set; }
     public string Value { get; protected set; } = null!;
 
     public void SetName(string name)
@@ -41,22 +34,17 @@ public class SettingValueRecord : AggregateRoot<Guid>
         Name = name;
     }
 
-    public void SetContributorName(string contributorName)
+    protected void SetIdentifier(SettingValueIdentifier identifier)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(contributorName);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(contributorName.Length, MaxContributorNameLength);
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier.Name);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier.Name.Length, MaxIdentifierNameLength);
 
-        ContributorName = contributorName;
-    }
-
-    public void SetContributorKey(string? contributorKey)
-    {
-        if (contributorKey is not null)
+        if (identifier.Key is not null)
         {
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(contributorKey.Length, MaxContributorKeyLength);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(identifier.Key.Length, MaxIdentifierKeyLength);
         }
 
-        ContributorKey = contributorKey;
+        Identifier = identifier;
     }
 
     public void SetValue(string value)

@@ -31,7 +31,10 @@ public abstract class LocalizationModelBuilderContributorBase : IModelBuilderCon
                     static v => LocalizationSerializer.Instance.Deserialize(v),
                     ValueComparer.CreateDefault<Dictionary<string, string>>(favorStructuralComparisons: false));
 
-            e.HasIndex(p => new {p.Name, p.Culture}).IsUnique();
+            if (builder.ShouldCreateIndexes)
+            {
+                e.HasIndex(p => new {p.Name, p.Culture}).IsUnique();
+            }
         });
 
         ContributeCore(builder, context);

@@ -16,7 +16,7 @@ public abstract class SettingValueContributorBase(ISettingValueStore store) : IS
             return null;
         }
 
-        return await Store.FindAsync(definition, Name, key);
+        return await Store.FindAsync(definition, new SettingValueIdentifier(Name, key));
     }
 
     protected abstract ValueTask<string?> GetKeyAsync(SettingDefinition definition);

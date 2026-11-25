@@ -39,22 +39,47 @@ public abstract class SettingModelBuilderContributorBase : IModelBuilderContribu
 
         builder.Entity<SettingValueRecord>(e =>
         {
+            e.Property(p => p.Id).HasColumnOrder(0);
+
             e.Property(p => p.Name)
+                .HasColumnOrder(1)
                 .HasMaxLength(SettingValueRecord.MaxNameLength)
                 .IsRequired();
 
-            e.Property(p => p.ContributorName)
-                .HasMaxLength(SettingValueRecord.MaxContributorNameLength)
-                .IsRequired();
+            e.ComplexProperty(p => p.Identifier, identifier =>
+            {
+                identifier.Property(p => p.Name)
+                    .HasColumnOrder(2)
+                    .HasColumnName("IdentifierName")
+                    .HasMaxLength(SettingValueRecord.MaxIdentifierNameLength)
+                    .IsRequired();
 
-            e.Property(p => p.ContributorKey)
-                .HasMaxLength(SettingValueRecord.MaxContributorKeyLength);
+                identifier.Property(p => p.Key)
+                    .HasColumnOrder(3)
+                    .HasColumnName("IdentifierKey")
+                    .HasMaxLength(SettingValueRecord.MaxIdentifierKeyLength);
+            });
 
             e.Property(p => p.Value)
+                .HasColumnOrder(4)
                 .HasMaxLength(SettingValueRecord.MaxValueLength)
                 .IsRequired();
 
-            e.HasIndex(p => new {p.Name, p.ContributorName, p.ContributorKey}).IsUnique();
+            if (builder.ShouldCreateIndexes)
+            {
+                e.HasIndex(p => new
+                {
+                    SettingName = p.Name,
+                    IdentifierName = p.Identifier.Name,
+                    IdentifierKey = p.Identifier.Key
+                }).IsUnique();
+
+                e.HasIndex(p => new
+                {
+                    p.Identifier.Name,
+                    p.Identifier.Key
+                });
+            }
         });
 
         ContributeCore(builder, context);

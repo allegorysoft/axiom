@@ -14,6 +14,8 @@ public class TenantSettingValueContributor(
 
     public virtual ValueTask<SettingValue?> FindAsync(SettingDefinition definition)
     {
-        return Store.FindAsync(definition, Name, TenantContextAccessor.Current?.Id.ToString());
+        return Store.FindAsync(
+            definition,
+            new SettingValueIdentifier(Name, TenantContextAccessor.Current?.Id.ToString()));
     }
 }
