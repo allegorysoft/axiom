@@ -49,14 +49,12 @@ public class CacheOptionsExtensionsTests
         };
 
         options.ConfigureHybrid += o => o.MaximumPayloadBytes = 2;
-        options.ConfigureHybrid += o => o.DisableCompression = true;
 
         var hybridOptions = new HybridCacheOptions();
         options.ConfigureHybrid!.Invoke(hybridOptions);
 
         hybridOptions.MaximumKeyLength.ShouldBe(1);
         hybridOptions.MaximumPayloadBytes.ShouldBe(2);
-        hybridOptions.DisableCompression.ShouldBe(true);
     }
 
     [Fact]

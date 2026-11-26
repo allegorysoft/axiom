@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace Allegory.Axiom.EventBus.Distributed.Processing;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public readonly record struct DistributedEventProcessContext(
     string QueueName,

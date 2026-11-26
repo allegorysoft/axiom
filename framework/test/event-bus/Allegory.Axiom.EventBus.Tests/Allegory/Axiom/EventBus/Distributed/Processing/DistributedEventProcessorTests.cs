@@ -10,7 +10,7 @@ using NSubstitute;
 using Shouldly;
 using Xunit;
 
-namespace Allegory.Axiom.EventBus.Distributed.Processing;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public class DistributedEventProcessorTests(
     DistributedEventProcessorFixture fixture)

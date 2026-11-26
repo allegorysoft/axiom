@@ -1,0 +1,22 @@
+using System.Threading.Tasks;
+using Allegory.Axiom.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace Allegory.Axiom.EventBus.Distributed;
+
+internal sealed class EventBusRabbitMqPackage : IConfigureApplication
+{
+    internal const string Section = DistributedEventBusOptions.Section + ":RabbitMQ";
+
+    public static Task ConfigureAsync(IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<DistributedEventBusOptions>(options =>
+        {
+            builder.Configuration.GetSection(Section).Bind(options.RabbitMq);
+        });
+
+        return Task.CompletedTask;
+    }
+}

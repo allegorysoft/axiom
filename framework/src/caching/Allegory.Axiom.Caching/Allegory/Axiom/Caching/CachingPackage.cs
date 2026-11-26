@@ -28,7 +28,7 @@ internal sealed class CachingPackage : IConfigureApplication
         var options = new JsonSerializerOptions
         {
             IncludeFields = true,
-            Converters = {new FrozenDictionaryJsonConverter<string, string>()}
+            Converters = {new FrozenDictionaryJsonConverterFactory()}
         };
 
         collection.AddKeyedSingleton<JsonSerializerOptions>(typeof(IHybridCacheSerializer<>), options);

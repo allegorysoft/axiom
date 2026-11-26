@@ -18,6 +18,7 @@
         <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
         <ProjectReference Include="..\..\multi-tenancy\Allegory.Axiom.MultiTenancy.Abstractions\Allegory.Axiom.MultiTenancy.Abstractions.csproj"/>
         <ProjectReference Include="..\..\security\Allegory.Axiom.Security.Abstractions\Allegory.Axiom.Security.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\setting\Allegory.Axiom.Setting.Abstractions\Allegory.Axiom.Setting.Abstractions.csproj"/>
         <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.UnitOfWork.Abstractions\Allegory.Axiom.UnitOfWork.Abstractions.csproj"/>
     </ItemGroup>
 

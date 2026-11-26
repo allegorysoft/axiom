@@ -1,5 +1,5 @@
 using Allegory.Axiom.DependencyInjection;
 
-namespace Allegory.Axiom.EventBus.Distributed.Outbox;
+namespace Allegory.Axiom.EventBus.Distributed;
 
 public interface IOutboxStore : ISingletonService {}

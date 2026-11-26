@@ -1,0 +1,159 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Allegory.Axiom.MultiTenancy;
+using Allegory.Axiom.RabbitMQ;
+using Allegory.Axiom.UnitOfWork;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
+
+namespace Allegory.Axiom.EventBus.Distributed;
+
+public class RabbitMqDistributedEventBus(
+    ILogger<RabbitMqDistributedEventBus> logger,
+    IOptions<DistributedEventBusOptions> options,
+    DistributedEventHandlerManager eventHandlerManager,
+    IUnitOfWorkManager unitOfWorkManager,
+    ITenantContextAccessor tenantContextAccessor,
+    IInboxStore inboxStore,
+    IOutboxStore outboxStore,
+    RabbitMqConnectionFactory connectionFactory,
+    IServiceProvider serviceProvider) :
+    DistributedEventBusBase(
+        logger, options, eventHandlerManager, unitOfWorkManager, tenantContextAccessor, inboxStore, outboxStore)
+{
+    protected static string PublisherChannelName { get; } = "event-bus.publisher";
+    protected RabbitMqConnectionFactory ConnectionFactory { get; } = connectionFactory;
+    protected IServiceProvider ServiceProvider { get; } = serviceProvider;
+
+    protected virtual async ValueTask<RabbitMqConnection> GetConnectionAsync()
+    {
+        return await ConnectionFactory.GetAsync(Options.RabbitMq.ConnectionName);
+    }
+
+    protected override async Task PublishToMessageBrokerAsync(EventEnvelope envelope)
+    {
+        var descriptor = GetEventDescriptor(envelope.PayloadType);
+        var properties = new BasicProperties
+        {
+            DeliveryMode = DeliveryModes.Persistent,
+            MessageId = envelope.Id.ToString(),
+            Type = descriptor.Name,
+            Headers = new Dictionary<string, object?>()
+        };
+
+        using var activity = EventBusActivity.Source.StartActivity(
+            "EventBus.Publish",
+            ActivityKind.Producer,
+            parentId: envelope.TraceParent);
+        if (activity is not null)
+        {
+            activity.SetTag("messaging.message.id", envelope.Id);
+            activity.SetTag("messaging.message.type", descriptor.Name);
+            activity.SetTag("messaging.system", "rabbitmq");
+        }
+
+        var traceParent = activity?.Id ?? envelope.TraceParent;
+        if (!string.IsNullOrWhiteSpace(traceParent))
+        {
+            properties.Headers["traceparent"] = traceParent;
+        }
+
+        if (envelope.TenantId.HasValue)
+        {
+            properties.Headers["tenant-id"] = envelope.TenantId.ToString();
+        }
+
+        var connection = await GetConnectionAsync();
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope.Payload, envelope.PayloadType);
+        using var lease = await connection.RentChannelAsync(PublisherChannelName);
+
+        await lease.Channel.BasicPublishAsync(
+            Options.RabbitMq.ExchangeName!,
+            descriptor.Topic,
+            false,
+            properties,
+            bytes);
+    }
+
+    public override async Task InitializeAsync()
+    {
+        var connection = await GetConnectionAsync();
+
+        await DefineExchangeAsync(connection);
+
+        foreach (var (queueName, eventQueue) in EventHandlerManager.Queues)
+        {
+            // We explicitly don't dispose leased consumer channel here, since they must remain
+            // open for the lifetime of the consumer.
+            var lease = await connection.RentChannelAsync($"event-bus.{queueName}");
+
+            await DefineQueueAsync(lease.RabbitMqChannel, queueName, eventQueue);
+            await DefineConsumerAsync(lease.RabbitMqChannel, queueName, eventQueue);
+        }
+    }
+
+    protected virtual async Task DefineExchangeAsync(RabbitMqConnection connection)
+    {
+        using var lease = await connection.RentChannelAsync(PublisherChannelName);
+
+        await lease.Channel.ExchangeDeclareAsync(
+            Options.RabbitMq.ExchangeName ??
+            throw new InvalidOperationException("RabbitMQ exchange name cannot be null"),
+            ExchangeType.Direct,
+            durable: true,
+            autoDelete: false);
+    }
+
+    protected virtual async Task DefineQueueAsync(
+        RabbitMqChannel channel,
+        string queueName,
+        EventQueue eventQueue)
+    {
+        await channel.Channel.QueueDeclareAsync(
+            queueName,
+            durable: true,
+            exclusive: false,
+            autoDelete: false);
+
+        foreach (var topic in eventQueue.Events.Select(x => x.Value.Descriptor.Topic))
+        {
+            await channel.Channel.QueueBindAsync(
+                queueName,
+                Options.RabbitMq.ExchangeName!,
+                topic);
+        }
+
+        var queueOption = Options.RabbitMq.Queue.Get(queueName);
+        await channel.Channel.BasicQosAsync(
+            queueOption.PrefetchSize,
+            queueOption.PrefetchCount,
+            queueOption.Global);
+    }
+
+    protected virtual async Task DefineConsumerAsync(
+        RabbitMqChannel channel,
+        string queueName,
+        EventQueue eventQueue)
+    {
+        // RabbitMqEventConsumer is created using the root ServiceProvider, so only singleton
+        // services can be safely injected into it. Scoped or transient dependencies must not be
+        // resolved here directly instead, create an IServiceScope (e.g. via IServiceScopeFactory)
+        // within the consumer to resolve them per-message/per-invocation.
+        var eventConsumer = ActivatorUtilities.CreateInstance<RabbitMqEventConsumer>(
+            ServiceProvider,
+            channel,
+            queueName,
+            eventQueue);
+
+        await channel.Channel.BasicConsumeAsync(
+            queue: queueName,
+            autoAck: false,
+            consumer: eventConsumer.Consumer);
+    }
+}

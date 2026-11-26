@@ -1,7 +1,7 @@
 <Project>
 
     <PropertyGroup>
-        <DotnetVersion>net10.0</DotnetVersion>
+        <DotnetVersion>net11.0</DotnetVersion>
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <RepositoryType>git</RepositoryType>
@@ -15,22 +15,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\axiom-logo.png"
-            Pack="true" Visible="false" PackagePath="\"/>
-    </ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)etc\miscellaneous\axiom-logo.png" Pack="true" Visible="false" PackagePath="\"/>
 
-    <ItemGroup Condition="$(MSBuildProjectName.Contains('AspNetCore'))">
-        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" Condition="$(MSBuildProjectName.Contains('AspNetCore'))"/>
     </ItemGroup>
 
     <PropertyGroup>
         <IsTestProject>$(MSBuildProjectDirectory.Replace('\', '/').Contains('/test/'))</IsTestProject>
-        <IsPackable Condition="'$(IsTestProject)' == 'true'">false</IsPackable>
+        <IsPackable Condition="$([System.String]::Copy('$(MSBuildProjectDirectory)').Replace('\', '/').Contains('/host/'))">false</IsPackable>
     </PropertyGroup>
 
-    <ItemGroup Condition="'$(IsTestProject)' == 'false'">
-        <InternalsVisibleTo Include="$(MSBuildProjectName).Tests"/>
-    </ItemGroup>
+    <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+        <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
+        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    </PropertyGroup>
 
     <ItemGroup Condition="'$(IsTestProject)' == 'true'">
         <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage"/>
@@ -40,8 +39,8 @@
         <PackageReference Include="xunit.v3"/>
     </ItemGroup>
 
-    <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
-        <OutputType>Exe</OutputType>
-        <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-    </PropertyGroup>
+    <ItemGroup Condition="'$(IsTestProject)' == 'false'">
+        <InternalsVisibleTo Include="$(MSBuildProjectName).Tests"/>
+    </ItemGroup>
+
 </Project>

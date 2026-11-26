@@ -6,5 +6,5 @@ namespace Allegory.Axiom.Localization;
 [ImmutableObject(true)]
 public sealed class LocalizationTranslationCacheItem
 {
-    public FrozenDictionary<string, string> Translations { get; set; } = null!;
+    public FrozenDictionary<string, string> Translations { get; init; } = null!;
 }

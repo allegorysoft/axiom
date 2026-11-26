@@ -19,6 +19,7 @@
         <ProjectReference Include="..\..\localization\Allegory.Axiom.Localization\Allegory.Axiom.Localization.csproj"/>
         <ProjectReference Include="..\..\multi-tenancy\Allegory.Axiom.MultiTenancy\Allegory.Axiom.MultiTenancy.csproj"/>
         <ProjectReference Include="..\..\security\Allegory.Axiom.Security\Allegory.Axiom.Security.csproj"/>
+        <ProjectReference Include="..\..\setting\Allegory.Axiom.Setting\Allegory.Axiom.Setting.csproj"/>
         <ProjectReference Include="..\..\unit-of-work\Allegory.Axiom.UnitOfWork\Allegory.Axiom.UnitOfWork.csproj"/>
     </ItemGroup>
 

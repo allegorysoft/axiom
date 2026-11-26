@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>$(DotnetVersion)</TargetFramework>
+        <RootNamespace/>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Allegory.Axiom.Setting.Abstractions\Allegory.Axiom.Setting.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\modularity\Allegory.Axiom.Hosting.Abstractions\Allegory.Axiom.Hosting.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\file-provider\Allegory.Axiom.FileProvider.Abstractions\Allegory.Axiom.FileProvider.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\localization\Allegory.Axiom.Localization.Abstractions\Allegory.Axiom.Localization.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\multi-tenancy\Allegory.Axiom.MultiTenancy.Abstractions\Allegory.Axiom.MultiTenancy.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\security\Allegory.Axiom.Security.Abstractions\Allegory.Axiom.Security.Abstractions.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="Allegory\Axiom\Setting\Localization\Resources\*.json"/>
+        <Content Remove="Allegory\Axiom\Setting\Localization\Resources\*.json"/>
+    </ItemGroup>
+
+</Project>
