@@ -18,8 +18,13 @@ export const routes = createBrowserRouter([
             lazy: () => import('./routes/home'),
           },
           {
-            path: 'about',
-            lazy: () => import('./routes/about'),
+            path: 'identity-management',
+            children: [
+              {
+                path: 'users',
+                lazy: () => import('./users/users'),
+              },
+            ],
           },
           {
             path: 'panels',

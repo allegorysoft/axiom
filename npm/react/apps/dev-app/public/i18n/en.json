@@ -9,7 +9,7 @@
     "LanguageDescription": "Choose your preferred language",
     "Support": "Support",
     "Documents": "Documents",
-    "NoItemFound": "No items found"
+    "NoRecordFound": "No record found"
   },
   "AxiomTheme": {
     "Theme": "Theme",
@@ -25,7 +25,15 @@
     "Layout": "Layout",
     "Scale": "Scale",
     "Radius": "Radius",
-    "RestoreDefaults": "Restore defaults"
+    "RestoreDefaults": "Restore defaults",
+    "TableCountInfo": "Showing {0} of {1} rows",
+    "Actions": "Actions",
+    "Edit": "Edit",
+    "Delete": "Delete",
+    "Hide": "Hide",
+    "Reset": "Reset",
+    "Filters": "Filters",
+    "Search": "Search"
   },
   "AxiomAccount": {
     "Account": "Account",
@@ -63,6 +71,11 @@
     "Copyright": "Copyright © 2026 Allegorysoft. All rights reserved"
   },
   "AxiomIdentity": {
-    "Welcome": "Welcome i18n, {name}"
+    "Welcome": "Welcome i18n, {name}",
+    "Name": "Name",
+    "Surname": "Surname",
+    "Email": "Email",
+    "BirthDate": "Birth date",
+    "Address": "Address"
   }
 }
