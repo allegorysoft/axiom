@@ -4,7 +4,6 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Allegory.Axiom.Caching;
-using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -17,7 +16,7 @@ public class SettingDefinitionStore(
     HybridCache hybridCache,
     ISettingDefinitionRecordRepository repository,
     IUnitOfWorkManager unitOfWorkManager) :
-    ISettingDefinitionStore, ISingletonService
+    ISettingDefinitionStore
 {
     protected ILogger<SettingDefinitionStore> Logger { get; } = logger;
     protected HybridCache HybridCache { get; } = hybridCache;

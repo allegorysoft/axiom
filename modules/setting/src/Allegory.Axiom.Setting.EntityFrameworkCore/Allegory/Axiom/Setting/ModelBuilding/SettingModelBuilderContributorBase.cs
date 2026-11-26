@@ -16,26 +16,35 @@ public abstract class SettingModelBuilderContributorBase : IModelBuilderContribu
             return;
         }
 
-        builder.Entity<SettingDefinitionRecord>(e =>
+        if (SettingDomainPackage.IsSynchronizationEnabled)
         {
-            e.Property(p => p.Name)
-                .HasMaxLength(SettingDefinitionRecord.MaxNameLength)
-                .IsRequired();
+            builder.Entity<SettingDefinitionRecord>(e =>
+            {
+                e.Property(p => p.Name)
+                    .HasMaxLength(SettingDefinitionRecord.MaxNameLength)
+                    .IsRequired();
 
-            e.Property(p => p.DefaultValue)
-                .HasMaxLength(SettingDefinitionRecord.MaxDefaultValue);
+                e.Property(p => p.DefaultValue)
+                    .HasMaxLength(SettingDefinitionRecord.MaxDefaultValue);
 
-            e.Property(p => p.Contributors)
-                .HasConversion(
-                    static v => v.Count > 0 ? JsonSerializer.Serialize(v) : string.Empty,
-                    static v => string.IsNullOrWhiteSpace(v)
-                        ? ImmutableSortedSet<string>.Empty
-                        : JsonSerializer.Deserialize<ImmutableSortedSet<string>>(v) ??
-                          ImmutableSortedSet<string>.Empty,
-                    ValueComparer.CreateDefault<ImmutableSortedSet<string>>(favorStructuralComparisons: false));
-
-            e.HasIndex(p => new {p.Name}).IsUnique();
-        });
+                e.Property(p => p.Contributors)
+                    .HasConversion(
+                        static v => v.Count > 0 ? JsonSerializer.Serialize(v) : string.Empty,
+                        static v => string.IsNullOrWhiteSpace(v)
+                            ? ImmutableSortedSet<string>.Empty
+                            : JsonSerializer.Deserialize<ImmutableSortedSet<string>>(v) ??
+                              ImmutableSortedSet<string>.Empty,
+                        ValueComparer.CreateDefault<ImmutableSortedSet<string>>(favorStructuralComparisons: false));
+                if (builder.ShouldCreateIndexes)
+                {
+                    e.HasIndex(p => new {p.Name}).IsUnique();
+                }
+            });
+        }
+        else
+        {
+            builder.Ignore<SettingDefinitionRecord>();
+        }
 
         builder.Entity<SettingValueRecord>(e =>
         {

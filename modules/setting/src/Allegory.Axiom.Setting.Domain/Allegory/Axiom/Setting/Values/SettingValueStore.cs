@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Allegory.Axiom.DependencyInjection;
 using Allegory.Axiom.UnitOfWork;
 using Microsoft.Extensions.Caching.Hybrid;
-using Microsoft.Extensions.Options;
 
 namespace Allegory.Axiom.Setting;
 
@@ -12,15 +11,13 @@ public class SettingValueStore(
     IUnitOfWorkManager unitOfWorkManager,
     ISettingValueRecordRepository repository,
     SettingValueCacheKeyNormalizer keyNormalizer,
-    HybridCache hybridCache,
-    IOptions<SettingValueOptions> options) :
+    HybridCache hybridCache) :
     ISettingValueStore, ISingletonService
 {
     protected IUnitOfWorkManager UnitOfWorkManager { get; } = unitOfWorkManager;
     protected ISettingValueRecordRepository Repository { get; } = repository;
     protected SettingValueCacheKeyNormalizer KeyNormalizer { get; } = keyNormalizer;
     protected HybridCache HybridCache { get; } = hybridCache;
-    protected SettingValueOptions Options { get; } = options.Value;
 
     public virtual ValueTask<SettingValue?> FindAsync(string name, SettingValueIdentifier identifier)
     {
@@ -38,7 +35,8 @@ public class SettingValueStore(
                     cancellationToken: CancellationToken.None);
 
                 return result is null ? null : new SettingValue(JsonElement.Parse(result.Value));
-            });
+            },
+            options: SettingDomainPackage.ValueCacheOptions);
     }
 
     public virtual async Task SetAsync(string name, SettingValueIdentifier identifier, SettingValue value)

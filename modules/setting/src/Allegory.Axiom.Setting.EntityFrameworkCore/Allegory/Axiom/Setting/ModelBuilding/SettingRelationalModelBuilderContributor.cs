@@ -11,10 +11,13 @@ public class SettingRelationalModelBuilderContributor : SettingModelBuilderContr
 
     protected override void ContributeCore(ModelBuilder builder, DbContext context)
     {
-        builder.Entity<SettingDefinitionRecord>(e =>
+        if (SettingDomainPackage.IsSynchronizationEnabled)
         {
-            e.ToTable(DbDefaults.TablePrefix + "SettingDefinitions", DbDefaults.Schema);
-        });
+            builder.Entity<SettingDefinitionRecord>(e =>
+            {
+                e.ToTable(DbDefaults.TablePrefix + "SettingDefinitions", DbDefaults.Schema);
+            });
+        }
 
         builder.Entity<SettingValueRecord>(e =>
         {
