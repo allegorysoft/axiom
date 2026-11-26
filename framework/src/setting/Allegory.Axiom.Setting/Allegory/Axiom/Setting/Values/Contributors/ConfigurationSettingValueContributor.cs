@@ -12,6 +12,7 @@ public class ConfigurationSettingValueContributor(IConfiguration configuration) 
     public const string Section = "Axiom:Settings:";
 
     public string Name => ISettingValueContributor.Configuration;
+    public bool IsEncrypted => false;
     protected IConfiguration Configuration { get; } = configuration;
     protected ConcurrentDictionary<SettingDefinition, SettingValue?> Values { get; } = new();
 

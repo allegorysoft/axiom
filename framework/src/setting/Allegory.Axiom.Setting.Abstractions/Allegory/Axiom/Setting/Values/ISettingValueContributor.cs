@@ -11,5 +11,7 @@ public interface ISettingValueContributor
 
     string Name { get; }
 
+    bool IsEncrypted => true;
+
     ValueTask<SettingValue?> FindAsync(SettingDefinition definition);
 }
