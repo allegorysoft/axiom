@@ -3,6 +3,7 @@ using Allegory.Axiom.EntityFrameworkCore;
 using Allegory.Axiom.Hosting;
 using Allegory.Axiom.Setting;
 using Allegory.Axiom.UnitOfWork;
+using DefaultNamespace;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,12 +48,16 @@ internal sealed class AppPackage : IConfigureApplication, IInitializeApplication
 
     static async Task Test(IHost host)
     {
-        var definitionStore = host.Services.GetRequiredService<ISettingDefinitionStore>();
-        var valueManager = host.Services.GetRequiredService<ISettingValueManager>();
+        var manager = host.Services.GetRequiredService<ISettingValueManager>();
+        const string setting = "Setting1";
 
-        foreach (var definition in await definitionStore.GetListAsync())
-        {
-            var r = await valueManager.FindAsync(definition);
-        }
+        var v = await manager.FindAsync(setting);
+        var v2 = await manager.FindAsync<ComplexSetting>(setting);
+        var v3 = await manager.FindAsync(setting);
+
+        await manager.SetAsync(
+            setting,
+            new SettingValueIdentifier(ISettingValueContributor.Tenant, null),
+            new ComplexSetting() {Host = "127.0.0.1", Port = 12345}, false);
     }
 }
