@@ -47,6 +47,9 @@ export function AxiomDataTable<D extends RowData>(props: DataTableProps<D>) {
       columnOrder,
       columnVisibility,
     },
+    initialState: {
+      pagination: { pageIndex: 0, pageSize: 5 },
+    },
     onColumnOrderChange: setColumnOrder,
     columnResizeMode: 'onChange',
     onColumnVisibilityChange: setColumnVisibility,
@@ -62,14 +65,16 @@ export function AxiomDataTable<D extends RowData>(props: DataTableProps<D>) {
       props.load?.({
         sorting: table.atoms.sorting.get() ?? [],
         pagination: table.atoms.pagination.get(),
+        filters: {},
       });
     };
 
-    const _filters = table.atoms.sorting.subscribe(notify);
+    const _sorting = table.atoms.sorting.subscribe(notify);
     const _pagination = table.atoms.pagination.subscribe(notify);
+    notify();
 
     return () => {
-      _filters.unsubscribe();
+      _sorting.unsubscribe();
       _pagination.unsubscribe();
     };
   }, [props.load, table]);

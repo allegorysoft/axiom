@@ -21,4 +21,5 @@ export type DataTableProps<
 export type DataTableLoad = {
   sorting: SortingState;
   pagination: PaginationState;
+  filters: object;
 };
