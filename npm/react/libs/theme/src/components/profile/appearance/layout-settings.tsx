@@ -38,6 +38,17 @@ export default function LayoutSection() {
         />
       </SettingRow>
       <SettingRow
+        title="Workspace layout"
+        description="Choose whether pages open in tabs."
+      >
+        <ChoiceGroup
+          label="Workspace layout"
+          options={SEGMENTED_OPTIONS.layout}
+          value={preferences.layout}
+          onChange={(layout) => preferencesStore.patchPreferences({ layout })}
+        />
+      </SettingRow>
+      <SettingRow
         title="Corner Radius"
         description="Choose how rounded interface elements appear."
       >

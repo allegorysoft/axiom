@@ -43,7 +43,7 @@ export function WorkspaceTabs() {
       {isMobile ? (
         <MobileWorkspaceTabs tabs={tabs} />
       ) : (
-        <TabsList className="min-w-0 justify-start border-none!">
+        <TabsList className="min-w-0 justify-start gap-1 border-none!">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.url}
@@ -58,7 +58,7 @@ export function WorkspaceTabs() {
                 }
               }}
               nativeButton={false}
-              className="group max-w-48 flex-none border-none!"
+              className="group max-w-48 flex-none border-none! before:pointer-events-none before:absolute before:top-1/2 before:-left-0.5 before:hidden before:h-4 before:w-px before:-translate-y-1/2 before:bg-border [[data-slot=tabs-trigger]:not([data-active])+&:not([data-active])]:before:block"
               render={<div className="inline-flex items-center" />}
             >
               {tab.icon}
@@ -76,6 +76,11 @@ export function WorkspaceTabs() {
               <Button
                 variant="ghost"
                 size="icon-xs"
+                className={
+                  tab.active
+                    ? 'cursor-pointer'
+                    : 'cursor-pointer rounded-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-foreground/10 dark:hover:bg-foreground/10'
+                }
                 aria-label={`Close ${tab.title} tab`}
                 onClick={(event) => {
                   event.stopPropagation();
@@ -91,6 +96,7 @@ export function WorkspaceTabs() {
       <Button
         variant="ghost"
         size="icon"
+        className="cursor-pointer bg-muted text-foreground hover:bg-[var(--segmented-selected,var(--background))] hover:text-[color:var(--segmented-selected-foreground,var(--foreground))] dark:bg-muted/50 dark:hover:bg-[var(--segmented-selected,color-mix(in_oklab,var(--input)_30%,transparent))]"
         aria-label="Add tab"
         onClick={() => addEmptyTab()}
       >
