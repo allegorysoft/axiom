@@ -34,7 +34,7 @@ internal static partial class LoggerExtensions
     [LoggerMessage(
         LogLevel.Warning,
         "Localization synchronization failed. Retrying in {Seconds} seconds...")]
-    public static partial void LogSynchronizationFailedRetry(this ILogger logger, int seconds);
+    public static partial void LogSynchronizationFailedRetry(this ILogger logger, int seconds, Exception? exception);
 
     [LoggerMessage(
         LogLevel.Warning,

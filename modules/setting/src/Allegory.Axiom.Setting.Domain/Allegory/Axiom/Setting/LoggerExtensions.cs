@@ -28,7 +28,7 @@ internal static partial class LoggerExtensions
     [LoggerMessage(
         LogLevel.Warning,
         "Setting definitions synchronization failed. Retrying in {Seconds} seconds...")]
-    public static partial void LogSynchronizationFailedRetry(this ILogger logger, int seconds);
+    public static partial void LogSynchronizationFailedRetry(this ILogger logger, int seconds, Exception? exception);
 
     [LoggerMessage(
         LogLevel.Debug,

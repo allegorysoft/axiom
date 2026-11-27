@@ -45,7 +45,7 @@ public class SettingDefinitionSynchronizerWorker(
                 else
                 {
                     var wait = attempt * 3;
-                    Logger.LogSynchronizationFailedRetry(wait);
+                    Logger.LogSynchronizationFailedRetry(wait, attempt % 3 == 0 ? exception : null);
                     await Task.Delay(TimeSpan.FromSeconds(wait), cancellationToken);
                 }
             }
