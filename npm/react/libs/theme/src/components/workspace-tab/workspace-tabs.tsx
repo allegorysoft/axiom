@@ -58,7 +58,7 @@ export function WorkspaceTabs() {
                 }
               }}
               nativeButton={false}
-              className="group max-w-48 flex-none border-none! before:pointer-events-none before:absolute before:top-1/2 before:-left-0.5 before:hidden before:h-4 before:w-px before:-translate-y-1/2 before:bg-border [[data-slot=tabs-trigger]:not([data-active])+&:not([data-active])]:before:block"
+              className="group h-auto! max-w-48 flex-none border-none! py-1! pr-1! before:pointer-events-none before:absolute before:top-1/2 before:-left-0.5 before:hidden before:h-4 before:w-px before:-translate-y-1/2 before:bg-border [[data-slot=tabs-trigger]:not([data-active])+&:not([data-active])]:before:block"
               render={<div className="inline-flex items-center" />}
             >
               {tab.icon}
