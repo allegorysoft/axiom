@@ -49,15 +49,15 @@ internal sealed class AppPackage : IConfigureApplication, IInitializeApplication
     static async Task Test(IHost host)
     {
         var manager = host.Services.GetRequiredService<ISettingValueManager>();
-        const string setting = "Setting1";
+        const string setting = "Private";
 
         var v = await manager.FindAsync(setting);
-        var v2 = await manager.FindAsync<ComplexSetting>(setting);
+        var v2 = await manager.FindAsync<decimal>(setting);
         var v3 = await manager.FindAsync(setting);
 
         await manager.SetAsync(
             setting,
             new SettingValueIdentifier(ISettingValueContributor.Tenant, null),
-            new ComplexSetting() {Host = "127.0.0.1", Port = 12345}, false);
+            1);
     }
 }

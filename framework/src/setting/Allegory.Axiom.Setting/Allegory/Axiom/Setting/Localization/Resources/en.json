@@ -1,4 +1,6 @@
 {
   "Axiom.Setting:DefinitionNotFound": "Setting definition was not found.",
-  "Axiom.Setting:ValueNotFound": "Setting value was not found."
+  "Axiom.Setting:ValueNotFound": "Setting value was not found.",
+  "Axiom.Setting:ContributorNotAllowed": "Contributor '{ContributorName}' is not allowed for setting '{SettingName}'.",
+  "Axiom.Setting:ContributorDoesNotSupportUpdates": "Contributor '{ContributorName}' does not support updating setting values."
 }

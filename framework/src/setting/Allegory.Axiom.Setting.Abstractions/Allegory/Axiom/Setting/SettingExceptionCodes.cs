@@ -6,4 +6,6 @@ public static class SettingExceptionCodes
 
     public const string DefinitionNotFound = $"{Resource}:DefinitionNotFound";
     public const string ValueNotFound = $"{Resource}:ValueNotFound";
+    public const string ContributorNotAllowed = $"{Resource}:ContributorNotAllowed";
+    public const string ContributorDoesNotSupportUpdates = $"{Resource}:ContributorDoesNotSupportUpdates";
 }

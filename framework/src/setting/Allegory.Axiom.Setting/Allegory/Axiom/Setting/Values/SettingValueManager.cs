@@ -115,14 +115,17 @@ public class SettingValueManager : ISettingValueManager, ISingletonService
     {
         if (!IsContributorAllowed(definition, identifier.Name))
         {
-            throw new BusinessException(message: "Definition contributor doesn't have specified identifier name");
+            throw new BusinessException(SettingExceptionCodes.ContributorNotAllowed)
+                .AddData("SettingName", definition.Name)
+                .AddData("ContributorName", identifier.Name);
         }
 
         if (identifier.Name is
             DefaultSettingValueContributor.ContributorName or
             ISettingValueContributor.Configuration)
         {
-            throw new BusinessException(message: "The specified setting value identifier does not support updates");
+            throw new BusinessException(SettingExceptionCodes.ContributorDoesNotSupportUpdates)
+                .AddData("ContributorName", identifier.Name);
         }
     }
 
