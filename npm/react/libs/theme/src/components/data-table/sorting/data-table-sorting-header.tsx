@@ -1,7 +1,7 @@
 import type { RowData, TableFeatures } from '@tanstack/react-table';
 import { cn } from 'cn';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown, ArrowUp, ArrowUpDown } from '@hugeicons/core-free-icons';
+import { ArrowDown, ArrowUp, ArrowUpDownIcon } from '@hugeicons/core-free-icons';
 
 import { useTranslation } from '@axiomframework/react-core';
 
@@ -29,18 +29,20 @@ export function DataTableSortingHeader<
       return ArrowDown;
     }
 
-    return ArrowUpDown;
+    return ArrowUpDownIcon;
   };
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
+    <div className={cn('flex min-w-0 items-center gap-1', className)}>
+      <span className="truncate">{t(title)}</span>
       <Button
         variant="ghost"
-        size="default"
+        size="icon"
+        className="size-7 shrink-0 cursor-pointer"
+        aria-label={t(title)}
         onClick={() => column.toggleSorting()}
       >
-        <span>{t(title)}</span>
-        <HugeiconsIcon icon={getSortingIcon()} />
+        <HugeiconsIcon icon={getSortingIcon()} aria-hidden="true" />
       </Button>
     </div>
   );

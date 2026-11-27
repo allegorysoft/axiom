@@ -24,12 +24,19 @@ export function DraggableCell<D extends RowData>({ cell }: Props<D>) {
     position: 'relative',
     transform: CSS.Translate.toString(transform),
     transition,
-    width: (cell.column as typeof cell.column & Column_ColumnSizing).getSize(),
+    width:
+      cell.column.id === 'actions'
+        ? '1%'
+        : (cell.column as typeof cell.column & Column_ColumnSizing).getSize(),
     zIndex: isDragging ? 1 : 0,
   };
 
   return (
-    <TableCell ref={setNodeRef} className="truncate" style={style}>
+    <TableCell
+      ref={setNodeRef}
+      className="truncate before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-border first:before:hidden"
+      style={style}
+    >
       {flexRender(cell.column.columnDef.cell, cell.getContext())}
     </TableCell>
   );

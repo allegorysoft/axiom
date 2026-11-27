@@ -5,7 +5,7 @@ import { findGroupPath } from '../workspace-tab/workspace-tab-utils';
 
 export function AppPageTitle({ title }: { title: string }) {
   const t = useTranslation();
-  return <h1 className="text-xl font-semibold tracking-tight">{t(title)}</h1>;
+  return <h1 className="text-lg font-semibold tracking-tight">{t(title)}</h1>;
 }
 
 export function AppRouteTitle() {

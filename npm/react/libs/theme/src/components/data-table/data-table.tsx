@@ -63,6 +63,14 @@ export function AxiomDataTable<D extends RowData>({
   const colSpan = headers?.length ?? props.columns.length;
   const columns = table.getAllColumns().filter((column) => column.getCanHide());
   const rows = table?.getRowModel()?.rows;
+  const visibleColumns = table.getVisibleLeafColumns();
+  const actionsWidth = visibleColumns.some((column) => column.id === 'actions')
+    ? 120
+    : 0;
+  const dataWidth = visibleColumns.reduce(
+    (total, column) => total + (column.id === 'actions' ? 0 : column.getSize()),
+    0,
+  );
 
   useEffect(() => {
     const notify = () => {
@@ -84,10 +92,13 @@ export function AxiomDataTable<D extends RowData>({
   }, [props.load, table]);
 
   return (
-    <>
+    <div
+      data-slot="data-table"
+      className="min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card text-card-foreground"
+    >
       <div
         aria-label="Data table options section"
-        className="flex flex-wrap items-center justify-end gap-2"
+        className="flex flex-wrap items-center justify-end gap-2 border-b border-border/70 px-4 py-3"
       >
         {pageTitle && (
           <div className="mr-auto">
@@ -102,14 +113,27 @@ export function AxiomDataTable<D extends RowData>({
         />
       </div>
 
-      <div className="overflow-hidden rounded-lg border">
+      <div>
         <DataTableDndContext onDragEnd={handleDragEnd} sensors={sensors}>
-          <Table>
+          <Table
+            className="table-fixed [&_td]:px-4 [&_th]:px-4"
+            style={{ minWidth: dataWidth + actionsWidth }}
+          >
+            <colgroup>
+              {visibleColumns.map((column) => {
+                const fraction = column.getSize() / dataWidth;
+                const width = column.id === 'actions'
+                  ? actionsWidth
+                  : `calc(${fraction * 100}% - ${fraction * actionsWidth}px)`;
+
+                return <col key={column.id} style={{ width }} />;
+              })}
+            </colgroup>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow
                   key={headerGroup.id}
-                  className="bg-muted/50 [&>th]:border-t-0"
+                  className="border-border/70 hover:bg-transparent [&>th]:border-t-0"
                 >
                   <SortableContext
                     items={columnOrder}
@@ -150,6 +174,7 @@ export function AxiomDataTable<D extends RowData>({
                 return (
                   <TableRow
                     key={row.id}
+                    className="border-border/50"
                     data-state={row.getIsSelected?.() && 'selected'}
                   >
                     {cells.map((cell) => (
@@ -166,9 +191,9 @@ export function AxiomDataTable<D extends RowData>({
               })}
             </TableBody>
 
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={colSpan}>
+            <TableFooter className="border-border/70 bg-transparent">
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={colSpan} className="py-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <AxiomDataTablePagination
                       table={table}
@@ -181,6 +206,6 @@ export function AxiomDataTable<D extends RowData>({
           </Table>
         </DataTableDndContext>
       </div>
-    </>
+    </div>
   );
 }

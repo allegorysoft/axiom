@@ -51,25 +51,32 @@ function DataTableActionsCell<D extends RowData>({ actions, data }: Props<D>) {
   const t = useTranslation();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon-sm" aria-label="Row actions">
-            <HugeiconsIcon icon={MoreHorizontalIcon} />
-          </Button>
-        }
-      />
-      <DropdownMenuContent align="end">
-        {actions.map((action) => (
-          <DropdownMenuItem
-            key={action.label}
-            onClick={() => action.onClick(data)}
-          >
-            {action.icon}
-            {t(action.label)}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex">
+      <DropdownMenu>
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="cursor-pointer"
+              aria-label="Row actions"
+            >
+              <HugeiconsIcon icon={MoreHorizontalIcon} />
+            </Button>
+          }
+        />
+        <DropdownMenuContent align="end">
+          {actions.map((action) => (
+            <DropdownMenuItem
+              key={action.label}
+              onClick={() => action.onClick(data)}
+            >
+              {action.icon}
+              {t(action.label)}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

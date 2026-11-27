@@ -3,7 +3,7 @@
 import type { Column, RowData, TableFeatures } from '@tanstack/react-table';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import { RefreshCcwIcon, SlidersHorizontal } from '@hugeicons/core-free-icons';
+import { FilterHorizontalIcon, RefreshCcwIcon } from '@hugeicons/core-free-icons';
 
 import { useTranslation } from '@axiomframework/react-core';
 
@@ -11,7 +11,9 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../../ui/dropdown-menu';
@@ -32,23 +34,27 @@ export function ColumnVisibilitySettings<D extends RowData>({
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="outline" className="cursor-pointer items-center">
-            <HugeiconsIcon icon={SlidersHorizontal} />
+          <Button variant="outline" className="cursor-pointer">
+            <HugeiconsIcon icon={FilterHorizontalIcon} />
+            View
           </Button>
         }
       />
-      <DropdownMenuContent align="end" className="w-full">
-        {columns.map((column) => (
-          <DropdownMenuCheckboxItem
-            key={column.id}
-            className="capitalize h-8"
-            checked={column.getIsVisible()}
-            onCheckedChange={(value) => column.toggleVisibility(!!value)}
-            onSelect={(e) => e.preventDefault()}
-          >
-            {column.id}
-          </DropdownMenuCheckboxItem>
-        ))}
+      <DropdownMenuContent align="end" className="w-auto min-w-36">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>Toggle columns</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          {columns.map((column) => (
+            <DropdownMenuCheckboxItem
+              key={column.id}
+              className="capitalize"
+              checked={column.getIsVisible()}
+              onCheckedChange={(value) => column.toggleVisibility(!!value)}
+            >
+              {column.id}
+            </DropdownMenuCheckboxItem>
+          ))}
+        </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => resetColumnVisibility()}>

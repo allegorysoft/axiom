@@ -1,14 +1,9 @@
 import type { CSSProperties } from 'react';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  EllipsisIcon,
-  EyeClosedIcon,
-  GripVerticalIcon,
-} from '@hugeicons/core-free-icons';
+import { ArrowLeftRightIcon } from '@hugeicons/core-free-icons';
 
 import type {
-  Column_ColumnSizing,
   Header,
   ReactTable,
   RowData,
@@ -18,17 +13,8 @@ import type {
 import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 
-import { useTranslation } from '@axiomframework/react-core';
-
 import { TableHead } from '../../ui/table';
 import { Button } from '../../ui/button';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '../../ui/dropdown-menu';
 
 type Props<D extends RowData> = {
   header: Header<TableFeatures, D, unknown>;
@@ -40,7 +26,6 @@ export function DraggableTableHeader<D extends RowData>({
   table,
   columnResizing,
 }: Props<D>) {
-  const t = useTranslation();
   const {
     attributes,
     isDragging,
@@ -58,9 +43,7 @@ export function DraggableTableHeader<D extends RowData>({
     transform: CSS.Translate.toString(transform),
     transition,
     whiteSpace: 'nowrap',
-    width: (
-      header.column as typeof header.column & Column_ColumnSizing
-    ).getSize(),
+    width: header.column.id === 'actions' ? '1%' : header.getSize(),
     zIndex: isDragging ? 1 : 0,
   };
 
@@ -69,65 +52,30 @@ export function DraggableTableHeader<D extends RowData>({
   return (
     <TableHead
       ref={setNodeRef}
-      className="before:bg-border relative h-10 border-t before:absolute before:inset-y-0 before:left-0 before:w-px first:before:bg-transparent group/head select-none last:[&>.cursor-col-resize]:opacity-0"
-      {...{
-        colSpan: header.colSpan,
-        style: {
-          ...style,
-          width: header.getSize(),
-        },
-      }}
+      className="group/head relative h-10 select-none before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-px before:bg-border first:before:hidden"
+      colSpan={header.colSpan}
+      style={style}
     >
-      <div className="flex items-center justify-start gap-0.5">
+      <div className="flex items-center gap-1">
+        <div
+          className={
+            header.column.id === 'actions'
+              ? 'shrink-0'
+              : 'min-w-0 flex-1 truncate'
+          }
+        >
+          {header.isPlaceholder ? null : table.FlexRender({ header })}
+        </div>
         <Button
           size="icon"
           variant="ghost"
-          className="-ml-2 size-7"
+          className={`size-7 shrink-0 cursor-grab active:cursor-grabbing ${isDragging ? '' : 'pointer-fine:pointer-events-none pointer-fine:opacity-0 pointer-fine:group-hover/head:pointer-events-auto pointer-fine:group-hover/head:opacity-100 focus-visible:opacity-100'}`}
           {...attributes}
           {...listeners}
           aria-label="Drag to reorder"
         >
-          <HugeiconsIcon
-            icon={GripVerticalIcon}
-            className="opacity-60"
-            aria-hidden="true"
-          />
+          <HugeiconsIcon icon={ArrowLeftRightIcon} aria-hidden="true" />
         </Button>
-        <span className="grow truncate">
-          {header.isPlaceholder ? null : table.FlexRender({ header })}
-        </span>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                size="icon"
-                variant="ghost"
-                aria-label={`Options for ${header.column.columnDef.id as string} column`}
-              >
-                <HugeiconsIcon
-                  icon={EllipsisIcon}
-                  className="opacity-70"
-                  aria-hidden="true"
-                />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() =>
-                header.column.toggleVisibility(!header.column.getIsVisible())
-              }
-            >
-              <HugeiconsIcon
-                icon={EyeClosedIcon}
-                className="opacity-60"
-                aria-hidden="true"
-              />
-              {t('AxiomTheme:Hide')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {canResize && (
@@ -137,7 +85,7 @@ export function DraggableTableHeader<D extends RowData>({
             onMouseDown: header.getResizeHandler(),
             onTouchStart: header.getResizeHandler(),
             className:
-              'group-last/head:hidden absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10 flex justify-center before:absolute before:w-px before:inset-y-0 before:bg-border before:translate-x-px',
+              'group-last/head:hidden absolute top-0 h-full w-4 cursor-col-resize user-select-none touch-none -right-2 z-10',
           }}
         />
       )}

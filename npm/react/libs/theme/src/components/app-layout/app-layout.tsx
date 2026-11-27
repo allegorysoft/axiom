@@ -33,7 +33,7 @@ export function AppLayout() {
       <SettingsDialogProvider>
         <AppSidebar />
 
-        <SidebarInset>
+        <SidebarInset className="md:peer-data-[variant=floating]:mr-[calc(var(--spacing)-1px)] md:peer-data-[variant=inset]:mr-1">
           {layout === 'default' ? (
             <DefaultLayout />
           ) : (
@@ -57,7 +57,7 @@ function DefaultLayout() {
   return (
     <>
       <Header />
-      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg">
+      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg has-data-[slot=data-table]:border-x-0 has-data-[slot=data-table]:border-t-0 has-data-[slot=data-table]:border-transparent has-data-[slot=data-table]:px-0 has-data-[slot=data-table]:pt-0.75">
         <AppRouteTitle />
         <Outlet />
       </div>
