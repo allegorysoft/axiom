@@ -57,7 +57,7 @@ export function AppTabLayout({ children }: { children?: React.ReactNode }) {
     >
       {children}
 
-      <div className="flex-1 gap-3 p-3 sm:p-4 m-1 border rounded-lg">
+      <div className="flex-1 gap-3 p-2 m-1 border rounded-lg">
         {!activeTab?.empty && <AppRouteTitle />}
         <WorkspaceTabLayout />
       </div>

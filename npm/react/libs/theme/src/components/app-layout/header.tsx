@@ -14,7 +14,7 @@ import { UserDropdown } from '../user/user-dropdown';
 import { LoginButton } from '../login-button';
 import { Languages } from './languages';
 
-const HEADER_CLASS_NAMES = `flex h-12 px-3 md:px-4 items-center gap-2 backdrop-blur-lg border m-1 mt-2 rounded-lg`;
+const HEADER_CLASS_NAMES = `flex items-center gap-2 p-2 backdrop-blur-lg border m-1 mt-2 rounded-lg`;
 const NAVBAR_BEHAVIOR_CLASS_NAMES: Record<NavbarBehavior, string> = {
   sticky: 'sticky top-1 z-50',
   scroll: '',
@@ -32,7 +32,7 @@ export function Header() {
 
   return (
     <header className={`${HEADER_CLASS_NAMES} ${behaviorClassNames}`}>
-      <SidebarTrigger className="-ml-1" />
+      <SidebarTrigger />
       <Separator
         orientation="vertical"
         className="data-[orientation=vertical]:h-4"

@@ -57,7 +57,7 @@ function DefaultLayout() {
   return (
     <>
       <Header />
-      <div className="flex-1 m-1 mb-2 gap-3 p-3 sm:p-4 border rounded-lg">
+      <div className="flex-1 m-1 mb-2 gap-3 p-2 border rounded-lg">
         <AppRouteTitle />
         <Outlet />
       </div>
