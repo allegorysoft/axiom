@@ -4,8 +4,6 @@ import type { OnChangeFn } from '@tanstack/react-table';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   FilterIcon,
-  FilterResetIcon,
-  FloppyDiskIcon,
   Search,
 } from '@hugeicons/core-free-icons';
 
@@ -63,8 +61,8 @@ export function DataTableFilter({
         <PopoverTrigger
           render={
             <Button variant="outline" className="cursor-pointer">
-              {t('AxiomTheme:Filters')}
               <HugeiconsIcon icon={FilterIcon} />
+              {t('AxiomTheme:Filters')}
             </Button>
           }
         />
@@ -102,13 +100,9 @@ export function DataTableFilter({
                   event.currentTarget.form?.reset();
                 }}
               >
-                <HugeiconsIcon icon={FilterResetIcon} className="mr-2 size-4" />
                 Clear
               </Button>
-              <Button type="submit">
-                <HugeiconsIcon icon={FloppyDiskIcon} className="mr-2 size-4" />
-                Save
-              </Button>
+              <Button type="submit">Save</Button>
             </div>
           </form>
         </PopoverContent>

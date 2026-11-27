@@ -33,8 +33,12 @@ import {
 import { AxiomDataTablePagination } from './pagination/index';
 
 import type { DataTableProps } from './models';
+import { AppPageTitle } from '../app-layout/app-page-title';
 
-export function AxiomDataTable<D extends RowData>(props: DataTableProps<D>) {
+export function AxiomDataTable<D extends RowData>({
+  pageTitle,
+  ...props
+}: DataTableProps<D>) {
   const t = useTranslation();
   const { columnVisibility, setColumnVisibility } = useColumnVisibility();
   const { columnOrder, setColumnOrder, sensors, handleDragEnd } =
@@ -83,8 +87,13 @@ export function AxiomDataTable<D extends RowData>(props: DataTableProps<D>) {
     <>
       <div
         aria-label="Data table options section"
-        className="flex items-center justify-end gap-2 mx-2 sm:mx-0.5"
+        className="flex flex-wrap items-center justify-end gap-2"
       >
+        {pageTitle && (
+          <div className="mr-auto">
+            <AppPageTitle title={pageTitle} />
+          </div>
+        )}
         <DataTableFilter filterOptions={props.filterOptions!} />
 
         <ColumnVisibilitySettings

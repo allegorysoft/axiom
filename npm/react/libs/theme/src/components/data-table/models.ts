@@ -12,6 +12,7 @@ export type DataTableProps<
   D extends RowData,
   F extends TableFeatures = TableFeatures,
 > = TableOptions<F, D> & {
+  pageTitle?: string;
   columnResizing?: boolean;
   filterOptions?: FilterOptions;
   paginationOptions?: PaginationOptions;

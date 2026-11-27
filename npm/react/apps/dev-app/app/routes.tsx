@@ -22,6 +22,7 @@ export const routes = createBrowserRouter([
             children: [
               {
                 path: 'users',
+                handle: { pageTitleInToolbar: true },
                 lazy: () => import('./users/users'),
               },
             ],

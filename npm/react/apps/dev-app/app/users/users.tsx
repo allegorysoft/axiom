@@ -44,8 +44,9 @@ export function Component() {
   };
 
   return (
-    <div className="mx-auto py-2 space-y-4">
+    <div className="space-y-4">
       <AxiomDataTable
+        pageTitle="Users"
         features={axiomDataTableFeatures}
         columns={userColumns}
         data={data}
