@@ -16,7 +16,7 @@ public abstract class SettingModelBuilderContributorBase : IModelBuilderContribu
             return;
         }
 
-        if (SettingDomainPackage.IsSynchronizationEnabled)
+        if (SettingDefaults.IsSynchronizationEnabled)
         {
             builder.Entity<SettingDefinitionRecord>(e =>
             {

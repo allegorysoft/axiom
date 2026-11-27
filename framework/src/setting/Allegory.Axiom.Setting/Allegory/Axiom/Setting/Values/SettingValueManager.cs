@@ -15,7 +15,7 @@ public class SettingValueManager : ISettingValueManager, ISingletonService
 {
     public SettingValueManager(
         IServiceProvider serviceProvider,
-        IOptions<SettingValueOptions> options,
+        IOptions<SettingOptions> options,
         ISettingDefinitionStore settingDefinitionStore,
         IStringEncryptionService stringEncryptionService,
         ISettingValueStore settingValueStore)
@@ -24,7 +24,7 @@ public class SettingValueManager : ISettingValueManager, ISingletonService
         StringEncryptionService = stringEncryptionService;
         SettingValueStore = settingValueStore;
 
-        FillContributors(serviceProvider, options);
+        FillContributors(serviceProvider, options.Value.SettingValue);
     }
 
     protected ImmutableArray<ISettingValueContributor> Contributors { get; private set; }
@@ -186,10 +186,10 @@ public class SettingValueManager : ISettingValueManager, ISingletonService
         return JsonElement.Parse(decrypted);
     }
 
-    private void FillContributors(IServiceProvider serviceProvider, IOptions<SettingValueOptions> options)
+    private void FillContributors(IServiceProvider serviceProvider, SettingValueOptions options)
     {
-        var builder = ImmutableArray.CreateBuilder<ISettingValueContributor>(options.Value.Contributors.Count);
-        foreach (var contributor in options.Value.Contributors.Reverse())
+        var builder = ImmutableArray.CreateBuilder<ISettingValueContributor>(options.Contributors.Count);
+        foreach (var contributor in options.Contributors.Reverse())
         {
             builder.Add(
                 (ISettingValueContributor) ActivatorUtilities.CreateInstance(serviceProvider, contributor));

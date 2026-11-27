@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Allegory.Axiom.Extensibility;
 
 namespace Allegory.Axiom.Setting;
 
-public class SettingValueOptions
+public class SettingValueOptions : IExtraProperties
 {
     private List<Type> _contributors = new();
     public IReadOnlyList<Type> Contributors => _contributors;
+    public IDictionary<string, object> ExtraProperties { get; } = new Dictionary<string, object>();
 
     public void AddContributor<T>(int? index = null) where T : ISettingValueContributor
     {

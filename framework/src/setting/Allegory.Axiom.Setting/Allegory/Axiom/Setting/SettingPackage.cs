@@ -11,12 +11,12 @@ internal sealed class SettingPackage : IConfigureApplication
 {
     public static Task ConfigureAsync(IHostApplicationBuilder builder)
     {
-        builder.Services.Configure<SettingValueOptions>(o =>
+        builder.Services.Configure<SettingOptions>(o =>
         {
-            o.AddContributor<ConfigurationSettingValueContributor>();
-            o.AddContributor<GlobalSettingValueContributor>();
-            o.AddContributor<TenantSettingValueContributor>();
-            o.AddContributor<UserSettingValueContributor>();
+            o.SettingValue.AddContributor<ConfigurationSettingValueContributor>();
+            o.SettingValue.AddContributor<GlobalSettingValueContributor>();
+            o.SettingValue.AddContributor<TenantSettingValueContributor>();
+            o.SettingValue.AddContributor<UserSettingValueContributor>();
         });
 
         builder.Services.Configure<FileProviderOptions>(options => { options.AddEmbedded<SettingPackage>(); });
