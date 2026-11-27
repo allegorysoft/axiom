@@ -3,7 +3,10 @@
 import type { Column, RowData, TableFeatures } from '@tanstack/react-table';
 
 import { HugeiconsIcon } from '@hugeicons/react';
-import { FilterHorizontalIcon, RefreshCcwIcon } from '@hugeicons/core-free-icons';
+import {
+  FilterHorizontalIcon,
+  RefreshCcwIcon,
+} from '@hugeicons/core-free-icons';
 
 import { useTranslation } from '@axiomframework/react-core';
 

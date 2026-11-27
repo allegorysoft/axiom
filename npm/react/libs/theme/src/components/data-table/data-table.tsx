@@ -65,7 +65,7 @@ export function AxiomDataTable<D extends RowData>({
   const rows = table?.getRowModel()?.rows;
   const visibleColumns = table.getVisibleLeafColumns();
   const actionsWidth = visibleColumns.some((column) => column.id === 'actions')
-    ? 120
+    ? 112
     : 0;
   const dataWidth = visibleColumns.reduce(
     (total, column) => total + (column.id === 'actions' ? 0 : column.getSize()),
@@ -94,7 +94,7 @@ export function AxiomDataTable<D extends RowData>({
   return (
     <div
       data-slot="data-table"
-      className="min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card text-card-foreground"
+      className="min-w-0 overflow-hidden rounded-xl border border-border/70 bg-card text-card-foreground in-data-[radius=lg]:rounded-[26px]"
     >
       <div
         aria-label="Data table options section"

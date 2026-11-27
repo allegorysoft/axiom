@@ -50,6 +50,7 @@ export function Component() {
         features={axiomDataTableFeatures}
         columns={userColumns}
         data={data}
+        columnResizing={true}
         filterOptions={{
           title: 'User list',
           description: 'Filter user list entity',

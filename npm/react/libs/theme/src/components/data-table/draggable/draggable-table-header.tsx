@@ -57,13 +57,7 @@ export function DraggableTableHeader<D extends RowData>({
       style={style}
     >
       <div className="flex items-center gap-1">
-        <div
-          className={
-            header.column.id === 'actions'
-              ? 'shrink-0'
-              : 'min-w-0 flex-1 truncate'
-          }
-        >
+        <div className="min-w-0 flex-1 truncate">
           {header.isPlaceholder ? null : table.FlexRender({ header })}
         </div>
         <Button

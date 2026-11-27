@@ -69,10 +69,11 @@ export function DataTableFilter({
 
         <PopoverContent
           align="end"
+          initialFocus={false}
           className="max-h-[min(32rem,80vh)] w-[min(35rem,calc(100vw-2rem))] overflow-y-auto"
         >
           {(filterOptions?.title || filterOptions?.description) && (
-            <PopoverHeader>
+            <PopoverHeader className="px-1">
               <PopoverTitle>{filterOptions?.title}</PopoverTitle>
               <PopoverDescription>
                 {filterOptions?.description}
@@ -85,13 +86,13 @@ export function DataTableFilter({
             autoComplete="off"
             onSubmit={filterOptions.onSubmit}
           >
+            {(filterOptions.title || filterOptions.description) && <Separator />}
+
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {filterOptions.content}
             </div>
 
-            <Separator />
-
-            <div className="col-span-full flex justify-end gap-1">
+            <div className="col-span-full flex justify-end gap-[10px]">
               <Button
                 type="button"
                 variant="outline"

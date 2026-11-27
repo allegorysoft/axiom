@@ -33,7 +33,7 @@ export function AppLayout() {
       <SettingsDialogProvider>
         <AppSidebar />
 
-        <SidebarInset className="md:peer-data-[variant=floating]:mr-[calc(var(--spacing)-1px)] md:peer-data-[variant=inset]:mr-1">
+        <SidebarInset className="md:peer-data-[variant=sidebar]:mx-[calc(var(--spacing)*2-1px)] md:peer-data-[variant=floating]:mr-[calc(var(--spacing)*2-1px)] md:peer-data-[variant=floating]:peer-data-[state=collapsed]:mr-[calc(var(--spacing)*2-3px)] md:peer-data-[variant=inset]:ml-1 md:peer-data-[variant=inset]:px-1 md:peer-data-[variant=inset]:[&>footer]:-mx-1 md:peer-data-[variant=inset]:[&>footer]:px-1.5 md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-[calc(var(--spacing)+2px)]">
           {layout === 'default' ? (
             <DefaultLayout />
           ) : (
@@ -42,7 +42,7 @@ export function AppLayout() {
             </AppTabLayout>
           )}
 
-          <footer className="mb-2 shrink-0 sticky bottom-0 px-0.5">
+          <footer className="mb-2 shrink-0 sticky bottom-0 border-t border-border/70 px-0.5 pt-1">
             <AppBreadcrumb />
           </footer>
         </SidebarInset>
