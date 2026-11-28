@@ -25,6 +25,21 @@ export const routes = createBrowserRouter([
                 handle: { pageTitleInToolbar: true },
                 lazy: () => import('./users/users'),
               },
+              {
+                path: 'roles',
+                handle: { pageTitleInToolbar: true },
+                lazy: () => import('./routes/roles'),
+              },
+            ],
+          },
+          {
+            path: 'tenant-management',
+            children: [
+              {
+                path: 'tenants',
+                handle: { pageTitleInToolbar: true },
+                lazy: () => import('./routes/tenants'),
+              },
             ],
           },
           {

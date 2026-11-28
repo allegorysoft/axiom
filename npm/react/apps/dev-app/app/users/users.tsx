@@ -1,86 +1,37 @@
-'use client';
-
-import { useState } from 'react';
-import {
-  AxiomDataTable,
-  axiomDataTableFeatures,
-  Field,
-  FieldGroup,
-  FieldLabel,
-  Input,
-} from '@axiomframework/react-theme/components';
-
-import { userColumns } from './user-columns';
+import { FilteredDataTable } from '../filtered-data-table';
+import { roleColumns, userColumns } from './user-columns';
 import { type AppUser, DATA } from './data';
 
-type FilterType = Partial<Record<keyof AppUser, string>>;
-const filterFields: (keyof AppUser)[] = [
+const userFields = [
   'name',
   'surname',
   'email',
   'birthDate',
   'address',
-];
+] as const;
+const roleFields = ['name', 'surname', 'email', 'role'] as const;
 
 export function Component() {
-  const [filters, setFilters] = useState<FilterType>({});
-  const data = DATA.filter((user) =>
-    filterFields.every((field) =>
-      String(user[field] ?? '')
-        .toLowerCase()
-        .includes((filters[field] ?? '').toLowerCase()),
-    ),
-  );
-
-  const onFilterSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.currentTarget);
-    setFilters(
-      Object.fromEntries(
-        filterFields.map((field) => [field, String(formData.get(field) ?? '')]),
-      ),
-    );
-  };
-
-  return (
-    <div className="space-y-4">
-      <AxiomDataTable
-        pageTitle="Users"
-        features={axiomDataTableFeatures}
-        columns={userColumns}
-        data={data}
-        columnResizing={true}
-        filterOptions={{
-          title: 'User list',
-          description: 'Filter user list entity',
-          content: <Filter filters={filters} />,
-          onSubmit: onFilterSubmit,
-          onClear: () => setFilters({}),
-        }}
-        paginationOptions={{ showNavigationButtons: true }}
-        initialState={{ pagination: { pageIndex: 0, pageSize: 5 } }}
-      />
-    </div>
-  );
+  return <UsersTable data={DATA} />;
 }
 
-function Filter({ filters }: { filters: FilterType }) {
+export function UsersTable({
+  data,
+  showRole = false,
+}: {
+  data: readonly AppUser[];
+  showRole?: boolean;
+}) {
   return (
-    <>
-      {filterFields.map((field) => (
-        <FieldGroup key={field}>
-          <Field id={field} className="capitalize">
-            <FieldLabel htmlFor={field}>{field}</FieldLabel>
-            <Input
-              id={field}
-              name={field}
-              placeholder={field}
-              defaultValue={filters[field] ?? ''}
-            />
-          </Field>
-        </FieldGroup>
-      ))}
-    </>
+    <FilteredDataTable<AppUser>
+      data={data}
+      pageTitle={showRole ? 'Roles' : 'Users'}
+      columns={showRole ? roleColumns : userColumns}
+      fields={showRole ? roleFields : userFields}
+      filterTitle={showRole ? 'Role list' : 'User list'}
+      filterDescription={
+        showRole ? 'Filter users by role' : 'Filter user list entity'
+      }
+    />
   );
 }

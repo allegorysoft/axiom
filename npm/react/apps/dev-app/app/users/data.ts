@@ -5,6 +5,7 @@ export type AppUser = {
   email?: string;
   birthDate: string;
   address?: string;
+  role?: string;
 };
 
 export const DATA: readonly AppUser[] = [

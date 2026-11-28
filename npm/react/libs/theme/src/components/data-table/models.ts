@@ -14,6 +14,7 @@ export type DataTableProps<
 > = TableOptions<F, D> & {
   pageTitle?: string;
   columnResizing?: boolean;
+  showColumnDividers?: boolean;
   filterOptions?: FilterOptions;
   paginationOptions?: PaginationOptions;
   load?: (model: DataTableLoad) => void;

@@ -38,6 +38,7 @@ import { AppPageTitle } from '../app-layout/app-page-title';
 
 export function AxiomDataTable<D extends RowData>({
   pageTitle,
+  showColumnDividers = true,
   ...props
 }: DataTableProps<D>) {
   const t = useTranslation();
@@ -127,7 +128,8 @@ export function AxiomDataTable<D extends RowData>({
       <div className="@container">
         <DataTableDndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <Table
-            className="table-fixed [&_td]:px-4 [&_th]:px-4"
+            data-column-dividers={showColumnDividers}
+            className="table-fixed [&_td]:px-4 [&_th]:px-4 data-[column-dividers=false]:[&_:is(th,td)]:before:hidden"
             style={{
               width:
                 dataWidth > 0
