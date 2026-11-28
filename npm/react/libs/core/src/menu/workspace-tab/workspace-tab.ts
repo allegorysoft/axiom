@@ -6,6 +6,7 @@ export interface WorkspaceTab extends InternalWorkspaceTab {
   url: string;
   empty?: boolean;
   ephemeral?: boolean;
+  pinned?: boolean;
 }
 
 export type WorkspaceTabState = {

@@ -21,7 +21,9 @@ export const workspaceTabStore: WorkspaceTabStore = Object.assign(
 
     add(tab: WorkspaceTab): void {
       const emptyTab =
-        tab.empty && baseStore.get().tabs.find((item) => item.empty);
+        tab.empty &&
+        !tab.pinned &&
+        baseStore.get().tabs.find((item) => item.empty && !item.pinned);
       if (emptyTab) {
         this.setActive(emptyTab.url);
         return;
@@ -34,8 +36,9 @@ export const workspaceTabStore: WorkspaceTabStore = Object.assign(
       baseStore.set((prev) => {
         const ephemeral =
           tab.ephemeral &&
-          (prev.tabs.find((item) => item.active && item.empty) ??
-            prev.tabs.find((item) => item.ephemeral));
+          !tab.pinned &&
+          (prev.tabs.find((item) => item.active && item.empty && !item.pinned) ??
+            prev.tabs.find((item) => item.ephemeral && !item.pinned));
 
         const newTab = { ...tab, active: tab.active || prev.tabs.length === 0 };
 
@@ -46,16 +49,24 @@ export const workspaceTabStore: WorkspaceTabStore = Object.assign(
               ? { ...existing, active: false }
               : existing,
         );
-        return { tabs: ephemeral ? tabs : [...tabs, newTab] };
+        const nextTabs = ephemeral ? tabs : [...tabs, newTab];
+        return { tabs: newTab.pinned ? pinnedFirst(nextTabs) : nextTabs };
       });
     },
 
     patch(url: string, changes: Partial<WorkspaceTab>): void {
-      baseStore.set((prev) => ({
-        tabs: prev.tabs.map((tab) =>
-          equals(tab.url, url) ? { ...tab, ...changes } : tab,
-        ),
-      }));
+      baseStore.set((prev) => {
+        const tabs = prev.tabs.map((tab) =>
+          equals(tab.url, url)
+            ? {
+                ...tab,
+                ...changes,
+                ...(changes.pinned && { ephemeral: false }),
+              }
+            : tab,
+        );
+        return { tabs: 'pinned' in changes ? pinnedFirst(tabs) : tabs };
+      });
     },
 
     setActive(url: string): void {
@@ -86,6 +97,10 @@ export const workspaceTabStore: WorkspaceTabStore = Object.assign(
     },
   },
 );
+
+function pinnedFirst(tabs: WorkspaceTab[]): WorkspaceTab[] {
+  return tabs.sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)));
+}
 
 function find(url: string, tabs: WorkspaceTab[]): WorkspaceTab | undefined {
   return tabs.find((tab) => equals(tab.url, url));
