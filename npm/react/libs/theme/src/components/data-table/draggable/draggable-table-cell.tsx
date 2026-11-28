@@ -11,23 +11,28 @@ import { CSS } from '@dnd-kit/utilities';
 import { useSortable } from '@dnd-kit/sortable';
 
 import { TableCell } from '../../ui/table';
+import { isFixedOrderColumn, isSelectionColumn } from '../data-table-utils';
 
 type Props<D extends RowData> = { cell: Cell<TableFeatures, D, unknown> };
 
 export function DraggableCell<D extends RowData>({ cell }: Props<D>) {
+  const fixed = isFixedOrderColumn(cell.column.columnDef);
+  const selection = isSelectionColumn(cell.column.columnDef);
   const { isDragging, setNodeRef, transform, transition } = useSortable({
     id: cell.column.id,
+    disabled: { draggable: fixed, droppable: fixed },
   });
 
+  const width = (
+    cell.column as typeof cell.column & Column_ColumnSizing
+  ).getSize();
   const style: CSSProperties = {
+    height: selection ? width : undefined,
+    paddingInline: selection ? 0 : undefined,
     opacity: isDragging ? 0.8 : 1,
     position: 'relative',
     transform: CSS.Translate.toString(transform),
     transition,
-    width:
-      cell.column.id === 'actions'
-        ? '1%'
-        : (cell.column as typeof cell.column & Column_ColumnSizing).getSize(),
     zIndex: isDragging ? 1 : 0,
   };
 

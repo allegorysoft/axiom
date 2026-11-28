@@ -14,12 +14,16 @@ import {
 import { arrayMove } from '@dnd-kit/sortable';
 
 import type { DataTableProps } from '../models';
+import { isFixedOrderColumn } from '../data-table-utils';
 
 export function useColumnOrder<D extends RowData>(
   columns: DataTableProps<D>['columns'],
 ) {
   const [columnOrder, setColumnOrder] = useState(
     columns.map((column) => column.id as string),
+  );
+  const fixedIds = new Set(
+    columns.filter(isFixedOrderColumn).map((column) => column.id),
   );
 
   const sensors = useSensors(
@@ -31,12 +35,18 @@ export function useColumnOrder<D extends RowData>(
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
-    if (active && over && active.id !== over.id) {
+    if (over && active.id !== over.id) {
       setColumnOrder((currentOrder) => {
-        const oldIndex = currentOrder.indexOf(active.id as string);
-        const newIndex = currentOrder.indexOf(over.id as string);
+        const sortableIds = currentOrder.filter((id) => !fixedIds.has(id));
+        const oldIndex = sortableIds.indexOf(active.id as string);
+        const newIndex = sortableIds.indexOf(over.id as string);
+        if (oldIndex < 0 || newIndex < 0) return currentOrder;
 
-        return arrayMove(currentOrder, oldIndex, newIndex);
+        const reordered = arrayMove(sortableIds, oldIndex, newIndex);
+        let index = 0;
+        return currentOrder.map((id) =>
+          fixedIds.has(id) ? id : reordered[index++],
+        );
       });
     }
   }

@@ -30,7 +30,8 @@ export function createDataTableActionsColumn<D extends RowData>(
 
   return columnHelper.display({
     id: 'actions',
-    maxSize: 50,
+    size: 80,
+    enableResizing: false,
     header: DataTableActionsHeader,
     cell: ({ row }) => (
       <DataTableActionsCell actions={actions} data={row.original} />
@@ -51,7 +52,7 @@ function DataTableActionsCell<D extends RowData>({ actions, data }: Props<D>) {
   const t = useTranslation();
 
   return (
-    <div className="flex">
+    <div className="flex justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger
           render={

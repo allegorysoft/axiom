@@ -16,9 +16,12 @@ export function createDataTableSelectColumn<D extends RowData>(
 
   return columnHelper.display({
     id: options.id ?? 'select',
-    maxSize: 60,
+    meta: { fixedSelection: true },
+    size: 44,
+    enableResizing: false,
     header: ({ table }) => (
       <Checkbox
+        className="mx-auto"
         checked={table.getIsAllPageRowsSelected()}
         indeterminate={
           table.getIsSomePageRowsSelected() && !table.getIsAllPageRowsSelected()
@@ -29,6 +32,7 @@ export function createDataTableSelectColumn<D extends RowData>(
     ),
     cell: ({ row }) => (
       <Checkbox
+        className="mx-auto"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label={options.selectRowLabel ?? 'Select row'}

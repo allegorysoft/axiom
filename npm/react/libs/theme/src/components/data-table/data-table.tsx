@@ -33,6 +33,7 @@ import {
 import { AxiomDataTablePagination } from './pagination/index';
 
 import type { DataTableProps } from './models';
+import { isFixedOrderColumn } from './data-table-utils';
 import { AppPageTitle } from '../app-layout/app-page-title';
 
 export function AxiomDataTable<D extends RowData>({
@@ -64,11 +65,21 @@ export function AxiomDataTable<D extends RowData>({
   const columns = table.getAllColumns().filter((column) => column.getCanHide());
   const rows = table?.getRowModel()?.rows;
   const visibleColumns = table.getVisibleLeafColumns();
-  const actionsWidth = visibleColumns.some((column) => column.id === 'actions')
-    ? 112
-    : 0;
+  const sortableOrder = visibleColumns
+    .filter((column) => !isFixedOrderColumn(column.columnDef))
+    .map((column) => column.id);
+  const fixedWidths = new Map(
+    visibleColumns
+      .filter((column) => isFixedOrderColumn(column.columnDef))
+      .map((column) => [column.id, column.getSize()]),
+  );
+  const fixedWidth = Array.from(fixedWidths.values()).reduce(
+    (total, width) => total + width,
+    0,
+  );
   const dataWidth = visibleColumns.reduce(
-    (total, column) => total + (column.id === 'actions' ? 0 : column.getSize()),
+    (total, column) =>
+      total + (fixedWidths.has(column.id) ? 0 : column.getSize()),
     0,
   );
 
@@ -113,18 +124,23 @@ export function AxiomDataTable<D extends RowData>({
         />
       </div>
 
-      <div>
+      <div className="@container">
         <DataTableDndContext onDragEnd={handleDragEnd} sensors={sensors}>
           <Table
             className="table-fixed [&_td]:px-4 [&_th]:px-4"
-            style={{ minWidth: dataWidth + actionsWidth }}
+            style={{
+              width:
+                dataWidth > 0
+                  ? `max(100cqw, ${dataWidth + fixedWidth}px)`
+                  : fixedWidth || undefined,
+            }}
           >
             <colgroup>
               {visibleColumns.map((column) => {
                 const fraction = column.getSize() / dataWidth;
-                const width = column.id === 'actions'
-                  ? actionsWidth
-                  : `calc(${fraction * 100}% - ${fraction * actionsWidth}px)`;
+                const width =
+                  fixedWidths.get(column.id) ??
+                  `max(${column.getSize()}px, calc(${fraction * 100}cqw - ${fraction * fixedWidth}px))`;
 
                 return <col key={column.id} style={{ width }} />;
               })}
@@ -136,7 +152,7 @@ export function AxiomDataTable<D extends RowData>({
                   className="border-border/70 hover:bg-transparent [&>th]:border-t-0"
                 >
                   <SortableContext
-                    items={columnOrder}
+                    items={sortableOrder}
                     strategy={horizontalListSortingStrategy}
                   >
                     {headerGroup.headers.map((header) => (
@@ -177,15 +193,14 @@ export function AxiomDataTable<D extends RowData>({
                     className="border-border/50"
                     data-state={row.getIsSelected?.() && 'selected'}
                   >
-                    {cells.map((cell) => (
-                      <SortableContext
-                        key={cell.id}
-                        items={columnOrder}
-                        strategy={horizontalListSortingStrategy}
-                      >
+                    <SortableContext
+                      items={sortableOrder}
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      {cells.map((cell) => (
                         <DraggableCell key={cell.id} cell={cell} />
-                      </SortableContext>
-                    ))}
+                      ))}
+                    </SortableContext>
                   </TableRow>
                 );
               })}

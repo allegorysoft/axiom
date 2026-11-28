@@ -15,6 +15,7 @@ import { useSortable } from '@dnd-kit/sortable';
 
 import { TableHead } from '../../ui/table';
 import { Button } from '../../ui/button';
+import { isFixedOrderColumn, isSelectionColumn } from '../data-table-utils';
 
 type Props<D extends RowData> = {
   header: Header<TableFeatures, D, unknown>;
@@ -26,6 +27,8 @@ export function DraggableTableHeader<D extends RowData>({
   table,
   columnResizing,
 }: Props<D>) {
+  const fixed = isFixedOrderColumn(header.column.columnDef);
+  const selection = isSelectionColumn(header.column.columnDef);
   const {
     attributes,
     isDragging,
@@ -35,15 +38,17 @@ export function DraggableTableHeader<D extends RowData>({
     transition,
   } = useSortable({
     id: header.column.id,
+    disabled: { draggable: fixed, droppable: fixed },
   });
 
   const style: CSSProperties = {
+    height: selection ? header.getSize() : undefined,
+    paddingInline: selection ? 0 : undefined,
     opacity: isDragging ? 0.8 : 1,
     position: 'relative',
     transform: CSS.Translate.toString(transform),
     transition,
     whiteSpace: 'nowrap',
-    width: header.column.id === 'actions' ? '1%' : header.getSize(),
     zIndex: isDragging ? 1 : 0,
   };
 
@@ -60,16 +65,18 @@ export function DraggableTableHeader<D extends RowData>({
         <div className="min-w-0 flex-1 truncate">
           {header.isPlaceholder ? null : table.FlexRender({ header })}
         </div>
-        <Button
-          size="icon"
-          variant="ghost"
-          className={`size-7 shrink-0 cursor-grab active:cursor-grabbing ${isDragging ? '' : 'pointer-fine:pointer-events-none pointer-fine:opacity-0 pointer-fine:group-hover/head:pointer-events-auto pointer-fine:group-hover/head:opacity-100 focus-visible:opacity-100'}`}
-          {...attributes}
-          {...listeners}
-          aria-label="Drag to reorder"
-        >
-          <HugeiconsIcon icon={ArrowLeftRightIcon} aria-hidden="true" />
-        </Button>
+        {!fixed && (
+          <Button
+            size="icon"
+            variant="ghost"
+            className={`size-7 shrink-0 cursor-grab active:cursor-grabbing ${isDragging ? '' : 'pointer-fine:pointer-events-none pointer-fine:opacity-0 pointer-fine:group-hover/head:pointer-events-auto pointer-fine:group-hover/head:opacity-100 focus-visible:opacity-100'}`}
+            {...attributes}
+            {...listeners}
+            aria-label="Drag to reorder"
+          >
+            <HugeiconsIcon icon={ArrowLeftRightIcon} aria-hidden="true" />
+          </Button>
+        )}
       </div>
 
       {canResize && (
